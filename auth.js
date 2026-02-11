@@ -64,7 +64,7 @@
 
             // Hardcoded valid password (simple hash check would be better but keeping it simple)
             // Default Password: 'qware'
-            const VALID_PASS = ['qware', 'admin888'];
+            const VALID_PASS = ['07328402'];
 
             function attemptLogin() {
                 const val = input.value.trim();
