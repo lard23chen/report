@@ -356,6 +356,23 @@ async function generateReport() {
         </table>
     </div>
 
+    <!-- Top 5 Events Table (By Tickets) -->
+    <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🎟️ 銷售排行 Top 5 (By Tickets)</h3>
+        <table id="topTicketsEventsTable">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">Rank</th>
+                    <th>節目名稱</th>
+                    <th class="text-right">筆數 (Orders)</th>
+                    <th class="text-right">張數 (Tickets)</th>
+                    <th class="text-right">金額 (Revenue)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
     <!-- Top 5 Refund Events Table -->
     <div class="table-container">
         <h3 style="color: #c62828; border-bottom: 2px solid #c62828; padding-bottom: 10px;">📉 退票排行 Top 5 (By Refund Amount)</h3>
@@ -804,6 +821,8 @@ async function generateReport() {
             eventStats[name].revenue += price;
         });
 
+        });
+        
         const topEvents = Object.entries(eventStats)
             .map(([name, stats]) => ({
                 name,
@@ -830,6 +849,32 @@ async function generateReport() {
                 <td class="text-right" style="color:#888;">\${ev.share}%</td>
             \`;
             topTableBody.appendChild(tr);
+        });
+
+        // 2b-2. Top 5 Events Logic (By Tickets)
+        const topTicketEvents = Object.entries(eventStats)
+            .map(([name, stats]) => ({
+                name,
+                orderCount: stats.orders.size,
+                ticketCount: stats.tickets,
+                revenue: stats.revenue
+            }))
+            .sort((a, b) => b.ticketCount - a.ticketCount)
+            .slice(0, 5);
+
+        const topTicketsTableBody = document.querySelector('#topTicketsEventsTable tbody');
+        topTicketEvents.forEach((ev, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = \`
+                <td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${index + 1}</span></td>
+                <td>
+                    <span class="analysis-link" onclick="analyzeEvent('\${ev.name}')">\${ev.name}</span>
+                </td>
+                <td class="text-right">\${ev.orderCount.toLocaleString()}</td>
+                <td class="text-right" style="color: var(--accent-color); font-weight:bold;">\${ev.ticketCount.toLocaleString()}</td>
+                <td class="text-right">NT$ \${ev.revenue.toLocaleString()}</td>
+            \`;
+            topTicketsTableBody.appendChild(tr);
         });
 
         // 2c. Top 5 Refund Events Logic
