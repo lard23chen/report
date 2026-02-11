@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qware 互動式營收報表</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fce4ec; /* Light pink background */
+            --card-bg: #ffffff;
+            --text-primary: #880e4f; /* Dark pink text */
+            --text-secondary: #ad1457;
+            --accent-color: #d81b60;
+            --shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card .value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            height: 400px;
+            position: relative;
+        }
+
+        .data-table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #f8bbd0;
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #fce4ec;
+        }
+
+        /* Loading */
+        #loading {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            font-size: 1.5em;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+<div id="loading">載入資料中...</div>
+
+<div class="container">
+    <header>
+        <h1>Qware Dashboard 營收看板</h1>
+        <div id="last-updated">更新時間: ...</div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="card">
+            <h3>總銷售額 (Total Revenue)</h3>
+            <div class="value" id="total-revenue">NT$ 0</div>
+        </div>
+        <div class="card">
+            <h3>總訂單數 (Total Orders)</h3>
+            <div class="value" id="total-orders">0</div>
+        </div>
+        <div class="card">
+            <h3>退票金額 (Refunds)</h3>
+            <div class="value" id="total-refunds">NT$ 0</div>
+        </div>
+        <div class="card">
+            <h3>平均客單價 (AOV)</h3>
+            <div class="value" id="avg-order-value">NT$ 0</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-container">
+            <canvas id="salesTrendChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="productMixChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="charts-grid">
+         <div class="chart-container">
+            <canvas id="dailySalesChart"></canvas>
+         </div>
+    </div>
+
+    <div class="data-table-container">
+        <h3>近期訂單 (Recent Orders)</h3>
+        <table id="orders-table">
+            <thead>
+                <tr>
+                    <th>訂單編號</th>
+                    <th>時間</th>
+                    <th>商品名稱</th>
+                    <th>金額</th>
+                    <th>狀態</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows injected by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    async function initDashboard() {
+        try {
+            const response = await axios.get('/api/dashboard-data');
+            const data = response.data;
+            
+            processData(data);
+            document.getElementById('loading').style.display = 'none';
+        } catch (error) {
+            console.error(error);
+            document.getElementById('loading').textContent = 'Error loading data.';
+        }
+    }
+
+    function processData(data) {
+        // --- 1. Key Metrics ---
+        const totalRevenue = data.reduce((sum, item) => sum + (item['售價'] || 0), 0);
+        const totalRefunds = data.reduce((sum, item) => sum + (item['退票手續費'] || 0), 0); // Assuming refunds are tracked here or logic needed
+        // Note: '退票手續費' might just be the fee. If '退票方式' is not "-", maybe we should check that.
+        // For now, let's use sum of price.
+        
+        const validOrders = data.filter(d => d['狀態'] === '正常');
+        const validRevenue = validOrders.reduce((sum, item) => sum + (item['售價'] || 0), 0);
+        
+        document.getElementById('total-revenue').innerText = `NT$ ${validRevenue.toLocaleString()}`;
+        document.getElementById('total-orders').innerText = data.length.toLocaleString();
+        document.getElementById('total-refunds').innerText = `NT$ ${totalRefunds.toLocaleString()}`; // Just showing fee for now
+        document.getElementById('avg-order-value').innerText = `NT$ ${(data.length ? Math.round(validRevenue / data.length) : 0).toLocaleString()}`;
+        document.getElementById('last-updated').innerText = `更新時間: ${new Date().toLocaleString()}`;
+
+        // --- 2. Sales Trend (By Day) ---
+        // Group by Date (YYYY-MM-DD)
+        const salesByDate = {};
+        data.forEach(item => {
+            if (!item['交易時間']) return;
+            const dateStr = item['交易時間'].split(' ')[0]; // "2026-01-01"
+            salesByDate[dateStr] = (salesByDate[dateStr] || 0) + (item['售價'] || 0);
+        });
+
+        const sortedDates = Object.keys(salesByDate).sort();
+        const salesValues = sortedDates.map(d => salesByDate[d]);
+
+        new Chart(document.getElementById('salesTrendChart'), {
+            type: 'line',
+            data: {
+                labels: sortedDates,
+                datasets: [{
+                    label: '每日營收 (Daily Revenue)',
+                    data: salesValues,
+                    borderColor: '#d81b60',
+                    backgroundColor: 'rgba(216, 27, 96, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: '營收趨勢 (Sales Trend)' }
+                }
+            }
+        });
+
+         // --- 3. Daily Sales Bar Chart ---
+         new Chart(document.getElementById('dailySalesChart'), {
+            type: 'bar',
+            data: {
+                labels: sortedDates,
+                datasets: [{
+                    label: '每日銷售額',
+                    data: salesValues,
+                    backgroundColor: '#ad1457',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                 plugins: {
+                    title: { display: true, text: '每日銷售額詳細 (Daily Breakdown)' }
+                }
+            }
+        });
+
+
+        // --- 4. Product Mix (Top 5) ---
+        const productSales = {};
+        data.forEach(item => {
+            const name = item['節目商品名稱'] || 'Unknown';
+            productSales[name] = (productSales[name] || 0) + (item['售價'] || 0);
+        });
+
+        const sortedProducts = Object.entries(productSales).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        
+        new Chart(document.getElementById('productMixChart'), {
+            type: 'doughnut',
+            data: {
+                labels: sortedProducts.map(p => p[0].substring(0, 15) + '...'),
+                datasets: [{
+                    data: sortedProducts.map(p => p[1]),
+                    backgroundColor: ['#880e4f', '#ad1457', '#c2185b', '#d81b60', '#e91e63'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: '熱銷商品 (Top Products)' },
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        // --- 5. Populate Table ---
+        const tbody = document.querySelector('#orders-table tbody');
+        data.slice(0, 20).forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item['訂單編號']}</td>
+                <td>${item['交易時間']}</td>
+                <td>${item['節目商品名稱']}</td>
+                <td>NT$ ${item['售價']}</td>
+                <td><span style="padding: 4px 8px; background: ${item['狀態'] === '正常' ? '#e8f5e9' : '#ffebee'}; color: ${item['狀態'] === '正常' ? '#2e7d32' : '#c62828'}; border-radius: 4px;">${item['狀態']}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    initDashboard();
+</script>
+
+</body>
+</html>
