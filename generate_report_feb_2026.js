@@ -496,7 +496,7 @@ async function generateReport() {
 </div>
 
 <script>
-    const dbData = ${JSON.stringify(data)};
+    const dbData = '__DB_DATA_PLACEHOLDER__';
 
     // Charts Storage to destroy before reuse
     let modalPriceChart = null;
@@ -1162,9 +1162,28 @@ async function generateReport() {
 
         const safeTitle = fileTitle.replace(/ /g, '_').replace(/[\u4e00-\u9fa5]/g, (match) => match).replace(/[^a-zA-Z0-9_\u4e00-\u9fa5-]/g, '');
         const fileName = `A_Qware_Revenue_Report_${safeTitle}.html`;
-        const filePath = path.join(__dirname, 'report', fileName);
+        // Write directly to root to avoid move issues
+        const filePath = path.join(__dirname, fileName);
 
-        fs.writeFileSync(filePath, htmlContent);
+        // Escape potential script tags in data to prevent breakage
+        const safeData = JSON.stringify(data).replace(/<\/script>/g, '<\\/script>');
+
+        // Inject safe data
+        const finalHtml = htmlContent.replace("'__DB_DATA_PLACEHOLDER__'", safeData);
+
+        // Add Error Handling Script at the top of body
+        const errorScript = `
+        <script>
+            window.onerror = function(msg, url, line, col, error) {
+                alert("Report Error: " + msg + "\\nLine: " + line);
+                console.error("Report Error:", msg, error);
+                return false;
+            };
+        </script>
+        `;
+        const htmlWithDebug = finalHtml.replace('<body>', '<body>' + errorScript);
+
+        fs.writeFileSync(filePath, '\ufeff' + htmlWithDebug); // Add BOM for Chinese char safety
         console.log(`Report generated successfully: ${filePath}`);
 
     } catch (e) {
