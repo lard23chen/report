@@ -821,8 +821,7 @@ async function generateReport() {
             eventStats[name].revenue += price;
         });
 
-        });
-        
+
         const topEvents = Object.entries(eventStats)
             .map(([name, stats]) => ({
                 name,
