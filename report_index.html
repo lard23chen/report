@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 
 <head>
@@ -301,6 +301,34 @@
                 -webkit-overflow-scrolling: touch;
             }
         }
+
+        .change-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+        .change-up {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .change-down {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .change-note {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            opacity: 0.6;
+            display: block;
+            margin-top: 2px;
+        }
     </style>
 </head>
 
@@ -331,7 +359,7 @@
                     📊 月份交易統計 <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">(Monthly
                         Statistics)</span>
                 </h3>
-                <span style="font-size: 0.85rem; color: var(--text-secondary);">Last Updated: 2026/2/9 上午10:15:33</span>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">Last Updated: 2026/2/11 下午4:46:00</span>
             </div>
 
             <div style="overflow-x: auto;">
@@ -364,103 +392,107 @@
                     </thead>
                     <tbody>
 
-
+                        <!-- 2026-02 vs 2026-01 -->
                         <tr style="transition: background-color 0.2s;">
                             <td
                                 style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
-                                2026-02</td>
+                                2026-02 <span class="change-note">* 截至 2/10</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                5,694</td>
+                                5,694 <span class="change-badge change-down">▼ 72.1%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
-                                10,744</td>
+                                10,744 <span class="change-badge change-down">▼ 76.6%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                NT$ 21,094,759</td>
+                                NT$ 21,094,759 <span class="change-badge change-down">▼ 76.7%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                568</td>
+                                568 <span class="change-badge change-down">▼ 81.3%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                769</td>
+                                769 <span class="change-badge change-down">▼ 80.0%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                NT$ 119,328</td>
+                                NT$ 119,328 <span class="change-badge change-down">▼ 85.1%</span></td>
                         </tr>
 
+                        <!-- 2026-01 vs 2025-12 -->
                         <tr style="transition: background-color 0.2s;">
                             <td
                                 style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
                                 2026-01</td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                20,407</td>
+                                20,407 <span class="change-badge change-down">▼ 56.4%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
-                                45,982</td>
+                                45,982 <span class="change-badge change-down">▼ 46.9%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                NT$ 90,400,632</td>
+                                NT$ 90,400,632 <span class="change-badge change-down">▼ 67.5%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                3,043</td>
+                                3,043 <span class="change-badge change-down">▼ 58.5%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                3,849</td>
+                                3,849 <span class="change-badge change-down">▼ 63.3%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                NT$ 801,783</td>
+                                NT$ 801,783 <span class="change-badge change-down">▼ 37.4%</span></td>
                         </tr>
 
+                        <!-- 2025-12 vs 2025-11 -->
                         <tr style="transition: background-color 0.2s;">
                             <td
                                 style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
                                 2025-12</td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                46,788</td>
+                                46,788 <span class="change-badge change-up">▲ 211.4%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
-                                86,599</td>
+                                86,599 <span class="change-badge change-up">▲ 246.7%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                NT$ 278,252,598</td>
+                                NT$ 278,252,598 <span class="change-badge change-up">▲ 400.7%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                7,341</td>
+                                7,341 <span class="change-badge change-up">▲ 226.1%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                10,484</td>
+                                10,484 <span class="change-badge change-up">▲ 269.3%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                NT$ 1,281,708</td>
+                                NT$ 1,281,708 <span class="change-badge change-up">▲ 140.1%</span></td>
                         </tr>
 
+                        <!-- 2025-11 vs 2025-10 -->
                         <tr style="transition: background-color 0.2s;">
                             <td
                                 style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
                                 2025-11</td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                15,025</td>
+                                15,025 <span class="change-badge change-down">▼ 17.4%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
-                                24,981</td>
+                                24,981 <span class="change-badge change-down">▼ 35.2%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                NT$ 55,569,790</td>
+                                NT$ 55,569,790 <span class="change-badge change-down">▼ 46.1%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                2,251</td>
+                                2,251 <span class="change-badge change-up">▲ 100.4%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                2,839</td>
+                                2,839 <span class="change-badge change-up">▲ 98.4%</span></td>
                             <td
                                 style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                NT$ 533,821</td>
+                                NT$ 533,821 <span class="change-badge change-up">▲ 70.2%</span></td>
                         </tr>
 
+                        <!-- 2025-10 (no previous month) -->
                         <tr style="transition: background-color 0.2s;">
                             <td
                                 style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
@@ -491,29 +523,30 @@
                                 總計 (Total)</td>
                             <td
                                 style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">
-                                100,415</td>
+                                106,109</td>
                             <td
                                 style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">
-                                196,095</td>
+                                206,839</td>
                             <td
                                 style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">
-                                NT$ 527,237,836</td>
+                                NT$ 548,332,595</td>
                             <td
                                 style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">
-                                6,417</td>
+                                13,326</td>
                             <td
                                 style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">
                                 19,372</td>
                             <td
                                 style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">
-                                NT$ 3,049,605</td>
+                                NT$ 3,049,305</td>
                         </tr>
 
                     </tbody>
                 </table>
             </div>
             <div style="margin-top: 1rem; text-align: right; font-size: 0.85rem; color: var(--text-secondary);">
-                * 購票/退票筆數: 不重複訂單編號數 (Orders) / 購票張數: 實際票券數量 (Tickets)
+                * 購票/退票筆數: 不重複訂單編號數 (Orders) / 購票張數: 實際票券數量 (Tickets)<br>
+                * 2026-02 為當月截至目前資料，漲跌比僅供參考
             </div>
         </div>
         <!-- STATS_END -->
@@ -761,6 +794,7 @@
             document.getElementById(tabId).classList.add('active');
         }
     </script>
-<script src="auth.js"></script></body>
+    <script src="auth.js"></script>
+</body>
 
 </html>
