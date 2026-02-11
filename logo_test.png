@@ -1,0 +1,127 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ibon售票系統</title>
+  <style type="text/css">
+      html, body {
+          height: 100%;
+          padding: 0;
+          margin: 0;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+
+      @media (max-width: 767px) {
+          .h-less {
+              display: none;
+          }
+      }
+
+      @media (min-width: 768px) {
+          .h-more {
+              display: none;
+          }
+      }
+
+      .flex-box {
+          display: flex;
+          flex-flow: column;
+          place-content: center space-between;
+          align-items: center;
+          height: 100vh;
+          width: 100%;
+      }
+
+      header {
+          height: 127px;
+          width: 100%;
+          background: url('https://ticketimg2.azureedge.net/image/CommImg/TicketFlowControl/D23-0000_W_001-BG.jpg');
+          text-align: center;
+      }
+
+      footer {
+          height: 110px;
+          width: 100%;;
+          background: url('https://ticketimg2.azureedge.net/image/CommImg/TicketFlowControl/D23-0000_W_002-BG.jpg');
+          text-align: center;
+      }
+
+      .main {
+          width: 100%;
+          color: #000;
+          font-size: 1.2rem;
+          line-height: 1.8;
+          text-align: center;
+      }
+
+          .main p {
+              padding: 0 1.2rem;
+              margin: 0;
+          }
+
+      @media screen and (max-width: 767px) {
+          header {
+              background: none;
+              height: auto;
+          }
+
+          footer {
+              background: url('https://ticketimg2.azureedge.net/image/CommImg/TicketFlowControl/D23-0000_M_002.jpg');
+              height: auto;
+          }
+
+              header img, footer img {
+                  width: 100%;
+              }
+
+          .main {
+              width: 100%;
+              color: #000;
+              font-size: 1rem;
+              line-height: 1.8;
+              text-align: center;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div class="flex-box">
+      <header>
+          <img class="h-less" src="https://ticketimg2.azureedge.net/image/CommImg/TicketFlowControl/D23-0000_W_001.jpg" alt="">
+          <img class="h-more" src="https://ticketimg2.azureedge.net/image/CommImg/TicketFlowControl/D23-0000_M_001.jpg" alt="">
+      </header>
+      <div class="main">
+          <img src="https://ticketimg2.azureedge.net/image/CommImg/TicketFlowControl/loading_x05.gif" alt="">
+          <p>
+            用戶您好，本站進行流量控管。
+              <br>
+              系統將視進站人數即時調整，<br class="h-more">請稍後再試，謝謝。
+          </p>
+      </div>
+      <footer>
+          <img class="h-less" src="https://ticketimg2.azureedge.net/image/CommImg/TicketFlowControl/D23-0000_W_002.jpg" alt="">
+          <img class="h-more" src="https://ticketimg2.azureedge.net/image/CommImg/TicketFlowControl/D23-0000_M_002.jpg" alt="">
+      </footer>
+  </div>
+  <script>
+      var targetURL = "https://ticket.ibon.com.tw/";
+      var control = true;
+      var countdownfrom = 15;
+      var currentsecond = countdownfrom;
+      function countredirect() {
+          if (currentsecond != 1) {
+              currentsecond -= 1;
+          }
+          else {
+              window.location = targetURL;
+              return;
+          }
+          if (control)
+              setTimeout("countredirect()", 1500);
+      }
+      countredirect();
+  </script>
+</body>
+</html>

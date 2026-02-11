@@ -1,0 +1,470 @@
+Collections: RateLimitRecord, EventTicketBundle, EventCategory, LayoutSetting, RemoteTrustPaymentData, EventPrintCodeCampaign, User, StaffSession, EventAmusementTaxId, CouponCampaign, HyperLinkSendData, EventAccessCode, Staff, TicketToken, EventSubcategory, OrganizationContract, HyperLinkPayMoneyResp, TimedToken, Addon, Tag, SiteConfig, ChangeLog, HyperLinkPayMoney, CollectCodeSetting, NotificationEvent, Contract, TimedLock, system.views, CouponCode, OrganizationACL, OAuth2Token, TicketEntryQtyChangeLog, ArtsFunToken, Media, CouponTransaction, TEST, EventTicketInspector, Organization, SeqNumber, ThsrcPayment, ArtsFunPayment, Cart, EventRecycledAmusementTaxId, Event, Qware_DashBoard, HyperLinkOrderData, RateLimitCount, EventTicketOption, EventTicketEntry, EventPrintCode, 20231116_on_shelf_evt, 20240615_org, 20250717_EventReport
+
+Since collection: RateLimitRecord
+null
+
+Since collection: EventTicketBundle
+null
+
+Since collection: EventCategory
+{
+  "_id": "5fe4480d3ff56763f1bb99ba",
+  "name": "展覽活動",
+  "createdTime": "2020-12-24T07:49:32.999Z",
+  "keyName": "exhibition",
+  "order": 1
+}
+
+Since collection: LayoutSetting
+{
+  "_id": "5ffd3cdfe9708a3ff50710b2",
+  "category": "5fe4480d3ff56763f1bb99ba",
+  "createdTime": "2021-01-12T06:08:31.036Z",
+  "lastModifiedTime": "2026-01-30T15:13:29.828Z",
+  "sections": [
+    {
+      "cardType": "EventCardV1",
+      "show": 3,
+      "sort": "LATEST",
+      "title": "最新上架",
+      "type": "EVENTS",
+      "withinTime": true
+    },
+    {
+      "callToAction": "電子票即買即用",
+      "content": "有專為台北快閃店設計，充滿紀念意義的獨家限定款周邊，限量發售快來入手收藏，立即預約！",
+      "endTime": "2026-02-06T16:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/a911f83b-0b4b-424f-977b-0dbaecdceca1.jpg",
+      "show": 6,
+      "startTime": "2026-01-29T16:00:00.000Z",
+      "title": "King＆Prince「STARRING」台北快閃店",
+      "type": "SIMPLE",
+      "url": "https://tour.ibon.com.tw/event/69646bbeebf36f7159752f61/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "callToAction": "立即購票",
+      "cardType": "EventCardV1",
+      "content": "玩具人的天堂！首屆五大展區！\n限量玩具錯過不在~一同探索無邊界的藝術玩具世界！",
+      "endTime": "2026-01-25T07:30:00.000Z",
+      "eventIds": [
+        "6951ebdae110393a99e6302d",
+        "6951e03fe110393a99e629f3"
+      ],
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/ea9d12ef-09bd-4f07-993b-63351be9a56c.jpg",
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "startTime": "2026-01-06T05:28:07.000Z",
+      "title": "NIJISANJI EXHIBITION",
+      "type": "EVENTS",
+      "url": "https://ticket.ibon.com.tw/ActivityInfo/Details/39180",
+      "withinTime": false
+    },
+    {
+      "callToAction": "立即購票",
+      "cardType": "EventCardV1",
+      "content": "第二屆FANTACO魔幻藝術節，60+場國際魔幻盛宴，11/29-30台北登場！",
+      "endTime": "2026-02-06T04:00:00.000Z",
+      "eventIds": [
+        "6971cf1d07c3661c66761c24"
+      ],
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/ecf8cf90-1d97-4cb5-891c-47d2a295ab35.jpg",
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "startTime": "2026-01-29T16:00:00.000Z",
+      "title": "表演活動",
+      "type": "EVENTS",
+      "url": "https://tour.ibon.com.tw/event/68b93b5e73476a2bccb905d1/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "cardType": "EventCardV1",
+      "eventIds": [
+        "68fddbb689089b5cec568854",
+        "68f995b8efc3d065936abb82"
+      ],
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "title": "奇美．大英博物館《埃及之王：法老》特展",
+      "type": "EVENTS",
+      "withinTime": true
+    },
+    {
+      "callToAction": "火速搶票",
+      "cardType": "EventCardV1",
+      "content": "限量套票熱賣中！",
+      "endTime": "2026-03-08T07:00:00.000Z",
+      "eventIds": [
+        "6972ce1507c3661c6676577f",
+        "6972ce6807c3661c667657a3",
+        "6972ce5607c3661c667657a1",
+        "6972ce9207c3661c667657b6",
+        "6972cea707c3661c667657b8",
+        "6972ceb907c3661c667657c3"
+      ],
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/d9ed2736-3882-484b-a59e-19941eb7c655.jpg",
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "startTime": "2026-01-30T00:27:01.000Z",
+      "title": "同人誌販售會",
+      "type": "EVENTS",
+      "url": "https://ticket.ibon.com.tw/ActivityInfo/Details/39180",
+      "withinTime": true
+    },
+    {
+      "callToAction": "立即購票",
+      "content": "hololive production 4 位海底公主登場\n首次聯名國立海洋科技博物館！一起進入海底世界～",
+      "endTime": "2026-03-25T16:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/b0709536-37d7-4a12-844f-1e76bb5383b0.jpg",
+      "show": 6,
+      "startTime": "2026-01-05T16:00:00.000Z",
+      "title": "Dive into hololive production",
+      "type": "SIMPLE",
+      "url": "https://tour.ibon.com.tw/event/69361ded5ebddd1b1c144a77/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "cardType": "EventCardV1",
+      "eventIds": [
+        "69006c6b4d7ea70aea213694",
+        "6901d936e78f9e735d9152f1",
+        "690bf9f132aef86513d30a81",
+        "68b7e36fb99db01c0e99f1fe",
+        "691e7b53941bfc27e5f33c6b",
+        "692ce8b628efa2499920d7c2",
+        "696f3fcc3c65d13f8cd4436a"
+      ],
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "title": "松山。華山文創園區🌲",
+      "type": "EVENTS",
+      "withinTime": true
+    },
+    {
+      "cardType": "EventCardV1",
+      "eventIds": [
+        "68f718bc7da988557205c791",
+        "6720b6a10b71fb1adaa281cb",
+        "639a87c55791ae161448c23d",
+        "68ff18897da988557207eae7",
+        "68f86c8d75c2784813cecf55",
+        "69047198a251122c730b7cf9",
+        "691423a55ccd4b78db900cb1",
+        "68db7bd87e09147e14767b82",
+        "693a608b8afd191e1f6e5864",
+        "6940bf5516ed0e6248b16eda",
+        "69511c55d49c90439eff8f35"
+      ],
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "title": "北部。展覽",
+      "type": "EVENTS",
+      "withinTime": true
+    },
+    {
+      "cardType": "EventCardV1",
+      "eventIds": [
+        "675b969ebf7d217e8b8c9674",
+        "675b96bbbf7d217e8b8c967c"
+      ],
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "title": "中部。展覽",
+      "type": "EVENTS",
+      "withinTime": true
+    },
+    {
+      "cardType": "EventCardV1",
+      "eventIds": [
+        "68a6884186ad7126318e0c1f",
+        "68c1166346185c7c6dfd4564",
+        "68db67347e09147e147675ef",
+        "68c910c946185c7c6dfecd4f",
+        "6913eaef148a53016062282c",
+        "68ef357175841e53a2b0a928",
+        "68ef356375841e53a2b0a91e",
+        "678617aeb993e371343953b9",
+        "692d290c1f664334baae9d3f",
+        "6954dab48bc351414da98bb8"
+      ],
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "title": "南部。展覽",
+      "type": "EVENTS",
+      "withinTime": true
+    },
+    {
+      "callToAction": "立即購票",
+      "content": "✦ 兒童教育推薦，溫馨又爆笑的尋「家」之旅 ✦\n✦ 年度破億票房動畫，寓教於樂的寒假首選 ✦",
+      "endTime": "2026-02-05T16:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/5a1ad111-0ef4-44a1-9ce1-944e9a06e272.jpg",
+      "show": 6,
+      "startTime": "2026-01-12T16:00:00.000Z",
+      "title": "小勇士大冒險電影預售票",
+      "type": "SIMPLE",
+      "url": "https://tour.ibon.com.tw/event/e2601000012pqux/?role=admin&orgId=689c0f94ff5d687c48b72a7f&isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "cardType": "EventCardV1",
+      "eventIds": [
+        "6879a83aa44529025a379d31",
+        "682d6bb11b6a2a07ec527bf5",
+        "69031d07a251122c730b2269",
+        "68f9e2f27da9885572067b6b"
+      ],
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "title": "VIVELAND　VR虛擬實境樂園",
+      "type": "EVENTS",
+      "withinTime": true
+    },
+    {
+      "callToAction": "立即報名",
+      "cardType": "EventCardV1",
+      "content": "6/15(六)-6/16(日)兩日在舒適的室內場地一起跟著BEING sport專業師資熱力ZUMBA、伸展瑜珈！\n\n首度推出親子體驗場，邀請大朋友小朋友一起享受運動放電的快樂，報到就贈限定粉紅報到禮，體驗完成還有滿滿的粉紅派對包補充運動後能量，5/20(一)起 399元報名親子體驗場，報名快樂有氧日及Yoga Day單人票 349元、雙人票549元\n各場次名額有限，報完為止！ ",
+      "eventIds": [
+        "671f1874c2be2903c24fa391",
+        "671f5d06c2be2903c24fb056",
+        "6720608d0b71fb1adaa2724e",
+        "675a9261bcb3e514c1da47a0",
+        "675a96a8bcb3e514c1da4912",
+        "675a8d73bcb3e514c1da45f2"
+      ],
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/cd3beed3-6e56-452a-ba01-927e29bdd3b6.jpg",
+      "show": 6,
+      "sort": "HAND_PICKED",
+      "title": "實境解謎遊戲．文化幣適用",
+      "type": "EVENTS",
+      "url": "https://tour.ibon.com.tw/event/e2404000034luha",
+      "withinTime": true
+    }
+  ],
+  "sliders": [
+    {
+      "endTime": "2026-02-22T09:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/26133885-5656-4f4e-97ce-cf9a802a3131.jpg",
+      "startTime": "2025-10-09T05:48:34.000Z",
+      "title": "100％哆啦A夢＆FRIENDS巡迴特展 高雄站",
+      "url": "https://tour.ibon.com.tw/event/68c1166346185c7c6dfd4564/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-03-22T09:30:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/b116e831-68c6-4de0-8147-090bdb473480.jpg",
+      "startTime": "2025-12-10T07:07:52.000Z",
+      "title": "綻放 維也納美景宮百年花繪名作展 — 從瓦爾德米勒到克林姆",
+      "url": "https://tour.ibon.com.tw/event/68f86c8d75c2784813cecf55/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-04-06T09:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/e22ec7a4-7a65-4ba8-a76f-6a6ccf33a4fe.jpg",
+      "startTime": "2026-01-08T02:34:47.000Z",
+      "title": "「永恆畢卡索」光影藝術展：藝術、繆思與知己",
+      "url": "https://tour.ibon.com.tw/event/68f718bc7da988557205c791/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-04-19T09:30:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/bb9f3ddc-c979-4677-96c8-53205c2ac003.jpg",
+      "startTime": "2025-11-13T05:58:40.000Z",
+      "title": "蜷川實花展with　EiM：彼岸之光．此岸之影",
+      "url": "https://tour.ibon.com.tw/event/690bf9f132aef86513d30a81/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-04-06T09:30:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/06bdbcb3-86e2-4fde-8940-504bedd3122c.jpg",
+      "startTime": "2025-11-13T05:59:32.000Z",
+      "title": "航海王動畫25週年紀念特展",
+      "url": "https://tour.ibon.com.tw/event/69047198a251122c730b7cf9/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-04-06T09:30:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/672eb697-9be3-4194-8fde-6bee854d0c1d.jpg",
+      "startTime": "2025-11-13T06:00:51.000Z",
+      "title": "咒術迴戰展《劇場版咒術 0》篇",
+      "url": "https://tour.ibon.com.tw/event/69006c6b4d7ea70aea213694/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-04-06T09:30:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/8a40dac6-3956-4c97-a3ed-4ac4f464366f.jpg",
+      "startTime": "2025-11-25T02:21:04.000Z",
+      "title": "葬送的芙莉蓮特展 台北站",
+      "url": "https://tour.ibon.com.tw/event/691423a55ccd4b78db900cb1/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-03-01T11:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/6b8c846a-0d08-43b2-b80f-9de00db86d16.jpg",
+      "startTime": "2025-11-27T16:00:00.000Z",
+      "title": "莉可麗絲",
+      "url": "https://ibontw.com/LycorisRecoil",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-02-01T09:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/519be197-405b-4816-916e-550ae053fc68.jpg",
+      "startTime": "2025-12-28T16:00:00.000Z",
+      "title": "2026台北國際電玩展-全票種",
+      "url": "https://tour.ibon.com.tw/event/e2511000060g6tk",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-04-19T09:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/00098f91-670a-41b6-a72e-921bfeb05df6.jpg",
+      "startTime": "2026-01-14T16:00:00.000Z",
+      "title": "世界古文明　沉浸體驗展-展期",
+      "url": "https://tour.ibon.com.tw/event/692ce8b628efa2499920d7c2/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2027-02-21T09:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/e515820c-9e97-47ae-b45e-7e557803f958.jpg",
+      "startTime": "2026-01-08T02:40:14.000Z",
+      "title": "恐龍大復活　關渡探險樂園-預售",
+      "url": "https://tour.ibon.com.tw/event/6938c94387d2e415c159ea86/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-02-02T15:59:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/f6688671-f9b8-4956-a5b8-255c42abc285.jpg",
+      "startTime": "2026-01-08T02:42:52.000Z",
+      "title": "2026第34屆台北國際書展-預售",
+      "url": "https://tour.ibon.com.tw/event/693a608b8afd191e1f6e5864/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-02-08T10:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/6254b139-2d60-492e-a082-4ca550174972.jpg",
+      "startTime": "2026-02-02T16:00:00.000Z",
+      "title": "2026第34屆台北國際書展-展期",
+      "url": "https://tour.ibon.com.tw/event/693a608b8afd191e1f6e5864/?isInternalTester=true",
+      "withinTime": false
+    },
+    {
+      "endTime": "2026-01-29T11:30:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/851a468f-fa6a-4b69-825b-8f1a24359b43.jpg",
+      "startTime": "2026-01-08T02:44:48.000Z",
+      "title": "至冬之戀－桂Gui 個展",
+      "url": "https://tour.ibon.com.tw/event/6940bf5516ed0e6248b16eda/?isInternalTester=true",
+      "withinTime": false
+    },
+    {
+      "endTime": "2026-01-31T15:59:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/3cd27c36-56e3-4198-8ade-ed8bb015ce0a.jpg",
+      "startTime": "2026-01-08T02:46:46.000Z",
+      "title": "2026臺灣國際蘭展",
+      "url": "https://tour.ibon.com.tw/event/6954dab48bc351414da98bb8/?isInternalTester=true",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-03-25T16:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/9a577202-2ab1-4068-8720-b2a64f2f81c9.jpg",
+      "startTime": "2026-01-21T16:00:00.000Z",
+      "title": "2026 燕三条工業與工藝文化交流展",
+      "url": "http://ibontw.com/IN_BETWEEN_VISIONS",
+      "withinTime": true
+    },
+    {
+      "endTime": "2026-02-07T16:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/afa4cde0-e01f-44d9-8ca6-2464f975946d.jpg",
+      "startTime": "2026-01-29T16:00:00.000Z",
+      "title": "小清水亞美",
+      "url": "https://tour.ibon.com.tw/event/6971cf1d07c3661c66761c24/",
+      "withinTime": true
+    }
+  ],
+  "subNavs": [
+    {
+      "index": 1,
+      "label": "文化幣",
+      "url": "https://tour.ibon.com.tw/home/search?category=exhibition&tag=%E6%96%87%E5%8C%96%E5%B9%A3&isInternalTester=true"
+    }
+  ],
+  "expireTime": null,
+  "fixedBottomAds": [
+    {
+      "endTime": "2025-08-03T16:00:00.000Z",
+      "image": "https://systemeblob.blob.core.windows.net/allticket-prod/media/7974ac2e-03fe-4501-a1c2-4d729cc0e0df.jpg",
+      "image_m": "https://systemeblob.blob.core.windows.net/allticket-prod/media/45fbb5d4-510d-4748-81aa-6d3ed90764ee.jpg",
+      "startTime": "2025-02-24T05:22:08.000Z",
+      "title": "高鐵加購",
+      "url": "https://ticket.ibon.com.tw/Index/Traffic",
+      "withinTime": false
+    }
+  ]
+}
+
+Since collection: RemoteTrustPaymentData
+{
+  "_id": "62a976f1a3964784a60ead2e",
+  "orderNumber": "E2206150000130",
+  "createdTime": "2022-06-15T06:06:41.372Z",
+  "fontripData": {
+    "agentName": "豐趣科技股份有限公司 (信託)",
+    "contactEmail": "anne_lin@qware.com.tw",
+    "contactUser": "anne_lin@qware.com.tw",
+    "legacyId": "E2206150000130",
+    "orderUser": "anne_lin@qware.com.tw",
+    "packageTourOrderJson": {
+      "orderNo": "TO-6341689596",
+      "packageTourName": "小叮噹科學主題樂園全票",
+      "quantity": 1,
+      "saleTourId": "v9kW",
+      "virtualTourOrderUsageList": [
+        {
+          "lastUsedDate": "20220615175638",
+          "orderNo": "TO-6341689596-1",
+          "productOrderAvailable": 0,
+          "productOrderExpired": 0,
+          "productOrderList": [
+            {
+              "effectiveDate": "20220615140639",
+              "expiredDate": "20220615235959",
+              "productId": "pDVJ",
+              "productName": "小叮噹科學主題樂園全票",
+              "productNo": "P6032209138",
+              "productOrderId": "MrWx3z",
+              "productOrderNo": "PO-9052505566",
+              "productSpecId": "XE7D",
+              "productSpecName": "標準",
+              "redeemCode": "8290525055663256",
+              "redeemCodeUrl": "https://photos.welcometw.com/productOrder/qrcode/8290525055663256/MrWx3z/200/qrcode.png?showText=false",
+              "redeemIcon": "https://photos.welcometw.com/file/show/kOABM/80x80.jpg",
+              "redeemType": "PINCODE",
+              "status": "USED",
+              "statusName": "已使用",
+              "touristArray": []
+            }
+          ],
+          "productOrderTotal": 1,
+          "productOrderUsed": 1,
+          "virtualTourOrderId": "LXzvL9"
+        }
+      ]
+    },
+    "paymentConfirmDate": "20220615140638",
+    "paymentId": "NE659",
+    "paymentNo": "O1920697822",
+    "paymentPaidDate": "20220615140638",
+    "paymentRedeemCode": "8119206978220888",
+    "paymentRedeemCodeUrl": "https://photos.welcometw.com/file/paymentRedeemCode/8119206978220888/NE659/200/qrcode.png",
+    "paymentStatus": "SUCCESS",
+    "paymentStatusName": "交易完成",
+    "refundable": false,
+    "refundment": {
+      "refundAmount": 0,
+      "refundNo": "",
+      "refundmentStatus": "",
+      "refundmentStatusName": ""
+    },
+    "remark": "",
+    "totalPrice": 275
+  },
+  "lastModifiedTime": "2022-06-15T10:00:33.088Z",
+  "trustIssuer": "6L"
+}
