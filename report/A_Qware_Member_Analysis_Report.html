@@ -1,0 +1,779 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qware Member Analysis Report - 會員資料分析</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #00bcd4; /* Cyan */
+            --accent-secondary: #00838f;
+            --shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            background: linear-gradient(to right, #2c2c2c, #1e1e1e);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00bcd4, #80deea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+        }
+        
+        .logo-sub {
+            font-size: 0.9rem;
+            color: var(--accent-secondary);
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .meta { 
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid #333;
+            transition: transform 0.2s;
+        }
+        .card:hover { border-color: var(--accent-color); transform: translateY(-3px); }
+
+        .card h3 { margin: 0 0 15px 0; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); }
+        .card .value { font-size: 2.2em; font-weight: 700; color: var(--accent-color); }
+        .card .sub { font-size: 0.85em; color: #666; margin-top: 8px; }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .full-width { grid-column: span 2; }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            min-height: 400px;
+            position: relative;
+        }
+        
+        .chart-card h3 { 
+            margin-top: 0;
+            color: var(--text-primary);
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95em; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #333; }
+        th { color: var(--accent-color); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover { background-color: rgba(0, 188, 212, 0.05); } /* Cyan hover */
+        
+        .badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            background: #333;
+            color: #fff;
+            font-size: 0.8em;
+        }
+        
+        /* PDF Button */
+        .pdf-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #00bcd4, #0097a7);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .pdf-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.5);
+        }
+        
+        /* Home Button */
+        .home-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 30px;
+            background: linear-gradient(135deg, #757575, #424242);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(117, 117, 117, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .home-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(117, 117, 117, 0.5);
+        }
+
+        @media screen and (max-width: 900px) {
+            .main-content { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+        }
+
+        /* Print Styles */
+        @media print {
+            @page { size: landscape; margin: 5mm; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: var(--bg-color); color: var(--text-primary); }
+            .container { width: 100%; max-width: none; margin: 0; padding: 0; }
+            .card, .chart-card { 
+                break-inside: avoid; 
+                page-break-inside: avoid; 
+                box-shadow: none; 
+                border: 1px solid #333;
+                background-color: var(--card-bg);
+            }
+            header { box-shadow: none; border-bottom: 2px solid var(--accent-color); background: none; }
+            /* Hide Buttons */
+            .pdf-btn, .home-btn { display: none !important; }
+            
+            /* Adjust colors for print if needed, but dark mode print might be tricky. */
+            /* Force dark background print if possible, otherwise invert? */
+            /* Let's keep it simple, browsers usually remove background colors. */
+            /* But we added -webkit-print-color-adjust: exact, so it SHOULD print dark mode if user allows background graphics. */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <div class="logo-text">Qware Member Analysis</div>
+            <div class="logo-sub">會員資料庫深度分析</div>
+        </div>
+        <div class="meta">
+            Generated: 2026/2/11 上午10:19:08<br>
+            Total Members: 2,789,049
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="card">
+            <h3>總會員數 (Total Members)</h3>
+            <div class="value">2,789,049</div>
+        </div>
+        <div class="card">
+            <h3>最大來源 (Top Source)</h3>
+            <div class="value" style="font-size: 1.8em;">GOOGLE</div>
+            <div class="sub">967,043 members</div>
+        </div>
+        <div class="card">
+            <h3>主要國家 (Top Country)</h3>
+            <div class="value" style="font-size: 1.8em;">台灣</div>
+            <div class="sub">2,697,292 members</div>
+        </div>
+        <div class="card">
+            <h3>女性佔比 (Female %)</h3>
+            <div class="value">64.7%</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Gender Chart -->
+        <div class="chart-card">
+            <h3>性別分佈 (Gender Distribution)</h3>
+            <div style="height: 350px;">
+                <canvas id="genderChart"></canvas>
+            </div>
+            <table>
+                <thead><tr><th>性別</th><th>人數</th><th>佔比</th></tr></thead>
+                <tbody>
+                    
+                        <tr>
+                            <td>女</td>
+                            <td>1,803,891</td>
+                            <td>64.7%</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>男</td>
+                            <td>985,158</td>
+                            <td>35.3%</td>
+                        </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Age Chart -->
+        <div class="chart-card">
+            <h3>年齡分佈 (Age Distribution)</h3>
+             <div style="height: 350px;">
+                <canvas id="ageChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <!-- Zodiac Chart -->
+        <div class="chart-card full-width">
+            <h3>12星座分佈 (Zodiac Distribution)</h3>
+             <div style="height: 350px;">
+                <canvas id="zodiacChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Chinese Zodiac Chart -->
+        <div class="chart-card full-width">
+            <h3>12生肖分佈 (Chinese Zodiac Distribution)</h3>
+             <div style="height: 350px;">
+                <canvas id="chineseZodiacChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Blacklist Chart -->
+        <div class="chart-card" style="border-left: 4px solid #F44336;">
+            <h3>黑名單狀態 (Blacklist Status)</h3>
+            <div style="height: 300px;">
+                <canvas id="blacklistChart"></canvas>
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-weight: bold; color: #F44336;">
+                黑名單人數: 22,111 (0.79%)
+            </div>
+        </div>
+
+        <!-- Disability Chart -->
+        <div class="chart-card" style="border-left: 4px solid #FF9800;">
+            <h3>身障資格 (Disability Status)</h3>
+             <div style="height: 300px;">
+                <canvas id="disabilityChart"></canvas>
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-weight: bold; color: #FF9800;">
+                身障人數: 13,818 (0.50%)
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Social Media Chart -->
+        <div class="chart-card full-width">
+            <h3>社群/註冊來源分佈 (Social/Source)</h3>
+             <div style="height: 300px;">
+                <canvas id="socialChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Country Chart -->
+        <div class="chart-card full-width">
+            <h3>國家/地區分佈 (Country Distribution)</h3>
+             <div style="height: 300px;">
+                <canvas id="countryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yearly Growth Trend -->
+    <div class="main-content">
+        <div class="chart-card full-width">
+            <h3>會員增長趨勢 (Yearly Growth Trend)</h3>
+            <div style="height: 350px;">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Taiwan City Analysis -->
+    <div class="main-content">
+        <div class="chart-card full-width" style="border-left: 5px solid #00E676;">
+            <h3>台灣縣市分佈 (Taiwan City Distribution)</h3>
+            <div style="margin-bottom: 10px; font-size: 0.9em; color: #888;">
+                * 僅統計國家為「台灣」之會員 (共 2,697,292 人)
+            </div>
+             <div style="height: 400px;">
+                <canvas id="cityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Data Preparation
+    const genderData = {"女":1803891,"男":985158};
+    const ageData = {"<18":44010,"18-24":492350,"25-34":1096812,"35-44":700907,"45-54":359659,"55-64":80341,"65+":14970,"Unknown":0};
+    const socialData = [{"name":"GOOGLE","count":967043},{"name":"OP","count":939742},{"name":"LINE","count":533056},{"name":"FB","count":288910},{"name":"APPLE","count":52544},{"name":"MAJOR","count":7754}];
+    const countryData = [{"name":"台灣","count":2697292},{"name":"其他","count":57732},{"name":"日本","count":19995},{"name":"韓國","count":8021},{"name":"中國","count":6009}]; // Top 15
+    const cityData = [{"name":"格式不符","count":640151},{"name":"新北市","count":429314},{"name":"高雄市","count":288318},{"name":"臺北市","count":258094},{"name":"臺中市","count":235325},{"name":"桃園市","count":205127},{"name":"臺南市","count":196018},{"name":"彰化縣","count":72444},{"name":"屏東縣","count":53060},{"name":"新竹縣","count":50093},{"name":"新竹市","count":43501},{"name":"雲林縣","count":33572},{"name":"苗栗縣","count":32261},{"name":"基隆市","count":30427},{"name":"宜蘭縣","count":28557},{"name":"嘉義縣","count":25659},{"name":"南投縣","count":23369},{"name":"嘉義市","count":19897},{"name":"花蓮縣","count":15970},{"name":"臺東縣","count":9971},{"name":"澎湖縣","count":3423},{"name":"金門縣","count":2385},{"name":"連江縣","count":356}];
+    const taiwanTotal = 2697292;
+    const yearlyData = [{"year":"2019","count":175936},{"year":"2020","count":162134},{"year":"2021","count":155689},{"year":"2022","count":401610},{"year":"2023","count":396968},{"year":"2024","count":539103},{"year":"2025","count":892175},{"year":"2026","count":65434}];
+    const blacklistData = {"Yes":22111,"No":2766938};
+    const disabilityData = {"Yes":13818,"No":2775231};
+    const zodiacData = {"牡羊座 (Aries)":{"男":74627,"女":137614},"金牛座 (Taurus)":{"男":77393,"女":142601},"雙子座 (Gemini)":{"男":77985,"女":144159},"巨蟹座 (Cancer)":{"男":85039,"女":156896},"獅子座 (Leo)":{"男":83702,"女":156490},"處女座 (Virgo)":{"男":88208,"女":160940},"天秤座 (Libra)":{"男":89538,"女":162077},"天蠍座 (Scorpio)":{"男":89508,"女":161935},"射手座 (Sagittarius)":{"男":85024,"女":152596},"摩羯座 (Capricorn)":{"男":78400,"女":143361},"水瓶座 (Aquarius)":{"男":76929,"女":141512},"雙魚座 (Pisces)":{"男":78805,"女":143710}};
+    const chineseZodiacData = {"鼠 (Rat)":{"男":78766,"女":145862},"牛 (Ox)":{"男":79106,"女":148287},"虎 (Tiger)":{"男":68958,"女":129363},"兔 (Rabbit)":{"男":77001,"女":141660},"龍 (Dragon)":{"男":89191,"女":164077},"蛇 (Snake)":{"男":77047,"女":141927},"馬 (Horse)":{"男":84775,"女":153224},"羊 (Goat)":{"男":85549,"女":152133},"猴 (Monkey)":{"男":86981,"女":153923},"雞 (Rooster)":{"男":92459,"女":167505},"狗 (Dog)":{"男":84249,"女":154796},"豬 (Pig)":{"男":81076,"女":151134}};
+
+    // 9. Zodiac Chart (Stacked Bar)
+    new Chart(document.getElementById('zodiacChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(zodiacData),
+            datasets: [
+                {
+                    label: '男',
+                    data: Object.values(zodiacData).map(d => d['男']),
+                    backgroundColor: '#42A5F5', // Blue
+                },
+                {
+                    label: '女',
+                    data: Object.values(zodiacData).map(d => d['女']),
+                    backgroundColor: '#EC407A', // Pink
+                }
+            ]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true, grid: { display: false }, ticks: { color: '#ccc' } },
+                y: { stacked: true, grid: { color: '#333' }, ticks: { color: '#888' } }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#ccc' } },
+                datalabels: {
+                    color: 'white',
+                    font: { size: 10 },
+                    formatter: (value, ctx) => {
+                         if (value === 0) return '';
+                         const dataset = ctx.chart.data.datasets[ctx.datasetIndex];
+                         const total = dataset.data.reduce((a, b) => a + b, 0); // Total for this gender? No, we probably want % of column or just number.
+                         // Let's just show number for now to avoid clutter, or maybe small %
+                         // If stacked, showing % of total bar height is complex in simple label.
+                         // Just show value.
+                         return value.toLocaleString();
+                    }
+                }
+            }
+        }
+    });
+
+    // 10. Chinese Zodiac Chart (Stacked Bar)
+    new Chart(document.getElementById('chineseZodiacChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(chineseZodiacData),
+            datasets: [
+                {
+                    label: '男',
+                    data: Object.values(chineseZodiacData).map(d => d['男']),
+                    backgroundColor: '#42A5F5',
+                },
+                {
+                    label: '女',
+                    data: Object.values(chineseZodiacData).map(d => d['女']),
+                    backgroundColor: '#EC407A',
+                }
+            ]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true, grid: { display: false }, ticks: { color: '#ccc' } },
+                y: { stacked: true, grid: { color: '#333' }, ticks: { color: '#888' } }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#ccc' } },
+                datalabels: {
+                    color: 'white',
+                    font: { size: 10 },
+                    formatter: (value) => value > 0 ? value.toLocaleString() : ''
+                }
+            }
+        }
+    });
+
+    // 7. Blacklist Chart (Pie/Doughnut)
+    new Chart(document.getElementById('blacklistChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['正常 (Normal)', '黑名單 (Blacklisted)'],
+            datasets: [{
+                data: [blacklistData['No'], blacklistData['Yes']],
+                backgroundColor: ['#4CAF50', '#F44336'], // Green, Red
+                borderWidth: 0
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#ccc' } },
+                datalabels: {
+                    color: 'white',
+                    font: { weight: 'bold' },
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => { sum += data; });
+                        let percentage = (value*100 / sum).toFixed(1)+"%";
+                        // Only show if > 0
+                        if (value === 0) return '';
+                        return percentage;
+                    }
+                }
+            }
+        }
+    });
+
+    // 8. Disability Chart (Pie/Doughnut)
+    new Chart(document.getElementById('disabilityChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['無 (None)', '有 (Yes)'],
+            datasets: [{
+                data: [disabilityData['No'], disabilityData['Yes']],
+                backgroundColor: ['#2196F3', '#FF9800'], // Blue, Orange
+                borderWidth: 0
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#ccc' } },
+                datalabels: {
+                    color: 'white',
+                    font: { weight: 'bold' },
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => { sum += data; });
+                        let percentage = (value*100 / sum).toFixed(1)+"%";
+                        if (value === 0) return '';
+                        return percentage;
+                    }
+                }
+            }
+        }
+    });
+
+    // 6. Growth Chart (Line)
+    new Chart(document.getElementById('growthChart'), {
+        type: 'line',
+        data: {
+            labels: yearlyData.map(d => d.year),
+            datasets: [{
+                label: '新增會員數',
+                data: yearlyData.map(d => d.count),
+                borderColor: '#FFD700', // Gold
+                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    color: 'white',
+                    align: 'top',
+                    anchor: 'end',
+                    font: { weight: 'bold' },
+                    formatter: (value) => value.toLocaleString()
+                }
+            },
+            scales: {
+                x: { grid: { color: '#333' }, ticks: { color: '#ccc' } },
+                y: { grid: { color: '#333' }, ticks: { color: '#888' } }
+            }
+        }
+    });
+
+    // 1. Gender Chart (Pie)
+    new Chart(document.getElementById('genderChart'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(genderData),
+            datasets: [{
+                data: Object.values(genderData),
+                backgroundColor: ['#EC407A', '#42A5F5', '#BDBDBD'], // Pink, Blue, Grey
+                borderWidth: 0
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#ccc' } },
+                datalabels: {
+                    color: 'white',
+                    font: { weight: 'bold', size: 14 },
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => { sum += data; });
+                        let percentage = (value*100 / sum).toFixed(1)+"%";
+                        return percentage;
+                    }
+                }
+            }
+        }
+    });
+
+    // 2. Age Chart (Bar)
+    new Chart(document.getElementById('ageChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(ageData),
+            datasets: [{
+                label: '人數',
+                data: Object.values(ageData),
+                backgroundColor: '#00bcd4',
+                borderRadius: 4
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    color: '#eee',
+                    anchor: 'end',
+                    align: 'top',
+                    font: { size: 11 },
+                    formatter: (value, ctx) => {
+                        const total = 2789049;
+                        const percentage = ((value / total) * 100).toFixed(1) + '%';
+                        return value.toLocaleString() + ' (' + percentage + ')';
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#ccc' } },
+                y: { grid: { color: '#333' }, ticks: { color: '#888' } }
+            }
+        }
+    });
+
+    // 3. Social Chart (Bar - Horizontal)
+    new Chart(document.getElementById('socialChart'), {
+        type: 'bar',
+        data: {
+            labels: socialData.map(d => d.name),
+            datasets: [{
+                label: '人數',
+                data: socialData.map(d => d.count),
+                backgroundColor: '#26a69a',
+                borderRadius: 4
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                datalabels: {
+                    color: 'white',
+                    anchor: 'end',
+                    align: 'end',
+                    offset: 4,
+                    font: { weight: 'bold', size: 11 },
+                    formatter: (value, ctx) => {
+                         const total = 2789049;
+                         const percentage = ((value / total) * 100).toFixed(1) + '%';
+                         return value.toLocaleString() + ' / ' + percentage;
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { color: '#333' }, ticks: { color: '#888' } },
+                y: { grid: { display: false }, ticks: { color: '#ccc' } }
+            }
+        }
+    });
+
+    // 4. Country Chart (Bar - Horizontal)
+    new Chart(document.getElementById('countryChart'), {
+        type: 'bar',
+        data: {
+            labels: countryData.map(d => d.name),
+            datasets: [{
+                label: '人數',
+                data: countryData.map(d => d.count),
+                backgroundColor: '#7e57c2',
+                borderRadius: 4
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                datalabels: {
+                    color: 'white',
+                    anchor: 'end',
+                    align: 'end',
+                    offset: 4,
+                    font: { weight: 'bold', size: 11 },
+                    formatter: (value, ctx) => {
+                         const total = 2789049;
+                         const percentage = ((value / total) * 100).toFixed(1) + '%';
+                         return value.toLocaleString() + ' / ' + percentage;
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { color: '#333' }, ticks: { color: '#888' } },
+                y: { grid: { display: false }, ticks: { color: '#ccc' } }
+            }
+        }
+    });
+
+    // 5. City Chart (Bar)
+    new Chart(document.getElementById('cityChart'), {
+        type: 'bar',
+        data: {
+            labels: cityData.map(d => d.name),
+            datasets: [{
+                label: '人數',
+                data: cityData.map(d => d.count),
+                backgroundColor: '#00E676',
+                borderRadius: 4
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                datalabels: {
+                    color: 'white',
+                    anchor: 'end',
+                    align: 'top',
+                    offset: 4,
+                    font: { size: 10 },
+                    // If too many bars, rotation might be needed or hide labels for small values
+                    formatter: (value, ctx) => {
+                         const percentage = ((value / taiwanTotal) * 100).toFixed(1) + '%';
+                         if (value < 1000) return ''; // Hide small labels to avoid clutter
+                         return value.toLocaleString() + ' (' + percentage + ')';
+                    },
+                    rotation: -45,
+                    align: 'top'
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#ccc', autoSkip: false, maxRotation: 45, minRotation: 45 } },
+                y: { grid: { color: '#333' }, ticks: { color: '#888' } }
+            }
+        }
+    });
+
+    // PDF Download Function
+    function downloadPDF() {
+        window.print();
+    }
+</script>
+
+<!-- PDF Button -->
+<button class="pdf-btn" onclick="downloadPDF()">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+    </svg>
+    下載 PDF
+</button>
+
+<!-- Home Button -->
+<a href="report_index.html" class="home-btn">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+    </svg>
+    回首頁
+</a>
+
+</body>
+</html>
+        

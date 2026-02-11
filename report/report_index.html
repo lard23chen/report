@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分析報表中心 (A系統) | Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --purple-color: #8b5cf6;
+            --tab-active-bg: rgba(59, 130, 246, 0.2);
+            --tab-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .background-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 40%);
+        }
+
+        header {
+            padding: 2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        /* Tabs Styles */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--tab-border);
+            padding-bottom: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-color);
+            background: var(--tab-active-bg);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent-color), var(--purple-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .icon-revenue {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-color);
+        }
+
+        .icon-comparison {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .icon-special {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .icon-analysis {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--purple-color);
+        }
+
+        .card-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .card-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .card-meta {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .btn-link {
+            text-decoration: none;
+            color: #fff;
+            background-color: var(--accent-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-link:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-glow"></div>
+
+    <header>
+        <div class="logo">Qware Analytics</div>
+        <div style="font-size: 0.9rem; color: var(--text-secondary);">
+            <script>document.write(new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' }))</script>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>報表中心 (A系統) <a href="E_report_index.html"
+                style="font-size: 0.5em; vertical-align: middle; margin-left: 10px; color: #ef4444; text-decoration: none; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); padding: 4px 12px; border-radius: 999px; transition: all 0.3s;"
+                onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'"
+                onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'">前往 E系統 ➜</a></h1>
+        <p class="subtitle">集中管理與查看所有自動生成的分析報表，追蹤營收趨勢與數據洞察。</p>
+
+
+        <!-- STATS_START -->
+        <div class="stats-section"
+            style="margin-bottom: 3rem; background: var(--card-bg); border-radius: 16px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3
+                    style="color: var(--text-primary); font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    📊 月份交易統計 <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">(Monthly
+                        Statistics)</span>
+                </h3>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">Last Updated: 2026/2/9 上午10:15:33</span>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table
+                    style="width: 100%; border-collapse: separate; border-spacing: 0; color: var(--text-secondary); font-size: 0.95rem;">
+                    <thead>
+                        <tr>
+                            <th
+                                style="text-align: left; padding: 1rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">
+                                月份 (Month)</th>
+                            <th
+                                style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">
+                                購票筆數 (Orders)</th>
+                            <th
+                                style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">
+                                購票張數 (Tickets)</th>
+                            <th
+                                style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">
+                                購票金額 (Revenue)</th>
+                            <th
+                                style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">
+                                退票筆數 (Refund Orders)</th>
+                            <th
+                                style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">
+                                退票張數 (Refund Tickets)</th>
+                            <th
+                                style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">
+                                退票手續費 (Fees)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+
+                        <tr style="transition: background-color 0.2s;">
+                            <td
+                                style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                2026-02</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                5,694</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                10,744</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                NT$ 21,094,759</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                568</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                769</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                NT$ 119,328</td>
+                        </tr>
+
+                        <tr style="transition: background-color 0.2s;">
+                            <td
+                                style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                2026-01</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                20,407</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                45,982</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                NT$ 90,400,632</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                3,043</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                3,849</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                NT$ 801,783</td>
+                        </tr>
+
+                        <tr style="transition: background-color 0.2s;">
+                            <td
+                                style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                2025-12</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                46,788</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                86,599</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                NT$ 278,252,598</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                7,341</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                10,484</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                NT$ 1,281,708</td>
+                        </tr>
+
+                        <tr style="transition: background-color 0.2s;">
+                            <td
+                                style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                2025-11</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                15,025</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                24,981</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                NT$ 55,569,790</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                2,251</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                2,839</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                NT$ 533,821</td>
+                        </tr>
+
+                        <tr style="transition: background-color 0.2s;">
+                            <td
+                                style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                2025-10</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                18,195</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                38,533</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                NT$ 103,014,816</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                1,123</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                1,431</td>
+                            <td
+                                style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                NT$ 313,665</td>
+                        </tr>
+
+                        <tr style="background-color: rgba(255, 255, 255, 0.05); font-weight: bold;">
+                            <td
+                                style="padding: 1rem; color: var(--text-primary); border-top: 2px solid rgba(255,255,255,0.1);">
+                                總計 (Total)</td>
+                            <td
+                                style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">
+                                100,415</td>
+                            <td
+                                style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">
+                                196,095</td>
+                            <td
+                                style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">
+                                NT$ 527,237,836</td>
+                            <td
+                                style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">
+                                6,417</td>
+                            <td
+                                style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">
+                                19,372</td>
+                            <td
+                                style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">
+                                NT$ 3,049,605</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 1rem; text-align: right; font-size: 0.85rem; color: var(--text-secondary);">
+                * 購票/退票筆數: 不重複訂單編號數 (Orders) / 購票張數: 實際票券數量 (Tickets)
+            </div>
+        </div>
+        <!-- STATS_END -->
+
+
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tab1')">本月/上月報表</button>
+            <button class="tab-btn" onclick="switchTab('tab2')">報表比較分析</button>
+            <button class="tab-btn" onclick="switchTab('tab3')">歷史報表分析</button>
+            <button class="tab-btn" onclick="switchTab('tab4')">各節目報表分析</button>
+            <button class="tab-btn" onclick="switchTab('tab5')">會員資料分析</button>
+        </div>
+
+        <!-- Tab 1: Last Month (Jan 2026) -->
+        <div id="tab1" class="tab-content active">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-icon icon-revenue">
+                        📊
+                    </div>
+                    <div class="card-content">
+                        <h3>2026年02月 分析報表 (A系統)</h3>
+                        <p>完整的二月份(D-1日)營收數據分析，包含支付方式佔比與重要銷售指標。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Monthly</span>
+                        <a href="A_Qware_Revenue_Report_2026年02月_分析報表.html" class="btn-link">
+                            查看報表
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon icon-revenue">
+                        📊
+                    </div>
+                    <div class="card-content">
+                        <h3>2026年01月 分析報表 (A系統)</h3>
+                        <p>完整的一月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Monthly</span>
+                        <a href="A_Qware_Revenue_Report_2026年01月_分析報表.html" class="btn-link">
+                            查看報表
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Comparison (Jan 2026 vs Dec 2025) -->
+        <div id="tab2" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-icon icon-analysis">
+                        💸
+                    </div>
+                    <div class="card-content">
+                        <h3>退款與銷售比較</h3>
+                        <p>針對退款數據與銷售額進行交叉比對分析 (2025-12 vs 2026-01)。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Refunds</span>
+                        <a href="A_Qware_Sales_Refund_Comparison_2025-12_vs_2026-01.html" class="btn-link">
+                            查看報表
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Prior to Last Month (Dec 2025) and Others -->
+        <div id="tab3" class="tab-content">
+            <div class="grid">
+
+                <!-- Dec 2025 Reports -->
+                <div class="card">
+                    <div class="card-icon icon-revenue">
+                        📊
+                    </div>
+                    <div class="card-content">
+                        <h3>2025年12月 分析報表 (A系統)</h3>
+                        <p>十二月份完整營收報告，包含年末銷售統計與趨勢分析。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Monthly</span>
+                        <a href="A_Qware_Revenue_Report_2025年12月_分析報表.html" class="btn-link">
+                            查看報表
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon icon-revenue">
+                        📊
+                    </div>
+                    <div class="card-content">
+                        <h3>2025年11月 分析報表 (A系統)</h3>
+                        <p>十一月份完整營收報告，包含銷售統計與趨勢分析。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Monthly</span>
+                        <a href="A_Qware_Revenue_Report_2025年11月_分析報表.html" class="btn-link">
+                            查看報表
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon icon-revenue">
+                        📊
+                    </div>
+                    <div class="card-content">
+                        <h3>2025年10月 分析報表 (A系統)</h3>
+                        <p>十月份完整營收報告，包含銷售統計與趨勢分析。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Monthly</span>
+                        <a href="A_Qware_Revenue_Report_2025年10月_分析報表.html" class="btn-link">
+                            查看報表
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Individual Event Reports -->
+        <div id="tab4" class="tab-content">
+            <div class="grid">
+
+                <!-- Special Reports (Golden Disc) -->
+                <div class="card">
+                    <div class="card-icon icon-special">
+                        🏆
+                    </div>
+                    <div class="card-content">
+                        <h3>第40屆金唱片頒獎典禮 (A系統)</h3>
+                        <p>第40屆金唱片頒獎典禮 The 40th Golden Disc Awards 專案分析報告。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Special</span>
+                        <a href="A_GoldenDisc_Report_2026-02-06.html" class="btn-link">
+                            查看報表
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Special Reports (Sam Lee) -->
+                <div class="card">
+                    <div class="card-icon icon-special">
+                        🎤
+                    </div>
+                    <div class="card-content">
+                        <h3>李聖傑世界巡迴演唱會 台北站 (A系統)</h3>
+                        <p>2025 李聖傑 One Day 直到那一天 世界巡迴演唱會台北站專案分析。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Special</span>
+                        <a href="A_SamLee_Report_2025_Taipei.html" class="btn-link">
+                            查看報表
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab 5: Member Analysis -->
+        <div id="tab5" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-icon icon-analysis">
+                        👥
+                    </div>
+                    <div class="card-content">
+                        <h3>會員資料庫深度分析</h3>
+                        <p>Qware 會員資料庫全貌分析，包含性別、年齡、居住地與註冊來源分佈。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Member</span>
+                        <a href="A_Qware_Member_Analysis_Report.html" class="btn-link">
+                            查看報表
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2026 Qware Analytics. All rights reserved. Built with ❤️ for Data Insights.
+    </footer>
+
+    <script>
+        function switchTab(tabId) {
+            // Remove active class from all buttons and contents
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to clicked button
+            const clickedBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.getAttribute('onclick').includes(tabId));
+            if (clickedBtn) {
+                clickedBtn.classList.add('active');
+            }
+
+            // Add active class to target content
+            document.getElementById(tabId).classList.add('active');
+        }
+    </script>
+</body>
+
+</html>
