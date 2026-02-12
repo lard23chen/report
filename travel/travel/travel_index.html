@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇹🇭 曼谷旅遊消費分析報表 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --card-hover: #273548;
+            --accent: #38bdf8;
+            --accent2: #818cf8;
+            --accent3: #f472b6;
+            --accent4: #34d399;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: #334155;
+            --positive: #22c55e;
+            --negative: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            padding: 60px 40px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(129, 140, 248, 0.08) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .hero .subtitle {
+            color: var(--text-dim);
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: -30px auto 30px;
+            padding: 0 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(56, 189, 248, 0.1);
+        }
+
+        .stat-card .label {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .stat-card .value.accent {
+            color: var(--accent);
+        }
+
+        .stat-card .value.accent2 {
+            color: var(--accent2);
+        }
+
+        .stat-card .value.accent3 {
+            color: var(--accent3);
+        }
+
+        .stat-card .value.accent4 {
+            color: var(--accent4);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto 30px;
+            padding: 0 30px;
+        }
+
+        .grid-full {
+            grid-column: 1 / -1;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card h3 .icon {
+            font-size: 1.3rem;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 10px;
+            color: var(--text-dim);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        tr:hover td {
+            background: var(--card-hover);
+        }
+
+        .amount {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .amount.pos {
+            color: var(--negative);
+        }
+
+        .amount.neg {
+            color: var(--positive);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-credit {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+        }
+
+        .badge-cash {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--accent4);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+
+        .chart-container-sm {
+            position: relative;
+            height: 240px;
+        }
+
+        .bar-item {
+            margin-bottom: 14px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .bar-track {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hero">
+        <h1>🇹🇭 曼谷旅遊消費分析</h1>
+        <div class="subtitle">2026/02/10 — 2026/02/12 ｜ Bangkok Trip Expense Report</div>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="label">總消費筆數</div>
+            <div class="value accent">10</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">總支出（不含換匯/退款）</div>
+            <div class="value accent2">NT$ 3,858</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">信用卡支出</div>
+            <div class="value accent3">NT$ 3,818</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">現金支出</div>
+            <div class="value accent4">NT$ 40</div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card grid-full">
+            <h3><span class="icon">📊</span> 每日消費趨勢</h3>
+            <div class="chart-container"><canvas id="dailyChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3><span class="icon">🍩</span> 消費類別分佈</h3>
+            <div class="chart-container-sm"><canvas id="categoryChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3><span class="icon">💳</span> 付款方式分佈</h3>
+            <div class="chart-container-sm"><canvas id="paymentChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3><span class="icon">👥</span> 付款人分攤（不含換匯/退款）</h3>
+            <div id="payerBars"></div>
+        </div>
+        <div class="card">
+            <h3><span class="icon">📋</span> 各類別金額統計</h3>
+            <div id="categoryBars"></div>
+        </div>
+        <div class="card grid-full">
+            <h3><span class="icon">📝</span> 完整消費明細</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>類別</th>
+                            <th>項目</th>
+                            <th style="text-align:right">金額</th>
+                            <th>付款方式</th>
+                            <th>付款人</th>
+                            <th>照片</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">資料來源：Google Sheets ｜ 報表產生時間：2026/02/12 19:50 ｜ 曼谷旅遊消費分析報表</div>
+
+    <script>
+        Chart.register(ChartDataLabels);
+
+        const rawData = [
+            { date: '2026-02-10', category: '💬 其他', item: '安達旅平險 中華聯名卡', amount: 912, payment: '信用卡', payer: 'MARK', photo: '無照片' },
+            { date: '2026-02-10', category: '💬 其他', item: '安達旅平險 lalaport', amount: 912, payment: '信用卡', payer: 'ALEX', photo: '無照片' },
+            { date: '2026-02-11', category: '🛍️ 購物', item: '免稅菸 中華聯名卡', amount: 860, payment: '信用卡', payer: 'MARK', photo: '無照片' },
+            { date: '2026-02-12', category: '🚗 交通', item: 'Grad 機場至Holiday Inn Express Bangkok Siam', amount: 438, payment: '信用卡', payer: 'MARK', photo: '無照片' },
+            { date: '2026-02-11', category: '🏨 住宿', item: '飯店行李小費', amount: 20, payment: '現金', payer: '其他', photo: '無照片' },
+            { date: '2026-02-12', category: '💬 其他', item: '換錢 20000換19500', amount: -19500, payment: '現金', payer: 'MARK', photo: 'https://drive.google.com/file/d/1WcdNnouGqaPaOFAcYqRRTzcWv9Q76HbT/view?usp=drivesdk' },
+            { date: '2026-02-12', category: '🛍️ 購物', item: '泡麵/燕窩 中華聯名卡', amount: 631, payment: '信用卡', payer: 'ALEX', photo: 'https://drive.google.com/file/d/1jz9BhuG5jk-71VOfQto3JEgxedhd6ILJ/view?usp=drivesdk' },
+            { date: '2026-02-12', category: '💬 其他', item: '尚的零錢', amount: -157, payment: '現金', payer: '其他', photo: '無照片' },
+            { date: '2026-02-12', category: '🍽️ 餐飲', item: 'UNO咖啡 華航聯名卡', amount: 65, payment: '信用卡', payer: 'MARK', photo: 'https://drive.google.com/file/d/1C44Se-fd6bY8zm7yck6A_97yPPUSeswD/view?usp=drivesdk' },
+            { date: '2026-02-12', category: '🏨 住宿', item: '飯店 行李小費', amount: 20, payment: '現金', payer: 'MARK', photo: '無照片' },
+        ];
+
+        const expenses = rawData.filter(d => d.amount > 0);
+
+        // Detail Table
+        const tbody = document.getElementById('detailTable');
+        rawData.forEach(d => {
+            const isNeg = d.amount < 0;
+            const hasPhoto = d.photo !== '無照片';
+            tbody.innerHTML += `<tr>
+        <td>${d.date}</td>
+        <td>${d.category}</td>
+        <td>${d.item}</td>
+        <td class="amount ${isNeg ? 'neg' : 'pos'}" style="text-align:right">NT$ ${d.amount.toLocaleString()}</td>
+        <td><span class="badge ${d.payment === '信用卡' ? 'badge-credit' : 'badge-cash'}">${d.payment}</span></td>
+        <td>${d.payer}</td>
+        <td>${hasPhoto ? `<a href="${d.photo}" target="_blank" style="color:var(--accent)">📷 查看</a>` : '<span style="color:var(--text-dim)">—</span>'}</td>
+    </tr>`;
+        });
+
+        // Daily Chart
+        const dailyMap = {};
+        expenses.forEach(d => { dailyMap[d.date] = (dailyMap[d.date] || 0) + d.amount; });
+        const dailyLabels = Object.keys(dailyMap).sort();
+        const dailyValues = dailyLabels.map(d => dailyMap[d]);
+
+        new Chart(document.getElementById('dailyChart'), {
+            type: 'bar',
+            data: {
+                labels: dailyLabels.map(d => d.replace('2026-', '')),
+                datasets: [{
+                    label: '消費金額 (NT$)',
+                    data: dailyValues,
+                    backgroundColor: ['rgba(56,189,248,0.6)', 'rgba(129,140,248,0.6)', 'rgba(244,114,182,0.6)'],
+                    borderColor: ['#38bdf8', '#818cf8', '#f472b6'],
+                    borderWidth: 2, borderRadius: 8, barPercentage: 0.5,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => `NT$ ${ctx.raw.toLocaleString()}` } },
+                    datalabels: {
+                        anchor: 'end', align: 'top',
+                        color: '#e2e8f0',
+                        font: { weight: 'bold', size: 14 },
+                        formatter: v => `NT$ ${v.toLocaleString()}`
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+                    y: { ticks: { color: '#94a3b8', callback: v => `$${v}` }, grid: { color: 'rgba(51,65,85,0.5)' } }
+                }
+            }
+        });
+
+        // Category Doughnut
+        const catMap = {};
+        expenses.forEach(d => { catMap[d.category] = (catMap[d.category] || 0) + d.amount; });
+        const catLabels = Object.keys(catMap);
+        const catValues = Object.values(catMap);
+        const catColors = ['#38bdf8', '#818cf8', '#f472b6', '#34d399', '#fbbf24'];
+
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: { labels: catLabels, datasets: [{ data: catValues, backgroundColor: catColors, borderWidth: 0 }] },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '60%',
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#e2e8f0', padding: 12, font: { size: 11 } } },
+                    tooltip: { callbacks: { label: ctx => `${ctx.label}: NT$ ${ctx.raw.toLocaleString()}` } },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 11 },
+                        formatter: (v, ctx) => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            return `${((v / total) * 100).toFixed(0)}%\n$${v.toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        });
+
+        // Payment Doughnut
+        const payMap = {};
+        expenses.forEach(d => { payMap[d.payment] = (payMap[d.payment] || 0) + d.amount; });
+        new Chart(document.getElementById('paymentChart'), {
+            type: 'doughnut',
+            data: { labels: Object.keys(payMap), datasets: [{ data: Object.values(payMap), backgroundColor: ['#38bdf8', '#34d399'], borderWidth: 0 }] },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '60%',
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#e2e8f0', padding: 12, font: { size: 12 } } },
+                    tooltip: { callbacks: { label: ctx => `${ctx.label}: NT$ ${ctx.raw.toLocaleString()}` } },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 13 },
+                        formatter: (v, ctx) => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            return `${((v / total) * 100).toFixed(0)}%\n$${v.toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        });
+
+        // Payer Bars
+        const payerMap = {};
+        expenses.forEach(d => { payerMap[d.payer] = (payerMap[d.payer] || 0) + d.amount; });
+        const payerMax = Math.max(...Object.values(payerMap));
+        const payerColors = { 'MARK': '#38bdf8', 'ALEX': '#818cf8', '其他': '#f472b6' };
+        const payerDiv = document.getElementById('payerBars');
+        Object.entries(payerMap).sort((a, b) => b[1] - a[1]).forEach(([name, val]) => {
+            payerDiv.innerHTML += `<div class="bar-item">
+        <div class="bar-label"><span>${name}</span><span style="font-weight:700">NT$ ${val.toLocaleString()}</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(val / payerMax * 100).toFixed(1)}%;background:${payerColors[name] || '#94a3b8'}"></div></div>
+    </div>`;
+        });
+
+        // Category Bars
+        const catMax = Math.max(...catValues);
+        const catDiv = document.getElementById('categoryBars');
+        catLabels.map((label, i) => [label, catValues[i]]).sort((a, b) => b[1] - a[1]).forEach(([label, val], i) => {
+            catDiv.innerHTML += `<div class="bar-item">
+        <div class="bar-label"><span>${label}</span><span style="font-weight:700">NT$ ${val.toLocaleString()}</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(val / catMax * 100).toFixed(1)}%;background:${catColors[i]}"></div></div>
+    </div>`;
+        });
+    </script>
+
+</body>
+
+</html>
