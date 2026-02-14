@@ -26,18 +26,22 @@ function extractPhotoMap(htmlPath) {
 
             if (match && match[1]) {
                 const arrayStr = match[1];
-                // Safely parse the array string using Function constructor or simple eval 
-                // Since this is from a trusted update source, eval is okay-ish but Function is clearer
-                // Note: The array contains comments like //..., those need to be handled if using JSON.parse (which won't work).
-                // New Function is best for JS subset.
                 const products = new Function('return ' + arrayStr)();
 
                 products.forEach(p => {
                     if (p.name && p.img) {
-                        map[p.name.trim()] = p.img;
+                        const cleanName = p.name.trim();
+                        // 1. Map Full Name
+                        map[cleanName] = p.img;
+
+                        // 2. Map ID (first 3 digits)
+                        const idMatch = cleanName.match(/^(\d{3})/);
+                        if (idMatch) {
+                            map[idMatch[1]] = p.img;
+                        }
                     }
                 });
-                console.log(`Extracted ${Object.keys(map).length} product images from reference site.`);
+                console.log(`Extracted photos for ${products.length} products (mapped to IDs and Names).`);
             } else {
                 console.log('Could not find products array in reference site.');
             }
@@ -198,7 +202,7 @@ try {
         .close-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #999; }
         .close-btn:hover { color: #333; }
         .modal-body { padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 20px; background: #f9f9f9; }
-        .modal-img { max-width: 100%; max-height: 400px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .modal-img { max-width: 100%; max-height: 400px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); object-fit: contain; }
         .modal-actions { text-align: center; width: 100%; }
         .btn-search {
             display: inline-block; padding: 10px 25px; background: var(--primary); color: white;
@@ -301,7 +305,7 @@ try {
 
     const fullProductLabels = ${JSON.stringify(sortedProducts.slice(0, 15).map(p => p.name))};
     const productData = ${JSON.stringify(sortedProducts.slice(0, 15).map(p => p.qty))};
-    const photoMap = ${JSON.stringify(photoMap)}; // Injected Photo Map
+    const photoMap = ${JSON.stringify(photoMap)}; 
 
     // Chart Configuration
     const ctx = document.getElementById('productChart').getContext('2d');
@@ -364,13 +368,22 @@ try {
         
         modalTitleElement.innerText = productName;
         
-        // 1. Check Map
+        // Match Logic (ID based -> Name Based)
+        let imgUrl = null;
         const cleanName = productName.trim();
-        if (photoMap[cleanName]) {
-            modalImgElement.src = photoMap[cleanName];
+        const idMatch = cleanName.match(/^(\\d{3})/);
+        
+        if (idMatch && photoMap[idMatch[1]]) {
+            imgUrl = photoMap[idMatch[1]];
+        } else if (photoMap[cleanName]) {
+            imgUrl = photoMap[cleanName];
+        }
+
+        if (imgUrl) {
+            modalImgElement.src = imgUrl;
             missingTextElement.style.display = 'none';
         } else {
-            // 2. Placeholder
+            // Placeholder
             const safeText = encodeURIComponent(productName.substring(0, 20));
             modalImgElement.src = \`https://placehold.co/600x400/FF9F1C/white?text=\${safeText}\`;
             missingTextElement.style.display = 'block';
@@ -397,7 +410,7 @@ try {
     `;
 
     fs.writeFileSync(htmlFilePath, htmlContent);
-    console.log('Successfully generated Shopping Report with Photo Links!');
+    console.log('Successfully generated Shopping Report with ID-based Photo Linking!');
 
 } catch (err) {
     console.error('Error:', err);
