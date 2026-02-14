@@ -74,6 +74,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📊 旅遊消費分析報告</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -171,6 +172,9 @@ try {
 </div>
 
 <script>
+    // Register the datalabels plugin
+    Chart.register(ChartDataLabels);
+
     // Data Preparation
     const categoryData = ${JSON.stringify(categoryStats)};
     const payerData = ${JSON.stringify(payerStats)};
@@ -178,6 +182,15 @@ try {
 
     // Colors
     const colors = ['#FF8BA7', '#FFC6C7', '#FAEEE7', '#33272a', '#594a4e', '#3da9fc', '#ff9f1c'];
+
+    // Common options for datalabels
+    const commonDatalabels = {
+        color: '#444',
+        font: {
+            weight: 'bold'
+        },
+        formatter: (value) => value.toLocaleString()
+    };
 
     // Category Chart
     new Chart(document.getElementById('categoryChart'), {
@@ -194,7 +207,19 @@ try {
             responsive: true,
             plugins: {
                 legend: { position: 'bottom' },
-                title: { display: true, text: '消費類別分佈 (By Category)' }
+                title: { display: true, text: '消費類別分佈 (By Category)' },
+                datalabels: {
+                    ...commonDatalabels,
+                    color: '#333',
+                    backgroundColor: '#fff',
+                    borderRadius: 4,
+                    anchor: 'end',
+                    align: 'start',
+                    offset: 10
+                }
+            },
+            layout: {
+                padding: 20
             }
         }
     });
@@ -215,7 +240,12 @@ try {
             responsive: true,
             plugins: {
                 legend: { display: false },
-                title: { display: true, text: '付款人統計 (By Payer)' }
+                title: { display: true, text: '付款人統計 (By Payer)' },
+                datalabels: {
+                    ...commonDatalabels,
+                    anchor: 'end',
+                    align: 'top'
+                }
             },
             scales: {
                 y: { beginAtZero: true }
@@ -240,7 +270,12 @@ try {
             responsive: true,
             plugins: {
                 legend: { display: false },
-                title: { display: true, text: '支付方式統計 (By Payment Method)' }
+                title: { display: true, text: '支付方式統計 (By Payment Method)' },
+                datalabels: {
+                    ...commonDatalabels,
+                    anchor: 'end',
+                    align: 'right'
+                }
             }
         }
     });
