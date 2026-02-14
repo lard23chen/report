@@ -23,18 +23,48 @@
         .stat-item .value { font-size: 2rem; font-weight: bold; color: var(--text); }
         .chart-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
         .chart-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.95rem; }
+        
+        /* Table & Filters */
+        .filters { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; background: #f9f9f9; padding: 15px; border-radius: 10px; }
+        .filters select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; font-size: 0.95rem; outline: none; }
+        .filters label { font-weight: bold; color: #666; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #f9f9f9; color: #666; font-weight: bold; }
         tr:hover { background: #fdfdfd; }
         .amount { font-weight: bold; color: var(--primary); }
         .amount.negative { color: #4ecdc4; }
-        a.photo-link { display: inline-block; padding: 5px 10px; background: #eee; border-radius: 5px; text-decoration: none; color: #555; font-size: 0.8rem; }
-        a.photo-link:hover { background: #ddd; }
         
+        /* Photo Button */
+        button.photo-btn { 
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 10px; background: #eee; border: none; border-radius: 5px; 
+            cursor: pointer; color: #555; font-size: 0.8rem; font-family: inherit;
+            transition: background 0.2s;
+        }
+        button.photo-btn:hover { background: #ddd; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: white; width: 90%; max-width: 800px; height: 80%; max-height: 600px;
+            border-radius: 10px; overflow: hidden; position: relative;
+            display: flex; flex-direction: column;
+        }
+        .modal-header { padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; display: flex; justify-content: flex-end; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; }
+        .close-btn:hover { color: #333; }
+        .modal-body { flex: 1; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; }
+
         @media (max-width: 768px) {
             .chart-container { grid-template-columns: 1fr; }
             .container { padding: 20px; }
+            .filters { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -70,6 +100,24 @@
     </div>
 
     <h2>📋 詳細消費清單</h2>
+    
+    <div class="filters">
+        <div>
+            <label>📅 日期：</label>
+            <select id="dateFilter">
+                <option value="all">全部 (All)</option>
+                <option value="2026-02-10">2026-02-10</option><option value="2026-02-11">2026-02-11</option><option value="2026-02-12">2026-02-12</option><option value="2026-02-13">2026-02-13</option><option value="2026-02-14">2026-02-14</option>
+            </select>
+        </div>
+        <div>
+            <label>👤 付款人：</label>
+            <select id="payerFilter">
+                <option value="all">全部 (All)</option>
+                <option value="ALEX">ALEX</option><option value="MARK">MARK</option><option value="其他">其他</option><option value="泰國帳戶">泰國帳戶</option>
+            </select>
+        </div>
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -82,196 +130,253 @@
                 <th>備註</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="expenseTableBody">
             
-            <tr>
+            <tr data-date="2026-02-10" data-payer="MARK">
                 <td>2026-02-10</td>
                 <td>💬 其他</td>
                 <td>安達旅平險 中華聯名卡</td>
                 <td class="amount ">912</td>
                 <td>信用卡</td>
                 <td>MARK</td>
-                <td> 2026/2/12 上午 1:47:53</td>
+                <td>
+                     
+                    2026/2/12 上午 1:47:53
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-10" data-payer="ALEX">
                 <td>2026-02-10</td>
                 <td>💬 其他</td>
                 <td>安達旅平險 lalaport</td>
                 <td class="amount ">912</td>
                 <td>信用卡</td>
                 <td>ALEX</td>
-                <td> 2026/2/12 上午 1:48:43</td>
+                <td>
+                     
+                    2026/2/12 上午 1:48:43
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-11" data-payer="MARK">
                 <td>2026-02-11</td>
                 <td>🛍️ 購物</td>
                 <td>免稅菸 中華聯名卡</td>
                 <td class="amount ">860</td>
                 <td>信用卡</td>
                 <td>MARK</td>
-                <td> 2026/2/12 上午 1:50:18</td>
+                <td>
+                     
+                    2026/2/12 上午 1:50:18
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-12" data-payer="MARK">
                 <td>2026-02-12</td>
                 <td>🚗 交通</td>
                 <td>Grad 機場至Holiday Inn Express Bangkok Siam</td>
                 <td class="amount ">438</td>
                 <td>信用卡</td>
                 <td>MARK</td>
-                <td> 2026/2/12 上午 1:53:57</td>
+                <td>
+                     
+                    2026/2/12 上午 1:53:57
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-11" data-payer="其他">
                 <td>2026-02-11</td>
                 <td>🏨 住宿</td>
                 <td>飯店行李小費</td>
                 <td class="amount ">20</td>
                 <td>現金</td>
                 <td>其他</td>
-                <td> 2026/2/12 上午 2:20:13</td>
+                <td>
+                     
+                    2026/2/12 上午 2:20:13
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-12" data-payer="MARK">
                 <td>2026-02-12</td>
                 <td>💬 其他</td>
                 <td>換錢 20000換19500</td>
                 <td class="amount negative">-19,500</td>
                 <td>現金</td>
                 <td>MARK</td>
-                <td><a href="https://drive.google.com/file/d/1WcdNnouGqaPaOFAcYqRRTzcWv9Q76HbT/view?usp=drivesdk" target="_blank" class="photo-link">📷 照片</a> 2026/2/12 上午 11:41:11</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('https://drive.google.com/file/d/1WcdNnouGqaPaOFAcYqRRTzcWv9Q76HbT/preview')">📷 照片</button> 
+                    2026/2/12 上午 11:41:11
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-12" data-payer="ALEX">
                 <td>2026-02-12</td>
                 <td>🛍️ 購物</td>
                 <td>泡麵/燕窩 中華聯名卡</td>
                 <td class="amount ">631</td>
                 <td>信用卡</td>
                 <td>ALEX</td>
-                <td><a href="https://drive.google.com/file/d/1jz9BhuG5jk-71VOfQto3JEgxedhd6ILJ/view?usp=drivesdk" target="_blank" class="photo-link">📷 照片</a> 2026/2/12 下午 12:00:15</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('https://drive.google.com/file/d/1jz9BhuG5jk-71VOfQto3JEgxedhd6ILJ/preview')">📷 照片</button> 
+                    2026/2/12 下午 12:00:15
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-12" data-payer="其他">
                 <td>2026-02-12</td>
                 <td>💬 其他</td>
                 <td>尚的零錢</td>
                 <td class="amount negative">-157</td>
                 <td>現金</td>
                 <td>其他</td>
-                <td> 2026/2/12 下午 3:57:24</td>
+                <td>
+                     
+                    2026/2/12 下午 3:57:24
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-12" data-payer="MARK">
                 <td>2026-02-12</td>
                 <td>🍽️ 餐飲</td>
                 <td>UNO咖啡 華航聯名卡</td>
                 <td class="amount ">65</td>
                 <td>信用卡</td>
                 <td>MARK</td>
-                <td><a href="https://drive.google.com/file/d/1C44Se-fd6bY8zm7yck6A_97yPPUSeswD/view?usp=drivesdk" target="_blank" class="photo-link">📷 照片</a> 2026/2/12 下午 4:34:02</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('https://drive.google.com/file/d/1C44Se-fd6bY8zm7yck6A_97yPPUSeswD/preview')">📷 照片</button> 
+                    2026/2/12 下午 4:34:02
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-12" data-payer="MARK">
                 <td>2026-02-12</td>
                 <td>🏨 住宿</td>
                 <td>飯店 行李小費</td>
                 <td class="amount ">20</td>
                 <td>現金</td>
                 <td>MARK</td>
-                <td> 2026/2/12 下午 4:51:13</td>
+                <td>
+                     
+                    2026/2/12 下午 4:51:13
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-12" data-payer="泰國帳戶">
                 <td>2026-02-12</td>
                 <td>💬 其他</td>
                 <td>按摩</td>
                 <td class="amount ">1,800</td>
                 <td>泰國帳戶</td>
                 <td>泰國帳戶</td>
-                <td> 2026/2/13 上午 12:45:34</td>
+                <td>
+                     
+                    2026/2/13 上午 12:45:34
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-12" data-payer="MARK">
                 <td>2026-02-12</td>
                 <td>💬 其他</td>
                 <td>按摩小費</td>
                 <td class="amount ">200</td>
                 <td>現金</td>
                 <td>MARK</td>
-                <td> 2026/2/13 上午 12:45:53</td>
+                <td>
+                     
+                    2026/2/13 上午 12:45:53
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-12" data-payer="泰國帳戶">
                 <td>2026-02-12</td>
                 <td>🍽️ 餐飲</td>
                 <td>夜市晚餐</td>
                 <td class="amount ">1,034</td>
                 <td>泰國帳戶</td>
                 <td>泰國帳戶</td>
-                <td> 2026/2/13 上午 12:46:17</td>
+                <td>
+                     
+                    2026/2/13 上午 12:46:17
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-13" data-payer="MARK">
                 <td>2026-02-13</td>
                 <td>🏨 住宿</td>
                 <td>飯店小費</td>
                 <td class="amount ">20</td>
                 <td>現金</td>
                 <td>MARK</td>
-                <td> 2026/2/13 下午 12:06:41</td>
+                <td>
+                     
+                    2026/2/13 下午 12:06:41
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-13" data-payer="ALEX">
                 <td>2026-02-13</td>
                 <td>🍽️ 餐飲</td>
                 <td>魚市場</td>
                 <td class="amount ">1,800</td>
                 <td>泰國帳戶</td>
                 <td>ALEX</td>
-                <td> 2026/2/13 下午 3:08:42</td>
+                <td>
+                     
+                    2026/2/13 下午 3:08:42
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-13" data-payer="ALEX">
                 <td>2026-02-13</td>
                 <td>🍽️ 餐飲</td>
                 <td>炒飯</td>
                 <td class="amount ">200</td>
                 <td>泰國帳戶</td>
                 <td>ALEX</td>
-                <td> 2026/2/13 下午 3:09:24</td>
+                <td>
+                     
+                    2026/2/13 下午 3:09:24
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-14" data-payer="MARK">
                 <td>2026-02-14</td>
                 <td>🛍️ 購物</td>
                 <td>7-11 UNIOPEN</td>
                 <td class="amount ">420</td>
                 <td>信用卡</td>
                 <td>MARK</td>
-                <td><a href="https://drive.google.com/file/d/1E84W6GKkfQ0vNEfQVWnDd7KDAEV533wv/view?usp=drivesdk" target="_blank" class="photo-link">📷 照片</a> 2026/2/14 上午 9:39:29</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('https://drive.google.com/file/d/1E84W6GKkfQ0vNEfQVWnDd7KDAEV533wv/preview')">📷 照片</button> 
+                    2026/2/14 上午 9:39:29
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-14" data-payer="MARK">
                 <td>2026-02-14</td>
                 <td>🛍️ 購物</td>
                 <td>Boots UNI聯名卡</td>
                 <td class="amount ">753</td>
                 <td>信用卡</td>
                 <td>MARK</td>
-                <td><a href="https://drive.google.com/file/d/1eI3UIWzi_3fgLRo2fg5S_zboZM2fl0oX/view?usp=drivesdk" target="_blank" class="photo-link">📷 照片</a> 2026/2/14 上午 9:41:27</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('https://drive.google.com/file/d/1eI3UIWzi_3fgLRo2fg5S_zboZM2fl0oX/preview')">📷 照片</button> 
+                    2026/2/14 上午 9:41:27
+                </td>
             </tr>
             
-            <tr>
+            <tr data-date="2026-02-14" data-payer="MARK">
                 <td>2026-02-14</td>
                 <td>🛍️ 購物</td>
                 <td>CTW 買衣服 UNI聯名卡</td>
                 <td class="amount ">760</td>
                 <td>信用卡</td>
                 <td>MARK</td>
-                <td><a href="https://drive.google.com/file/d/1Al6zau_qS2OtbKOKVJJ_d-2Szvy1Qdg2/view?usp=drivesdk" target="_blank" class="photo-link">📷 照片</a> 2026/2/14 上午 9:42:49</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('https://drive.google.com/file/d/1Al6zau_qS2OtbKOKVJJ_d-2Szvy1Qdg2/preview')">📷 照片</button> 
+                    2026/2/14 上午 9:42:49
+                </td>
             </tr>
             
         </tbody>
@@ -281,6 +386,18 @@
         <a href="index.html" style="color: #999; text-decoration: none;">← 返回旅遊日記</a>
     </div>
 
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="photoModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <iframe id="photoFrame" src=""></iframe>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -294,103 +411,86 @@
 
     // Colors
     const colors = ['#FF8BA7', '#FFC6C7', '#FAEEE7', '#33272a', '#594a4e', '#3da9fc', '#ff9f1c'];
+    const commonDatalabels = { color: '#444', font: { weight: 'bold' }, formatter: (value) => value.toLocaleString() };
 
-    // Common options for datalabels
-    const commonDatalabels = {
-        color: '#444',
-        font: {
-            weight: 'bold'
-        },
-        formatter: (value) => value.toLocaleString()
-    };
-
-    // Category Chart
+    // Create Charts (Configs same as before)
     new Chart(document.getElementById('categoryChart'), {
         type: 'doughnut',
-        data: {
-            labels: Object.keys(categoryData),
-            datasets: [{
-                data: Object.values(categoryData),
-                backgroundColor: colors,
-                borderWidth: 0
-            }]
-        },
+        data: { labels: Object.keys(categoryData), datasets: [{ data: Object.values(categoryData), backgroundColor: colors, borderWidth: 0 }] },
         options: {
             responsive: true,
             plugins: {
                 legend: { position: 'bottom' },
                 title: { display: true, text: '消費類別分佈 (By Category)' },
-                datalabels: {
-                    ...commonDatalabels,
-                    color: '#333',
-                    backgroundColor: '#fff',
-                    borderRadius: 4,
-                    anchor: 'end',
-                    align: 'start',
-                    offset: 10
-                }
+                datalabels: { ...commonDatalabels, color: '#333', backgroundColor: '#fff', borderRadius: 4, anchor: 'end', align: 'start', offset: 10 }
             },
-            layout: {
-                padding: 20
-            }
+            layout: { padding: 20 }
         }
     });
 
-    // Payer Chart
     new Chart(document.getElementById('payerChart'), {
         type: 'bar',
-        data: {
-            labels: Object.keys(payerData),
-            datasets: [{
-                label: '付款金額',
-                data: Object.values(payerData),
-                backgroundColor: '#FF8BA7',
-                borderRadius: 10
-            }]
-        },
+        data: { labels: Object.keys(payerData), datasets: [{ label: '付款金額', data: Object.values(payerData), backgroundColor: '#FF8BA7', borderRadius: 10 }] },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false },
-                title: { display: true, text: '付款人統計 (By Payer)' },
-                datalabels: {
-                    ...commonDatalabels,
-                    anchor: 'end',
-                    align: 'top'
-                }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
+            plugins: { legend: { display: false }, title: { display: true, text: '付款人統計 (By Payer)' }, datalabels: { ...commonDatalabels, anchor: 'end', align: 'top' } },
+            scales: { y: { beginAtZero: true } }
         }
     });
 
-    // Method Chart
     new Chart(document.getElementById('methodChart'), {
         type: 'bar',
-        data: {
-            labels: Object.keys(methodData),
-            datasets: [{
-                label: '金額',
-                data: Object.values(methodData),
-                backgroundColor: '#3da9fc',
-                borderRadius: 10
-            }]
-        },
-        options: {
-             indexAxis: 'y',
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                title: { display: true, text: '支付方式統計 (By Payment Method)' },
-                datalabels: {
-                    ...commonDatalabels,
-                    anchor: 'end',
-                    align: 'right'
-                }
-            }
-        }
+        data: { labels: Object.keys(methodData), datasets: [{ label: '金額', data: Object.values(methodData), backgroundColor: '#3da9fc', borderRadius: 10 }] },
+        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false }, title: { display: true, text: '支付方式統計 (By Payment Method)' }, datalabels: { ...commonDatalabels, anchor: 'end', align: 'right' } } }
     });
+
+    // --- Filter Logic ---
+    const dateFilter = document.getElementById('dateFilter');
+    const payerFilter = document.getElementById('payerFilter');
+    const tableRows = document.querySelectorAll('#expenseTableBody tr');
+
+    function applyFilters() {
+        const selectedDate = dateFilter.value;
+        const selectedPayer = payerFilter.value;
+
+        tableRows.forEach(row => {
+            const rowDate = row.getAttribute('data-date');
+            const rowPayer = row.getAttribute('data-payer');
+
+            const dateMatch = (selectedDate === 'all' || rowDate === selectedDate);
+            const payerMatch = (selectedPayer === 'all' || rowPayer === selectedPayer);
+
+            if (dateMatch && payerMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    dateFilter.addEventListener('change', applyFilters);
+    payerFilter.addEventListener('change', applyFilters);
+
+    // --- Modal Logic ---
+    const modal = document.getElementById('photoModal');
+    const iframe = document.getElementById('photoFrame');
+
+    function openModal(url) {
+        if(!url) return;
+        iframe.src = url;
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        iframe.src = ''; // Stop video/clear content
+    }
+
+    // Close on click outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
 </script>
 
 </body>
