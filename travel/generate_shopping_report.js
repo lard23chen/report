@@ -2,23 +2,27 @@ const fs = require('fs');
 const path = require('path');
 const xlsx = require('xlsx');
 
-const csvFilePath = path.join(__dirname, 'new_data_gid_1320702581.csv');
-const htmlFilePath = path.join(__dirname, 'shopping_report.html');
+// Handle both local and relative paths
+let csvFilePath = path.join(__dirname, 'new_data_gid_1320702581.csv');
+let htmlFilePath = path.join(__dirname, 'shopping_report.html');
+
+// Fallback for direct node execution if needed (or keep absolute if env matches)
+if (!fs.existsSync(csvFilePath)) {
+    csvFilePath = 'd:/2025/AI/MongoDB/travel/new_data_gid_1320702581.csv';
+    htmlFilePath = 'd:/2025/AI/MongoDB/travel/shopping_report.html';
+}
 
 try {
     // Read file manually to ensure encoding
     const buffer = fs.readFileSync(csvFilePath);
 
     // Parse using xlsx with explicit codepage (65001 is UTF-8)
-    // If it fails, try without codepage or auto-detect
     const workbook = xlsx.read(buffer, { type: 'buffer', codepage: 65001 });
     const sheetName = workbook.SheetNames[0];
 
-    // Check if sheet is empty
     if (!sheetName) throw new Error('Sheet is empty');
 
     // Get raw JSON
-    // header: 1 returns array of arrays which is safer for headers with special chars
     const rawData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: '' });
 
     if (rawData.length < 2) {
@@ -36,9 +40,6 @@ try {
         const cleanH = h.toString().trim();
         headerMap[cleanH] = index;
 
-        // Identification of product columns:
-        // Exclude: '時間戳記', '姓名', '總金額', '備註' (if any), '許願沒有在清單請填這裡'
-        // Include columns that look like products (often start with numbers like '001-' or contain product names)
         if (cleanH !== '時間戳記' && cleanH !== '姓名' && cleanH !== '總金額' && cleanH !== '許願沒有在清單請填這裡' && !cleanH.startsWith('數量總計')) {
             productHeaders.push({ name: cleanH, index: index });
         }
@@ -48,11 +49,8 @@ try {
 
     // Process Rows
     const orders = [];
-    const productStats = {}; // { productName: { quantity: 0, revenue: 0 } } (Revenue hard if price not in header, assume just qty for now)
-    // Actually, headers don't have prices. The '總金額' column has the total order price.
-    // We can just track Quantity per product.
+    const productStats = {}; // { productName: { quantity: 0 } }
 
-    // Initialize product stats
     productHeaders.forEach(p => {
         productStats[p.name] = 0;
     });
@@ -67,11 +65,9 @@ try {
         const name = row[headerMap['姓名'] || 1];
         const totalAmount = parseFloat(row[headerMap['總金額'] || 2]);
 
-        // Filter out empty or summary rows
         if (!name && !timestamp) continue;
         if (typeof name === 'string' && name.includes('數量總計')) continue;
 
-        // Valid order
         const order = {
             timestamp,
             name,
@@ -81,7 +77,6 @@ try {
 
         if (order.totalAmount > 0) totalRevenue += order.totalAmount;
 
-        // Check products
         productHeaders.forEach(p => {
             const qtyStr = row[p.index];
             const qty = parseFloat(qtyStr);
@@ -94,7 +89,7 @@ try {
         orders.push(order);
     }
 
-    // Sort products by popularity (quantity)
+    // Sort products by popularity
     const sortedProducts = Object.entries(productStats)
         .map(([name, qty]) => ({ name, qty }))
         .sort((a, b) => b.qty - a.qty);
@@ -114,7 +109,7 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #FF9F1C; /* Orange for shopping/vitality */
+            --primary: #FF9F1C;
             --secondary: #FFBF69;
             --bg: #FAFAFA;
             --text: #33272a;
@@ -131,7 +126,7 @@ try {
         .stat-item .value { font-size: 2rem; font-weight: bold; color: var(--text); }
         
         .chart-section { margin-bottom: 50px; }
-        .chart-box { background: white; padding: 20px; border-radius: 15px; border: 1px solid #f0f0f0; height: 500px; position: relative; }
+        .chart-box { background: white; padding: 20px; border-radius: 15px; border: 1px solid #f0f0f0; height: 600px; position: relative; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
@@ -140,12 +135,39 @@ try {
         .product-tag { 
             display: inline-block; background: #eafbea; color: #2d6a4f; 
             padding: 3px 8px; border-radius: 10px; font-size: 0.85rem; margin: 2px;
+            cursor: pointer; transition: background 0.2s;
         }
+        .product-tag:hover { background: #cce3de; }
+        
         .qty-badge {
             background: var(--primary); color: white; border-radius: 50%; 
             width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
             font-size: 0.75rem; margin-left: 5px;
         }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: white; width: 90%; max-width: 600px; padding: 0;
+            border-radius: 15px; overflow: hidden; position: relative;
+            display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .modal-header { padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 1.2rem; font-weight: bold; color: var(--text); }
+        .close-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #999; }
+        .close-btn:hover { color: #333; }
+        .modal-body { padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 20px; background: #f9f9f9; }
+        .modal-img { max-width: 100%; max-height: 400px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .modal-actions { text-align: center; width: 100%; }
+        .btn-search {
+            display: inline-block; padding: 10px 25px; background: var(--primary); color: white;
+            text-decoration: none; border-radius: 25px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 159, 28, 0.3); transition: transform 0.2s;
+        }
+        .btn-search:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255, 159, 28, 0.4); }
 
         @media (max-width: 768px) {
             .container { padding: 15px; }
@@ -177,6 +199,7 @@ try {
 
     <div class="chart-section">
         <h2 style="text-align:center; margin-bottom:20px; color:#555;">🔥 熱銷商品排行榜 (Top Products)</h2>
+        <p style="text-align:center; color:#999; font-size:0.9rem; margin-bottom:20px;">💡 點擊圖表中的長條或名稱可查看商品照片</p>
         <div class="chart-box">
             <canvas id="productChart"></canvas>
         </div>
@@ -201,7 +224,9 @@ try {
                     <td style="color:var(--primary); font-weight:bold;">NT$ ${o.totalAmount.toLocaleString()}</td>
                     <td>
                         ${o.products.map(p => `
-                            <span class="product-tag">${p.name} <span class="qty-badge">${p.quantity}</span></span>
+                            <span class="product-tag" onclick="openProductModal('${p.name.replace(/'/g, "\\'")}')">
+                                ${p.name} <span class="qty-badge">${p.quantity}</span>
+                            </span>
                         `).join('')}
                     </td>
                 </tr>
@@ -215,33 +240,62 @@ try {
     </div>
 </div>
 
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">商品名稱</div>
+            <button class="close-btn" onclick="closeProductModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <!-- Placeholder Image logic -->
+            <img id="modalImg" src="" class="modal-img" alt="Product Image">
+            <div class="modal-actions">
+                <p style="color:#666; margin-bottom:15px;">暫無詳細照片，您可以：</p>
+                <a id="searchLink" href="#" target="_blank" class="btn-search">🔍 Google 搜尋圖片</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     Chart.register(ChartDataLabels);
 
-    const productLabels = ${JSON.stringify(sortedProducts.slice(0, 15).map(p => p.name))}; // Top 15
+    const fullProductLabels = ${JSON.stringify(sortedProducts.slice(0, 15).map(p => p.name))};
     const productData = ${JSON.stringify(sortedProducts.slice(0, 15).map(p => p.qty))};
 
-    // Clean up long labels
-    const cleanLabels = productLabels.map(l => {
-        // Keep first 20 chars
+    // Clean up long labels for display, but keep full for logic
+    const displayLabels = fullProductLabels.map(l => {
         return l.length > 25 ? l.substring(0, 25) + '...' : l;
     });
 
-    new Chart(document.getElementById('productChart'), {
+    // Chart Configuration
+    const ctx = document.getElementById('productChart').getContext('2d');
+    const myChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: cleanLabels,
+            labels: fullProductLabels.map(l => l.length > 20 ? l.substring(0, 20) + '...' : l),
             datasets: [{
                 label: '銷售數量 (Quantity)',
                 data: productData,
                 backgroundColor: '#FF9F1C',
-                borderRadius: 5
+                borderRadius: 5,
+                barPercentage: 0.7
             }]
         },
         options: {
-            indexAxis: 'y', // Horizontal Bar Chart
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            onClick: (e, elements) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    window.openProductModal(fullProductLabels[index]);
+                }
+            },
+            onHover: (e, elements) => {
+                e.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+            },
             plugins: {
                 legend: { display: false },
                 title: { display: false },
@@ -254,7 +308,7 @@ try {
                 },
                 tooltip: {
                     callbacks: {
-                        title: (items) => productLabels[items[0].index] // Show full name on hover
+                        title: (items) => fullProductLabels[items[0].index]
                     }
                 }
             },
@@ -263,14 +317,44 @@ try {
             }
         }
     });
-</script>
 
-</body>
-</html>
+    // Modal Logic
+    const modal = document.getElementById('productModal');
+    const modalTitleElement = document.getElementById('modalTitle');
+    const modalImgElement = document.getElementById('modalImg');
+    const searchLinkElement = document.getElementById('searchLink');
+
+    window.openProductModal = function(productName) {
+        if (!productName) return;
+        
+        modalTitleElement.innerText = productName;
+        
+        // Placeholder
+        const safeText = encodeURIComponent(productName.substring(0, 20));
+        modalImgElement.src = \`https://placehold.co/600x400/FF9F1C/white?text=\${safeText}\`;
+        
+        // Google Search Link
+        searchLinkElement.href = \`https://www.google.com/search?tbm=isch&q=\${encodeURIComponent(productName)}\`;
+        
+        modal.style.display = 'flex';
+    };
+
+    window.closeProductModal = function() {
+        modal.style.display = 'none';
+    };
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) window.closeProductModal();
+    });
+
+</script >
+
+</body >
+</html >
     `;
 
     fs.writeFileSync(htmlFilePath, htmlContent);
-    console.log('Successfully generated Shopping Report!');
+    console.log('Successfully generated Shopping Report with Photo Links!');
 
 } catch (err) {
     console.error('Error:', err);

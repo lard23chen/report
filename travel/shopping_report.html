@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #FF9F1C; /* Orange for shopping/vitality */
+            --primary: #FF9F1C;
             --secondary: #FFBF69;
             --bg: #FAFAFA;
             --text: #33272a;
@@ -27,7 +27,7 @@
         .stat-item .value { font-size: 2rem; font-weight: bold; color: var(--text); }
         
         .chart-section { margin-bottom: 50px; }
-        .chart-box { background: white; padding: 20px; border-radius: 15px; border: 1px solid #f0f0f0; height: 500px; position: relative; }
+        .chart-box { background: white; padding: 20px; border-radius: 15px; border: 1px solid #f0f0f0; height: 600px; position: relative; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
@@ -36,12 +36,39 @@
         .product-tag { 
             display: inline-block; background: #eafbea; color: #2d6a4f; 
             padding: 3px 8px; border-radius: 10px; font-size: 0.85rem; margin: 2px;
+            cursor: pointer; transition: background 0.2s;
         }
+        .product-tag:hover { background: #cce3de; }
+        
         .qty-badge {
             background: var(--primary); color: white; border-radius: 50%; 
             width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
             font-size: 0.75rem; margin-left: 5px;
         }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: white; width: 90%; max-width: 600px; padding: 0;
+            border-radius: 15px; overflow: hidden; position: relative;
+            display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .modal-header { padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 1.2rem; font-weight: bold; color: var(--text); }
+        .close-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #999; }
+        .close-btn:hover { color: #333; }
+        .modal-body { padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 20px; background: #f9f9f9; }
+        .modal-img { max-width: 100%; max-height: 400px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .modal-actions { text-align: center; width: 100%; }
+        .btn-search {
+            display: inline-block; padding: 10px 25px; background: var(--primary); color: white;
+            text-decoration: none; border-radius: 25px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 159, 28, 0.3); transition: transform 0.2s;
+        }
+        .btn-search:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255, 159, 28, 0.4); }
 
         @media (max-width: 768px) {
             .container { padding: 15px; }
@@ -54,7 +81,7 @@
 
 <div class="container">
     <h1>🛍️ 泰國代購統計報告</h1>
-    <p class="subtitle">更新時間: 2026/2/14 上午10:38:31</p>
+    <p class="subtitle">更新時間: 2026/2/14 上午10:44:44</p>
 
     <div class="summary-card">
         <div class="stat-item">
@@ -73,6 +100,7 @@
 
     <div class="chart-section">
         <h2 style="text-align:center; margin-bottom:20px; color:#555;">🔥 熱銷商品排行榜 (Top Products)</h2>
+        <p style="text-align:center; color:#999; font-size:0.9rem; margin-bottom:20px;">💡 點擊圖表中的長條或名稱可查看商品照片</p>
         <div class="chart-box">
             <canvas id="productChart"></canvas>
         </div>
@@ -97,17 +125,29 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 890</td>
                     <td>
                         
-                            <span class="product-tag">014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('014-還魂梅 บ๊วยคืนชีพ')">
+                                014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">019-芒果軟糖 200g Gummy Mangoes MAX <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('019-芒果軟糖 200g Gummy Mangoes MAX')">
+                                019-芒果軟糖 200g Gummy Mangoes MAX <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('020-芒果乾 200g มะม่วงแก้วขมิ้น')">
+                                020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน <span class="qty-badge">5</span></span>
+                            <span class="product-tag" onclick="openProductModal('024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน')">
+                                024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน <span class="qty-badge">5</span>
+                            </span>
                         
-                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ')">
+                                026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">4</span></span>
+                            <span class="product-tag" onclick="openProductModal('029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด')">
+                                029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">4</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -118,11 +158,17 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 278</td>
                     <td>
                         
-                            <span class="product-tag">040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G) <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G)')">
+                                040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G) <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">041-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY 檸檬海鹽-Y) <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('041-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY 檸檬海鹽-Y)')">
+                                041-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY 檸檬海鹽-Y) <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์')">
+                                043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -133,9 +179,13 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 270</td>
                     <td>
                         
-                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('020-芒果乾 200g มะม่วงแก้วขมิ้น')">
+                                020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง')">
+                                021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -146,13 +196,21 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 224</td>
                     <td>
                         
-                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ')">
+                                026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง')">
+                                028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด')">
+                                029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R) <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R)')">
+                                038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R) <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -163,15 +221,25 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 425</td>
                     <td>
                         
-                            <span class="product-tag">017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่ <span class="qty-badge">5</span></span>
+                            <span class="product-tag" onclick="openProductModal('017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่')">
+                                017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่ <span class="qty-badge">5</span>
+                            </span>
                         
-                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง')">
+                                021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ')">
+                                026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ')">
+                                027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด')">
+                                029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -182,15 +250,25 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 270</td>
                     <td>
                         
-                            <span class="product-tag">022-JIRAPORN 香蕉脆片 80g กล้วยอบเนย <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('022-JIRAPORN 香蕉脆片 80g กล้วยอบเนย')">
+                                022-JIRAPORN 香蕉脆片 80g กล้วยอบเนย <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ')">
+                                026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ')">
+                                027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง')">
+                                028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด')">
+                                029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -201,21 +279,37 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 490</td>
                     <td>
                         
-                            <span class="product-tag">014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('014-還魂梅 บ๊วยคืนชีพ')">
+                                014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">015-魷魚片花枝脆片黃色包裝18g เบนโตะ ปลาหมึกอบ รสลาบ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('015-魷魚片花枝脆片黃色包裝18g เบนโตะ ปลาหมึกอบ รสลาบ')">
+                                015-魷魚片花枝脆片黃色包裝18g เบนโตะ ปลาหมึกอบ รสลาบ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">016-魷魚片麻辣紅色包裝 18g เบนโตะ ปลาหมึกอบ รสหมึกทรงเครื่อง <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('016-魷魚片麻辣紅色包裝 18g เบนโตะ ปลาหมึกอบ รสหมึกทรงเครื่อง')">
+                                016-魷魚片麻辣紅色包裝 18g เบนโตะ ปลาหมึกอบ รสหมึกทรงเครื่อง <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่')">
+                                017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">018-魷魚片桔色包裝18g  เบนโตะ ปลาหมึกอบ รสน้ำพริกตำรับไทย <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('018-魷魚片桔色包裝18g  เบนโตะ ปลาหมึกอบ รสน้ำพริกตำรับไทย')">
+                                018-魷魚片桔色包裝18g  เบนโตะ ปลาหมึกอบ รสน้ำพริกตำรับไทย <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ')">
+                                026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ')">
+                                027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด')">
+                                029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">2</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -226,25 +320,45 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 1,517</td>
                     <td>
                         
-                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('020-芒果乾 200g มะม่วงแก้วขมิ้น')">
+                                020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง')">
+                                021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง <span class="qty-badge">5</span></span>
+                            <span class="product-tag" onclick="openProductModal('032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง')">
+                                032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง <span class="qty-badge">5</span>
+                            </span>
                         
-                            <span class="product-tag">034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml')">
+                                034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">035- hygiene ไฮยีน สเปรย์หอมปรับผ้าเรียบเร็ว กลิ่นมิลค์กี้ ทัช 220 มล. <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('035- hygiene ไฮยีน สเปรย์หอมปรับผ้าเรียบเร็ว กลิ่นมิลค์กี้ ทัช 220 มล.')">
+                                035- hygiene ไฮยีน สเปรย์หอมปรับผ้าเรียบเร็ว กลิ่นมิลค์กี้ ทัช 220 มล. <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก. <span class="qty-badge">10</span></span>
+                            <span class="product-tag" onclick="openProductModal('036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก.')">
+                                036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก. <span class="qty-badge">10</span>
+                            </span>
                         
-                            <span class="product-tag">039-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (薄荷-B) <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('039-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (薄荷-B)')">
+                                039-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (薄荷-B) <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G) <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G)')">
+                                040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G) <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">042-黑草本鼻通 ยาดมสมุนไพรสีดำ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('042-黑草本鼻通 ยาดมสมุนไพรสีดำ')">
+                                042-黑草本鼻通 ยาดมสมุนไพรสีดำ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">048-BUDDY DEAN 阿拉比卡即溶咖啡 Gold Arabica Instant Coffee <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('048-BUDDY DEAN 阿拉比卡即溶咖啡 Gold Arabica Instant Coffee')">
+                                048-BUDDY DEAN 阿拉比卡即溶咖啡 Gold Arabica Instant Coffee <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -255,13 +369,21 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 165</td>
                     <td>
                         
-                            <span class="product-tag">024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน')">
+                                024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ')">
+                                026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง')">
+                                028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด')">
+                                029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -272,15 +394,25 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 334</td>
                     <td>
                         
-                            <span class="product-tag">007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร')">
+                                007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์')">
+                                009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม')">
+                                010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง')">
+                                028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">046-HYGIENE 陽光香氣衣物香氛袋 ไฮยีน ผลิตภัณฑ์ถุงหอม กลิ่นแฮปปี้ ซันชายน์ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('046-HYGIENE 陽光香氣衣物香氛袋 ไฮยีน ผลิตภัณฑ์ถุงหอม กลิ่นแฮปปี้ ซันชายน์')">
+                                046-HYGIENE 陽光香氣衣物香氛袋 ไฮยีน ผลิตภัณฑ์ถุงหอม กลิ่นแฮปปี้ ซันชายน์ <span class="qty-badge">2</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -291,15 +423,25 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 1,004</td>
                     <td>
                         
-                            <span class="product-tag">011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล')">
+                                011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('020-芒果乾 200g มะม่วงแก้วขมิ้น')">
+                                020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml')">
+                                034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">037 - 即溶瑪奇朵咖啡   โกปิโก้ มัคคิอาโต กาแฟปรุงสำเร็จชนิดผง 24 ก. แพ็ค 7 ซอง <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('037 - 即溶瑪奇朵咖啡   โกปิโก้ มัคคิอาโต กาแฟปรุงสำเร็จชนิดผง 24 ก. แพ็ค 7 ซอง')">
+                                037 - 即溶瑪奇朵咖啡   โกปิโก้ มัคคิอาโต กาแฟปรุงสำเร็จชนิดผง 24 ก. แพ็ค 7 ซอง <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">049-Counterpain 熱感酸痛藥膏 เคาน์เตอร์เพน <span class="qty-badge">3</span></span>
+                            <span class="product-tag" onclick="openProductModal('049-Counterpain 熱感酸痛藥膏 เคาน์เตอร์เพน')">
+                                049-Counterpain 熱感酸痛藥膏 เคาน์เตอร์เพน <span class="qty-badge">3</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -310,7 +452,9 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 600</td>
                     <td>
                         
-                            <span class="product-tag">013-巴黎萊雅 保濕清新防曬 (泰國獨家版) ลอรีอัล ปารีส ยูวี ดีเฟนเดอร์ แมทท์ แอนด์ เฟรช <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('013-巴黎萊雅 保濕清新防曬 (泰國獨家版) ลอรีอัล ปารีส ยูวี ดีเฟนเดอร์ แมทท์ แอนด์ เฟรช')">
+                                013-巴黎萊雅 保濕清新防曬 (泰國獨家版) ลอรีอัล ปารีส ยูวี ดีเฟนเดอร์ แมทท์ แอนด์ เฟรช <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -321,11 +465,17 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 1,200</td>
                     <td>
                         
-                            <span class="product-tag">014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('014-還魂梅 บ๊วยคืนชีพ')">
+                                014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">3</span></span>
+                            <span class="product-tag" onclick="openProductModal('020-芒果乾 200g มะม่วงแก้วขมิ้น')">
+                                020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">3</span>
+                            </span>
                         
-                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">4</span></span>
+                            <span class="product-tag" onclick="openProductModal('021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง')">
+                                021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">4</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -336,13 +486,21 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 240</td>
                     <td>
                         
-                            <span class="product-tag">007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร')">
+                                007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">008-阿婆香皂MADAME HENG(興太太)香皂 薄荷 มาดามเฮง สบู่มิ้นท์แคร์ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('008-阿婆香皂MADAME HENG(興太太)香皂 薄荷 มาดามเฮง สบู่มิ้นท์แคร์')">
+                                008-阿婆香皂MADAME HENG(興太太)香皂 薄荷 มาดามเฮง สบู่มิ้นท์แคร์ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์')">
+                                009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม')">
+                                010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -353,7 +511,9 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 200</td>
                     <td>
                         
-                            <span class="product-tag">050-五塔行軍散 หอมห้าเจดีย์ <span class="qty-badge">4</span></span>
+                            <span class="product-tag" onclick="openProductModal('050-五塔行軍散 หอมห้าเจดีย์')">
+                                050-五塔行軍散 หอมห้าเจดีย์ <span class="qty-badge">4</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -364,7 +524,9 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 360</td>
                     <td>
                         
-                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">3</span></span>
+                            <span class="product-tag" onclick="openProductModal('020-芒果乾 200g มะม่วงแก้วขมิ้น')">
+                                020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">3</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -375,7 +537,9 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 2,000</td>
                     <td>
                         
-                            <span class="product-tag">052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">10</span></span>
+                            <span class="product-tag" onclick="openProductModal('052-superrich 保溫瓶 กระติกน้ำร้อน')">
+                                052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">10</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -386,7 +550,9 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 200</td>
                     <td>
                         
-                            <span class="product-tag">052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('052-superrich 保溫瓶 กระติกน้ำร้อน')">
+                                052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -397,7 +563,9 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 700</td>
                     <td>
                         
-                            <span class="product-tag">033-臘腸狗盲盒新年款 約725元 <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('033-臘腸狗盲盒新年款 約725元')">
+                                033-臘腸狗盲盒新年款 約725元 <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -408,7 +576,9 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 150</td>
                     <td>
                         
-                            <span class="product-tag">053-脆皮榴槤零食 ซิโคขนมทุเรียนอบกรอบ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('053-脆皮榴槤零食 ซิโคขนมทุเรียนอบกรอบ')">
+                                053-脆皮榴槤零食 ซิโคขนมทุเรียนอบกรอบ <span class="qty-badge">2</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -419,17 +589,29 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 1,234</td>
                     <td>
                         
-                            <span class="product-tag">011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล')">
+                                011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('020-芒果乾 200g มะม่วงแก้วขมิ้น')">
+                                020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">033-臘腸狗盲盒新年款 約725元 <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('033-臘腸狗盲盒新年款 約725元')">
+                                033-臘腸狗盲盒新年款 約725元 <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R) <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R)')">
+                                038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R) <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์')">
+                                043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('052-superrich 保溫瓶 กระติกน้ำร้อน')">
+                                052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">1</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -440,11 +622,17 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 390</td>
                     <td>
                         
-                            <span class="product-tag">019-芒果軟糖 200g Gummy Mangoes MAX <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('019-芒果軟糖 200g Gummy Mangoes MAX')">
+                                019-芒果軟糖 200g Gummy Mangoes MAX <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์')">
+                                043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม <span class="qty-badge">6</span></span>
+                            <span class="product-tag" onclick="openProductModal('051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม')">
+                                051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม <span class="qty-badge">6</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -455,83 +643,161 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 0</td>
                     <td>
                         
-                            <span class="product-tag">014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">5</span></span>
+                            <span class="product-tag" onclick="openProductModal('014-還魂梅 บ๊วยคืนชีพ')">
+                                014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">5</span>
+                            </span>
                         
-                            <span class="product-tag">007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร')">
+                                007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">008-阿婆香皂MADAME HENG(興太太)香皂 薄荷 มาดามเฮง สบู่มิ้นท์แคร์ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('008-阿婆香皂MADAME HENG(興太太)香皂 薄荷 มาดามเฮง สบู่มิ้นท์แคร์')">
+                                008-阿婆香皂MADAME HENG(興太太)香皂 薄荷 มาดามเฮง สบู่มิ้นท์แคร์ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์')">
+                                009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์ <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม')">
+                                010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล')">
+                                011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">015-魷魚片花枝脆片黃色包裝18g เบนโตะ ปลาหมึกอบ รสลาบ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('015-魷魚片花枝脆片黃色包裝18g เบนโตะ ปลาหมึกอบ รสลาบ')">
+                                015-魷魚片花枝脆片黃色包裝18g เบนโตะ ปลาหมึกอบ รสลาบ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">016-魷魚片麻辣紅色包裝 18g เบนโตะ ปลาหมึกอบ รสหมึกทรงเครื่อง <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('016-魷魚片麻辣紅色包裝 18g เบนโตะ ปลาหมึกอบ รสหมึกทรงเครื่อง')">
+                                016-魷魚片麻辣紅色包裝 18g เบนโตะ ปลาหมึกอบ รสหมึกทรงเครื่อง <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่ <span class="qty-badge">6</span></span>
+                            <span class="product-tag" onclick="openProductModal('017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่')">
+                                017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่ <span class="qty-badge">6</span>
+                            </span>
                         
-                            <span class="product-tag">018-魷魚片桔色包裝18g  เบนโตะ ปลาหมึกอบ รสน้ำพริกตำรับไทย <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('018-魷魚片桔色包裝18g  เบนโตะ ปลาหมึกอบ รสน้ำพริกตำรับไทย')">
+                                018-魷魚片桔色包裝18g  เบนโตะ ปลาหมึกอบ รสน้ำพริกตำรับไทย <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">019-芒果軟糖 200g Gummy Mangoes MAX <span class="qty-badge">3</span></span>
+                            <span class="product-tag" onclick="openProductModal('019-芒果軟糖 200g Gummy Mangoes MAX')">
+                                019-芒果軟糖 200g Gummy Mangoes MAX <span class="qty-badge">3</span>
+                            </span>
                         
-                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">12</span></span>
+                            <span class="product-tag" onclick="openProductModal('020-芒果乾 200g มะม่วงแก้วขมิ้น')">
+                                020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">12</span>
+                            </span>
                         
-                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">7</span></span>
+                            <span class="product-tag" onclick="openProductModal('021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง')">
+                                021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">7</span>
+                            </span>
                         
-                            <span class="product-tag">022-JIRAPORN 香蕉脆片 80g กล้วยอบเนย <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('022-JIRAPORN 香蕉脆片 80g กล้วยอบเนย')">
+                                022-JIRAPORN 香蕉脆片 80g กล้วยอบเนย <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน <span class="qty-badge">7</span></span>
+                            <span class="product-tag" onclick="openProductModal('024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน')">
+                                024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน <span class="qty-badge">7</span>
+                            </span>
                         
-                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">8</span></span>
+                            <span class="product-tag" onclick="openProductModal('026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ')">
+                                026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">8</span>
+                            </span>
                         
-                            <span class="product-tag">027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">5</span></span>
+                            <span class="product-tag" onclick="openProductModal('027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ')">
+                                027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">5</span>
+                            </span>
                         
-                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">5</span></span>
+                            <span class="product-tag" onclick="openProductModal('028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง')">
+                                028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">5</span>
+                            </span>
                         
-                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">10</span></span>
+                            <span class="product-tag" onclick="openProductModal('029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด')">
+                                029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">10</span>
+                            </span>
                         
-                            <span class="product-tag">032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง <span class="qty-badge">5</span></span>
+                            <span class="product-tag" onclick="openProductModal('032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง')">
+                                032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง <span class="qty-badge">5</span>
+                            </span>
                         
-                            <span class="product-tag">033-臘腸狗盲盒新年款 約725元 <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('033-臘腸狗盲盒新年款 約725元')">
+                                033-臘腸狗盲盒新年款 約725元 <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">013-巴黎萊雅 保濕清新防曬 (泰國獨家版) ลอรีอัล ปารีส ยูวี ดีเฟนเดอร์ แมทท์ แอนด์ เฟรช <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('013-巴黎萊雅 保濕清新防曬 (泰國獨家版) ลอรีอัล ปารีส ยูวี ดีเฟนเดอร์ แมทท์ แอนด์ เฟรช')">
+                                013-巴黎萊雅 保濕清新防曬 (泰國獨家版) ลอรีอัล ปารีส ยูวี ดีเฟนเดอร์ แมทท์ แอนด์ เฟรช <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml')">
+                                034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">035- hygiene ไฮยีน สเปรย์หอมปรับผ้าเรียบเร็ว กลิ่นมิลค์กี้ ทัช 220 มล. <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('035- hygiene ไฮยีน สเปรย์หอมปรับผ้าเรียบเร็ว กลิ่นมิลค์กี้ ทัช 220 มล.')">
+                                035- hygiene ไฮยีน สเปรย์หอมปรับผ้าเรียบเร็ว กลิ่นมิลค์กี้ ทัช 220 มล. <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก. <span class="qty-badge">10</span></span>
+                            <span class="product-tag" onclick="openProductModal('036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก.')">
+                                036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก. <span class="qty-badge">10</span>
+                            </span>
                         
-                            <span class="product-tag">037 - 即溶瑪奇朵咖啡   โกปิโก้ มัคคิอาโต กาแฟปรุงสำเร็จชนิดผง 24 ก. แพ็ค 7 ซอง <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('037 - 即溶瑪奇朵咖啡   โกปิโก้ มัคคิอาโต กาแฟปรุงสำเร็จชนิดผง 24 ก. แพ็ค 7 ซอง')">
+                                037 - 即溶瑪奇朵咖啡   โกปิโก้ มัคคิอาโต กาแฟปรุงสำเร็จชนิดผง 24 ก. แพ็ค 7 ซอง <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R) <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R)')">
+                                038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R) <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">039-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (薄荷-B) <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('039-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (薄荷-B)')">
+                                039-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (薄荷-B) <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G) <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G)')">
+                                040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G) <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">041-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY 檸檬海鹽-Y) <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('041-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY 檸檬海鹽-Y)')">
+                                041-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY 檸檬海鹽-Y) <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">042-黑草本鼻通 ยาดมสมุนไพรสีดำ <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('042-黑草本鼻通 ยาดมสมุนไพรสีดำ')">
+                                042-黑草本鼻通 ยาดมสมุนไพรสีดำ <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">3</span></span>
+                            <span class="product-tag" onclick="openProductModal('043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์')">
+                                043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">3</span>
+                            </span>
                         
-                            <span class="product-tag">046-HYGIENE 陽光香氣衣物香氛袋 ไฮยีน ผลิตภัณฑ์ถุงหอม กลิ่นแฮปปี้ ซันชายน์ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('046-HYGIENE 陽光香氣衣物香氛袋 ไฮยีน ผลิตภัณฑ์ถุงหอม กลิ่นแฮปปี้ ซันชายน์')">
+                                046-HYGIENE 陽光香氣衣物香氛袋 ไฮยีน ผลิตภัณฑ์ถุงหอม กลิ่นแฮปปี้ ซันชายน์ <span class="qty-badge">2</span>
+                            </span>
                         
-                            <span class="product-tag">048-BUDDY DEAN 阿拉比卡即溶咖啡 Gold Arabica Instant Coffee <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('048-BUDDY DEAN 阿拉比卡即溶咖啡 Gold Arabica Instant Coffee')">
+                                048-BUDDY DEAN 阿拉比卡即溶咖啡 Gold Arabica Instant Coffee <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">049-Counterpain 熱感酸痛藥膏 เคาน์เตอร์เพน <span class="qty-badge">3</span></span>
+                            <span class="product-tag" onclick="openProductModal('049-Counterpain 熱感酸痛藥膏 เคาน์เตอร์เพน')">
+                                049-Counterpain 熱感酸痛藥膏 เคาน์เตอร์เพน <span class="qty-badge">3</span>
+                            </span>
                         
-                            <span class="product-tag">050-五塔行軍散 หอมห้าเจดีย์ <span class="qty-badge">4</span></span>
+                            <span class="product-tag" onclick="openProductModal('050-五塔行軍散 หอมห้าเจดีย์')">
+                                050-五塔行軍散 หอมห้าเจดีย์ <span class="qty-badge">4</span>
+                            </span>
                         
-                            <span class="product-tag">051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม <span class="qty-badge">6</span></span>
+                            <span class="product-tag" onclick="openProductModal('051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม')">
+                                051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม <span class="qty-badge">6</span>
+                            </span>
                         
-                            <span class="product-tag">052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">12</span></span>
+                            <span class="product-tag" onclick="openProductModal('052-superrich 保溫瓶 กระติกน้ำร้อน')">
+                                052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">12</span>
+                            </span>
                         
-                            <span class="product-tag">053-脆皮榴槤零食 ซิโคขนมทุเรียนอบกรอบ <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('053-脆皮榴槤零食 ซิโคขนมทุเรียนอบกรอบ')">
+                                053-脆皮榴槤零食 ซิโคขนมทุเรียนอบกรอบ <span class="qty-badge">2</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -542,9 +808,13 @@
                     <td style="color:var(--primary); font-weight:bold;">NT$ 0</td>
                     <td>
                         
-                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                            <span class="product-tag" onclick="openProductModal('029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด')">
+                                029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span>
+                            </span>
                         
-                            <span class="product-tag">036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก. <span class="qty-badge">2</span></span>
+                            <span class="product-tag" onclick="openProductModal('036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก.')">
+                                036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก. <span class="qty-badge">2</span>
+                            </span>
                         
                     </td>
                 </tr>
@@ -558,33 +828,62 @@
     </div>
 </div>
 
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">商品名稱</div>
+            <button class="close-btn" onclick="closeProductModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <!-- Placeholder Image logic -->
+            <img id="modalImg" src="" class="modal-img" alt="Product Image">
+            <div class="modal-actions">
+                <p style="color:#666; margin-bottom:15px;">暫無詳細照片，您可以：</p>
+                <a id="searchLink" href="#" target="_blank" class="btn-search">🔍 Google 搜尋圖片</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     Chart.register(ChartDataLabels);
 
-    const productLabels = ["020-芒果乾 200g มะม่วงแก้วขมิ้น","052-superrich 保溫瓶 กระติกน้ำร้อน","036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก.","029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด","026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ","021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง","024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน","017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่","051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม","014-還魂梅 บ๊วยคืนชีพ","027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ","028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง","032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง","050-五塔行軍散 หอมห้าเจดีย์","019-芒果軟糖 200g Gummy Mangoes MAX"]; // Top 15
+    const fullProductLabels = ["020-芒果乾 200g มะม่วงแก้วขมิ้น","052-superrich 保溫瓶 กระติกน้ำร้อน","036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก.","029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด","026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ","021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง","024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน","017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่","051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม","014-還魂梅 บ๊วยคืนชีพ","027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ","028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง","032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง","050-五塔行軍散 หอมห้าเจดีย์","019-芒果軟糖 200g Gummy Mangoes MAX"];
     const productData = [24,24,22,21,16,14,14,12,12,10,10,10,10,8,6];
 
-    // Clean up long labels
-    const cleanLabels = productLabels.map(l => {
-        // Keep first 20 chars
+    // Clean up long labels for display, but keep full for logic
+    const displayLabels = fullProductLabels.map(l => {
         return l.length > 25 ? l.substring(0, 25) + '...' : l;
     });
 
-    new Chart(document.getElementById('productChart'), {
+    // Chart Configuration
+    const ctx = document.getElementById('productChart').getContext('2d');
+    const myChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: cleanLabels,
+            labels: fullProductLabels.map(l => l.length > 20 ? l.substring(0, 20) + '...' : l),
             datasets: [{
                 label: '銷售數量 (Quantity)',
                 data: productData,
                 backgroundColor: '#FF9F1C',
-                borderRadius: 5
+                borderRadius: 5,
+                barPercentage: 0.7
             }]
         },
         options: {
-            indexAxis: 'y', // Horizontal Bar Chart
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            onClick: (e, elements) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    window.openProductModal(fullProductLabels[index]);
+                }
+            },
+            onHover: (e, elements) => {
+                e.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+            },
             plugins: {
                 legend: { display: false },
                 title: { display: false },
@@ -597,7 +896,7 @@
                 },
                 tooltip: {
                     callbacks: {
-                        title: (items) => productLabels[items[0].index] // Show full name on hover
+                        title: (items) => fullProductLabels[items[0].index]
                     }
                 }
             },
@@ -606,8 +905,38 @@
             }
         }
     });
-</script>
 
-</body>
-</html>
+    // Modal Logic
+    const modal = document.getElementById('productModal');
+    const modalTitleElement = document.getElementById('modalTitle');
+    const modalImgElement = document.getElementById('modalImg');
+    const searchLinkElement = document.getElementById('searchLink');
+
+    window.openProductModal = function(productName) {
+        if (!productName) return;
+        
+        modalTitleElement.innerText = productName;
+        
+        // Placeholder
+        const safeText = encodeURIComponent(productName.substring(0, 20));
+        modalImgElement.src = `https://placehold.co/600x400/FF9F1C/white?text=${safeText}`;
+        
+        // Google Search Link
+        searchLinkElement.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(productName)}`;
+        
+        modal.style.display = 'flex';
+    };
+
+    window.closeProductModal = function() {
+        modal.style.display = 'none';
+    };
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) window.closeProductModal();
+    });
+
+</script >
+
+</body >
+</html >
     
