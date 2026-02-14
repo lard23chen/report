@@ -1,0 +1,45 @@
+name: Auto Update Travel Expense Report
+
+on:
+  schedule:
+    # 06:00 AM Taipei Time (UTC+8) = 22:00 PM UTC previous day
+    - cron: '0 22 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Download Latest CSV
+      run: |
+        curl -L "https://docs.google.com/spreadsheets/d/1pZCR_nVgyhwYldCRxfum4AsC-vxSFdjnkqAotzeV1CI/export?format=csv&gid=0" -o travel/new_analysis_data.csv
+
+    - name: Generate Expense Report
+      run: |
+        cd travel
+        node generate_expense_report.js
+
+    - name: Commit and Push Changes
+      run: |
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+        
+        # Check if there are changes
+        if [[ -n $(git status -s) ]]; then
+          git add travel/new_analysis_data.csv travel/expense_report.html
+          git commit -m "Auto-update expense report: $(date)"
+          git push
+        else
+          echo "No changes to commit"
+        fi

@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const csvFilePath = 'd:/2025/AI/MongoDB/travel/new_analysis_data.csv';
-const htmlFilePath = 'd:/2025/AI/MongoDB/travel/expense_report.html';
+const csvFilePath = path.join(__dirname, 'new_analysis_data.csv');
+const htmlFilePath = path.join(__dirname, 'expense_report.html');
 
 try {
     const fileContent = fs.readFileSync(csvFilePath, 'utf8');
