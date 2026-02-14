@@ -141,7 +141,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🛍️ 泰國代購統計報告</title>
+    <title>🛍️ 2026年2月泰國代購統計報告</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
@@ -217,7 +217,7 @@ try {
 <body>
 
 <div class="container">
-    <h1>🛍️ 泰國代購統計報告</h1>
+    <h1>🛍️ 2026年2月泰國代購統計報告</h1>
     <p class="subtitle">更新時間: ${new Date().toLocaleString('zh-TW')}</p>
 
     <div class="summary-card">
