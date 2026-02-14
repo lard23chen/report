@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📊 旅遊消費分析報告</title>
+    <title>📊 2026年2月旅遊消費分析報告</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
@@ -71,7 +71,7 @@
 <body>
 
 <div class="container">
-    <h1>📊 旅遊消費分析報告</h1>
+    <h1>📊 2026年2月旅遊消費分析報告</h1>
 
     <div class="summary-card">
         <div class="stat-item">
@@ -171,19 +171,6 @@
                 </td>
             </tr>
             
-            <tr data-date="2026-02-12" data-payer="MARK">
-                <td>2026-02-12</td>
-                <td>🚗 交通</td>
-                <td>Grad 機場至Holiday Inn Express Bangkok Siam</td>
-                <td class="amount ">438</td>
-                <td>信用卡</td>
-                <td>MARK</td>
-                <td>
-                     
-                    2026/2/12 上午 1:53:57
-                </td>
-            </tr>
-            
             <tr data-date="2026-02-11" data-payer="其他">
                 <td>2026-02-11</td>
                 <td>🏨 住宿</td>
@@ -194,6 +181,19 @@
                 <td>
                      
                     2026/2/12 上午 2:20:13
+                </td>
+            </tr>
+            
+            <tr data-date="2026-02-12" data-payer="MARK">
+                <td>2026-02-12</td>
+                <td>🚗 交通</td>
+                <td>Grad 機場至Holiday Inn Express Bangkok Siam</td>
+                <td class="amount ">438</td>
+                <td>信用卡</td>
+                <td>MARK</td>
+                <td>
+                     
+                    2026/2/12 上午 1:53:57
                 </td>
             </tr>
             
@@ -405,7 +405,7 @@
     Chart.register(ChartDataLabels);
 
     // Data Preparation
-    const categoryData = {"💬 其他":3824,"🛍️ 購物":3424,"🚗 交通":438,"🏨 住宿":60,"🍽️ 餐飲":3099};
+    const categoryData = {"💬 其他":3824,"🛍️ 購物":3424,"🏨 住宿":60,"🚗 交通":438,"🍽️ 餐飲":3099};
     const payerData = {"MARK":4448,"ALEX":3543,"其他":20,"泰國帳戶":2834};
     const methodData = {"信用卡":5751,"現金":260,"泰國帳戶":4834};
 

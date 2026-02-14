@@ -31,6 +31,13 @@ try {
         });
     }
 
+    // Sort Data by Date
+    data.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateA - dateB;
+    });
+
     // Analysis for Charts
     let totalExpense = 0;
     const categoryStats = {};
@@ -72,7 +79,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📊 旅遊消費分析報告</title>
+    <title>📊 2026年2月旅遊消費分析報告</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
@@ -139,7 +146,7 @@ try {
 <body>
 
 <div class="container">
-    <h1>📊 旅遊消費分析報告</h1>
+    <h1>📊 2026年2月旅遊消費分析報告</h1>
 
     <div class="summary-card">
         <div class="stat-item">
