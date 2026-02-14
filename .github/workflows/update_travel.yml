@@ -21,14 +21,16 @@ jobs:
       with:
         node-version: '16'
 
-    - name: Download Latest CSV
+    - name: Download Latest Data
       run: |
         curl -L "https://docs.google.com/spreadsheets/d/1pZCR_nVgyhwYldCRxfum4AsC-vxSFdjnkqAotzeV1CI/export?format=csv&gid=0" -o travel/new_analysis_data.csv
+        curl -L "https://docs.google.com/spreadsheets/d/1fgJbzRvnn-4VUbn6PIMh2PyDpxkNPJo8MbuEj4pNt1M/export?format=csv&gid=1320702581" -o travel/new_data_gid_1320702581.csv
 
-    - name: Generate Expense Report
+    - name: Generate Reports
       run: |
         cd travel
         node generate_expense_report.js
+        node generate_shopping_report.js
 
     - name: Commit and Push Changes
       run: |
@@ -38,6 +40,7 @@ jobs:
         # Check if there are changes
         if [[ -n $(git status -s) ]]; then
           git add travel/new_analysis_data.csv travel/expense_report.html
+          git add travel/new_data_gid_1320702581.csv travel/shopping_report.html
           git commit -m "Auto-update expense report: $(date)"
           git push
         else

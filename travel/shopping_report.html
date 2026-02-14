@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛍️ 泰國代購統計報告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF9F1C; /* Orange for shopping/vitality */
+            --secondary: #FFBF69;
+            --bg: #FAFAFA;
+            --text: #33272a;
+            --accent: #2EC4B6;
+        }
+        body { font-family: 'Zen Maru Gothic', sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        h1 { text-align: center; color: var(--primary); margin-bottom: 20px; font-size: 2.5rem; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 40px; margin-top: -10px; }
+
+        .summary-card { display: flex; justify-content: center; gap: 40px; margin-bottom: 40px; flex-wrap: wrap; }
+        .stat-item { background: #fffcfc; padding: 20px 40px; border-radius: 15px; border: 1px dashed #eee; text-align: center; min-width: 200px; }
+        .stat-item h3 { margin: 0 0 10px; color: #888; font-size: 1rem; }
+        .stat-item .value { font-size: 2rem; font-weight: bold; color: var(--text); }
+        
+        .chart-section { margin-bottom: 50px; }
+        .chart-box { background: white; padding: 20px; border-radius: 15px; border: 1px solid #f0f0f0; height: 500px; position: relative; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f9f9f9; color: #666; font-weight: bold; white-space: nowrap; }
+        tr:hover { background: #fdfdfd; }
+        .product-tag { 
+            display: inline-block; background: #eafbea; color: #2d6a4f; 
+            padding: 3px 8px; border-radius: 10px; font-size: 0.85rem; margin: 2px;
+        }
+        .qty-badge {
+            background: var(--primary); color: white; border-radius: 50%; 
+            width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; margin-left: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .chart-box { height: 400px; }
+            td { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🛍️ 泰國代購統計報告</h1>
+    <p class="subtitle">更新時間: 2026/2/14 上午10:38:31</p>
+
+    <div class="summary-card">
+        <div class="stat-item">
+            <h3>總銷售額 (Total Revenue)</h3>
+            <div class="value">NT$ 13,141</div>
+        </div>
+        <div class="stat-item">
+            <h3>總訂單數 (Total Orders)</h3>
+            <div class="value">24</div>
+        </div>
+        <div class="stat-item">
+            <h3>總售出商品數 (Items Sold)</h3>
+            <div class="value">293</div>
+        </div>
+    </div>
+
+    <div class="chart-section">
+        <h2 style="text-align:center; margin-bottom:20px; color:#555;">🔥 熱銷商品排行榜 (Top Products)</h2>
+        <div class="chart-box">
+            <canvas id="productChart"></canvas>
+        </div>
+    </div>
+
+    <h2 style="margin-top:50px; margin-bottom:20px; border-left: 5px solid var(--primary); padding-left:15px;">📦 訂單詳細清單 (Order Details)</h2>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>下單時間</th>
+                    <th>姓名</th>
+                    <th>總金額</th>
+                    <th>購買商品 (數量)</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>2026/2/11 下午 5:16:09</td>
+                    <td style="font-weight:bold;">蘇芯甯</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 890</td>
+                    <td>
+                        
+                            <span class="product-tag">014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">019-芒果軟糖 200g Gummy Mangoes MAX <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน <span class="qty-badge">5</span></span>
+                        
+                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">4</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/11 下午 5:45:40</td>
+                    <td style="font-weight:bold;">ivylin</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 278</td>
+                    <td>
+                        
+                            <span class="product-tag">040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G) <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">041-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY 檸檬海鹽-Y) <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/11 下午 6:41:30</td>
+                    <td style="font-weight:bold;">林佩婷</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 270</td>
+                    <td>
+                        
+                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/11 下午 7:19:57</td>
+                    <td style="font-weight:bold;">張家菁</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 224</td>
+                    <td>
+                        
+                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R) <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/11 下午 7:47:12</td>
+                    <td style="font-weight:bold;">王小薰</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 425</td>
+                    <td>
+                        
+                            <span class="product-tag">017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่ <span class="qty-badge">5</span></span>
+                        
+                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/11 下午 7:53:43</td>
+                    <td style="font-weight:bold;">黃晏瑜（Ida)</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 270</td>
+                    <td>
+                        
+                            <span class="product-tag">022-JIRAPORN 香蕉脆片 80g กล้วยอบเนย <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/11 下午 9:41:30</td>
+                    <td style="font-weight:bold;">吳柔潔</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 490</td>
+                    <td>
+                        
+                            <span class="product-tag">014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">015-魷魚片花枝脆片黃色包裝18g เบนโตะ ปลาหมึกอบ รสลาบ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">016-魷魚片麻辣紅色包裝 18g เบนโตะ ปลาหมึกอบ รสหมึกทรงเครื่อง <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">018-魷魚片桔色包裝18g  เบนโตะ ปลาหมึกอบ รสน้ำพริกตำรับไทย <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">2</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/11 下午 10:05:57</td>
+                    <td style="font-weight:bold;">VK</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 1,517</td>
+                    <td>
+                        
+                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง <span class="qty-badge">5</span></span>
+                        
+                            <span class="product-tag">034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">035- hygiene ไฮยีน สเปรย์หอมปรับผ้าเรียบเร็ว กลิ่นมิลค์กี้ ทัช 220 มล. <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก. <span class="qty-badge">10</span></span>
+                        
+                            <span class="product-tag">039-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (薄荷-B) <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G) <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">042-黑草本鼻通 ยาดมสมุนไพรสีดำ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">048-BUDDY DEAN 阿拉比卡即溶咖啡 Gold Arabica Instant Coffee <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/12 上午 7:58:35</td>
+                    <td style="font-weight:bold;">陳詩恬</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 165</td>
+                    <td>
+                        
+                            <span class="product-tag">024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/12 上午 8:26:11</td>
+                    <td style="font-weight:bold;">謝淑華</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 334</td>
+                    <td>
+                        
+                            <span class="product-tag">007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">046-HYGIENE 陽光香氣衣物香氛袋 ไฮยีน ผลิตภัณฑ์ถุงหอม กลิ่นแฮปปี้ ซันชายน์ <span class="qty-badge">2</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/12 上午 9:40:03</td>
+                    <td style="font-weight:bold;">官官</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 1,004</td>
+                    <td>
+                        
+                            <span class="product-tag">011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">037 - 即溶瑪奇朵咖啡   โกปิโก้ มัคคิอาโต กาแฟปรุงสำเร็จชนิดผง 24 ก. แพ็ค 7 ซอง <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">049-Counterpain 熱感酸痛藥膏 เคาน์เตอร์เพน <span class="qty-badge">3</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/12 上午 10:32:57</td>
+                    <td style="font-weight:bold;">Grace</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 600</td>
+                    <td>
+                        
+                            <span class="product-tag">013-巴黎萊雅 保濕清新防曬 (泰國獨家版) ลอรีอัล ปารีส ยูวี ดีเฟนเดอร์ แมทท์ แอนด์ เฟรช <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/12 下午 1:48:58</td>
+                    <td style="font-weight:bold;">Wei</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 1,200</td>
+                    <td>
+                        
+                            <span class="product-tag">014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">3</span></span>
+                        
+                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">4</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/12 下午 11:49:34</td>
+                    <td style="font-weight:bold;">哈利</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 240</td>
+                    <td>
+                        
+                            <span class="product-tag">007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">008-阿婆香皂MADAME HENG(興太太)香皂 薄荷 มาดามเฮง สบู่มิ้นท์แคร์ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/13 上午 11:05:58</td>
+                    <td style="font-weight:bold;">楊淑婷</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 200</td>
+                    <td>
+                        
+                            <span class="product-tag">050-五塔行軍散 หอมห้าเจดีย์ <span class="qty-badge">4</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/13 上午 11:27:18</td>
+                    <td style="font-weight:bold;">蔡沛芹</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 360</td>
+                    <td>
+                        
+                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">3</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/13 上午 11:32:30</td>
+                    <td style="font-weight:bold;">哈利</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 2,000</td>
+                    <td>
+                        
+                            <span class="product-tag">052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">10</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/13 上午 11:38:52</td>
+                    <td style="font-weight:bold;">Stella</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 200</td>
+                    <td>
+                        
+                            <span class="product-tag">052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/13 下午 1:47:09</td>
+                    <td style="font-weight:bold;">mia</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 700</td>
+                    <td>
+                        
+                            <span class="product-tag">033-臘腸狗盲盒新年款 約725元 <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/13 下午 2:58:19</td>
+                    <td style="font-weight:bold;">VK</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 150</td>
+                    <td>
+                        
+                            <span class="product-tag">053-脆皮榴槤零食 ซิโคขนมทุเรียนอบกรอบ <span class="qty-badge">2</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/13 下午 3:05:10</td>
+                    <td style="font-weight:bold;">Mandy</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 1,234</td>
+                    <td>
+                        
+                            <span class="product-tag">011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">033-臘腸狗盲盒新年款 約725元 <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R) <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">1</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>2026/2/13 下午 9:45:32</td>
+                    <td style="font-weight:bold;">李怡修</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 390</td>
+                    <td>
+                        
+                            <span class="product-tag">019-芒果軟糖 200g Gummy Mangoes MAX <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม <span class="qty-badge">6</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>數量總計</td>
+                    <td style="font-weight:bold;"></td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 0</td>
+                    <td>
+                        
+                            <span class="product-tag">014-還魂梅 บ๊วยคืนชีพ <span class="qty-badge">5</span></span>
+                        
+                            <span class="product-tag">007-阿婆香皂MADAME HENG (興太太)香皂 原味 เมอรี่เบลล์ สบู่สมุนไพรเมอรี่เบลล์ สบู่สมุนไพร <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">008-阿婆香皂MADAME HENG(興太太)香皂 薄荷 มาดามเฮง สบู่มิ้นท์แคร์ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰 มาดามเฮง สบู่กุหลาบแคร์ <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">010-阿婆香皂MADAME HENG(興太太)香皂 檀香 สบู่มาดามเฮง สบู่ไม้หอม <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">011-蚊蟲叮咬 頭痛用 涼涼膏  ไอซ์ เจลลิบาล์ม ยาดมพร้อมทาสูตรเจล <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">015-魷魚片花枝脆片黃色包裝18g เบนโตะ ปลาหมึกอบ รสลาบ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">016-魷魚片麻辣紅色包裝 18g เบนโตะ ปลาหมึกอบ รสหมึกทรงเครื่อง <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่ <span class="qty-badge">6</span></span>
+                        
+                            <span class="product-tag">018-魷魚片桔色包裝18g  เบนโตะ ปลาหมึกอบ รสน้ำพริกตำรับไทย <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">019-芒果軟糖 200g Gummy Mangoes MAX <span class="qty-badge">3</span></span>
+                        
+                            <span class="product-tag">020-芒果乾 200g มะม่วงแก้วขมิ้น <span class="qty-badge">12</span></span>
+                        
+                            <span class="product-tag">021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง <span class="qty-badge">7</span></span>
+                        
+                            <span class="product-tag">022-JIRAPORN 香蕉脆片 80g กล้วยอบเนย <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน <span class="qty-badge">7</span></span>
+                        
+                            <span class="product-tag">026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ <span class="qty-badge">8</span></span>
+                        
+                            <span class="product-tag">027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ <span class="qty-badge">5</span></span>
+                        
+                            <span class="product-tag">028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง <span class="qty-badge">5</span></span>
+                        
+                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">10</span></span>
+                        
+                            <span class="product-tag">032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง <span class="qty-badge">5</span></span>
+                        
+                            <span class="product-tag">033-臘腸狗盲盒新年款 約725元 <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">013-巴黎萊雅 保濕清新防曬 (泰國獨家版) ลอรีอัล ปารีส ยูวี ดีเฟนเดอร์ แมทท์ แอนด์ เฟรช <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">035- hygiene ไฮยีน สเปรย์หอมปรับผ้าเรียบเร็ว กลิ่นมิลค์กี้ ทัช 220 มล. <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก. <span class="qty-badge">10</span></span>
+                        
+                            <span class="product-tag">037 - 即溶瑪奇朵咖啡   โกปิโก้ มัคคิอาโต กาแฟปรุงสำเร็จชนิดผง 24 ก. แพ็ค 7 ซอง <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">038-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (蘋果洋甘菊--R) <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">039-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (薄荷-B) <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">040-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY (草本-G) <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">041-口腔噴霧  SKYNLAB PREMIUM MOUTH SPRAY 檸檬海鹽-Y) <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">042-黑草本鼻通 ยาดมสมุนไพรสีดำ <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">043-HYGIENE 強效去漬筆 ไฮยีน ปากกาขัดคราบ ไอทู แอคชั่น พาวเวอร์ <span class="qty-badge">3</span></span>
+                        
+                            <span class="product-tag">046-HYGIENE 陽光香氣衣物香氛袋 ไฮยีน ผลิตภัณฑ์ถุงหอม กลิ่นแฮปปี้ ซันชายน์ <span class="qty-badge">2</span></span>
+                        
+                            <span class="product-tag">048-BUDDY DEAN 阿拉比卡即溶咖啡 Gold Arabica Instant Coffee <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">049-Counterpain 熱感酸痛藥膏 เคาน์เตอร์เพน <span class="qty-badge">3</span></span>
+                        
+                            <span class="product-tag">050-五塔行軍散 หอมห้าเจดีย์ <span class="qty-badge">4</span></span>
+                        
+                            <span class="product-tag">051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม <span class="qty-badge">6</span></span>
+                        
+                            <span class="product-tag">052-superrich 保溫瓶 กระติกน้ำร้อน <span class="qty-badge">12</span></span>
+                        
+                            <span class="product-tag">053-脆皮榴槤零食 ซิโคขนมทุเรียนอบกรอบ <span class="qty-badge">2</span></span>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td></td>
+                    <td style="font-weight:bold;">13141</td>
+                    <td style="color:var(--primary); font-weight:bold;">NT$ 0</td>
+                    <td>
+                        
+                            <span class="product-tag">029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด <span class="qty-badge">1</span></span>
+                        
+                            <span class="product-tag">036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก. <span class="qty-badge">2</span></span>
+                        
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align:center; margin-top: 40px;">
+        <a href="index.html" style="color: #999; text-decoration: none;">← 返回首頁</a>
+    </div>
+</div>
+
+<script>
+    Chart.register(ChartDataLabels);
+
+    const productLabels = ["020-芒果乾 200g มะม่วงแก้วขมิ้น","052-superrich 保溫瓶 กระติกน้ำร้อน","036- CKM止痛凝膠，清涼配方 ซีเคเอ็ม ยาเจลบรรเทาอาการปวดเมื่อย สูตรเย็น 8 ก.","029-MAMA船麵(細粿條-湯) มาม่า เส้นเล็ก รสก๋วยเตี๋ยวเรือซอสเผ็ด","026-雙龍牌船麵(冬粉-湯) มังกรคู่ เรดดี้ วุ้นเส้น รสก๋วยเตี๋ยวเรือ","021-芭樂乾 200g ฝรั่งกิมจูอบแห้ง","024-皇家牌乳片 จิตรลดา นมปรุงแต่งชนิดเม็ด รสหวาน","017-魷魚片蒜味藍色包裝18g เบนโตะ ปลาหมึกอบปรุงรส ฮอตแอนด์สไปซี่","051-羅望子糖果  อามีร่า ลูกอมสอดไส้เนื้อมะขาม","014-還魂梅 บ๊วยคืนชีพ","027-雙龍牌船麵(細粿條-湯) มังกรคู่ เรดดี้ เส้นเล็ก รสก๋วยเตี๋ยวเรือ","028-雙龍牌船麵(細粿條-乾) มัมังกรคู่ เรดดี้ เส้นเล็กแซ่บแห้ง","032-小老闆冬陰功海苔約65元 เถ้าแก่น้อยสาหร่ายทอดรสต้มยำมันกุ้ง","050-五塔行軍散 หอมห้าเจดีย์","019-芒果軟糖 200g Gummy Mangoes MAX"]; // Top 15
+    const productData = [24,24,22,21,16,14,14,12,12,10,10,10,10,8,6];
+
+    // Clean up long labels
+    const cleanLabels = productLabels.map(l => {
+        // Keep first 20 chars
+        return l.length > 25 ? l.substring(0, 25) + '...' : l;
+    });
+
+    new Chart(document.getElementById('productChart'), {
+        type: 'bar',
+        data: {
+            labels: cleanLabels,
+            datasets: [{
+                label: '銷售數量 (Quantity)',
+                data: productData,
+                backgroundColor: '#FF9F1C',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Horizontal Bar Chart
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                title: { display: false },
+                datalabels: {
+                    color: '#444',
+                    anchor: 'end',
+                    align: 'right',
+                    font: { weight: 'bold' },
+                    formatter: Math.round
+                },
+                tooltip: {
+                    callbacks: {
+                        title: (items) => productLabels[items[0].index] // Show full name on hover
+                    }
+                }
+            },
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
+    
