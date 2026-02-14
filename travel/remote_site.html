@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026泰國許願池 v2.3.1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; scroll-behavior: smooth; }
+        .product-img { aspect-ratio: 1 / 1; object-fit: cover; transition: transform 0.3s ease; }
+        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* 當商品被選中時的樣式 */
+        .card-selected { border-color: #4f46e5 !important; border-width: 2px !important; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2); transform: translateY(-4px); }
+        .truncate-2-lines { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .sticky-header { backdrop-filter: blur(12px); background-color: rgba(255, 255, 255, 0.85); }
+        .dis-n {display:none;}
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 pb-20 text-left">
+
+    <nav class="sticky top-0 z-50 sticky-header border-b border-slate-200 px-4 py-3 shadow-sm">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-slate-800 flex items-center">
+                <span class="mr-2">🛒</span> 20260211泰國許願池
+            </h1>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-400 uppercase tracking-tighter">TOTAL AMOUNT</p>
+                    <p class="text-xl font-black text-indigo-600 leading-none">$<span id="nav-total-price">0</span></p>
+                </div>
+                <a href="#cart-section" class="bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-indigo-700 transition shadow-lg active:scale-95">
+                    結帳
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4 pt-8">
+        <header class="mb-10 text-center">
+            <h2 class="text-3xl font-extrabold text-slate-800 mb-2">20260211泰國許願池</h2>
+            <p class="text-slate-500">價格以實際購入為主，目前僅供參考</p>
+        </header>
+
+        <div id="product-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-16">
+            </div>
+
+        <section id="cart-section" class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden mb-10">
+            <div class="bg-slate-800 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-white font-bold text-lg">您的選購清單</h3>
+                <span id="cart-count-badge" class="bg-indigo-500 text-white text-xs px-3 py-1 rounded-full font-bold">0 項目</span>
+            </div>
+            
+            <div class="p-6">
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-slate-400 text-xs uppercase tracking-widest border-b border-slate-100">
+                                <th class="pb-3 font-medium">商品</th>
+                                <th class="pb-3 text-center font-medium">數量</th>
+                                <th class="pb-3 text-right font-medium">小計</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-table-body" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                    <div id="empty-msg" class="text-center py-12 text-slate-300">
+                        <div class="text-5xl mb-3 opacity-20">🛍️</div>
+                        <p class="font-medium">購物車內尚無商品</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center bg-slate-50 rounded-2xl p-6">
+                    <span class="text-slate-500 font-bold">應付總額</span>
+                    <span class="text-3xl font-black text-indigo-600 tracking-tighter">$<span id="total-price">0</span></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 text-left">
+            <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                <span class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 text-sm font-bold text-left">✓</span>
+                確認訂購資訊
+            </h3>
+            
+            <div class="space-y-6 text-left">
+                <div>
+                    <label class="block text-sm font-bold text-slate-600 mb-2 ml-1">收件人全名</label>
+                    <input type="text" id="user-name" placeholder="請輸入姓名" 
+                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 p-4 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-600 mb-2 ml-1">我有話要說 (許願/備註)</label>
+                    <textarea id="wish-list" rows="3" placeholder="例如：某商品要特定顏色、清單外商品名稱..." 
+                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 p-4 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition shadow-sm"></textarea>
+                </div>
+
+                <button onclick="submitOrder()" 
+                    class="w-full bg-slate-900 text-white font-bold py-5 rounded-2xl hover:bg-indigo-600 active:scale-95 transition-all shadow-xl text-lg tracking-widest mt-4">
+                    確認送出訂單
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const products = [
+            { name: '001-蜂膠噴霧 propoliz mouth spray', price: 160, entryId: 'entry.926724098', img: 'https://i.ebayimg.com/images/g/bCgAAOSwFzNltMDq/s-l1600.webp' },
+            { name: '002-蛇牌噴霧 玫瑰', price: 150, entryId: 'entry.417431954', img: 'https://www.jatujakmall.com/content/images/thumbs/0042149_snake-brand-prickly-heat-classic-cooling-body-spray-50-ml_550.jpeg' },
+            { name: '003-防蚊液 柑橘', price: 80, entryId: 'entry.1801961741', img: 'https://thmappbkk.blob.core.windows.net/boots/2025/10/28/1279ffd0-eff9-4c46-b80f-8ccb2290702a_large.jpg' },
+            { name: '004-天鵝牌鼻通', price: 55, entryId: 'entry.2054506168', img: 'https://3auntiesthaimarket.com/cdn/shop/files/FB_IMG_1655350120994-removebg-preview_800x.png?v=1741646844' },
+            { name: '005-poysiam 鼻通 吸鼻劑1入', price: 25, entryId: 'entry.1479087386', img: 'https://img.lazcdn.com/g/p/mdc/3018594412dbaf0d33214f53803c4f0e.jpg_720x720q80.jpg' },
+            { name: '006-LISA 藍罐鼻通', price: 50, entryId: 'entry.676572391', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6l3hNouhYhDESIIYr8u5CBOAFFn7tBRvQfg&s' },
+            { name: '007-阿婆香皂MADAME HENG (興太太)香皂 原味', price: 60, entryId: 'entry.126626699', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3ly1b7u5VNY8b8frN68a43qdET4RPdVd7Jg&s' },
+            { name: '008-阿婆香皂MADAME HENG(興太太)香皂 薄荷', price: 60, entryId: 'entry.659010215', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/16/88/8853502010716/8853502010716_1-20240304093141-.jpg' },
+            { name: '009-阿婆香皂MADAME HENG(興太太)香皂 玫瑰', price: 60, entryId: 'entry.1408326793', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/93/88/8853502010693/8853502010693_6-20240304093145-.jpg' },
+            { name: '010-阿婆香皂MADAME HENG(興太太)香皂 檀香', price: 60, entryId: 'entry.1550879825', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROgzDK_dfGaCdAR5vV52R5IwgsZYPeBhTMeg&s' },
+            { name: '011-蚊蟲叮咬 頭痛用 涼涼膏', price: 35, entryId: 'entry.647340521', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/10/88/8854060000010/8854060000010_1-20250901105232-.jpg' },
+            { name: '012-ZAM-BUK 青草膏 18g', price: 50, entryId: 'entry.1380787522', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/10/88/8850172242010/8850172242010_3-20241022154133-.jpg' },
+            { name: '013-巴黎萊雅 保濕清新防曬(泰國限定版)', price: 600, entryId: 'entry.1739351714', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/05/89/8994993014705/8994993014705_9-20250618114216-.jpg' },
+            { name: '014-還魂梅 บ๊วยคืนชีพ', price: 120, entryId: 'entry.2134589659', img: 'https://magmagbangkok.com/wp-content/uploads/2021/04/%E0%B8%9A%E0%B9%8A%E0%B8%A7%E0%B8%A2%E0%B8%84%E0%B8%B7%E0%B8%99%E0%B8%8A%E0%B8%B5%E0%B8%9E-186g.png' },
+            { name: '015-魷魚片花枝脆片黃色包裝18g', price: 30, entryId: 'entry.41530697', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR20OeO6yiditn26R3iWNlitR2UoM1gxdIT6w&s' },
+            { name: '016-魷魚片麻辣紅色包裝 18g', price: 30, entryId: 'entry.1218966055', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/07/88/8850157400107/8850157400107_1-20241107144942-.jpg' },
+            { name: '017-魷魚片蒜味藍色包裝18g', price: 30, entryId: 'entry.1796287054', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/01/88/8850157401401/8850157401401_2-20240614115906-.jpg' },
+            { name: '018-魷魚片桔色包裝18g', price: 30, entryId: 'entry.660240471', img: 'https://media.allonline.7eleven.co.th/pdmain/396441-01-squid-bento.jpg' },
+            { name: '019-芒果軟糖 200g Gummy Mangoes MAX', price: 100, entryId: 'entry.445090895', img: 'https://scontent.ftpe8-3.fna.fbcdn.net/v/t39.30808-6/471646793_18326478304085755_6738271295479308751_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=zzgmP9ipUB0Q7kNvwEC44Jn&_nc_oc=AdnKegTL4Rv4LH3FvkXgZaUgDYZEGoP-ivEN6tv-E9ptBn-t7-WTlgQ2tkM6qCqNhdA&_nc_zt=23&_nc_ht=scontent.ftpe8-3.fna&_nc_gid=xtgb3hG39cpC5aSx1Yj1RQ&oh=00_Aftau88ozSL7NdsJkWK7aDVaMq0vOocvobP2qDkQPzrBWw&oe=69905EFB' },
+            { name: '020-芒果乾 200g', price: 120, entryId: 'entry.2103707388', img: 'https://scontent.ftpe8-4.fna.fbcdn.net/v/t51.75761-15/505088126_18346832650085755_6208029390634422920_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=bcXMx5WGzOMQ7kNvwHtcKUA&_nc_oc=AdnlkTMY9z3iPrPgRiB82-yU8J14DDTMZBVB7FwVnR_GbSslUZ62j8XZhAs00FEt9RY&_nc_zt=23&_nc_ht=scontent.ftpe8-4.fna&_nc_gid=K71bVKFyTpgO_iZej9iOUA&oh=00_AfsEyzeDzUDAHcg0b7h7jkWjdE0sePF_Y7kEAUInU9OHjQ&oe=69906849' },
+            { name: '021-芭樂乾 200g', price: 150, entryId: 'entry.1290561039', img: 'https://scontent.ftpe8-2.fna.fbcdn.net/v/t51.82787-15/531474903_18354203842085755_7602481128048168293_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_ohc=pzfW1QIBcTQQ7kNvwFNft91&_nc_oc=Adk6KwOi6kZgBaPSjF3oTQxTPG-P6V3OiWt91cX3qJXq_uYAqx0e6Pv4APAJXEHpp4A&_nc_zt=23&_nc_ht=scontent.ftpe8-2.fna&_nc_gid=WvO0W92CkqHfYZ2ZlTOtPg&oh=00_AfvBLS-YXyMWxspNueicLnUADJJT7A_aHAmHj9TKy-qykg&oe=69908169' },
+            { name: '022-JIRAPORN 香蕉脆片 80g', price: 55, entryId: 'entry.1912146295', img: 'https://baac-farmersmarket.com/wp-content/uploads/2025/06/20-1-1.jpg' },
+            { name: '024-皇家牌乳片', price: 20, entryId: 'entry.1599520756', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/15/88/8850901050015/8850901050015_1-20240520130922-.jpg' },
+            { name: '025-奶油小熊餅干泰奶', price: 180, entryId: 'entry.679036260', img: 'https://down-th.img.susercontent.com/file/th-11134207-7r990-lz7su16kjp2h5f' },
+            { name: '026-雙龍牌船麵(冬粉-湯) ', price: 45, entryId: 'entry.553616762', img: 'https://o2o-static.lotuss.com/products/86587/75641912.jpg' },
+            { name: '027-雙龍牌船麵(細粿條-湯)', price: 45, entryId: 'entry.551884674', img: 'https://o2o-static.lotuss.com/products/86587/75641913.jpg' },
+            { name: '028-雙龍牌船麵(細粿條-乾)', price: 45, entryId: 'entry.2136513928', img: 'https://media.allonline.7eleven.co.th/pdmain/725152-02-allonline-sm.jpg' },
+            { name: '029-MAMA船麵(細粿條-湯)', price: 35, entryId: 'entry.2032416106', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/97/88/8851876001897/8851876001897_1-20250722174030-.jpg' },
+            { name: '030-小老闆原味海苔', price: 50, entryId: 'entry.1157756056', img: 'https://th.taokaenoiglobal.com/wp-content/uploads/2022/04/01-Classic-Big-Sheet-3.5G.png' },
+            { name: '031-小老闆辣味海苔', price: 50, entryId: 'entry.1425148067', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/15/88/8858702402415/8858702402415_1-20250718130459-.jpg' },
+            { name: '032-小老闆冬陰功海苔', price: 50, entryId: 'entry.742162343', img: 'https://th.taokaenoiglobal.com/wp-content/uploads/2022/04/11-Tom-Yum-Koong-Big-Sheet-3.5G-1024x1024.png' },
+            { name: '033-臘腸狗盲盒新年款', price: 700, entryId: 'entry.895757770', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQH2ajAIUWPeW7zMAlMewSRcEmLCkijCBmCIg&s' },
+            { name: '034- boots-Ted Baker London Rose & Orchid Body Lotion 250Ml ', price: 159, entryId: 'entry.958734518', img: 'https://thmappbkk.blob.core.windows.net/boots/2025/10/28/5764ac2c-7842-446a-8d8f-f49cd146e6da_large.jpg' },
+            { name: '035-hygiene-速效衣物柔順噴霧，牛奶觸感香型', price: 150, entryId: 'entry.767523770', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/57/88/8850092300357/8850092300357_1-20230327105519-.jpg' },
+            { name: '036-CKM止痛凝膠，清涼配方', price: 15, entryId: 'entry.1756984776', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/09/88/8856082005509/8856082005509_0-20251002150547-.jpg' },
+            { name: '037-即溶瑪奇朵咖啡', price: 60, entryId: 'entry.796148759', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/97/89/8998666002297/8998666002297_1-20221219173357-.jpg' },
+            { name: '038-口腔噴霧(蘋果洋甘菊-R)  SKYNLAB PREMIUM MOUTH SPRAY', price: 99, entryId: 'entry.1586008762', img: 'https://upload.kingpower-cn.com/image/f6/16/f6168bd3a2a6f04dbe5794e249f5c35c.jpg@700w_700h' },
+            { name: '039-口腔噴霧(薄荷-B)  SKYNLAB PREMIUM MOUTH SPRAY', price: 99, entryId: 'entry.1864623278', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSovRJleI0tAfQfIFezwSALAGsXX5RUe-6-UA&s' },
+            { name: '040-口腔噴霧(草本-G)  SKYNLAB PREMIUM MOUTH SPRAY', price: 99, entryId: 'entry.1496290877', img: 'https://cdn.thebeautrium.com/image-product/B0085475.webp' },
+            { name: '041-口腔噴霧檸檬海鹽-Y)  SKYNLAB PREMIUM MOUTH SPRAY', price: 99, entryId: 'entry.1393539942', img: 'https://s3.konvy.com/static/team/2024/1210/17338324814387.jpg' },
+            { name: '042-黑草本鼻通', price: 80, entryId: 'entry.431040082', img: 'https://scontent.ftpe8-2.fna.fbcdn.net/v/t39.30808-6/576087445_1270472898448009_8696419254027933490_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=k3AVZEKEy7cQ7kNvwFs721w&_nc_oc=Adnc5DpxCgI4Gok5UtiA1-VVXGkptgFBslisZrGmqZQUJC9e884ZnsySi-u_0Fluq9k&_nc_zt=23&_nc_ht=scontent.ftpe8-2.fna&_nc_gid=5PaA0dOr5j2yXoCkhKpqUg&oh=00_AftXO100dG-IojVoHE4TwzCVUCN6m-JwvhUX3YyIa2_taA&oe=6991DD4E' },
+            { name: '043-HYGIENE 強效去漬筆', price: 80, entryId: 'entry.586857606', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/59/88/8850092274559/8850092274559-20240814161508-.jpg' },
+            { name: '044-HYGIENE 藍色清新衣物香氛袋 ', price: 26, entryId: 'entry.643878021', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/20/88/8850092303020/8850092303020_1-20241101100044-.jpg' },
+            { name: '045-HYGIENE 粉色甜香衣物香氛袋 ', price: 26, entryId: 'entry.1742595814', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/23/88/8850092302023/8850092302023_1-20241101100045-.jpg' },
+            { name: '046-HYGIENE 陽光香氣衣物香氛袋 ', price: 32, entryId: 'entry.286431739', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/07/88/8850092308407/8850092308407_1-20240627212853-.jpg' },
+            { name: '047-HYGIENE 紫羅蘭衣物香氛袋 ', price: 26, entryId: 'entry.450764986', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/21/88/8850092306021/8850092306021_1-20241101100045-.jpg' },
+            { name: '048-048-BUDDY DEAN 阿拉比卡即溶咖啡 Gold Arabica Instant Coffee', price: 110, entryId: 'entry.62884778', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/78/88/8850390044878/8850390044878_1-20230627175228-.jpg' },
+            { name: '049-049-Counterpain 熱感酸痛藥膏', price: 150, entryId: 'entry.1604175155', img: 'https://medias.watsons.co.th/publishing/WTCTH-291907-front-zoom.jpg' },
+            { name: '050-五塔行軍散', price: 50, entryId: 'entry.1912238707', img: 'https://image.makewebeasy.net/makeweb/0/vTCj4SFxr/DefaultData/Your_paragraph_text__8__2.png?v=202405291424' },
+            { name: '051-羅望子糖果', price: 35, entryId: 'entry.1491447293', img: 'https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/33/88/8850305310333/8850305310333_1-20240520120127-.jpg' },
+            { name: '052-superrich 保溫瓶', price: 200, entryId: 'entry.1050293922', img: 'https://down-tw.img.susercontent.com/file/tw-11134207-81ztk-mg56h3n790y02f' },
+            { name: '053-脆皮榴槤零食', price: 75, entryId: 'entry.732551891', img: 'https://www.tops.co.th/_next/image?url=https%3A%2F%2Fassets.tops.co.th%2Ffile-assets%2FTOPSPIM%2Fweb%2FImage%2F8857200%2FCIKO-CikoDurianCube30g-8857200603416-1.jpg&w=640&q=75' },
+            //{ name: '054-商品U', price: 50, entryId: 'entry.823879814', img: '' },
+            //{ name: '055-商品V', price: 50, entryId: 'entry.1967921517', img: '' },
+            //{ name: '056-商品W', price: 50, entryId: 'entry.1232394176', img: '' },
+            //{ name: '057-商品X', price: 50, entryId: 'entry.1907123007', img: '' },
+            //{ name: '058-商品Y', price: 50, entryId: 'entry.1138530618', img: '' },
+            //{ name: '059-商品Z', price: 50, entryId: 'entry.520069477', img: '' },
+            //{ name: '060-商品AA', price: 50, entryId: 'entry.649412578', img: '' }
+        ];
+
+        let cart = {};
+
+        function initProducts() {
+            const container = document.getElementById('product-list');
+            container.innerHTML = '';
+            products.forEach(p => {
+                const imgSrc = p.img || `https://placehold.co/400x400/f1f5f9/64748b?text=${p.name.substring(0,3)}`;
+                const cardId = `card-${p.entryId.replace('.', '-')}`;
+                const btnAreaId = `btn-area-${p.entryId.replace('.', '-')}`;
+
+                container.innerHTML += `
+                <div id="${cardId}" class="product-card flex flex-col bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden text-left">
+                    <div class="relative overflow-hidden">
+                        <img src="${imgSrc}" alt="${p.name}" class="product-img w-full bg-slate-50">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div class="mb-3">
+                            <h3 class="font-bold text-slate-800 text-sm leading-tight truncate-2-lines h-10">${p.name}</h3>
+                            <p class="text-indigo-600 font-black text-lg">$${p.price}</p>
+                        </div>
+                        <div id="${btnAreaId}" class="h-10">
+                            ${renderBtnUI(p)}
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // 獨立出按鈕 UI 渲染
+        function renderBtnUI(product) {
+            const currentQty = cart[product.name] ? cart[product.name].quantity : 0;
+            if (currentQty > 0) {
+                return `
+                <div class="flex items-center justify-between w-full h-full bg-indigo-50 rounded-xl border border-indigo-100 overflow-hidden shadow-inner">
+                    <button onclick="changeQty('${product.name}', -1)" class="w-10 h-full bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold transition">－</button>
+                    <span class="font-black text-indigo-700">${currentQty}</span>
+                    <button onclick="changeQty('${product.name}', 1)" class="w-10 h-full bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold transition">＋</button>
+                </div>`;
+            } else {
+                return `
+                <button onclick="addToCart('${product.name}', ${product.price})" 
+                        class="w-full h-full bg-slate-50 text-slate-700 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all border border-slate-200 hover:border-indigo-600 shadow-sm active:scale-95">
+                    + 加入購物車
+                </button>`;
+            }
+        }
+
+        function addToCart(name, price) {
+            cart[name] = { price, quantity: 1 };
+            refreshUI(name);
+        }
+
+        function changeQty(name, delta) {
+            if (cart[name]) {
+                cart[name].quantity += delta;
+                if (cart[name].quantity <= 0) delete cart[name];
+                refreshUI(name);
+            }
+        }
+
+        // 同步刷新：清單、卡片按鈕、卡片高亮
+        function refreshUI(targetName) {
+            renderCart(); // 刷新清單與金額顯示
+            const p = products.find(prod => prod.name === targetName);
+            if (p) {
+                const cardId = `card-${p.entryId.replace('.', '-')}`;
+                const btnAreaId = `btn-area-${p.entryId.replace('.', '-')}`;
+                const cardEl = document.getElementById(cardId);
+                const btnAreaEl = document.getElementById(btnAreaId);
+                
+                if (btnAreaEl) btnAreaEl.innerHTML = renderBtnUI(p);
+                
+                // 處理卡片高亮外框
+                if (cardEl) {
+                    if (cart[targetName]) cardEl.classList.add('card-selected');
+                    else cardEl.classList.remove('card-selected');
+                }
+            }
+        }
+
+        function renderCart() {
+            const tbody = document.getElementById('cart-table-body');
+            const emptyMsg = document.getElementById('empty-msg');
+            tbody.innerHTML = '';
+            let total = 0, count = 0;
+            Object.keys(cart).forEach(name => {
+                const item = cart[name];
+                const subtotal = item.price * item.quantity;
+                total += subtotal; count += item.quantity;
+                tbody.innerHTML += `
+                <tr class="text-sm border-b border-slate-50 last:border-0 hover:bg-slate-50 transition">
+                    <td class="py-4 pr-2 font-medium text-slate-700">${name}</td>
+                    <td class="py-4 text-center">
+                        <div class="flex items-center justify-center space-x-3 bg-slate-100 w-24 mx-auto py-1 rounded-lg">
+                            <button onclick="changeQty('${name}', -1)" class="text-slate-400 hover:text-indigo-600 font-bold">－</button>
+                            <span class="font-bold text-slate-700 w-4">${item.quantity}</span>
+                            <button onclick="changeQty('${name}', 1)" class="text-slate-400 hover:text-indigo-600 font-bold">＋</button>
+                        </div>
+                    </td>
+                    <td class="py-4 text-right font-black text-slate-900">$${subtotal}</td>
+                </tr>`;
+            });
+            
+            const hasItems = Object.keys(cart).length > 0;
+            emptyMsg.classList.toggle('hidden', hasItems);
+            document.getElementById('total-price').innerText = total;
+            document.getElementById('nav-total-price').innerText = total;
+            document.getElementById('cart-count-badge').innerText = `${count} 項目`;
+        }
+
+        async function submitOrder() {
+            const userName = document.getElementById('user-name').value.trim();
+            const wishText = document.getElementById('wish-list').value.trim();
+            if (!userName) return alert('請填寫收件人姓名');
+            if (Object.keys(cart).length === 0 && !wishText) return alert('購物車是空的喔');
+
+            const total = document.getElementById('total-price').innerText;
+            const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSf9o59aGHM1f14UMWh5rGNbnm6bvW7wSjqdXluTuEWz8UyT7Q/formResponse";
+            const formData = new FormData();
+
+            formData.append("entry.556831663", userName);
+            formData.append("entry.1107950279", total);
+            formData.append("entry.1866153268", wishText);
+
+            // 只發送有購物的商品數值，沒購物的傳空字串 (對應 Google 表單關閉驗證後的穩定方案)
+            products.forEach(p => {
+                const qty = cart[p.name] ? cart[p.name].quantity : ""; 
+                formData.append(p.entryId, String(qty));
+            });
+
+            try {
+                fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
+                alert('🎉 訂單已成功送出！感謝您的購買！');
+                cart = {};
+                document.getElementById('user-name').value = '';
+                document.getElementById('wish-list').value = '';
+                initProducts(); // 重置所有卡片狀態
+                renderCart();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) { alert('傳送失敗，請稍後再試'); }
+        }
+
+        initProducts();
+    </script>
+</body>
+</html>

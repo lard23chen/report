@@ -4,25 +4,63 @@ const xlsx = require('xlsx');
 
 // Handle both local and relative paths
 let csvFilePath = path.join(__dirname, 'new_data_gid_1320702581.csv');
+let referenceHtmlPath = path.join(__dirname, 'reference_site.html');
 let htmlFilePath = path.join(__dirname, 'shopping_report.html');
 
 // Fallback for direct node execution if needed (or keep absolute if env matches)
 if (!fs.existsSync(csvFilePath)) {
     csvFilePath = 'd:/2025/AI/MongoDB/travel/new_data_gid_1320702581.csv';
+    referenceHtmlPath = 'd:/2025/AI/MongoDB/travel/reference_site.html';
     htmlFilePath = 'd:/2025/AI/MongoDB/travel/shopping_report.html';
 }
 
-try {
-    // Read file manually to ensure encoding
-    const buffer = fs.readFileSync(csvFilePath);
+// Function to extract photo map from reference HTML
+function extractPhotoMap(htmlPath) {
+    const map = {};
+    try {
+        if (fs.existsSync(htmlPath)) {
+            const content = fs.readFileSync(htmlPath, 'utf8');
+            // Regex to find "const products = [...]"
+            const regex = /const products = (\[[\s\S]*?\]);/;
+            const match = content.match(regex);
 
-    // Parse using xlsx with explicit codepage (65001 is UTF-8)
+            if (match && match[1]) {
+                const arrayStr = match[1];
+                // Safely parse the array string using Function constructor or simple eval 
+                // Since this is from a trusted update source, eval is okay-ish but Function is clearer
+                // Note: The array contains comments like //..., those need to be handled if using JSON.parse (which won't work).
+                // New Function is best for JS subset.
+                const products = new Function('return ' + arrayStr)();
+
+                products.forEach(p => {
+                    if (p.name && p.img) {
+                        map[p.name.trim()] = p.img;
+                    }
+                });
+                console.log(`Extracted ${Object.keys(map).length} product images from reference site.`);
+            } else {
+                console.log('Could not find products array in reference site.');
+            }
+        } else {
+            console.log('Reference site HTML not found, skipping image extraction.');
+        }
+    } catch (e) {
+        console.error('Error extracting photos:', e);
+    }
+    return map;
+}
+
+try {
+    // 1. Extract Photos
+    const photoMap = extractPhotoMap(referenceHtmlPath);
+
+    // 2. Process CSV
+    const buffer = fs.readFileSync(csvFilePath);
     const workbook = xlsx.read(buffer, { type: 'buffer', codepage: 65001 });
     const sheetName = workbook.SheetNames[0];
 
     if (!sheetName) throw new Error('Sheet is empty');
 
-    // Get raw JSON
     const rawData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: '' });
 
     if (rawData.length < 2) {
@@ -251,7 +289,7 @@ try {
             <!-- Placeholder Image logic -->
             <img id="modalImg" src="" class="modal-img" alt="Product Image">
             <div class="modal-actions">
-                <p style="color:#666; margin-bottom:15px;">暫無詳細照片，您可以：</p>
+                <p style="color:#666; margin-bottom:15px;" id="missingText">暫無詳細照片，您可以：</p>
                 <a id="searchLink" href="#" target="_blank" class="btn-search">🔍 Google 搜尋圖片</a>
             </div>
         </div>
@@ -263,11 +301,7 @@ try {
 
     const fullProductLabels = ${JSON.stringify(sortedProducts.slice(0, 15).map(p => p.name))};
     const productData = ${JSON.stringify(sortedProducts.slice(0, 15).map(p => p.qty))};
-
-    // Clean up long labels for display, but keep full for logic
-    const displayLabels = fullProductLabels.map(l => {
-        return l.length > 25 ? l.substring(0, 25) + '...' : l;
-    });
+    const photoMap = ${JSON.stringify(photoMap)}; // Injected Photo Map
 
     // Chart Configuration
     const ctx = document.getElementById('productChart').getContext('2d');
@@ -323,15 +357,24 @@ try {
     const modalTitleElement = document.getElementById('modalTitle');
     const modalImgElement = document.getElementById('modalImg');
     const searchLinkElement = document.getElementById('searchLink');
+    const missingTextElement = document.getElementById('missingText');
 
     window.openProductModal = function(productName) {
         if (!productName) return;
         
         modalTitleElement.innerText = productName;
         
-        // Placeholder
-        const safeText = encodeURIComponent(productName.substring(0, 20));
-        modalImgElement.src = \`https://placehold.co/600x400/FF9F1C/white?text=\${safeText}\`;
+        // 1. Check Map
+        const cleanName = productName.trim();
+        if (photoMap[cleanName]) {
+            modalImgElement.src = photoMap[cleanName];
+            missingTextElement.style.display = 'none';
+        } else {
+            // 2. Placeholder
+            const safeText = encodeURIComponent(productName.substring(0, 20));
+            modalImgElement.src = \`https://placehold.co/600x400/FF9F1C/white?text=\${safeText}\`;
+            missingTextElement.style.display = 'block';
+        }
         
         // Google Search Link
         searchLinkElement.href = \`https://www.google.com/search?tbm=isch&q=\${encodeURIComponent(productName)}\`;
@@ -347,10 +390,10 @@ try {
         if (e.target === modal) window.closeProductModal();
     });
 
-</script >
+</script>
 
-</body >
-</html >
+</body>
+</html>
     `;
 
     fs.writeFileSync(htmlFilePath, htmlContent);
