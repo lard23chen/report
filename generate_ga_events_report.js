@@ -66,7 +66,7 @@ async function main() {
                 if (!timeKey) return;
 
                 if (!timeMap.has(timeKey)) {
-                    timeMap.set(timeKey, { time: timeKey, session: s.SessionCount, activeD: null, activeA: null });
+                    timeMap.set(timeKey, { time: timeKey, session: s.SessionCount, activeD: null, activeA: null, activeDMin: null, activeAMin: null });
                 } else {
                     timeMap.get(timeKey).session = Math.max(timeMap.get(timeKey).session, s.SessionCount);
                 }
@@ -78,13 +78,17 @@ async function main() {
                 if (!timeKey) return;
 
                 if (!timeMap.has(timeKey)) {
-                    timeMap.set(timeKey, { time: timeKey, session: null, activeD: (r.ActiveUsersDCount === 'NULL' ? 0 : Number(r.ActiveUsersDCount)), activeA: (r.ActiveUsersACount === 'NULL' ? 0 : Number(r.ActiveUsersACount)) });
+                    timeMap.set(timeKey, { time: timeKey, session: null, activeD: (r.ActiveUsersDCount === 'NULL' ? 0 : Number(r.ActiveUsersDCount)), activeA: (r.ActiveUsersACount === 'NULL' ? 0 : Number(r.ActiveUsersACount)), activeDMin: (r.ActiveUsersDMinCount === 'NULL' ? 0 : Number(r.ActiveUsersDMinCount)), activeAMin: (r.ActiveUsersAMinCount === 'NULL' ? 0 : Number(r.ActiveUsersAMinCount)) });
                 } else {
                     let d = timeMap.get(timeKey);
                     let dCount = (r.ActiveUsersDCount === 'NULL' ? 0 : Number(r.ActiveUsersDCount));
                     let aCount = (r.ActiveUsersACount === 'NULL' ? 0 : Number(r.ActiveUsersACount));
+                    let dMinCount = (r.ActiveUsersDMinCount === 'NULL' ? 0 : Number(r.ActiveUsersDMinCount));
+                    let aMinCount = (r.ActiveUsersAMinCount === 'NULL' ? 0 : Number(r.ActiveUsersAMinCount));
                     d.activeD = Math.max(d.activeD || 0, dCount);
                     d.activeA = Math.max(d.activeA || 0, aCount);
+                    d.activeDMin = Math.max(d.activeDMin || 0, dMinCount);
+                    d.activeAMin = Math.max(d.activeAMin || 0, aMinCount);
                 }
             });
 
@@ -388,7 +392,9 @@ async function main() {
             <tr>
                 <th>GATime</th>
                 <th>ActiveUsersDCount</th>
+                <th>ActiveUsersDMinCount</th>
                 <th>ActiveUsersACount</th>
+                <th>ActiveUsersAMinCount</th>
                 <th>SessionCount</th>
             </tr>
         </thead>
@@ -436,9 +442,11 @@ async function main() {
         const tbody = document.querySelector('#dataTable tbody');
         tbody.innerHTML = d.data.map(item => '<tr>' +
             '<td>' + item.time + '</td>' +
-            '<td style="color: #fbbf24;">' + item.activeD.toLocaleString() + '</td>' +
-            '<td style="color: #34d399;">' + item.activeA.toLocaleString() + '</td>' +
-            '<td style="color: #60a5fa;">' + item.session.toLocaleString() + '</td>' +
+            '<td style="color: #fbbf24;">' + (item.activeD || 0).toLocaleString() + '</td>' +
+            '<td style="color: #fcd34d;">' + (item.activeDMin || 0).toLocaleString() + '</td>' +
+            '<td style="color: #34d399;">' + (item.activeA || 0).toLocaleString() + '</td>' +
+            '<td style="color: #6ee7b7;">' + (item.activeAMin || 0).toLocaleString() + '</td>' +
+            '<td style="color: #60a5fa;">' + (item.session || 0).toLocaleString() + '</td>' +
             '</tr>').join('');
 
         if (chartInstance) {
