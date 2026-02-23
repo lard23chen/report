@@ -125,6 +125,7 @@ async function main() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GA 事件流量深度分析</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -445,8 +446,11 @@ async function main() {
         }
 
         const ctx = document.getElementById('mainChart').getContext('2d');
+        Chart.register(ChartDataLabels);
+        
         chartInstance = new Chart(ctx, {
             type: 'line',
+            plugins: [ChartDataLabels],
             data: {
                 labels: labels,
                 datasets: [
@@ -493,7 +497,17 @@ async function main() {
                     intersect: false,
                 },
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    datalabels: {
+                        color: function(context) {
+                            return context.dataset.borderColor;
+                        },
+                        align: 'top',
+                        font: { size: 10, family: 'Outfit' },
+                        formatter: function(value, context) {
+                            return value > 0 ? (value >= 1000 ? (value/1000).toFixed(1) + 'k' : value) : '';
+                        }
+                    }
                 },
                 scales: {
                     x: {
