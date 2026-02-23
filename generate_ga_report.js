@@ -23,14 +23,13 @@ async function generateReport() {
         // 整理給前端圖表用的資料
         const chartData = docs.map(d => {
             const ym = d.YearMonth || d.StartDate.toISOString().slice(0, 7).replace("-", "/");
-            const sumAll = (d.A_Total || 0) + (d.D_Total || 0) + (d.E_Total || 0) + (d.Booking_Total || 0);
+            const sumAll = (d.A_Total || 0) + (d.D_Total || 0) + (d.E_Total || 0);
             return {
                 month: ym,
                 total: sumAll,
                 A: { total: d.A_Total || 0, mobile: d.A_Mobile || 0 },
                 D: { total: d.D_Total || 0, mobile: d.D_Mobile || 0 },
-                E: { total: d.E_Total || 0, mobile: d.E_Mobile || 0 },
-                B: { total: d.Booking_Total || 0, mobile: d.Booking_Mobile || 0 }
+                E: { total: d.E_Total || 0, mobile: d.E_Mobile || 0 }
             };
         });
 
@@ -38,16 +37,14 @@ async function generateReport() {
         let total_A = 0, total_A_M = 0;
         let total_D = 0, total_D_M = 0;
         let total_E = 0, total_E_M = 0;
-        let total_B = 0, total_B_M = 0;
 
         docs.forEach(d => {
             total_A += d.A_Total || 0; total_A_M += d.A_Mobile || 0;
             total_D += d.D_Total || 0; total_D_M += d.D_Mobile || 0;
             total_E += d.E_Total || 0; total_E_M += d.E_Mobile || 0;
-            total_B += d.Booking_Total || 0; total_B_M += d.Booking_Mobile || 0;
         });
 
-        const totalAll = total_A + total_D + total_E + total_B;
+        const totalAll = total_A + total_D + total_E;
 
         const reportTime = new Date().toLocaleString('zh-TW');
 
@@ -281,14 +278,6 @@ async function generateReport() {
                 <span class="mobile-rate">Mobile: ${((total_E_M / total_E) * 100).toFixed(1)}%</span>
             </div>
         </div>
-        <div class="card card-b">
-            <h3>Booking系統</h3>
-            <div class="value" style="color: var(--color-b);">${total_B.toLocaleString()}</div>
-            <div class="sub">
-                <span>流量佔比: ${((total_B / totalAll) * 100).toFixed(1)}%</span>
-                <span class="mobile-rate">Mobile: ${((total_B_M / total_B) * 100).toFixed(1)}%</span>
-            </div>
-        </div>
     </div>
 
     <div class="main-content">
@@ -298,16 +287,17 @@ async function generateReport() {
                 <thead>
                     <tr>
                         <th>月份 (Month)</th>
-                        <th>A系統流量</th>
                         <th>D系統流量</th>
+                        <th>A系統流量</th>
                         <th>E系統流量</th>
-                        <th>Booking系統流量</th>
                         <th>總流量 (Total)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${chartData.map((d, i) => {
-            let prev = i > 0 ? chartData[i - 1] : null;
+                    ${[...chartData].reverse().map((d, index) => {
+            // original index in chronological order
+            let origIndex = chartData.length - 1 - index;
+            let prev = origIndex > 0 ? chartData[origIndex - 1] : null;
 
             const getChangeHTML = (currVal, prevVal) => {
                 if (!prevVal) return '';
@@ -320,10 +310,9 @@ async function generateReport() {
 
             return '<tr>' +
                 '<td style="font-weight: bold;">' + d.month + '</td>' +
-                '<td>' + d.A.total.toLocaleString() + ' ' + getChangeHTML(d.A.total, prev?.A.total) + '<br><span style="font-size: 0.8em; color:#888;">(' + (((d.A.mobile / d.A.total) * 100) || 0).toFixed(1) + '% M)</span></td>' +
-                '<td>' + d.D.total.toLocaleString() + ' ' + getChangeHTML(d.D.total, prev?.D.total) + '<br><span style="font-size: 0.8em; color:#888;">(' + (((d.D.mobile / d.D.total) * 100) || 0).toFixed(1) + '% M)</span></td>' +
-                '<td>' + d.E.total.toLocaleString() + ' ' + getChangeHTML(d.E.total, prev?.E.total) + '<br><span style="font-size: 0.8em; color:#888;">(' + (((d.E.mobile / d.E.total) * 100) || 0).toFixed(1) + '% M)</span></td>' +
-                '<td>' + d.B.total.toLocaleString() + ' ' + getChangeHTML(d.B.total, prev?.B.total) + '<br><span style="font-size: 0.8em; color:#888;">(' + (((d.B.mobile / d.B.total) * 100) || 0).toFixed(1) + '% M)</span></td>' +
+                '<td>' + d.D.total.toLocaleString() + ' ' + getChangeHTML(d.D.total, prev?.D.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.D.mobile / d.D.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
+                '<td>' + d.A.total.toLocaleString() + ' ' + getChangeHTML(d.A.total, prev?.A.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.A.mobile / d.A.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
+                '<td>' + d.E.total.toLocaleString() + ' ' + getChangeHTML(d.E.total, prev?.E.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.E.mobile / d.E.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
                 '<td style="color: var(--accent-color); font-weight: bold;">' + d.total.toLocaleString() + ' ' + getChangeHTML(d.total, prev?.total) + '</td>' +
                 '</tr>';
         }).join('')}
@@ -398,15 +387,6 @@ async function generateReport() {
                     pointRadius: 4
                 },
                 {
-                    label: 'Booking系統',
-                    data: chartData.map(d => d.B.total),
-                    borderColor: '#AB47BC',
-                    backgroundColor: 'rgba(171, 71, 188, 0.1)',
-                    tension: 0.3,
-                    fill: false,
-                    pointRadius: 4
-                },
-                {
                     label: '總流量',
                     data: chartData.map(d => d.total),
                     borderColor: 'rgba(255, 255, 255, 0.3)',
@@ -435,10 +415,10 @@ async function generateReport() {
     new Chart(document.getElementById('shareChart'), {
         type: 'doughnut',
         data: {
-            labels: ['A系統', 'D系統', 'E系統', 'Booking'],
+            labels: ['A系統', 'D系統', 'E系統'],
             datasets: [{
-                data: [${total_A}, ${total_D}, ${total_E}, ${total_B}],
-                backgroundColor: ['#FF7043', '#42A5F5', '#66BB6A', '#AB47BC'],
+                data: [${total_A}, ${total_D}, ${total_E}],
+                backgroundColor: ['#FF7043', '#42A5F5', '#66BB6A'],
                 borderWidth: 0
             }]
         },
@@ -466,18 +446,17 @@ async function generateReport() {
     const mobileRates = [
         ${((total_A_M / total_A) * 100).toFixed(1)},
         ${((total_D_M / total_D) * 100).toFixed(1)},
-        ${((total_E_M / total_E) * 100).toFixed(1)},
-        ${((total_B_M / total_B) * 100).toFixed(1)}
+        ${((total_E_M / total_E) * 100).toFixed(1)}
     ];
     
     new Chart(document.getElementById('mobileChart'), {
         type: 'bar',
         data: {
-            labels: ['A系統', 'D系統', 'E系統', 'Booking'],
+            labels: ['A系統', 'D系統', 'E系統'],
             datasets: [{
                 label: 'Mobile %',
                 data: mobileRates,
-                backgroundColor: ['#FF7043', '#42A5F5', '#66BB6A', '#AB47BC'],
+                backgroundColor: ['#FF7043', '#42A5F5', '#66BB6A'],
                 borderRadius: 6
             }]
         },

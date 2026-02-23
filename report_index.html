@@ -533,7 +533,7 @@
             <button class="tab-btn" onclick="switchTab('tab3')">歷史報表分析</button>
             <button class="tab-btn" onclick="switchTab('tab4')">各節目報表分析</button>
             <button class="tab-btn" onclick="switchTab('tab5')">會員資料分析</button>
-            <button class="tab-btn" onclick="switchTab('tab6')">GA流量分析</button>
+            <button class="tab-btn" onclick="switchTab('tab6')">搶票流量分析</button>
         </div>
 
         <!-- Tab 1: Last Month (Jan 2026) -->
@@ -747,7 +747,7 @@
             </div>
         </div>
 
-        <!-- Tab 6: GA Traffic Analysis -->
+        <!-- Tab 6: Ticketing Traffic Analysis -->
         <div id="tab6" class="tab-content">
             <div class="grid">
                 <div class="card">
@@ -757,7 +757,7 @@
                     </div>
                     <div class="card-content">
                         <h3>GA 系統流量分析報表</h3>
-                        <p>跨系統(A、D、E、Booking)流量趨勢分析與行動裝置佔比洞察。</p>
+                        <p>跨系統(A、D、E)流量趨勢分析與行動裝置佔比洞察。</p>
                     </div>
                     <div class="card-meta">
                         <span class="badge">Traffic</span>
@@ -771,9 +771,28 @@
                         </a>
                     </div>
                 </div>
+
+                <div class="card">
+                    <div class="card-icon icon-analysis" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                        🚀
+                    </div>
+                    <div class="card-content">
+                        <h3>搶票事件流量深度分析</h3>
+                        <p>以分鐘為單位檢視各大節目開賣期間的系統連線數與排隊/搶票活躍人數曲線。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Session & Active Users</span>
+                        <a href="A_GA_Events_Traffic_Report.html" class="btn-link" style="background-color: #3b82f6;">
+                            進入分析
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
-
     </div>
 
     <footer>
