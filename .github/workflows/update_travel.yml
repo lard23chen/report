@@ -25,6 +25,7 @@ jobs:
       run: |
         curl -L "https://docs.google.com/spreadsheets/d/1pZCR_nVgyhwYldCRxfum4AsC-vxSFdjnkqAotzeV1CI/export?format=csv&gid=0" -o travel/new_analysis_data.csv
         curl -L "https://docs.google.com/spreadsheets/d/1fgJbzRvnn-4VUbn6PIMh2PyDpxkNPJo8MbuEj4pNt1M/export?format=csv&gid=1320702581" -o travel/new_data_gid_1320702581.csv
+        curl -L "https://togoarai.github.io/20260211-Wishing-in-Thailand/" -o travel/reference_site.html
 
     - name: Generate Reports
       run: |
