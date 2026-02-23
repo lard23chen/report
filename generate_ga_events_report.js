@@ -382,16 +382,7 @@ async function main() {
     </div>
 </div>
 
-<div class="chart-container">
-    <div style="position: absolute; top: 20px; right: 25px; z-index: 10;">
-        <span class="sys-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6;">Session</span>
-        <span class="sys-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b;">Active D (排隊)</span>
-        <span class="sys-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">Active A (搶票)</span>
-    </div>
-    <canvas id="mainChart"></canvas>
-</div>
-
-<div class="table-container">
+<div class="table-container" style="margin-top: 0; margin-bottom: 30px;">
     <table id="dataTable">
         <thead>
             <tr>
@@ -404,6 +395,15 @@ async function main() {
         <tbody>
         </tbody>
     </table>
+</div>
+
+<div class="chart-container">
+    <div style="position: absolute; top: 20px; right: 25px; z-index: 10;">
+        <span class="sys-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6;">Session</span>
+        <span class="sys-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b;">Active D (排隊)</span>
+        <span class="sys-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">Active A (搶票)</span>
+    </div>
+    <canvas id="mainChart"></canvas>
 </div>
 </div> <!-- End main-wrapper -->
 </div> <!-- End layout -->
