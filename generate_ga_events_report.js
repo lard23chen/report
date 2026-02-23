@@ -17,7 +17,7 @@ async function main() {
         await client.connect();
         const db = client.db("QwareAi");
 
-        // 1. 取得 Top 10 的節目 (依照 MAX SessionCount)
+        // 1. 取得所有節目清單 (依照 MAX SessionCount 排序)
         const topEvents = await db.collection("QwareTrafficSession").aggregate([
             {
                 $group: {
@@ -26,20 +26,19 @@ async function main() {
                     MaxSessions: { $max: "$SessionCount" }
                 }
             },
-            { $sort: { MaxSessions: -1 } },
-            { $limit: 10 }
+            { $sort: { MaxSessions: -1 } }
         ]).toArray();
 
         const topEventIds = topEvents.map(e => e._id);
 
         console.log(`fetching session details for ${topEventIds.length} events...`);
-        // 2. 獲取這 10 個節目的 Session 資料
+        // 2. 獲取所有節目的 Session 資料
         let allSessions = await db.collection("QwareTrafficSession")
             .find({ ActivityID: { $in: topEventIds } })
             .sort({ CreateTime: 1 })
             .toArray();
 
-        // 3. 獲取這 10 個節目的 GAReadTime 資料
+        // 3. 獲取所有節目的 GAReadTime 資料
         console.log(`fetching read time details for ${topEventIds.length} events...`);
         let allReads = await db.collection("QwareTrafficGAReadTime")
             .find({ ActivityID: { $in: topEventIds } })
@@ -164,17 +163,65 @@ async function main() {
             -webkit-text-fill-color: transparent;
         }
 
-        select {
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 15px;
-            font-size: 1rem;
-            border-radius: 8px;
+        .layout {
+            display: flex;
+            gap: 30px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        .sidebar {
+            width: 350px;
+            flex-shrink: 0;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+            position: sticky;
+            top: 20px;
+        }
+        .sidebar-header {
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: var(--accent-color);
+        }
+        .event-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .event-item {
+            padding: 15px;
+            border-radius: 10px;
             cursor: pointer;
-            outline: none;
-            width: 400px;
-            font-family: 'Noto Sans TC';
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            margin-bottom: 8px;
+        }
+        .event-item:hover {
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(255,255,255,0.1);
+        }
+        .event-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+        }
+        .event-item .date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        .event-item .name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .main-wrapper {
+            flex-grow: 1;
+            min-width: 0;
         }
 
         .summary-grid {
@@ -288,19 +335,28 @@ async function main() {
     回首頁
 </a>
 
-<div class="header">
-    <div class="title">
-        <h1>GA 事件流量深度分析</h1>
-        <div style="color: var(--text-secondary); margin-top: 5px; font-size: 0.9rem;">
-            基於 QwareTrafficSession 與 QwareTrafficGAReadTime 數據
+<div class="layout">
+    <div class="sidebar">
+        <div class="sidebar-header">選擇節目</div>
+        <div class="event-list" id="eventList">
+            ${clientData.map((d, i) => `
+                <div class="event-item" id="event-item-${i}" onclick="updateDashboard(${i})">
+                    <div class="date">[${d.start ? d.start.slice(0, 10) : '未知日期'}]</div>
+                    <div class="name">${d.name}</div>
+                </div>
+            `).join('')}
         </div>
     </div>
-    <div>
-        <select id="eventSelect" onchange="updateDashboard()">
-            ${clientData.map((d, i) => `<option value="${i}">[${d.start ? d.start.slice(0, 10) : '未知日期'}] ${d.name}</option>`).join('')}
-        </select>
-    </div>
-</div>
+    
+    <div class="main-wrapper">
+        <div class="header">
+            <div class="title">
+                <h1>搶票事件流量深度分析</h1>
+                <div style="color: var(--text-secondary); margin-top: 5px; font-size: 0.9rem;">
+                    基於 QwareTrafficSession 與 QwareTrafficGAReadTime 數據
+                </div>
+            </div>
+        </div>
 
 <div class="summary-grid">
     <div class="card card-1">
@@ -348,13 +404,18 @@ async function main() {
         </tbody>
     </table>
 </div>
+</div> <!-- End main-wrapper -->
+</div> <!-- End layout -->
 
 <script>
     const serverData = ${JSON.stringify(clientData)};
     let chartInstance = null;
 
-    function updateDashboard() {
-        const idx = document.getElementById('eventSelect').value;
+    function updateDashboard(idx) {
+        document.querySelectorAll('.event-item').forEach(el => el.classList.remove('active'));
+        const activeItem = document.getElementById('event-item-' + idx);
+        if(activeItem) activeItem.classList.add('active');
+
         const d = serverData[idx];
 
         // Update cards
@@ -462,7 +523,7 @@ async function main() {
 
     // Init
     window.onload = () => {
-        updateDashboard();
+        updateDashboard(0);
     };
 
 </script>
