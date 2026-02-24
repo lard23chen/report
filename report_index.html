@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -505,6 +507,20 @@
         </div>
         <!-- STATS_END -->
 
+        <!-- REVENUE_CHART_START -->
+        <div class="chart-section"
+            style="margin-bottom: 3rem; background: var(--card-bg); border-radius: 16px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            <h3
+                style="color: var(--text-primary); font-size: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                📈 每月購票金額趨勢 <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">(Monthly
+                    Revenue Trend)</span>
+            </h3>
+            <div style="height: 350px; width: 100%;">
+                <canvas id="revenueTrendChart"></canvas>
+            </div>
+        </div>
+        <!-- REVENUE_CHART_END -->
+
 
         <!-- Tabs Navigation -->
         <div class="tabs">
@@ -818,6 +834,63 @@
         }
     </script>
     <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('revenueTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2025-10', '2025-11', '2025-12', '2026-01'],
+                    datasets: [{
+                        label: '購票金額 (Revenue)',
+                        data: [103014816, 55569790, 278252598, 90400632],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#3b82f6',
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                plugins: [ChartDataLabels],
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            color: '#f8fafc',
+                            align: 'top',
+                            offset: 8,
+                            font: { weight: 'bold', size: 11 },
+                            formatter: (value) => 'NT$ ' + (value / 1000000).toFixed(1) + 'M'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => 'NT$ ' + context.parsed.y.toLocaleString()
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: (value) => value >= 1000000 ? (value / 1000000) + 'M' : value
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
