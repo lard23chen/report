@@ -368,16 +368,6 @@ async function generateReport() {
             labels: labels,
             datasets: [
                 {
-                    label: '總費用 (Total Cost)',
-                    data: costTotal,
-                    borderColor: '#FBC02D',
-                    backgroundColor: 'rgba(251, 192, 45, 0.1)',
-                    tension: 0.3,
-                    fill: true,
-                    pointRadius: 4,
-                    borderWidth: 2
-                },
-                {
                     label: 'A系統',
                     data: costA,
                     borderColor: '#FF7043',
@@ -421,8 +411,7 @@ async function generateReport() {
                     align: 'top',
                     offset: 4,
                     font: { size: 10, weight: 'bold' },
-                    formatter: (value, ctx) => {
-                        if(ctx.dataset.label !== '總費用 (Total Cost)') return '';
+                    formatter: (value) => {
                         return value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value;
                     }
                 }
