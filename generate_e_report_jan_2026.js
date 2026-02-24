@@ -998,7 +998,7 @@ async function generateReport() {
              if (!dateStr) return;
              
              const date = dateStr.split(' ')[0];
-             const val = item['實退金額'] || 0;
+             const val = parseFloat(item['實退金額']) || 0;
              dailyRefundsMap[date] = (dailyRefundsMap[date] || 0) + val;
         });
 
