@@ -397,16 +397,27 @@ async function generateReport() {
                 }
             ]
         },
+        plugins: [ChartDataLabels],
         options: {
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: { labels: { color: '#ccc' } }
+                legend: { labels: { color: '#ccc' } },
+                datalabels: {
+                    color: '#fff',
+                    align: 'top',
+                    offset: 4,
+                    font: { size: 10, weight: 'bold' },
+                    formatter: (value, ctx) => {
+                        if(ctx.dataset.label === '總流量') return ''; // optionally hide total flow labels so it doesn't clutter
+                        return value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value;
+                    }
+                }
             },
             scales: {
                 x: { grid: { color: '#333' }, ticks: { color: '#888' } },
-                y: { grid: { color: '#333' }, ticks: { color: '#888', callback: v => (v/1000) + 'k' } }
+                y: { grid: { color: '#333' }, ticks: { color: '#888', callback: v => (v>=1000 ? (v/1000) + 'k' : v) } }
             }
         }
     });
