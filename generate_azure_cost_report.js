@@ -376,6 +376,36 @@ async function generateReport() {
                     fill: true,
                     pointRadius: 4,
                     borderWidth: 2
+                },
+                {
+                    label: 'A系統',
+                    data: costA,
+                    borderColor: '#FF7043',
+                    backgroundColor: 'rgba(255, 112, 67, 0.1)',
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 4,
+                    borderWidth: 2
+                },
+                {
+                    label: 'D系統',
+                    data: costD,
+                    borderColor: '#42A5F5',
+                    backgroundColor: 'rgba(66, 165, 245, 0.1)',
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 4,
+                    borderWidth: 2
+                },
+                {
+                    label: 'E系統',
+                    data: costE,
+                    borderColor: '#66BB6A',
+                    backgroundColor: 'rgba(102, 187, 106, 0.1)',
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 4,
+                    borderWidth: 2
                 }
             ]
         },
@@ -391,7 +421,10 @@ async function generateReport() {
                     align: 'top',
                     offset: 4,
                     font: { size: 10, weight: 'bold' },
-                    formatter: (value) => value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value
+                    formatter: (value, ctx) => {
+                        if(ctx.dataset.label !== '總費用 (Total Cost)') return '';
+                        return value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value;
+                    }
                 }
             },
             scales: {
