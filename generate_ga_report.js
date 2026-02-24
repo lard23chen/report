@@ -302,16 +302,16 @@ async function generateReport() {
                 if (!prevVal) return '';
                 const diff = currVal - prevVal;
                 const pct = ((diff / prevVal) * 100).toFixed(1);
-                if (diff > 0) return '<span style="color: #66BB6A; font-size: 0.8em; margin-left: 5px;">▲ ' + pct + '%</span>';
-                if (diff < 0) return '<span style="color: #ef5350; font-size: 0.8em; margin-left: 5px;">▼ ' + Math.abs(pct) + '%</span>';
-                return '<span style="color: #888; font-size: 0.8em; margin-left: 5px;">- 0%</span>';
+                if (diff > 0) return '<span style="color: #66BB6A; font-size: 1em; font-weight: bold; margin-left: 5px;">▲ ' + pct + '%</span>';
+                if (diff < 0) return '<span style="color: #ef5350; font-size: 1em; font-weight: bold; margin-left: 5px;">▼ ' + Math.abs(pct) + '%</span>';
+                return '<span style="color: #888; font-size: 1em; font-weight: bold; margin-left: 5px;">- 0%</span>';
             };
 
             return '<tr>' +
                 '<td style="font-weight: bold; font-size: 1.1em;">' + d.month + '</td>' +
-                '<td><span style="font-size: 1.3em; font-weight: bold;">' + d.D.total.toLocaleString() + '</span> ' + getChangeHTML(d.D.total, prev?.D.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.D.mobile / d.D.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
-                '<td><span style="font-size: 1.3em; font-weight: bold;">' + d.A.total.toLocaleString() + '</span> ' + getChangeHTML(d.A.total, prev?.A.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.A.mobile / d.A.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
-                '<td><span style="font-size: 1.3em; font-weight: bold;">' + d.E.total.toLocaleString() + '</span> ' + getChangeHTML(d.E.total, prev?.E.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.E.mobile / d.E.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
+                '<td><span style="font-size: 1.3em; font-weight: bold;">' + d.D.total.toLocaleString() + '</span> ' + getChangeHTML(d.D.total, prev?.D.total) + ' <span style="font-size: 1em; font-weight: bold; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.D.mobile / d.D.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
+                '<td><span style="font-size: 1.3em; font-weight: bold;">' + d.A.total.toLocaleString() + '</span> ' + getChangeHTML(d.A.total, prev?.A.total) + ' <span style="font-size: 1em; font-weight: bold; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.A.mobile / d.A.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
+                '<td><span style="font-size: 1.3em; font-weight: bold;">' + d.E.total.toLocaleString() + '</span> ' + getChangeHTML(d.E.total, prev?.E.total) + ' <span style="font-size: 1em; font-weight: bold; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.E.mobile / d.E.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
                 '</tr>';
         }).join('')}
                 </tbody>
