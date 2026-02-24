@@ -385,15 +385,6 @@ async function generateReport() {
                     tension: 0.3,
                     fill: false,
                     pointRadius: 4
-                },
-                {
-                    label: '總流量',
-                    data: chartData.map(d => d.total),
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
-                    borderDash: [5, 5],
-                    tension: 0.3,
-                    fill: false,
-                    pointRadius: 0
                 }
             ]
         },
