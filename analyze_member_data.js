@@ -183,22 +183,26 @@ async function generateMemberReport() {
         const taiwanTotal = cityArray.reduce((acc, cur) => acc + cur.count, 0);
         console.log(`Total Taiwan Members: ${taiwanTotal}`);
 
-        // 6. Growth Trend (Yearly)
-        console.log("Aggregating Yearly Growth...");
-        const yearAgg = await collection.aggregate([
+        // 6. Growth Trend (Monthly - Past 1 year)
+        console.log("Aggregating Monthly Growth...");
+        const now = new Date();
+        const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+        const threshold = oneYearAgo.toISOString().slice(0, 10); // YYYY-MM-DD
+
+        const monthAgg = await collection.aggregate([
+            { $match: { "建立時間": { $gte: threshold } } },
             {
                 $project: {
-                    year: { $substr: ["$建立時間", 0, 4] }
+                    month: { $substr: ["$建立時間", 0, 7] }
                 }
             },
-            { $group: { _id: "$year", count: { $sum: 1 } } },
+            { $group: { _id: "$month", count: { $sum: 1 } } },
             { $sort: { _id: 1 } }
         ]).toArray();
 
-        const yearlyData = yearAgg
-            .filter(y => y._id && /^\d{4}$/.test(y._id) && parseInt(y._id) > 2000) // Basic filter for valid years
-            .filter(y => y._id && /^\d{4}$/.test(y._id) && parseInt(y._id) > 2000) // Basic filter for valid years
-            .map(y => ({ year: y._id, count: y.count }));
+        const monthlyGrowthData = monthAgg
+            .filter(m => m._id && /^\d{4}-\d{2}$/.test(m._id))
+            .map(m => ({ month: m._id, count: m.count }));
 
         // 7. Blacklist Stats
         console.log("Aggregating Blacklist...");
@@ -564,10 +568,10 @@ async function generateMemberReport() {
         </div>
     </div>
 
-    <!-- Yearly Growth Trend -->
+    <!-- Monthly Growth Trend -->
     <div class="main-content">
         <div class="chart-card full-width">
-            <h3>會員增長趨勢 (Yearly Growth Trend)</h3>
+            <h3>會員增長趨勢 (Monthly Growth Trend - Last 12 Months)</h3>
             <div style="height: 350px;">
                 <canvas id="growthChart"></canvas>
             </div>
@@ -597,7 +601,7 @@ async function generateMemberReport() {
     const countryData = ${JSON.stringify(countryArray.slice(0, 15))}; // Top 15
     const cityData = ${JSON.stringify(cityArray)};
     const taiwanTotal = ${taiwanTotal};
-    const yearlyData = ${JSON.stringify(yearlyData)};
+    const monthlyGrowthData = ${JSON.stringify(monthlyGrowthData)};
     const blacklistData = ${JSON.stringify(blacklistStats)};
     const disabilityData = ${JSON.stringify(disabilityStats)};
     const zodiacData = ${JSON.stringify(zodiacStats)};
@@ -756,10 +760,10 @@ async function generateMemberReport() {
     new Chart(document.getElementById('growthChart'), {
         type: 'line',
         data: {
-            labels: yearlyData.map(d => d.year),
+            labels: monthlyGrowthData.map(d => d.month),
             datasets: [{
                 label: '新增會員數',
-                data: yearlyData.map(d => d.count),
+                data: monthlyGrowthData.map(d => d.count),
                 borderColor: '#FFD700', // Gold
                 backgroundColor: 'rgba(255, 215, 0, 0.1)',
                 tension: 0.3,
