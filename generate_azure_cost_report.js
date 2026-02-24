@@ -80,7 +80,7 @@ async function generateReport() {
             --accent-secondary: #50E6FF;
             --shadow: 0 8px 16px rgba(0,0,0,0.3);
             
-            --color-total: #0078D4;
+            --color-total: #FBC02D;
             --color-a: #FF7043;
             --color-d: #42A5F5;
             --color-e: #66BB6A;
@@ -370,8 +370,8 @@ async function generateReport() {
                 {
                     label: '總費用 (Total Cost)',
                     data: costTotal,
-                    borderColor: '#0078D4',
-                    backgroundColor: 'rgba(0, 120, 212, 0.1)',
+                    borderColor: '#FBC02D',
+                    backgroundColor: 'rgba(251, 192, 45, 0.1)',
                     tension: 0.3,
                     fill: true,
                     pointRadius: 4,
