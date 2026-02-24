@@ -287,7 +287,7 @@ async function generateReport() {
         <div class="card">
             <h3>總營收 (Total Revenue)</h3>
             <div class="value" id="val-revenue">--</div>
-            <div class="sub">含正常交易</div>
+            <div class="sub">含成功交易</div>
         </div>
         <div class="card">
             <h3>客單價 (AOV)</h3>
