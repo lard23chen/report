@@ -307,13 +307,14 @@ async function generateReport() {
 
                 const total = d.QWARE_Ticket_TotalCost || 0;
                 const otherCost = (d.PaymentPortal_Cost || 0) + (d.SystemHotel_Cost || 0) + (d.Common_Cost || 0) + (d.PayGateway_Cost || 0) + (d.iSharingGift_Cost || 0) + (d.SystemCloudCard_Cost || 0);
+                const prevOtherCost = prev ? (prev.PaymentPortal_Cost || 0) + (prev.SystemHotel_Cost || 0) + (prev.Common_Cost || 0) + (prev.PayGateway_Cost || 0) + (prev.iSharingGift_Cost || 0) + (prev.SystemCloudCard_Cost || 0) : null;
 
                 return '<tr>' +
                     '<td style="font-weight: bold; font-size: 1.1em;">' + d.YearMonth + '</td>' +
                     '<td><span style="font-size: 1.1em; font-weight: bold;">' + (d.SystemA_Cost || 0).toLocaleString() + '</span> ' + getChangeHTML(d.SystemA_Cost, prev?.SystemA_Cost) + '</td>' +
                     '<td><span style="font-size: 1.1em; font-weight: bold;">' + (d.SystemD_Cost || 0).toLocaleString() + '</span> ' + getChangeHTML(d.SystemD_Cost, prev?.SystemD_Cost) + '</td>' +
                     '<td><span style="font-size: 1.1em; font-weight: bold;">' + (d.SystemE_Cost || 0).toLocaleString() + '</span> ' + getChangeHTML(d.SystemE_Cost, prev?.SystemE_Cost) + '</td>' +
-                    '<td><span style="font-size: 1.1em; font-weight: bold;">' + otherCost.toLocaleString() + '</span></td>' +
+                    '<td><span style="font-size: 1.1em; font-weight: bold;">' + otherCost.toLocaleString() + '</span> ' + getChangeHTML(otherCost, prevOtherCost) + '</td>' +
                     '<td><span style="font-size: 1.3em; font-weight: bold; color: var(--accent-color);">' + total.toLocaleString() + '</span> ' + getChangeHTML(total, prev?.QWARE_Ticket_TotalCost) + '</td>' +
                     '</tr>';
             }).join('')}
