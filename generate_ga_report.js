@@ -308,10 +308,10 @@ async function generateReport() {
             };
 
             return '<tr>' +
-                '<td style="font-weight: bold;">' + d.month + '</td>' +
-                '<td>' + d.D.total.toLocaleString() + ' ' + getChangeHTML(d.D.total, prev?.D.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.D.mobile / d.D.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
-                '<td>' + d.A.total.toLocaleString() + ' ' + getChangeHTML(d.A.total, prev?.A.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.A.mobile / d.A.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
-                '<td>' + d.E.total.toLocaleString() + ' ' + getChangeHTML(d.E.total, prev?.E.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.E.mobile / d.E.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
+                '<td style="font-weight: bold; font-size: 1.1em;">' + d.month + '</td>' +
+                '<td><span style="font-size: 1.3em; font-weight: bold;">' + d.D.total.toLocaleString() + '</span> ' + getChangeHTML(d.D.total, prev?.D.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.D.mobile / d.D.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
+                '<td><span style="font-size: 1.3em; font-weight: bold;">' + d.A.total.toLocaleString() + '</span> ' + getChangeHTML(d.A.total, prev?.A.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.A.mobile / d.A.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
+                '<td><span style="font-size: 1.3em; font-weight: bold;">' + d.E.total.toLocaleString() + '</span> ' + getChangeHTML(d.E.total, prev?.E.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.E.mobile / d.E.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
                 '</tr>';
         }).join('')}
                 </tbody>
