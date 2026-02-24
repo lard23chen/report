@@ -19,7 +19,14 @@ async function generateReport() {
         const collection = db.collection('AzureMonthlyCost');
 
         // Fetch all data sorted by YearMonth
-        const docs = await collection.find({}).sort({ YearMonth: 1 }).toArray();
+        const allDocs = await collection.find({}).sort({ YearMonth: 1 }).toArray();
+
+        // 距今一年內
+        const now = new Date();
+        const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+        const threshold = `${oneYearAgo.getFullYear()}/${String(oneYearAgo.getMonth() + 1).padStart(2, '0')}`;
+
+        const docs = allDocs.filter(d => d.YearMonth >= threshold);
 
         // Prepare chart data
         const labels = [];
@@ -47,8 +54,9 @@ async function generateReport() {
         });
 
         // 取得最新一個月的資料作為 Highlight
-        const latestDoc = docs[docs.length - 1];
-        const prevDoc = docs.length > 1 ? docs[docs.length - 2] : null;
+        const latestDoc = docs.length > 0 ? docs[docs.length - 1] : null;
+        const latestAllIndex = latestDoc ? allDocs.findIndex(d => d.YearMonth === latestDoc.YearMonth) : -1;
+        const prevDoc = latestAllIndex > 0 ? allDocs[latestAllIndex - 1] : null;
 
         const reportTime = new Date().toLocaleString('zh-TW');
 
@@ -292,8 +300,8 @@ async function generateReport() {
                 </thead>
                 <tbody>
                     ${[...docs].reverse().map((d, index) => {
-                let origIndex = docs.length - 1 - index;
-                let prev = origIndex > 0 ? docs[origIndex - 1] : null;
+                let allIndex = allDocs.findIndex(a => a.YearMonth === d.YearMonth);
+                let prev = allIndex > 0 ? allDocs[allIndex - 1] : null;
 
                 const getChangeHTML = (currVal, prevVal) => {
                     if (!prevVal) return '';
