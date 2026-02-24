@@ -28,8 +28,24 @@ async function main() {
                     status: "$狀態",
                     price: { $ifNull: ["$售價", 0] },
                     refundAmt: { $ifNull: ["$實退金額", 0] },
-                    refundFee: { $ifNull: ["$手續費", 0] },
+                    refundFeeRaw: { $ifNull: ["$手續費", 0] },
                     orderId: "$訂單編號"
+                }
+            },
+            {
+                $project: {
+                    month: 1,
+                    status: 1,
+                    price: 1,
+                    refundAmt: 1,
+                    refundFee: {
+                        $cond: {
+                            if: { $eq: [{ $type: "$refundFeeRaw" }, "string"] },
+                            then: { $convert: { input: "$refundFeeRaw", to: "double", onError: 0, onNull: 0 } },
+                            else: "$refundFeeRaw"
+                        }
+                    },
+                    orderId: 1
                 }
             },
             {

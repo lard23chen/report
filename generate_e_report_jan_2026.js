@@ -501,13 +501,13 @@ async function generateReport() {
         
         // Filter Data (ALL)
         const allEventData = dbData.filter(d => d['節目/商品名稱'] === eventName);
-        const eventData = allEventData.filter(d => d['狀態'] === '正常'); // Valid Sales
-        const refundData = allEventData.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票' || (d['手續費'] && d['手續費'] > 0)); 
+        const eventData = allEventData.filter(d => d['狀態'] === '成功'); // Valid Sales
+        const refundData = allEventData.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票' || (d['手續費'] && parseFloat(d['手續費']) > 0)); 
         
         // 1. Basic Stats
         const revenue = eventData.reduce((acc, cur) => acc + (cur['售價'] || 0), 0);
         const tickets = eventData.length;
-        const totalRefAmount = allEventData.reduce((acc, cur) => acc + (cur['手續費'] || 0), 0);
+        const totalRefAmount = allEventData.reduce((acc, cur) => acc + (parseFloat(cur['手續費']) || 0), 0);
         
         const uniqueOrders = new Set();
         eventData.forEach(o => {
@@ -648,7 +648,7 @@ async function generateReport() {
         const refundStats = {};
         refundData.forEach(o => {
             const reason = o['退票因素'] || 'Unknown';
-            const fee = o['手續費'] || 0;
+            const fee = parseFloat(o['手續費']) || 0;
             if(!refundStats[reason]) refundStats[reason] = { count: 0, fee: 0 };
             refundStats[reason].count += 1;
             refundStats[reason].fee += fee;
@@ -676,15 +676,15 @@ async function generateReport() {
         document.getElementById('meta-total-rows').innerText = dbData.length.toLocaleString();
 
         // Filter valid orders
-        const validOrders = dbData.filter(d => d['狀態'] === '正常');
+        const validOrders = dbData.filter(d => d['狀態'] === '成功');
         
         // 1. Overall Stats Calculation
         const totalRevenue = validOrders.reduce((acc, cur) => acc + (cur['售價'] || 0), 0);
         
         // Refund Calculations
         const refundDocs = dbData.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票');
-        const totalRefundedValue = refundDocs.reduce((acc, cur) => acc + (cur['實退金額'] || 0), 0);
-        const totalRefundFees = dbData.reduce((acc, cur) => acc + (cur['手續費'] || 0), 0);
+        const totalRefundedValue = refundDocs.reduce((acc, cur) => acc + (parseFloat(cur['實退金額']) || 0), 0);
+        const totalRefundFees = dbData.reduce((acc, cur) => acc + (parseFloat(cur['手續費']) || 0), 0);
         
         const totalTickets = validOrders.length; 
         const totalRefundedTickets = dbData.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票' || (d['手續費'] && d['手續費'] > 0)).length; 
@@ -830,11 +830,11 @@ async function generateReport() {
 
         // 2c. Top 5 Refund Events Logic
         const refundStats = {};
-        const refundRecords = dbData.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票' || (d['手續費'] && d['手續費'] > 0)); 
+        const refundRecords = dbData.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票' || (d['手續費'] && parseFloat(d['手續費']) > 0)); 
         
         refundRecords.forEach(item => {
             const name = item['節目/商品名稱'] || 'Unknown';
-            const fee = item['手續費'] || 0;
+            const fee = parseFloat(item['手續費']) || 0;
             const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
 
             if (!refundStats[name]) {
