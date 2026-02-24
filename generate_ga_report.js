@@ -290,7 +290,6 @@ async function generateReport() {
                         <th>D系統流量</th>
                         <th>A系統流量</th>
                         <th>E系統流量</th>
-                        <th>總流量 (Total)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -313,7 +312,6 @@ async function generateReport() {
                 '<td>' + d.D.total.toLocaleString() + ' ' + getChangeHTML(d.D.total, prev?.D.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.D.mobile / d.D.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
                 '<td>' + d.A.total.toLocaleString() + ' ' + getChangeHTML(d.A.total, prev?.A.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.A.mobile / d.A.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
                 '<td>' + d.E.total.toLocaleString() + ' ' + getChangeHTML(d.E.total, prev?.E.total) + ' <span style="font-size: 0.85em; color: var(--accent-secondary); margin-left: 8px;">(Mobile 佔比: ' + (((d.E.mobile / d.E.total) * 100) || 0).toFixed(1) + '%)</span></td>' +
-                '<td style="color: var(--accent-color); font-weight: bold;">' + d.total.toLocaleString() + ' ' + getChangeHTML(d.total, prev?.total) + '</td>' +
                 '</tr>';
         }).join('')}
                 </tbody>
