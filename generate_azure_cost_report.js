@@ -278,34 +278,16 @@ async function generateReport() {
 
     <div class="main-content">
         <div class="chart-card full-width">
-            <h3>每月費用趨勢 (Monthly Cost Trend)</h3>
-            <div style="height: 400px; width: 100%;">
-                <canvas id="trendChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <div class="chart-card full-width">
-            <h3>系統費用堆疊圖 (Cost Breakdown)</h3>
-            <div style="height: 400px; width: 100%;">
-                <canvas id="stackedChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <div class="chart-card full-width">
             <h3>每月詳細數據 (Monthly Data)</h3>
             <table>
                 <thead>
                     <tr>
                         <th>月份 (Month)</th>
-                        <th>總費用 (Total)</th>
                         <th>A系統</th>
                         <th>D系統</th>
                         <th>E系統</th>
-                        <th>其他(Other)</th>
+                        <th>共用</th>
+                        <th>總費用 (Total)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -328,17 +310,37 @@ async function generateReport() {
 
                 return '<tr>' +
                     '<td style="font-weight: bold; font-size: 1.1em;">' + d.YearMonth + '</td>' +
-                    '<td><span style="font-size: 1.3em; font-weight: bold; color: var(--accent-color);">' + total.toLocaleString() + '</span> ' + getChangeHTML(total, prev?.QWARE_Ticket_TotalCost) + '</td>' +
                     '<td><span style="font-size: 1.1em; font-weight: bold;">' + (d.SystemA_Cost || 0).toLocaleString() + '</span> ' + getChangeHTML(d.SystemA_Cost, prev?.SystemA_Cost) + '</td>' +
                     '<td><span style="font-size: 1.1em; font-weight: bold;">' + (d.SystemD_Cost || 0).toLocaleString() + '</span> ' + getChangeHTML(d.SystemD_Cost, prev?.SystemD_Cost) + '</td>' +
                     '<td><span style="font-size: 1.1em; font-weight: bold;">' + (d.SystemE_Cost || 0).toLocaleString() + '</span> ' + getChangeHTML(d.SystemE_Cost, prev?.SystemE_Cost) + '</td>' +
-                    '<td>' + otherCost.toLocaleString() + '</td>' +
+                    '<td><span style="font-size: 1.1em; font-weight: bold;">' + otherCost.toLocaleString() + '</span></td>' +
+                    '<td><span style="font-size: 1.3em; font-weight: bold; color: var(--accent-color);">' + total.toLocaleString() + '</span> ' + getChangeHTML(total, prev?.QWARE_Ticket_TotalCost) + '</td>' +
                     '</tr>';
             }).join('')}
                 </tbody>
             </table>
         </div>
     </div>
+
+    <div class="main-content">
+        <div class="chart-card full-width">
+            <h3>每月費用趨勢 (Monthly Cost Trend)</h3>
+            <div style="height: 400px; width: 100%;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="chart-card full-width">
+            <h3>系統費用堆疊圖 (Cost Breakdown)</h3>
+            <div style="height: 400px; width: 100%;">
+                <canvas id="stackedChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
 
 </div>
 
