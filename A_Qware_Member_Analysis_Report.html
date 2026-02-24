@@ -215,7 +215,7 @@
             <div class="logo-sub">會員資料庫深度分析</div>
         </div>
         <div class="meta">
-            Generated: 2026/2/24 下午4:40:06<br>
+            Generated: 2026/2/24 下午4:44:39<br>
             Total Members: 2,789,049
         </div>
     </header>
@@ -253,15 +253,15 @@
                 <tbody>
                     
                         <tr>
-                            <td>女</td>
-                            <td>1,803,891</td>
-                            <td>64.7%</td>
-                        </tr>
-                    
-                        <tr>
                             <td>男</td>
                             <td>985,158</td>
                             <td>35.3%</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>女</td>
+                            <td>1,803,891</td>
+                            <td>64.7%</td>
                         </tr>
                     
                 </tbody>
@@ -368,13 +368,13 @@
 
 <script>
     // Data Preparation
-    const genderData = {"女":1803891,"男":985158};
+    const genderData = {"男":985158,"女":1803891};
     const ageData = {"<18":44010,"18-24":492350,"25-34":1096812,"35-44":700907,"45-54":359659,"55-64":80341,"65+":14970,"Unknown":0};
     const socialData = [{"name":"GOOGLE","count":967043},{"name":"OP","count":939742},{"name":"LINE","count":533056},{"name":"FB","count":288910},{"name":"APPLE","count":52544},{"name":"MAJOR","count":7754}];
     const countryData = [{"name":"台灣","count":2697292},{"name":"其他","count":57732},{"name":"日本","count":19995},{"name":"韓國","count":8021},{"name":"中國","count":6009}]; // Top 15
     const cityData = [{"name":"格式不符","count":640151},{"name":"新北市","count":429314},{"name":"高雄市","count":288318},{"name":"臺北市","count":258094},{"name":"臺中市","count":235325},{"name":"桃園市","count":205127},{"name":"臺南市","count":196018},{"name":"彰化縣","count":72444},{"name":"屏東縣","count":53060},{"name":"新竹縣","count":50093},{"name":"新竹市","count":43501},{"name":"雲林縣","count":33572},{"name":"苗栗縣","count":32261},{"name":"基隆市","count":30427},{"name":"宜蘭縣","count":28557},{"name":"嘉義縣","count":25659},{"name":"南投縣","count":23369},{"name":"嘉義市","count":19897},{"name":"花蓮縣","count":15970},{"name":"臺東縣","count":9971},{"name":"澎湖縣","count":3423},{"name":"金門縣","count":2385},{"name":"連江縣","count":356}];
     const taiwanTotal = 2697292;
-    const monthlyGrowthData = [{"month":"2025-01","count":665},{"month":"2025-02","count":52371},{"month":"2025-03","count":72453},{"month":"2025-04","count":39401},{"month":"2025-05","count":84528},{"month":"2025-06","count":67325},{"month":"2025-07","count":51767},{"month":"2025-08","count":56811},{"month":"2025-09","count":127974},{"month":"2025-10","count":110799},{"month":"2025-11","count":43619},{"month":"2025-12","count":148281},{"month":"2026-01","count":42327},{"month":"2026-02","count":23107}];
+    const monthlyGrowthData = [{"month":"2025-01","count":665},{"month":"2025-02","count":52371},{"month":"2025-03","count":72453},{"month":"2025-04","count":39401},{"month":"2025-05","count":84528},{"month":"2025-06","count":67325},{"month":"2025-07","count":51767},{"month":"2025-08","count":56811},{"month":"2025-09","count":127974},{"month":"2025-10","count":110799},{"month":"2025-11","count":43619},{"month":"2025-12","count":148281},{"month":"2026-01","count":42327}];
     const blacklistData = {"Yes":22111,"No":2766938};
     const disabilityData = {"Yes":13818,"No":2775231};
     const zodiacData = {"牡羊座 (Aries)":{"男":74627,"女":137614},"金牛座 (Taurus)":{"男":77393,"女":142601},"雙子座 (Gemini)":{"男":77985,"女":144159},"巨蟹座 (Cancer)":{"男":85039,"女":156896},"獅子座 (Leo)":{"男":83702,"女":156490},"處女座 (Virgo)":{"男":88208,"女":160940},"天秤座 (Libra)":{"男":89538,"女":162077},"天蠍座 (Scorpio)":{"男":89508,"女":161935},"射手座 (Sagittarius)":{"男":85024,"女":152596},"摩羯座 (Capricorn)":{"男":78400,"女":143361},"水瓶座 (Aquarius)":{"男":76929,"女":141512},"雙魚座 (Pisces)":{"男":78805,"女":143710}};

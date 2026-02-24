@@ -200,8 +200,9 @@ async function generateMemberReport() {
             { $sort: { _id: 1 } }
         ]).toArray();
 
+        const currentMonthStr = now.toISOString().slice(0, 7); // YYYY-MM
         const monthlyGrowthData = monthAgg
-            .filter(m => m._id && /^\d{4}-\d{2}$/.test(m._id))
+            .filter(m => m._id && /^\d{4}-\d{2}$/.test(m._id) && m._id !== currentMonthStr)
             .map(m => ({ month: m._id, count: m.count }));
 
         // 7. Blacklist Stats
@@ -1006,13 +1007,9 @@ async function generateMemberReport() {
         `;
 
         const fileName = 'A_Qware_Member_Analysis_Report.html';
-        const reportDir = path.join(__dirname, 'report');
-        if (!fs.existsSync(reportDir)) {
-            fs.mkdirSync(reportDir);
-        }
-
-        fs.writeFileSync(path.join(reportDir, fileName), htmlContent);
-        console.log(`Report generated: ${fileName}`);
+        const outPath = path.join(__dirname, fileName);
+        fs.writeFileSync(outPath, htmlContent);
+        console.log(`Report generated: ${outPath}`);
 
     } catch (e) {
         console.error(e);
