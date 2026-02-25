@@ -26,6 +26,10 @@ async function generateReport() {
         console.log(`Fetching data for: ${TARGET_NAME}...`);
         const data = await collection.find({ [TARGET_FIELD]: TARGET_NAME }).toArray();
         console.log(`Fetched ${data.length} records.`);
+        const topEventId = 39311;
+        console.log(`Fetching GA Data for ActivityID: ${topEventId}`);
+        const gaSessions = await db.collection("QwareTrafficSession").find({ ActivityID: topEventId }).toArray();
+        const gaReads = await db.collection("QwareTrafficGAReadTime").find({ ActivityID: topEventId }).toArray();
 
         // Current Time
         const reportTime = new Date().toLocaleString('zh-TW');
@@ -334,6 +338,9 @@ async function generateReport() {
                         <th style="color: white !important; border: 1px solid #548235; text-align: center;">ATM張數</th>
                         <th style="color: white !important; border: 1px solid #548235; text-align: center;">ATM張數<br>(每分鐘累加)</th>
                         <th style="color: white !important; border: 1px solid #548235; text-align: center;">銷售率</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center; background-color:#5a9bd5;">ActiveDMinCount<br>(排隊)</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center; background-color:#5a9bd5;">ActiveAMinCount<br>(搶票)</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center; background-color:#5a9bd5;">SessionCount<br>(連線)</th>
                     </tr>
                 </thead>
                 <tbody style="text-align: right;"></tbody>
@@ -369,6 +376,8 @@ async function generateReport() {
 
 <script>
     const dbData = ${JSON.stringify(data)};
+    const gaSessions = ${JSON.stringify(gaSessions)};
+    const gaReads = ${JSON.stringify(gaReads)};
 
     function init() {
         // Filter Valid Orders
@@ -645,7 +654,10 @@ async function generateReport() {
                     bookings: new Set(),
                     tickets: 0,
                     creditTickets: 0,
-                    atmTickets: 0
+                    atmTickets: 0,
+                    activeDMin: 0,
+                    activeAMin: 0,
+                    sessionCount: 0
                 };
             }
         }
@@ -680,6 +692,26 @@ async function generateReport() {
             }
         });
 
+        // 整理 GA 的連線、排隊數量到每分鐘
+        gaSessions.forEach(s => {
+            if(!s.CreateTime) return;
+            const hm = String(s.CreateTime).slice(11, 16); // 抽出 HH:mm
+            if(minuteStats[hm]) {
+                minuteStats[hm].sessionCount = Math.max(minuteStats[hm].sessionCount, s.SessionCount || 0);
+            }
+        });
+
+        gaReads.forEach(r => {
+            if(!r.CreateTime) return;
+            const hm = String(r.CreateTime).slice(11, 16); // 抽出 HH:mm
+            if(minuteStats[hm]) {
+                const d = r.ActiveUsersDMinCount === 'NULL' ? 0 : Number(r.ActiveUsersDMinCount);
+                const a = r.ActiveUsersAMinCount === 'NULL' ? 0 : Number(r.ActiveUsersAMinCount);
+                minuteStats[hm].activeDMin = Math.max(minuteStats[hm].activeDMin, d);
+                minuteStats[hm].activeAMin = Math.max(minuteStats[hm].activeAMin, a);
+            }
+        });
+
         const minBody = document.querySelector('#minuteTable tbody');
         let cumB = 0, cumT = 0, cumC = 0, cumA = 0;
 
@@ -709,6 +741,9 @@ async function generateReport() {
                 <td style="text-align: right; border: 1px solid #444; color: var(--text-primary);">\${a.toLocaleString()}</td>
                 <td style="text-align: right; border: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumA.toLocaleString()}</td>
                 <td style="text-align: center; border: 1px solid #444; color: #ffd700; font-weight: 600;">\${rate}</td>
+                <td style="text-align: right; border: 1px solid #444; color: #f59e0b; font-weight: 600;">\${stat.activeDMin.toLocaleString()}</td>
+                <td style="text-align: right; border: 1px solid #444; color: #10b981; font-weight: 600;">\${stat.activeAMin.toLocaleString()}</td>
+                <td style="text-align: right; border: 1px solid #444; color: #3b82f6; font-weight: 600;">\${stat.sessionCount.toLocaleString()}</td>
             \`;
             minBody.appendChild(tr);
         });
