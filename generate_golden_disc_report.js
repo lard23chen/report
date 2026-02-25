@@ -321,17 +321,17 @@ async function generateReport() {
         </div>
     </div>
 
-    <!-- Minute-by-Minute Table (11:25 - 12:30) -->
+    <!-- Minute-by-Minute Table (11:28 - 12:30) -->
     <div class="main-content">
         <div class="chart-card" style="grid-column: span 2;">
-            <h3 style="border-left-color: #70ad47;">尖峰時段銷售狀況 (Peak Hour 11:25 - 12:30)</h3>
+            <h3 style="border-left-color: #70ad47;">尖峰時段銷售狀況 (Peak Hour 11:28 - 12:30)</h3>
             <div style="width: 100%; overflow-x: auto; border: 1px solid #333; border-radius: 8px;">
                 <table id="minuteTable" style="margin-top: 0; white-space: nowrap; min-width: 100%;">
                     <thead>
                         <tr style="background-color: #70ad47; color: white;">
                             <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">時間</th>
-                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center; background-color:#5a9bd5;">ActiveD<br>(排隊)</th>
-                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center; background-color:#5a9bd5;">ActiveA<br>(搶票)</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center; background-color:#5a9bd5;">每分鐘D<br>(排隊)</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center; background-color:#5a9bd5;">每分鐘A<br>(搶票)</th>
                             <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center; background-color:#5a9bd5;">Session<br>(連線)</th>
                             <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">booking數</th>
                             <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">booking累加</th>
@@ -644,12 +644,12 @@ async function generateReport() {
              spTbody.appendChild(tr);
         });
 
-        // 7. Peak Hour Analysis (11:25 - 12:30)
+        // 7. Peak Hour Analysis (11:28 - 12:30)
         let totalValidTicketsForRate = tickets > 0 ? tickets : 1; 
         const minuteStats = {};
         for(let h = 11; h <= 12; h++) {
             for(let m = 0; m < 60; m++) {
-                if(h === 11 && m < 25) continue;
+                if(h === 11 && m < 28) continue;
                 if(h === 12 && m > 30) continue;
                 const minStr = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
                 minuteStats[minStr] = { 
