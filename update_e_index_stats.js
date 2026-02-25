@@ -208,12 +208,35 @@ async function main() {
                                     responsive: true,
                                     maintainAspectRatio: false,
                                     plugins: { 
-                                        legend: { display: false } 
+                                        legend: { display: false },
+                                        datalabels: {
+                                            color: '#f8fafc',
+                                            anchor: 'end',
+                                            align: 'top',
+                                            formatter: function(value) {
+                                                if (value >= 1000000) {
+                                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                                } else if (value >= 10000) {
+                                                    return '$' + (value / 10000).toFixed(1) + 'W';
+                                                }
+                                                return '$' + value.toLocaleString();
+                                            },
+                                            font: {
+                                                weight: 'bold',
+                                                size: 11
+                                            }
+                                        }
+                                    },
+                                    layout: {
+                                        padding: {
+                                            top: 25
+                                        }
                                     },
                                     scales: {
                                         y: { ticks: { callback: v => '$' + v.toLocaleString() } }
                                     }
-                                }
+                                },
+                                plugins: [window.ChartDataLabels]
                             });
                         } catch (e) {
                             console.error('Chart.js failed to initialize', e);

@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -103,6 +104,7 @@
         .tabs {
             display: flex;
             gap: 1rem;
+            justify-content: center;
             margin-bottom: 2rem;
             border-bottom: 1px solid var(--tab-border);
             padding-bottom: 0.5rem;
@@ -331,7 +333,7 @@
                 <h3 style="color: var(--text-primary); font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
                     📊 E系統 月份交易統計 <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">(Monthly Statistics - E-System)</span>
                 </h3>
-                <span style="font-size: 0.85rem; color: var(--text-secondary);">Last Updated: 2026/2/25 上午9:55:22</span>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">Last Updated: 2026/2/25 上午9:59:37</span>
             </div>
             <div style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: separate; border-spacing: 0; color: var(--text-secondary); font-size: 0.95rem;">
@@ -433,12 +435,35 @@
                                     responsive: true,
                                     maintainAspectRatio: false,
                                     plugins: { 
-                                        legend: { display: false } 
+                                        legend: { display: false },
+                                        datalabels: {
+                                            color: '#f8fafc',
+                                            anchor: 'end',
+                                            align: 'top',
+                                            formatter: function(value) {
+                                                if (value >= 1000000) {
+                                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                                } else if (value >= 10000) {
+                                                    return '$' + (value / 10000).toFixed(1) + 'W';
+                                                }
+                                                return '$' + value.toLocaleString();
+                                            },
+                                            font: {
+                                                weight: 'bold',
+                                                size: 11
+                                            }
+                                        }
+                                    },
+                                    layout: {
+                                        padding: {
+                                            top: 25
+                                        }
                                     },
                                     scales: {
                                         y: { ticks: { callback: v => '$' + v.toLocaleString() } }
                                     }
-                                }
+                                },
+                                plugins: [window.ChartDataLabels]
                             });
                         } catch (e) {
                             console.error('Chart.js failed to initialize', e);
@@ -451,125 +476,125 @@
             <!-- STATS_END -->
             
             <!-- Tabs Navigation -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('tab1')">本月/上月報表</button>
-            <button class="tab-btn" onclick="switchTab('tab2')">報表比較分析</button>
-            <button class="tab-btn" onclick="switchTab('tab3')">歷史報表分析</button>
-            <button class="tab-btn" onclick="switchTab('tab4')">各節目報表分析</button>
-        </div>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tab1')">本月/上月報表</button>
+        <button class="tab-btn" onclick="switchTab('tab2')">報表比較分析</button>
+        <button class="tab-btn" onclick="switchTab('tab3')">歷史報表分析</button>
+        <button class="tab-btn" onclick="switchTab('tab4')">各節目報表分析</button>
+    </div>
 
-        <!-- Tab 1: Last Month -->
-        <div id="tab1" class="tab-content active">
-            <div class="grid" id="tab1-grid">
-                <div class="card">
-                    <div class="card-icon icon-revenue">
-                        📊
-                    </div>
-                    <div class="card-content">
-                        <h3>2026年01月 分析報表 (E系統)</h3>
-                        <p>完整的一月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
-                    </div>
-                    <div class="card-meta">
-                        <span class="badge">Monthly</span>
-                        <a href="E_Qware_Revenue_Report_2026年01月_分析報表.html" class="btn-link">
-                            查看報表
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </a>
-                    </div>
+    <!-- Tab 1: Last Month -->
+    <div id="tab1" class="tab-content active">
+        <div class="grid" id="tab1-grid">
+            <div class="card">
+                <div class="card-icon icon-revenue">
+                    📊
+                </div>
+                <div class="card-content">
+                    <h3>2026年01月 分析報表 (E系統)</h3>
+                    <p>完整的一月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
+                </div>
+                <div class="card-meta">
+                    <span class="badge">Monthly</span>
+                    <a href="E_Qware_Revenue_Report_2026年01月_分析報表.html" class="btn-link">
+                        查看報表
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Tab 2: Comparison -->
-        <div id="tab2" class="tab-content">
-            <div class="grid" id="tab2-grid">
-                <!-- Content will be injected by script -->
-                <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 2rem;">
-                    暫無比較報表 (Updating...)
+    <!-- Tab 2: Comparison -->
+    <div id="tab2" class="tab-content">
+        <div class="grid" id="tab2-grid">
+            <!-- Content will be injected by script -->
+            <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 2rem;">
+                暫無比較報表 (Updating...)
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 3: Historical -->
+    <div id="tab3" class="tab-content">
+        <div class="grid" id="tab3-grid">
+            <!-- 2025-12 Card -->
+            <div class="card">
+                <div class="card-icon icon-analysis">
+                    📊
+                </div>
+                <div class="card-content">
+                    <h3>2025年12月 分析報表 (E系統)</h3>
+                    <p>12月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
+                </div>
+                <div class="card-meta">
+                    <span class="badge">Historical</span>
+                    <a href="E_Qware_Revenue_Report_2025年12月_分析報表.zip" class="btn-link">
+                        查看報表
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2025-11 Card -->
+            <div class="card">
+                <div class="card-icon icon-analysis">
+                    📊
+                </div>
+                <div class="card-content">
+                    <h3>2025年11月 分析報表 (E系統)</h3>
+                    <p>11月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
+                </div>
+                <div class="card-meta">
+                    <span class="badge">Historical</span>
+                    <a href="E_Qware_Revenue_Report_2025年11月_分析報表.html" class="btn-link">
+                        查看報表
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2025-10 Card -->
+            <div class="card">
+                <div class="card-icon icon-analysis">
+                    📊
+                </div>
+                <div class="card-content">
+                    <h3>2025年10月 分析報表 (E系統)</h3>
+                    <p>10月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
+                </div>
+                <div class="card-meta">
+                    <span class="badge">Historical</span>
+                    <a href="E_Qware_Revenue_Report_2025年10月_分析報表.html" class="btn-link">
+                        查看報表
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Tab 3: Historical -->
-        <div id="tab3" class="tab-content">
-            <div class="grid" id="tab3-grid">
-                <!-- 2025-12 Card -->
-                <div class="card">
-                    <div class="card-icon icon-analysis">
-                        📊
-                    </div>
-                    <div class="card-content">
-                        <h3>2025年12月 分析報表 (E系統)</h3>
-                        <p>12月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
-                    </div>
-                    <div class="card-meta">
-                        <span class="badge">Historical</span>
-                        <a href="E_Qware_Revenue_Report_2025年12月_分析報表.zip" class="btn-link">
-                            查看報表
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 2025-11 Card -->
-                <div class="card">
-                    <div class="card-icon icon-analysis">
-                        📊
-                    </div>
-                    <div class="card-content">
-                        <h3>2025年11月 分析報表 (E系統)</h3>
-                        <p>11月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
-                    </div>
-                    <div class="card-meta">
-                        <span class="badge">Historical</span>
-                        <a href="E_Qware_Revenue_Report_2025年11月_分析報表.html" class="btn-link">
-                            查看報表
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 2025-10 Card -->
-                <div class="card">
-                    <div class="card-icon icon-analysis">
-                        📊
-                    </div>
-                    <div class="card-content">
-                        <h3>2025年10月 分析報表 (E系統)</h3>
-                        <p>10月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
-                    </div>
-                    <div class="card-meta">
-                        <span class="badge">Historical</span>
-                        <a href="E_Qware_Revenue_Report_2025年10月_分析報表.html" class="btn-link">
-                            查看報表
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
+    <!-- Tab 4: Individual Events -->
+    <div id="tab4" class="tab-content">
+        <div class="grid" id="tab4-grid">
+            <!-- Content will be injected by script -->
+            <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 2rem;">
+                暫無專案報表 (Updating...)
             </div>
         </div>
-
-        <!-- Tab 4: Individual Events -->
-        <div id="tab4" class="tab-content">
-            <div class="grid" id="tab4-grid">
-                <!-- Content will be injected by script -->
-                <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 2rem;">
-                    暫無專案報表 (Updating...)
-                </div>
-            </div>
-        </div>
+    </div>
 
     </div>
 
