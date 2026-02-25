@@ -120,11 +120,23 @@ async function main() {
                 let maxSession = 0;
                 let maxActiveD = 0;
                 let maxActiveA = 0;
+                let maxSessionTime = '';
+                let maxActiveDTime = '';
+                let maxActiveATime = '';
 
                 dailyData.forEach(item => {
-                    if (item.session > maxSession) maxSession = item.session;
-                    if (item.activeD > maxActiveD) maxActiveD = item.activeD;
-                    if (item.activeA > maxActiveA) maxActiveA = item.activeA;
+                    if (item.session > maxSession) {
+                        maxSession = item.session;
+                        maxSessionTime = item.time;
+                    }
+                    if (item.activeD > maxActiveD) {
+                        maxActiveD = item.activeD;
+                        maxActiveDTime = item.time;
+                    }
+                    if (item.activeA > maxActiveA) {
+                        maxActiveA = item.activeA;
+                        maxActiveATime = item.time;
+                    }
                 });
 
                 clientData.push({
@@ -133,6 +145,9 @@ async function main() {
                     maxSession: maxSession,
                     maxActiveD: maxActiveD,
                     maxActiveA: maxActiveA,
+                    maxSessionTime: maxSessionTime,
+                    maxActiveDTime: maxActiveDTime,
+                    maxActiveATime: maxActiveATime,
                     start: dailyData.length > 0 ? dailyData[0].time : '',
                     end: dailyData.length > 0 ? dailyData[dailyData.length - 1].time : '',
                     data: dailyData
@@ -391,17 +406,17 @@ async function main() {
     <div class="card card-1">
         <h3>最高 Session 數量 (連線數)</h3>
         <div class="value" id="valSession" style="color: #3b82f6;">-</div>
-        <div class="sub">Peak Session Count</div>
+        <div class="sub" id="subSessionTime">Peak Time: -</div>
     </div>
     <div class="card card-2">
-        <h3>最高 排隊人數 (D)</h3>
+        <h3>D系統GA 30分鐘最高</h3>
         <div class="value" id="valActiveD" style="color: #f59e0b;">-</div>
-        <div class="sub">ActiveUsersDCount</div>
+        <div class="sub" id="subActiveDTime">Peak Time: -</div>
     </div>
     <div class="card card-3">
-        <h3>最高 搶票人數 (A)</h3>
+        <h3>A系統GA 30分鐘最高</h3>
         <div class="value" id="valActiveA" style="color: #10b981;">-</div>
-        <div class="sub">ActiveUsersACount</div>
+        <div class="sub" id="subActiveATime">Peak Time: -</div>
     </div>
     <div class="card card-4">
         <h3>資料記錄區間</h3>
@@ -453,6 +468,10 @@ async function main() {
         document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
         document.getElementById('valActiveD').innerText = d.maxActiveD.toLocaleString();
         document.getElementById('valActiveA').innerText = d.maxActiveA.toLocaleString();
+        document.getElementById('subSessionTime').innerText = "發生時間點: " + (d.maxSessionTime || '-');
+        document.getElementById('subActiveDTime').innerText = "發生時間點: " + (d.maxActiveDTime || '-');
+        document.getElementById('subActiveATime').innerText = "發生時間點: " + (d.maxActiveATime || '-');
+        
         document.getElementById('valTime').innerText = d.start.slice(5) + " ~ " + d.end.slice(5);
         document.getElementById('valTimeSub').innerText = "總數據點數: " + d.data.length;
 
