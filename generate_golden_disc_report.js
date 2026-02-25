@@ -323,28 +323,30 @@ async function generateReport() {
 
     <!-- Minute-by-Minute Table (11:25 - 12:30) -->
     <div class="main-content">
-        <div class="chart-card" style="grid-column: span 2; overflow-x: auto;">
+        <div class="chart-card" style="grid-column: span 2;">
             <h3 style="border-left-color: #70ad47;">尖峰時段銷售狀況 (Peak Hour 11:25 - 12:30)</h3>
-            <table id="minuteTable" style="white-space: nowrap;">
-                <thead>
-                    <tr style="background-color: #70ad47; color: white;">
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">時間</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">booking數</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">booking數<br>(每分鐘累加)</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">訂單張數</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">訂單張數<br>(每分鐘累加)</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">刷卡張數</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">刷卡張數<br>(每分鐘累加)</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">ATM張數</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">ATM張數<br>(每分鐘累加)</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">銷售率</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center; background-color:#5a9bd5;">ActiveDMinCount<br>(排隊)</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center; background-color:#5a9bd5;">ActiveAMinCount<br>(搶票)</th>
-                        <th style="color: white !important; border: 1px solid #548235; text-align: center; background-color:#5a9bd5;">SessionCount<br>(連線)</th>
-                    </tr>
-                </thead>
-                <tbody style="text-align: right;"></tbody>
-            </table>
+            <div style="width: 100%; overflow-x: auto; border: 1px solid #333; border-radius: 8px;">
+                <table id="minuteTable" style="margin-top: 0; white-space: nowrap; min-width: 100%;">
+                    <thead>
+                        <tr style="background-color: #70ad47; color: white;">
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">時間</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center; background-color:#5a9bd5;">ActiveD<br>(排隊)</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center; background-color:#5a9bd5;">ActiveA<br>(搶票)</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center; background-color:#5a9bd5;">Session<br>(連線)</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">booking數</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">booking累加</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">訂單張數</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">訂單累加</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">刷卡張數</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">刷卡累加</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">ATM張數</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; border-right: 1px solid #548235; text-align: center;">ATM累加</th>
+                            <th style="color: white !important; border-bottom: 1px solid #548235; text-align: center;">銷售率</th>
+                        </tr>
+                    </thead>
+                    <tbody style="text-align: right;"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -731,19 +733,19 @@ async function generateReport() {
             
             const tr = document.createElement('tr');
             tr.innerHTML = \`
-                <td style="text-align: center; border: 1px solid #444; color: var(--text-primary);">\${hm}</td>
-                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary);">\${b.toLocaleString()}</td>
-                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumB.toLocaleString()}</td>
-                <td style="text-align: right; border: 1px solid #444; color: var(--success-color);">\${t.toLocaleString()}</td>
-                <td style="text-align: right; border: 1px solid #444; color: var(--success-color); font-weight: 600;">\${cumT.toLocaleString()}</td>
-                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary);">\${c.toLocaleString()}</td>
-                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumC.toLocaleString()}</td>
-                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary);">\${a.toLocaleString()}</td>
-                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumA.toLocaleString()}</td>
-                <td style="text-align: center; border: 1px solid #444; color: #ffd700; font-weight: 600;">\${rate}</td>
-                <td style="text-align: right; border: 1px solid #444; color: #f59e0b; font-weight: 600;">\${stat.activeDMin.toLocaleString()}</td>
-                <td style="text-align: right; border: 1px solid #444; color: #10b981; font-weight: 600;">\${stat.activeAMin.toLocaleString()}</td>
-                <td style="text-align: right; border: 1px solid #444; color: #3b82f6; font-weight: 600;">\${stat.sessionCount.toLocaleString()}</td>
+                <td style="text-align: center; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary);">\${hm}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: #f59e0b; font-weight: 600;">\${stat.activeDMin.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: #10b981; font-weight: 600;">\${stat.activeAMin.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: #3b82f6; font-weight: 600;">\${stat.sessionCount.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary);">\${b.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumB.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--success-color);">\${t.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--success-color); font-weight: 600;">\${cumT.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary);">\${c.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumC.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary);">\${a.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumA.toLocaleString()}</td>
+                <td style="text-align: center; border-bottom: 1px solid #444; color: #ffd700; font-weight: 600;">\${rate}</td>
             \`;
             minBody.appendChild(tr);
         });
