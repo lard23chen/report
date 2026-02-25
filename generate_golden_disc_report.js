@@ -783,11 +783,7 @@ async function generateReport() {
         `;
 
         const fileName = 'A_GoldenDisc_Report_2026-02-06.html';
-        const reportDir = path.join(__dirname, 'report');
-        if (!fs.existsSync(reportDir)) {
-            fs.mkdirSync(reportDir);
-        }
-        const filePath = path.join(reportDir, fileName);
+        const filePath = path.join(__dirname, fileName);
 
         fs.writeFileSync(filePath, htmlContent);
         console.log(`Report generated successfully: ${filePath}`);
