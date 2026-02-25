@@ -73,7 +73,8 @@ async function main() {
             { $sort: { month: -1 } }
         ];
 
-        const stats = await collection.aggregate(pipeline).toArray();
+        const allStats = await collection.aggregate(pipeline).toArray();
+        const stats = allStats.filter(s => s._id !== '2026-02');
         console.log("Stats found:", stats);
 
         // 2. Generate E_report_index.html
@@ -175,15 +176,57 @@ async function main() {
                     </tbody>
                 </table>
             </div>
+            </div>
             <div style="margin-top: 1rem; text-align: right; font-size: 0.85rem; color: var(--text-secondary);">
                 * 數據來源: MongoDB (Qware_Ticket_Data_Esys)
             </div>
+            <div style="margin-top: 3rem; background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.05);">
+                <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">📈 每月購票金額趨勢 <span style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 400;">(Monthly Revenue Trend)</span></h4>
+                <div style="height: 350px; position: relative;">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const ctx = document.getElementById('monthlyTrendChart');
+                    if(ctx) {
+                        try {
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: ${JSON.stringify([...stats].reverse().map(s => s.month))},
+                                    datasets: [{
+                                        label: '購票金額 (Revenue)',
+                                        data: ${JSON.stringify([...stats].reverse().map(s => s.totalRevenue))},
+                                        borderColor: '#ef4444',
+                                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                        fill: true,
+                                        tension: 0.4
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: { 
+                                        legend: { display: false } 
+                                    },
+                                    scales: {
+                                        y: { ticks: { callback: v => '$' + v.toLocaleString() } }
+                                    }
+                                }
+                            });
+                        } catch (e) {
+                            console.error('Chart.js failed to initialize', e);
+                        }
+                    }
+                });
+            </script>
         `;
 
         // Replace Placeholder
         const newHtml = template.replace(
             /<!-- STATS_START -->[\s\S]*?<!-- Tabs Navigation -->/,
-            `<!-- STATS_START -->
+            () => `<!-- STATS_START -->
             <div class="stats-section" style="margin-bottom: 3rem; background: var(--card-bg); border-radius: 16px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
                 ${statsHtml}
             </div>
