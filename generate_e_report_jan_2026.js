@@ -32,8 +32,8 @@ async function generateReport() {
         let fileTitle = "分析報表";
         let dateTitle = "分析報表 (E系統)";
         if (dates.length > 0) {
-            const minDate = new Date(Math.min(...dates));
-            const maxDate = new Date(Math.max(...dates));
+            const minDate = new Date(dates.reduce((a, b) => a < b ? a : b));
+            const maxDate = new Date(dates.reduce((a, b) => a > b ? a : b));
 
             const startYear = minDate.getFullYear();
             const startMonth = String(minDate.getMonth() + 1).padStart(2, '0');
