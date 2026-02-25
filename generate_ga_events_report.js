@@ -120,9 +120,13 @@ async function main() {
                 let maxSession = 0;
                 let maxActiveD = 0;
                 let maxActiveA = 0;
+                let maxActiveDMin = 0;
+                let maxActiveAMin = 0;
                 let maxSessionTime = '';
                 let maxActiveDTime = '';
                 let maxActiveATime = '';
+                let maxActiveDMinTime = '';
+                let maxActiveAMinTime = '';
 
                 dailyData.forEach(item => {
                     if (item.session > maxSession) {
@@ -137,6 +141,14 @@ async function main() {
                         maxActiveA = item.activeA;
                         maxActiveATime = item.time;
                     }
+                    if (item.activeDMin > maxActiveDMin) {
+                        maxActiveDMin = item.activeDMin;
+                        maxActiveDMinTime = item.time;
+                    }
+                    if (item.activeAMin > maxActiveAMin) {
+                        maxActiveAMin = item.activeAMin;
+                        maxActiveAMinTime = item.time;
+                    }
                 });
 
                 clientData.push({
@@ -145,9 +157,13 @@ async function main() {
                     maxSession: maxSession,
                     maxActiveD: maxActiveD,
                     maxActiveA: maxActiveA,
+                    maxActiveDMin: maxActiveDMin,
+                    maxActiveAMin: maxActiveAMin,
                     maxSessionTime: maxSessionTime,
                     maxActiveDTime: maxActiveDTime,
                     maxActiveATime: maxActiveATime,
+                    maxActiveDMinTime: maxActiveDMinTime,
+                    maxActiveAMinTime: maxActiveAMinTime,
                     start: dailyData.length > 0 ? dailyData[0].time : '',
                     end: dailyData.length > 0 ? dailyData[dailyData.length - 1].time : '',
                     data: dailyData
@@ -270,7 +286,7 @@ async function main() {
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -291,10 +307,12 @@ async function main() {
             position: absolute;
             left: 0; top: 0; bottom: 0; width: 4px;
         }
-        .card-1::before { background: #3b82f6; }
-        .card-2::before { background: #f59e0b; }
-        .card-3::before { background: #10b981; }
-        .card-4::before { background: #ec4899; }
+        .card-1::before { background: #3b82f6; } /* Session */
+        .card-2::before { background: #f59e0b; } /* Active D 30 */
+        .card-3::before { background: #10b981; } /* Active A 30 */
+        .card-4::before { background: #fbbf24; } /* Active D Min */
+        .card-5::before { background: #34d399; } /* Active A Min */
+        .card-6::before { background: #ec4899; } /* Time Range */
 
         .card h3 {
             margin: 0 0 10px 0;
@@ -419,6 +437,16 @@ async function main() {
         <div class="sub" id="subActiveATime">Peak Time: -</div>
     </div>
     <div class="card card-4">
+        <h3>D系統GA 每分鐘最高</h3>
+        <div class="value" id="valActiveDMin" style="color: #fbbf24;">-</div>
+        <div class="sub" id="subActiveDMinTime">Peak Time: -</div>
+    </div>
+    <div class="card card-5">
+        <h3>A系統GA 每分鐘最高</h3>
+        <div class="value" id="valActiveAMin" style="color: #34d399;">-</div>
+        <div class="sub" id="subActiveAMinTime">Peak Time: -</div>
+    </div>
+    <div class="card card-6">
         <h3>資料記錄區間</h3>
         <div class="value" id="valTime" style="font-size: 1.2rem; margin-top: 10px;">-</div>
         <div class="sub" id="valTimeSub">From start to end</div>
@@ -468,9 +496,14 @@ async function main() {
         document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
         document.getElementById('valActiveD').innerText = d.maxActiveD.toLocaleString();
         document.getElementById('valActiveA').innerText = d.maxActiveA.toLocaleString();
+        document.getElementById('valActiveDMin').innerText = d.maxActiveDMin.toLocaleString();
+        document.getElementById('valActiveAMin').innerText = d.maxActiveAMin.toLocaleString();
+        
         document.getElementById('subSessionTime').innerText = "發生時間點: " + (d.maxSessionTime || '-');
         document.getElementById('subActiveDTime').innerText = "發生時間點: " + (d.maxActiveDTime || '-');
         document.getElementById('subActiveATime').innerText = "發生時間點: " + (d.maxActiveATime || '-');
+        document.getElementById('subActiveDMinTime').innerText = "發生時間點: " + (d.maxActiveDMinTime || '-');
+        document.getElementById('subActiveAMinTime').innerText = "發生時間點: " + (d.maxActiveAMinTime || '-');
         
         document.getElementById('valTime').innerText = d.start.slice(5) + " ~ " + d.end.slice(5);
         document.getElementById('valTimeSub').innerText = "總數據點數: " + d.data.length;
