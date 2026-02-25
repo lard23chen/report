@@ -464,14 +464,18 @@ async function main() {
 
         // Update Table
         const tbody = document.querySelector('#dataTable tbody');
-        tbody.innerHTML = d.data.map(item => '<tr>' +
-            '<td>' + item.time + '</td>' +
-            '<td style="color: #fbbf24;">' + (item.activeD || 0).toLocaleString() + '</td>' +
-            '<td style="color: #fcd34d;">' + (item.activeDMin || 0).toLocaleString() + '</td>' +
-            '<td style="color: #34d399;">' + (item.activeA || 0).toLocaleString() + '</td>' +
-            '<td style="color: #6ee7b7;">' + (item.activeAMin || 0).toLocaleString() + '</td>' +
-            '<td style="color: #60a5fa;">' + (item.session || 0).toLocaleString() + '</td>' +
-            '</tr>').join('');
+        tbody.innerHTML = d.data.map(item => {
+            const isMax = item.session === d.maxSession && d.maxSession > 0;
+            const bg = isMax ? ' style="background: rgba(59, 130, 246, 0.2);"' : '';
+            return '<tr' + bg + '>' +
+                '<td>' + item.time + '</td>' +
+                '<td style="color: #fbbf24;">' + (item.activeD || 0).toLocaleString() + '</td>' +
+                '<td style="color: #fcd34d;">' + (item.activeDMin || 0).toLocaleString() + '</td>' +
+                '<td style="color: #34d399;">' + (item.activeA || 0).toLocaleString() + '</td>' +
+                '<td style="color: #6ee7b7;">' + (item.activeAMin || 0).toLocaleString() + '</td>' +
+                '<td style="color: #60a5fa; font-weight: ' + (isMax ? 'bold' : 'normal') + ';">' + (item.session || 0).toLocaleString() + (isMax ? ' ⭐' : '') + '</td>' +
+                '</tr>';
+        }).join('');
 
         if (chartInstance) {
             chartInstance.destroy();
