@@ -317,6 +317,30 @@ async function generateReport() {
         </div>
     </div>
 
+    <!-- Minute-by-Minute Table (11:25 - 12:30) -->
+    <div class="main-content">
+        <div class="chart-card" style="grid-column: span 2; overflow-x: auto;">
+            <h3 style="border-left-color: #70ad47;">尖峰時段銷售狀況 (Peak Hour 11:25 - 12:30)</h3>
+            <table id="minuteTable" style="white-space: nowrap;">
+                <thead>
+                    <tr style="background-color: #70ad47; color: white;">
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">時間</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">booking數</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">booking數<br>(每分鐘累加)</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">訂單張數</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">訂單張數<br>(每分鐘累加)</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">刷卡張數</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">刷卡張數<br>(每分鐘累加)</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">ATM張數</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">ATM張數<br>(每分鐘累加)</th>
+                        <th style="color: white !important; border: 1px solid #548235; text-align: center;">銷售率</th>
+                    </tr>
+                </thead>
+                <tbody style="text-align: right;"></tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- AOV Analysis Section -->
     <div class="main-content">
         <div class="chart-card" style="grid-column: span 2; border-left: 5px solid #ef5350;">
@@ -607,6 +631,86 @@ async function generateReport() {
                 </div> \${share}</td>
              \`;
              spTbody.appendChild(tr);
+        });
+
+        // 7. Peak Hour Analysis (11:25 - 12:30)
+        let totalValidTicketsForRate = tickets > 0 ? tickets : 1; 
+        const minuteStats = {};
+        for(let h = 11; h <= 12; h++) {
+            for(let m = 0; m < 60; m++) {
+                if(h === 11 && m < 25) continue;
+                if(h === 12 && m > 30) continue;
+                const minStr = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
+                minuteStats[minStr] = { 
+                    bookings: new Set(),
+                    tickets: 0,
+                    creditTickets: 0,
+                    atmTickets: 0
+                };
+            }
+        }
+
+        // DbData includes all orders (for bookings) 
+        dbData.forEach(o => {
+            if(!o['交易時間']) return;
+            const timePart = o['交易時間'].split(' ')[1];
+            if(!timePart) return;
+            const hm = timePart.substring(0, 5); // HH:mm
+            if(minuteStats[hm]) {
+                const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
+                minuteStats[hm].bookings.add(orderId);
+            }
+        });
+
+        // ValidOrders (for tickets and revenue)
+        validOrders.forEach(o => {
+            if(!o['交易時間']) return;
+            const timePart = o['交易時間'].split(' ')[1];
+            if(!timePart) return;
+            const hm = timePart.substring(0, 5);
+            if(minuteStats[hm]) {
+                const method = o['付款方式'] || '';
+                minuteStats[hm].tickets += 1; // Assuming 1 record = 1 ticket
+                
+                if(method.includes('信用卡') || method.includes('Credit')) {
+                    minuteStats[hm].creditTickets += 1;
+                } else if (method.includes('ATM')) {
+                    minuteStats[hm].atmTickets += 1;
+                }
+            }
+        });
+
+        const minBody = document.querySelector('#minuteTable tbody');
+        let cumB = 0, cumT = 0, cumC = 0, cumA = 0;
+
+        Object.keys(minuteStats).sort().forEach(hm => {
+            const stat = minuteStats[hm];
+            const b = stat.bookings.size;
+            const t = stat.tickets;
+            const c = stat.creditTickets;
+            const a = stat.atmTickets;
+
+            cumB += b;
+            cumT += t;
+            cumC += c;
+            cumA += a;
+
+            const rate = Math.round((cumT / totalValidTicketsForRate) * 100) + '%';
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = \`
+                <td style="text-align: center; border: 1px solid #444; color: var(--text-primary);">\${hm}</td>
+                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary);">\${b.toLocaleString()}</td>
+                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumB.toLocaleString()}</td>
+                <td style="text-align: right; border: 1px solid #444; color: var(--success-color);">\${t.toLocaleString()}</td>
+                <td style="text-align: right; border: 1px solid #444; color: var(--success-color); font-weight: 600;">\${cumT.toLocaleString()}</td>
+                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary);">\${c.toLocaleString()}</td>
+                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumC.toLocaleString()}</td>
+                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary);">\${a.toLocaleString()}</td>
+                <td style="text-align: right; border: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumA.toLocaleString()}</td>
+                <td style="text-align: center; border: 1px solid #444; color: #ffd700; font-weight: 600;">\${rate}</td>
+            \`;
+            minBody.appendChild(tr);
         });
     }
 
