@@ -83,7 +83,7 @@ async function main() {
         let tableRows = '';
         let totalStats = { orders: 0, tickets: 0, revenue: 0, refOrders: 0, refTickets: 0, refFees: 0 };
 
-        stats.forEach(s => {
+        stats.forEach((s, index) => {
             if (!s.month) return;
             totalStats.orders += s.orderCount;
             totalStats.tickets += s.totalTickets;
@@ -92,15 +92,47 @@ async function main() {
             totalStats.refTickets += s.refundTickets;
             totalStats.refFees += s.refundFees;
 
+            // Calculate MoM differences if there is a previous month (which is the NEXT element in the descending array)
+            let prevS = index + 1 < stats.length ? stats[index + 1] : null;
+
+            const formatMoM = (current, previous, isNegativeGood = false) => {
+                if (!previous || previous === 0) return '';
+                const diff = current - previous;
+                const pct = ((diff / previous) * 100).toFixed(1);
+
+                let color = '';
+                let arrow = '';
+
+                if (diff > 0) {
+                    color = isNegativeGood ? 'var(--warning-color)' : 'var(--success-color)';
+                    arrow = '▲';
+                } else if (diff < 0) {
+                    color = isNegativeGood ? 'var(--success-color)' : 'var(--warning-color)';
+                    arrow = '▼';
+                } else {
+                    return `<span style="font-size: 0.8em; color: var(--text-secondary); margin-left: 8px;">-</span>`;
+                }
+
+                return `<span style="font-size: 0.8em; color: ${color}; margin-left: 8px;">${arrow} ${Math.abs(pct)}%</span>`;
+            };
+
+            const ordersMoM = formatMoM(s.orderCount, prevS ? prevS.orderCount : null);
+            const ticketsMoM = formatMoM(s.totalTickets, prevS ? prevS.totalTickets : null);
+            const revenueMoM = formatMoM(s.totalRevenue, prevS ? prevS.totalRevenue : null);
+            const refOrdersMoM = formatMoM(s.refundOrderCount, prevS ? prevS.refundOrderCount : null, true);
+            const refTicketsMoM = formatMoM(s.refundTickets, prevS ? prevS.refundTickets : null, true);
+            const refFeesMoM = formatMoM(s.refundFees, prevS ? prevS.refundFees : null, true);
+
+
             tableRows += `
                 <tr style="transition: background-color 0.2s;">
                     <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${s.month}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">${s.orderCount.toLocaleString()}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${s.totalTickets.toLocaleString()}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ ${s.totalRevenue.toLocaleString()}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">${s.refundOrderCount.toLocaleString()}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">${s.refundTickets.toLocaleString()}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ ${s.refundFees.toLocaleString()}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">${s.orderCount.toLocaleString()}${ordersMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${s.totalTickets.toLocaleString()}${ticketsMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ ${s.totalRevenue.toLocaleString()}${revenueMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">${s.refundOrderCount.toLocaleString()}${refOrdersMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">${s.refundTickets.toLocaleString()}${refTicketsMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ ${s.refundFees.toLocaleString()}${refFeesMoM}</td>
                 </tr>
             `;
         });
