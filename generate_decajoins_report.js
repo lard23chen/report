@@ -26,10 +26,6 @@ async function generateReport() {
         console.log(`Fetching data for: ${TARGET_NAME}...`);
         const data = await collection.find({ [TARGET_FIELD]: TARGET_NAME }).toArray();
         console.log(`Fetched ${data.length} records.`);
-        const topEventId = null;
-        console.log(`Fetching GA Data for ActivityID: ${topEventId}`);
-        const gaSessions = [];
-        const gaReads = [];
 
         // Current Time
         const reportTime = new Date().toLocaleString('zh-TW');
@@ -42,8 +38,8 @@ async function generateReport() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>deca joins 2026 world tour - 專案分析報表 (A系統)</title>
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"><\/script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -193,7 +189,7 @@ async function generateReport() {
             button, a[href*="report_index.html"] { display: none !important; }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
 </head>
 <body>
 
@@ -370,7 +366,398 @@ async function generateReport() {
             </table>
         </div>
     </div>
-    
+
+</div>
+
+<script>
+    const dbData = ${JSON.stringify(data)};
+
+    function init() {
+        // Filter Valid Orders
+        const validOrders = dbData.filter(d => d['狀態'] === '正常');
+        // Refund Data
+        const refundOrders = dbData.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票');
+        
+        // Stats
+        const revenue = validOrders.reduce((acc, cur) => acc + (cur['售價'] || 0), 0);
+        const tickets = validOrders.length;
+        const refundAmount = refundOrders.reduce((acc, cur) => acc + (cur['實退金額'] || 0), 0);
+        const refundTickets = refundOrders.length;
+        const refundFees = refundOrders.reduce((acc, cur) => acc + (cur['手續費'] || 0), 0);
+        
+        // Distinct orders
+        const orderSet = new Set();
+        validOrders.forEach(o => {
+            if(o['訂單編號']) orderSet.add(o['訂單編號'].split('_')[0]);
+        });
+        const orders = orderSet.size;
+        const aov = orders > 0 ? Math.round(revenue / orders) : 0;
+
+        // Update Stats UI
+        document.getElementById('val-revenue').innerText = '$' + revenue.toLocaleString();
+        document.getElementById('val-tickets').innerText = tickets.toLocaleString();
+        document.getElementById('val-aov').innerText = '$' + aov.toLocaleString();
+        document.getElementById('val-refunds').innerText = '$' + refundAmount.toLocaleString();
+        document.getElementById('val-refund-tickets').innerText = refundTickets.toLocaleString();
+        document.getElementById('val-refund-fees').innerText = '$' + refundFees.toLocaleString();
+
+        // --- Data Processing for Charts ---
+        
+        // 1. Daily Trend
+        const salesByDate = {};
+        validOrders.forEach(o => {
+            if(!o['交易時間']) return;
+            const date = o['交易時間'].split(' ')[0];
+            salesByDate[date] = (salesByDate[date] || 0) + (o['售價'] || 0);
+        });
+        const dates = Object.keys(salesByDate).sort();
+        const dailyRevenues = dates.map(d => salesByDate[d]);
+
+        // 2. Price Distribution
+        const priceStats = {};
+        validOrders.forEach(o => {
+            const p = o['售價'] || 0;
+            if(!priceStats[p]) priceStats[p] = { count: 0, revenue: 0 };
+            priceStats[p].count++;
+            priceStats[p].revenue += p;
+        });
+        
+        const priceArray = Object.keys(priceStats).map(p => ({
+            price: parseInt(p),
+            ...priceStats[p]
+        })).sort((a,b) => b.price - a.price);
+
+        // 3. Payment Methods
+        const paymentStats = {};
+        validOrders.forEach(o => {
+            const m = o['付款方式'] || 'Other';
+            paymentStats[m] = (paymentStats[m] || 0) + 1;
+        });
+        const paymentArray = Object.keys(paymentStats).map(k => ({ method: k, count: paymentStats[k] })).sort((a,b) => b.count - a.count);
+
+        // 4. Age Distribution
+        const ageStats = {};
+        validOrders.forEach(o => {
+            let age = o['年齡'];
+            let label = 'Unknown';
+            if (typeof age === 'number' && age > 0) {
+                if(age < 18) label = '<18';
+                else if(age >= 18 && age <= 24) label = '18-24';
+                else if(age >= 25 && age <= 34) label = '25-34';
+                else if(age >= 35 && age <= 44) label = '35-44';
+                else if(age >= 45 && age <= 54) label = '45-54';
+                else if(age >= 55) label = '55+';
+            } else if (age && typeof age === 'string') {
+                 const n = parseInt(age);
+                 if(!isNaN(n) && n > 0) {
+                    if(n < 18) label = '<18';
+                    else if(n >= 18 && n <= 24) label = '18-24';
+                    else if(n >= 25 && n <= 34) label = '25-34';
+                    else if(n >= 35 && n <= 44) label = '35-44';
+                    else if(n >= 45 && n <= 54) label = '45-54';
+                    else if(n >= 55) label = '55+';
+                 }
+            }
+            ageStats[label] = (ageStats[label] || 0) + 1;
+        });
+
+        const ageOrder = ['<18', '18-24', '25-34', '35-44', '45-54', '55+', 'Unknown'];
+        const ageLabels = ageOrder.filter(a => ageStats[a] !== undefined);
+        const ageData = ageLabels.map(a => ageStats[a]);
+
+        // 5. Gender Distribution
+        const genderStats = {};
+        validOrders.forEach(o => {
+            let g = o['性別'];
+            if(!g || g === '-') g = '未知';
+            genderStats[g] = (genderStats[g] || 0) + 1;
+        });
+
+        // --- Render Charts ---
+
+        // Trend Chart
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Revenue',
+                    data: dailyRevenues,
+                    borderColor: '#4DB6AC',
+                    backgroundColor: 'rgba(77, 182, 172, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: '#333' }, ticks: { color: '#888' } },
+                    y: { grid: { color: '#333' }, ticks: { color: '#888', callback: (v) => '$' + v/1000 + 'k' } }
+                }
+            }
+        });
+
+        // Age Chart (Bar)
+        new Chart(document.getElementById('ageChart'), {
+            type: 'bar',
+            data: {
+                labels: ageLabels,
+                datasets: [{
+                    label: '人數',
+                    data: ageData,
+                    backgroundColor: '#4DB6AC',
+                    borderRadius: 4
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#eee',
+                        anchor: 'end',
+                        align: 'top',
+                        font: { size: 12 },
+                        formatter: Math.round
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#ccc' } },
+                    y: { grid: { color: '#333' }, ticks: { color: '#888' } }
+                }
+            }
+        });
+
+        // Gender Chart (Pie)
+        new Chart(document.getElementById('genderChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(genderStats),
+                datasets: [{
+                    data: Object.values(genderStats),
+                    backgroundColor: ['#42A5F5', '#EC407A', '#BDBDBD'],
+                    borderWidth: 0
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'bottom', labels: { color: '#ccc' } },
+                    datalabels: {
+                        color: 'white',
+                        font: { weight: 'bold', size: 14 },
+                        formatter: function(value, context) {
+                            return value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        });
+
+        // Render Price Table
+        const tbody = document.querySelector('#priceTable tbody');
+        priceArray.forEach(p => {
+            const tr = document.createElement('tr');
+            const share = revenue ? ((p.revenue / revenue) * 100).toFixed(1) + '%' : '0%';
+            tr.innerHTML = \`
+                <td>\${p.price === 0 ? '公關/免費票' : '$' + p.price.toLocaleString()}</td>
+                <td>\${p.count.toLocaleString()}</td>
+                <td>$\${p.revenue.toLocaleString()}</td>
+                <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
+                    <div style="width:\${share}; background:var(--accent-color); height:6px;"></div>
+                </div> \${share}</td>
+            \`;
+            tbody.appendChild(tr);
+        });
+        
+        // Render Payment Table
+        const payBody = document.querySelector('#paymentTable tbody');
+        const totalPay = paymentArray.reduce((acc, cur) => acc + cur.count, 0);
+        paymentArray.forEach(p => {
+            const tr = document.createElement('tr');
+            const share = totalPay ? ((p.count / totalPay) * 100).toFixed(1) + '%' : '0%';
+            tr.innerHTML = \`
+                <td>\${p.method}</td>
+                <td>\${p.count.toLocaleString()}</td>
+                <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
+                    <div style="width:\${share}; background:#4DB6AC; height:6px;"></div>
+                </div> \${share}</td>
+            \`;
+            payBody.appendChild(tr);
+        });
+
+        // 6. Sales Point Analysis
+        const salesPointStats = {};
+        validOrders.forEach(o => {
+            const point = o['銷售點'] || 'Unknown';
+            const price = o['售價'] || 0;
+            if(!salesPointStats[point]) salesPointStats[point] = { orders: new Set(), tickets: 0, revenue: 0 };
+            const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : 'u';
+            salesPointStats[point].orders.add(orderId);
+            salesPointStats[point].tickets++;
+            salesPointStats[point].revenue += price;
+        });
+
+        const salesPointArray = Object.keys(salesPointStats).map(k => ({ 
+            point: k, 
+            orders: salesPointStats[k].orders.size,
+            tickets: salesPointStats[k].tickets,
+            revenue: salesPointStats[k].revenue
+        })).sort((a,b) => b.revenue - a.revenue);
+
+        const spTbody = document.querySelector('#salesPointTable tbody');
+        salesPointArray.forEach(p => {
+             const share = revenue ? ((p.revenue / revenue) * 100).toFixed(1) + '%' : '0%';
+             const tr = document.createElement('tr');
+             tr.innerHTML = \`
+                <td>\${p.point}</td>
+                <td>\${p.orders.toLocaleString()}</td>
+                <td>\${p.tickets.toLocaleString()}</td>
+                <td>$\${p.revenue.toLocaleString()}</td>
+                <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
+                    <div style="width:\${share}; background:var(--accent-color); height:6px;"></div>
+                </div> \${share}</td>
+             \`;
+             spTbody.appendChild(tr);
+        });
+
+        // 7. Peak Hour Analysis (11:28 - 12:30)
+        let totalValidTicketsForRate = tickets > 0 ? tickets : 1; 
+        const minuteStats = {};
+        for(let h = 11; h <= 12; h++) {
+            for(let m = 0; m < 60; m++) {
+                if(h === 11 && m < 28) continue;
+                if(h === 12 && m > 30) continue;
+                const minStr = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
+                minuteStats[minStr] = { 
+                    bookings: new Set(),
+                    tickets: 0,
+                    creditTickets: 0,
+                    atmTickets: 0,
+                    activeDMin: 0,
+                    activeAMin: 0,
+                    sessionCount: 0
+                };
+            }
+        }
+
+        // DbData includes all orders (for bookings) 
+        dbData.forEach(o => {
+            if(!o['交易時間']) return;
+            const timePart = o['交易時間'].split(' ')[1];
+            if(!timePart) return;
+            const hm = timePart.substring(0, 5); // HH:mm
+            if(minuteStats[hm]) {
+                const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
+                minuteStats[hm].bookings.add(orderId);
+            }
+        });
+
+        // ValidOrders (for tickets and revenue)
+        validOrders.forEach(o => {
+            if(!o['交易時間']) return;
+            const timePart = o['交易時間'].split(' ')[1];
+            if(!timePart) return;
+            const hm = timePart.substring(0, 5);
+            if(minuteStats[hm]) {
+                const method = o['付款方式'] || '';
+                minuteStats[hm].tickets += 1;
+                
+                if(method.includes('信用卡') || method.includes('Credit')) {
+                    minuteStats[hm].creditTickets += 1;
+                } else if (method.includes('ATM')) {
+                    minuteStats[hm].atmTickets += 1;
+                }
+            }
+        });
+
+        const minBody = document.querySelector('#minuteTable tbody');
+        let cumB = 0, cumT = 0, cumC = 0, cumA = 0;
+
+        Object.keys(minuteStats).sort().forEach(hm => {
+            const stat = minuteStats[hm];
+            const b = stat.bookings.size;
+            const t = stat.tickets;
+            const c = stat.creditTickets;
+            const a = stat.atmTickets;
+
+            cumB += b;
+            cumT += t;
+            cumC += c;
+            cumA += a;
+
+            const rate = Math.round((cumT / totalValidTicketsForRate) * 100) + '%';
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = \`
+                <td style="text-align: center; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary);">\${hm}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: #f59e0b; font-weight: 600;">\${stat.activeDMin.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: #10b981; font-weight: 600;">\${stat.activeAMin.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: #3b82f6; font-weight: 600;">\${stat.sessionCount.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary);">\${b.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumB.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary);">\${t.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumT.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary);">\${c.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumC.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary);">\${a.toLocaleString()}</td>
+                <td style="text-align: right; border-bottom: 1px solid #444; border-right: 1px solid #444; color: var(--text-primary); font-weight: 600;">\${cumA.toLocaleString()}</td>
+                <td style="text-align: center; border-bottom: 1px solid #444; color: #4DB6AC; font-weight: 600;">\${rate}</td>
+            \`;
+            minBody.appendChild(tr);
+        });
+
+        // 8. Sessions Analysis
+        const sessionStats = {};
+        validOrders.forEach(o => {
+            const session = o['場次名稱'] || 'Unknown';
+            const price = o['售價'] || 0;
+            if(!sessionStats[session]) sessionStats[session] = { orders: new Set(), tickets: 0, revenue: 0 };
+            const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : 'u';
+            sessionStats[session].orders.add(orderId);
+            sessionStats[session].tickets++;
+            sessionStats[session].revenue += price;
+        });
+
+        const sessionArray = Object.keys(sessionStats).map(k => ({
+            session: k,
+            orders: sessionStats[k].orders.size,
+            tickets: sessionStats[k].tickets,
+            revenue: sessionStats[k].revenue
+        })).sort((a,b) => b.revenue - a.revenue);
+
+        const sessTbody = document.querySelector('#sessionTable tbody');
+        sessionArray.forEach(s => {
+            const share = revenue ? ((s.revenue / revenue) * 100).toFixed(1) + '%' : '0%';
+            const sessAov = s.orders > 0 ? Math.round(s.revenue / s.orders) : 0;
+            const tr = document.createElement('tr');
+            tr.innerHTML = \`
+                <td>\${s.session}</td>
+                <td class="text-right">\${s.orders.toLocaleString()}</td>
+                <td class="text-right">\${s.tickets.toLocaleString()}</td>
+                <td class="text-right">$\${s.revenue.toLocaleString()}</td>
+                <td class="text-right">$\${sessAov.toLocaleString()}</td>
+                <td class="text-right"><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
+                    <div style="width:\${share}; background:#AB47BC; height:6px;"></div>
+                </div> \${share}</td>
+            \`;
+            sessTbody.appendChild(tr);
+        });
+    }
+
+    init();
+<\/script>
+
+
 <!-- Fixed PDF Button -->
 <button onclick="downloadPDF()" style="
     position: fixed;
@@ -402,7 +789,7 @@ async function generateReport() {
     function downloadPDF() {
         window.print();
     }
-</script>
+<\/script>
 
 
 <!-- Fixed Home Button -->
@@ -467,7 +854,7 @@ async function generateReport() {
                 console.log("Updated report_index.html");
             }
         }
-        
+
         const rootIndexHtmlPath = path.join(__dirname, 'report_index.html');
         if (fs.existsSync(rootIndexHtmlPath)) {
             let indexHtml = fs.readFileSync(rootIndexHtmlPath, 'utf8');
