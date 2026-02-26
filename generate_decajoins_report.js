@@ -320,7 +320,7 @@ async function generateReport() {
     <!-- Minute-by-Minute Table (11:28 - 12:30) -->
     <div class="main-content">
         <div class="chart-card" style="grid-column: span 2;">
-            <h3 style="border-left-color: #70ad47;">尖峰時段銷售狀況 (Peak Hour 11:28 - 12:30)</h3>
+            <h3 style="border-left-color: #70ad47;">尖峰時段銷售狀況 (Peak Hour 11:58 - 12:30)</h3>
             <div style="width: 100%; overflow-x: auto; border: 1px solid #333; border-radius: 8px;">
                 <table id="minuteTable" style="margin-top: 0; white-space: nowrap; min-width: 100%;">
                     <thead>
@@ -635,7 +635,7 @@ async function generateReport() {
         const minuteStats = {};
         for(let h = 11; h <= 12; h++) {
             for(let m = 0; m < 60; m++) {
-                if(h === 11 && m < 28) continue;
+                if(h === 11 && m < 58) continue;
                 if(h === 12 && m > 30) continue;
                 const minStr = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
                 minuteStats[minStr] = { 
