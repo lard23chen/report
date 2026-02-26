@@ -74,7 +74,7 @@ async function main() {
         ];
 
         const allStats = await collection.aggregate(pipeline).toArray();
-        const stats = allStats.filter(s => s._id !== '2026-02');
+        const stats = allStats; // removed filter 2026-02
         console.log("Stats found:", stats);
 
         // 2. Generate E_report_index.html
@@ -125,9 +125,14 @@ async function main() {
             const refFeesMoM = formatMoM(s.refundFees, prevS ? prevS.refundFees : null, true);
 
 
+            let monthDisplay = s.month;
+            if (s.month === '2026-02') {
+                monthDisplay += '<br><span style="font-size: 0.75em; color: var(--text-secondary);">(部份數據)</span>';
+            }
+
             tableRows += `
                 <tr style="transition: background-color 0.2s;">
-                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${s.month}</td>
+                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${monthDisplay}</td>
                     <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">${s.orderCount.toLocaleString()}${ordersMoM}</td>
                     <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${s.totalTickets.toLocaleString()}${ticketsMoM}</td>
                     <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ ${s.totalRevenue.toLocaleString()}${revenueMoM}</td>
