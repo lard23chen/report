@@ -300,9 +300,16 @@ async function generateReport() {
         <!-- Nationality Distribution -->
         <div class="chart-card">
             <h3>國籍分佈 (Nationality Top 5)</h3>
-             <div style="height: 350px;">
-                <canvas id="natChart"></canvas>
-            </div>
+            <table id="natTable">
+                <thead>
+                    <tr>
+                        <th>國籍</th>
+                        <th>人數</th>
+                        <th>佔比</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
 
@@ -664,34 +671,20 @@ async function generateReport() {
             }
         });
 
-        // Nationality Chart (Pie)
-        new Chart(document.getElementById('natChart'), {
-            type: 'pie',
-            data: {
-                labels: natLabels,
-                datasets: [{
-                    data: natData,
-                    backgroundColor: ['#66bb6a', '#ffa726', '#29b6f6', '#ab47bc', '#ffca28', '#8d6e63'],
-                    borderWidth: 0
-                }]
-            },
-            plugins: [ChartDataLabels],
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { 
-                    legend: { position: 'bottom', labels: { color: '#ccc' }, display: false }, // Hide legend to save space? Actually let's keep it.
-                    datalabels: {
-                        color: 'white',
-                        font: { weight: 'bold', size: 12 },
-                        formatter: function(value, context) {
-                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            const p = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
-                            return [value.toLocaleString(), '(' + p + ')'];
-                        }
-                    }
-                }
-            }
+        // Render Nationality Table
+        const natTbody = document.querySelector('#natTable tbody');
+        const totalValidNat = Object.values(natStatsRaw).reduce((a, b) => a + b, 0);
+        topNat.forEach(n => {
+            const tr = document.createElement('tr');
+            const share = totalValidNat ? ((n.count / totalValidNat) * 100).toFixed(1) + '%' : '0%';
+            tr.innerHTML = \`
+                <td>\${n.nat}</td>
+                <td>\${n.count.toLocaleString()}</td>
+                <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
+                    <div style="width:\${share}; background:#66bb6a; height:6px;"></div>
+                </div> \${share}</td>
+            \`;
+            natTbody.appendChild(tr);
         });
 
         // Render Price Table
