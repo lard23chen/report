@@ -31,6 +31,29 @@ async function generateReport() {
         const gaSessions = await db.collection("QwareTrafficSession").find({ ActivityID: topEventId }).toArray();
         const gaReads = await db.collection("QwareTrafficGAReadTime").find({ ActivityID: topEventId }).toArray();
 
+        // Map member nationality
+        console.log("Fetching Member Data for Nationalities...");
+        const memberIds = [...new Set(data.map(d => d['會員編號']).filter(id => id && id !== '-'))];
+        const memberColl = db.collection('Qware_Member_data');
+        const members = await memberColl.find({ '會員編號': { $in: memberIds } }).toArray();
+
+        const memberNatMap = {};
+        members.forEach(m => {
+            if (m['會員編號'] && m['國家']) {
+                memberNatMap[m['會員編號']] = m['國家'];
+            }
+        });
+
+        // Attach nationality to ticket data
+        data.forEach(d => {
+            const memberId = d['會員編號'];
+            if (memberId && memberNatMap[memberId]) {
+                d['國籍'] = memberNatMap[memberId];
+            } else {
+                d['國籍'] = '未知';
+            }
+        });
+
         // Current Time
         const reportTime = new Date().toLocaleString('zh-TW');
 
