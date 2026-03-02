@@ -225,6 +225,16 @@ async function generateReport() {
             <div class="value" id="val-aov">--</div>
         </div>
         <div class="card">
+            <h3>淨營收 (Net Revenue)</h3>
+            <div class="value" id="val-net-revenue" style="color: #66bb6a;">--</div>
+            <div class="sub">總營收 - 退票金額</div>
+        </div>
+        <div class="card">
+            <h3>實銷張數 (Actual Sold)</h3>
+            <div class="value" id="val-net-tickets" style="color: #66bb6a;">--</div>
+            <div class="sub">銷售張數 - 退票張數</div>
+        </div>
+        <div class="card">
             <h3>退票金額 (Refunds)</h3>
             <div class="value text-danger" id="val-refunds" style="color: #ef5350;">--</div>
             <div class="sub">實退金額 (Refunded Amount)</div>
@@ -401,11 +411,16 @@ async function generateReport() {
         });
         const orders = orderSet.size;
         const aov = orders > 0 ? Math.round(revenue / orders) : 0;
+        
+        const netRevenue = revenue - refundAmount;
+        const netTickets = tickets - refundTickets;
 
         // Update Stats UI
         document.getElementById('val-revenue').innerText = '$' + revenue.toLocaleString();
         document.getElementById('val-tickets').innerText = tickets.toLocaleString();
         document.getElementById('val-aov').innerText = '$' + aov.toLocaleString();
+        document.getElementById('val-net-revenue').innerText = '$' + netRevenue.toLocaleString();
+        document.getElementById('val-net-tickets').innerText = netTickets.toLocaleString();
         document.getElementById('val-refunds').innerText = '$' + refundAmount.toLocaleString();
         document.getElementById('val-refund-tickets').innerText = refundTickets.toLocaleString();
         document.getElementById('val-refund-fees').innerText = '$' + refundFees.toLocaleString();
@@ -539,7 +554,11 @@ async function generateReport() {
                         anchor: 'end',
                         align: 'top',
                         font: { size: 12 },
-                        formatter: Math.round
+                        formatter: function(value, context) {
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const p = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+                            return value.toLocaleString() + ' (' + p + ')';
+                        }
                     }
                 },
                 scales: {
@@ -570,7 +589,9 @@ async function generateReport() {
                         color: 'white',
                         font: { weight: 'bold', size: 14 },
                         formatter: function(value, context) {
-                            return value.toLocaleString();
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const p = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+                            return [value.toLocaleString(), '(' + p + ')'];
                         }
                     }
                 }
