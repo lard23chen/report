@@ -133,6 +133,13 @@ async function generateReport() {
             margin-bottom: 40px;
         }
 
+        .demo-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
         .chart-card {
             background: var(--card-bg);
             border-radius: 20px;
@@ -250,7 +257,7 @@ async function generateReport() {
     </div>
 
     <!-- Demographics -->
-    <div class="main-content">
+    <div class="demo-content">
         <!-- Age Distribution -->
         <div class="chart-card">
             <h3>年齡分佈 (Age Distribution)</h3>
@@ -264,6 +271,14 @@ async function generateReport() {
             <h3>性別分佈 (Gender Distribution)</h3>
              <div style="height: 350px;">
                 <canvas id="genderChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Nationality Distribution -->
+        <div class="chart-card">
+            <h3>國籍分佈 (Nationality Top 5)</h3>
+             <div style="height: 350px;">
+                <canvas id="natChart"></canvas>
             </div>
         </div>
     </div>
@@ -428,14 +443,14 @@ async function generateReport() {
         // --- Data Processing for Charts ---
         
         // 1. Daily Trend
-        const salesByDate = {}; // { YYYY-MM-DD: revenue }
+        const salesByDate = {}; // { YYYY-MM-DD: tickets }
         validOrders.forEach(o => {
             if(!o['交易時間']) return;
             const date = o['交易時間'].split(' ')[0];
-            salesByDate[date] = (salesByDate[date] || 0) + (o['售價'] || 0);
+            salesByDate[date] = (salesByDate[date] || 0) + 1; // 銷售張數
         });
         const dates = Object.keys(salesByDate).sort();
-        const dailyRevenues = dates.map(d => salesByDate[d]);
+        const dailyTickets = dates.map(d => salesByDate[d]);
 
         // 2. Price Distribution
         const priceStats = {}; // { price: { count, revenue } }
@@ -502,6 +517,25 @@ async function generateReport() {
             genderStats[g] = (genderStats[g] || 0) + 1;
         });
 
+        // 6. Nationality
+        const natStatsRaw = {};
+        validOrders.forEach(o => {
+            let n = o['國籍'];
+            if(!n || n === '-') n = '未知';
+            if (n === 'Taiwan, Province of China') n = 'Taiwan'; // Clean up common data entry
+            natStatsRaw[n] = (natStatsRaw[n] || 0) + 1;
+        });
+
+        const natArray = Object.keys(natStatsRaw).map(k => ({ nat: k, count: natStatsRaw[k] })).sort((a,b) => b.count - a.count);
+        let topNat = natArray.slice(0, 5);
+        let otherNatCount = natArray.slice(5).reduce((acc, cur) => acc + cur.count, 0);
+        if (otherNatCount > 0) {
+            topNat.push({ nat: '其他 (Other)', count: otherNatCount });
+        }
+        
+        const natLabels = topNat.map(x => x.nat);
+        const natData = topNat.map(x => x.count);
+
         // --- Render Charts ---
 
         // Trend Chart
@@ -510,8 +544,8 @@ async function generateReport() {
             data: {
                 labels: dates,
                 datasets: [{
-                    label: 'Revenue',
-                    data: dailyRevenues,
+                    label: '張數 (Tickets)',
+                    data: dailyTickets,
                     borderColor: '#ffd700',
                     backgroundColor: 'rgba(255, 215, 0, 0.1)',
                     tension: 0.3,
@@ -520,13 +554,22 @@ async function generateReport() {
                     pointHoverRadius: 6
                 }]
             },
+            plugins: [ChartDataLabels],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } }, // minimalist
+                plugins: { 
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#eee',
+                        align: 'top',
+                        font: { weight: 'bold' },
+                        formatter: Math.round
+                    }
+                },
                 scales: {
                     x: { grid: { color: '#333' }, ticks: { color: '#888' } },
-                    y: { grid: { color: '#333' }, ticks: { color: '#888', callback: (v) => '$' + v/1000 + 'k' } }
+                    y: { grid: { color: '#333' }, ticks: { color: '#888' } }
                 }
             }
         });
@@ -588,6 +631,36 @@ async function generateReport() {
                     datalabels: {
                         color: 'white',
                         font: { weight: 'bold', size: 14 },
+                        formatter: function(value, context) {
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const p = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+                            return [value.toLocaleString(), '(' + p + ')'];
+                        }
+                    }
+                }
+            }
+        });
+
+        // Nationality Chart (Pie)
+        new Chart(document.getElementById('natChart'), {
+            type: 'pie',
+            data: {
+                labels: natLabels,
+                datasets: [{
+                    data: natData,
+                    backgroundColor: ['#66bb6a', '#ffa726', '#29b6f6', '#ab47bc', '#ffca28', '#8d6e63'],
+                    borderWidth: 0
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'bottom', labels: { color: '#ccc' }, display: false }, // Hide legend to save space? Actually let's keep it.
+                    datalabels: {
+                        color: 'white',
+                        font: { weight: 'bold', size: 12 },
                         formatter: function(value, context) {
                             const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                             const p = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
