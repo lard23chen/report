@@ -304,8 +304,9 @@ async function generateReport() {
                 <thead>
                     <tr>
                         <th>國籍</th>
-                        <th>人數</th>
-                        <th>佔比</th>
+                        <th>人數(張數)</th>
+                        <th>筆數</th>
+                        <th>佔比(筆數)</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -548,23 +549,34 @@ async function generateReport() {
         });
 
         // 6. Nationality
-        const natStatsRaw = {};
+        const natStatsRaw = {}; // { nat: { tickets: 0, orders: Set } }
         validOrders.forEach(o => {
             let n = o['國籍'];
             if(!n || n === '-') n = '未知';
             if (n === 'Taiwan, Province of China') n = 'Taiwan'; // Clean up common data entry
-            natStatsRaw[n] = (natStatsRaw[n] || 0) + 1;
+            
+            if (!natStatsRaw[n]) natStatsRaw[n] = { tickets: 0, orders: new Set() };
+            natStatsRaw[n].tickets++;
+            const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
+            natStatsRaw[n].orders.add(orderId);
         });
 
-        const natArray = Object.keys(natStatsRaw).map(k => ({ nat: k, count: natStatsRaw[k] })).sort((a,b) => b.count - a.count);
+        const natArray = Object.keys(natStatsRaw).map(k => ({ 
+            nat: k, 
+            tickets: natStatsRaw[k].tickets, 
+            ordersCount: natStatsRaw[k].orders.size 
+        })).sort((a,b) => b.ordersCount - a.ordersCount);
+
         let topNat = natArray.slice(0, 5);
-        let otherNatCount = natArray.slice(5).reduce((acc, cur) => acc + cur.count, 0);
-        if (otherNatCount > 0) {
-            topNat.push({ nat: '其他 (Other)', count: otherNatCount });
+        let otherNatTickets = natArray.slice(5).reduce((acc, cur) => acc + cur.tickets, 0);
+        let otherNatOrders = natArray.slice(5).reduce((acc, cur) => acc + cur.ordersCount, 0);
+        
+        if (otherNatOrders > 0 || otherNatTickets > 0) {
+            topNat.push({ nat: '其他 (Other)', tickets: otherNatTickets, ordersCount: otherNatOrders });
         }
         
         const natLabels = topNat.map(x => x.nat);
-        const natData = topNat.map(x => x.count);
+        const natData = topNat.map(x => x.ordersCount);
 
         // --- Render Charts ---
 
@@ -673,13 +685,14 @@ async function generateReport() {
 
         // Render Nationality Table
         const natTbody = document.querySelector('#natTable tbody');
-        const totalValidNat = Object.values(natStatsRaw).reduce((a, b) => a + b, 0);
+        const totalValidNatOrders = natArray.reduce((acc, cur) => acc + cur.ordersCount, 0);
         topNat.forEach(n => {
             const tr = document.createElement('tr');
-            const share = totalValidNat ? ((n.count / totalValidNat) * 100).toFixed(1) + '%' : '0%';
+            const share = totalValidNatOrders ? ((n.ordersCount / totalValidNatOrders) * 100).toFixed(1) + '%' : '0%';
             tr.innerHTML = \`
                 <td>\${n.nat}</td>
-                <td>\${n.count.toLocaleString()}</td>
+                <td>\${n.tickets.toLocaleString()}</td>
+                <td>\${n.ordersCount.toLocaleString()}</td>
                 <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
                     <div style="width:\${share}; background:#66bb6a; height:6px;"></div>
                 </div> \${share}</td>
