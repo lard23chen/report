@@ -168,6 +168,16 @@ async function updateIndexStats() {
             }
         }
 
+        // Update Chart Data
+        const chartDataArray = [...validResults].reverse();
+        const chartLabels = chartDataArray.map(r => r._id);
+        const chartDataVals = chartDataArray.map(r => r.salesAmount);
+
+        htmlContent = htmlContent.replace(/labels:\s*\[.*?\]/, `labels: ${JSON.stringify(chartLabels)}`);
+        // We only want to replace the first data array (for the main line chart), but since we know the context we can do a global-ish replace
+        // But let's be safe and replace the first match of data: [...] which should be our target
+        htmlContent = htmlContent.replace(/data:\s*\[.*?\]/, `data: ${JSON.stringify(chartDataVals)}`);
+
         fs.writeFileSync(indexPath, htmlContent, 'utf-8');
         console.log("Updated report_index.html successfully.");
 
