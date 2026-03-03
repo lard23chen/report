@@ -89,9 +89,11 @@ async function main() {
 
             const tableRowsHtml = allDays.map(d => {
                 const amount = prog.daily[d] || 0;
+                const pct = prog.totalViews > 0 ? ((amount / prog.totalViews) * 100).toFixed(2) : "0.00";
                 return `<tr>
                     <td style="text-align: center;">${d}</td>
                     <td style="text-align: right; color: #60a5fa; font-weight: ${amount > 0 ? '600' : '400'};">${amount.toLocaleString()}</td>
+                    <td style="text-align: right; color: var(--text-secondary);">${pct}%</td>
                 </tr>`;
             }).join('');
 
@@ -152,7 +154,7 @@ async function main() {
 </head>
 <body>
     <div class="container">
-        <a href="../A_DMP_PageView_Report_2026-02.html" class="btn-back">⬅ 返回總表</a>
+        <a href="#" onclick="window.close(); return false;" class="btn-back">✖ 關閉視窗</a>
         <div class="header">
             <h1>${prog.name}</h1>
             <p>2026年02月 每日流量趨勢 (總瀏覽量: ${prog.totalViews.toLocaleString()})</p>
@@ -170,8 +172,9 @@ async function main() {
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 50%;">日期 (Date)</th>
-                        <th style="width: 50%;">瀏覽量 (Page Views)</th>
+                        <th style="width: 40%;">日期 (Date)</th>
+                        <th style="width: 30%;">瀏覽量 (Page Views)</th>
+                        <th style="width: 30%;">佔比</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -236,7 +239,7 @@ async function main() {
             const percentage = ((item.totalViews / totalViews) * 100).toFixed(2);
             return '<tr>' +
                 '<td style="text-align: center;"><span class="rank ' + rankClass + '">' + (index + 1) + '</span></td>' +
-                '<td style="font-weight: 500;"><a href="' + item.detailLink + '" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed rgba(96,165,250,0.5); padding-bottom: 2px; display: inline-block;">' + item.name + '</a></td>' +
+                `<td style="font-weight: 500;"><a href="#" onclick="window.open('${item.detailLink}', 'detail_${index}', 'width=800,height=800,scrollbars=yes'); return false;" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed rgba(96,165,250,0.5); padding-bottom: 2px; display: inline-block;">${item.name}</a></td>` +
                 '<td style="text-align: right; color: #f8fafc; font-weight: 600;">' + item.totalViews.toLocaleString() + '</td>' +
                 '<td style="text-align: right; color: var(--text-secondary);">' + percentage + '%</td>' +
                 '</tr>';
