@@ -31,6 +31,7 @@ async function main() {
                         name: "$content_name",
                         day: { $dateToString: { format: "%Y-%m-%d", date: "$time", timezone: "+08:00" } }
                     },
+                    attribution_ids: { $addToSet: "$attribution_id" },
                     views: { $sum: 1 }
                 }
             }
@@ -47,11 +48,17 @@ async function main() {
             if (!name || name.trim() === '' || name === 'null' || name === 'undefined') return;
 
             if (!programMap.has(name)) {
-                programMap.set(name, { name, totalViews: 0, daily: {} });
+                programMap.set(name, { name, totalViews: 0, daily: {}, ids: new Set() });
             }
             const prog = programMap.get(name);
             prog.totalViews += views;
             prog.daily[day] = (prog.daily[day] || 0) + views;
+
+            if (r.attribution_ids && Array.isArray(r.attribution_ids)) {
+                r.attribution_ids.forEach(id => {
+                    if (id && id.trim() !== '' && id !== 'null' && id !== 'undefined') prog.ids.add(id);
+                });
+            }
         });
 
         // 移除瀏覽量少於 50 的
@@ -247,9 +254,11 @@ async function main() {
         const tableRows = validPrograms.map((item, index) => {
             const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
             const percentage = ((item.totalViews / totalViews) * 100).toFixed(2);
+            const attributionIdStr = item.ids.size > 0 ? Array.from(item.ids).join(', ') : '-';
             return '<tr>' +
                 '<td style="text-align: center;"><span class="rank ' + rankClass + '">' + (index + 1) + '</span></td>' +
                 `<td style="font-weight: 500;"><a href="#" onclick="window.open('${item.detailLink}', 'detail_${index}', 'width=800,height=800,scrollbars=yes'); return false;" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed rgba(96,165,250,0.5); padding-bottom: 2px; display: inline-block;">${item.name}</a></td>` +
+                '<td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">' + attributionIdStr + '</td>' +
                 '<td style="text-align: right; color: #f8fafc; font-weight: 600;">' + item.totalViews.toLocaleString() + '</td>' +
                 '<td style="text-align: right; color: var(--text-secondary);">' + percentage + '%</td>' +
                 '</tr>';
@@ -499,7 +508,7 @@ async function main() {
                 <div style="padding: 30px 30px 15px;">
                     <div class="card-title" style="margin-bottom: 0;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                        所有節目瀏覽量排行明細 (點擊節目名稱可查看詳細圖表)
+                        節目場次瀏覽量排行 (點擊節目名稱可查看詳細圖表)
                     </div>
                 </div>
                 
@@ -509,6 +518,7 @@ async function main() {
                             <tr>
                                 <th style="width: 80px; text-align: center;">排名</th>
                                 <th>節目名稱 (Content Name)</th>
+                                <th style="width: 15%; color: #bbf7d0;">Attribution ID</th>
                                 <th style="text-align: right;">瀏覽量 (Page Views)</th>
                                 <th style="text-align: right; width: 120px;">佔比</th>
                             </tr>
