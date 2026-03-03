@@ -357,7 +357,7 @@ async function generateReport() {
                         <th>可售數 (Available)</th>
                         <th>銷售張數 (Sold Qty)</th>
                         <th>營收 (Revenue)</th>
-                        <th>佔比 (Share)</th>
+                        <th>實銷率 (Sell-Through Rate)</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -731,7 +731,14 @@ async function generateReport() {
         sectionArray.forEach(p => {
             if (p.count === 0 && p.total === 0) return; // Skip completely empty mappings
             const tr = document.createElement('tr');
-            const share = revenue ? ((p.revenue / revenue) * 100).toFixed(1) + '%' : '0%';
+            
+            let sellRate = '0%';
+            let rateValue = 0;
+            if (p.total !== '-' && p.total > 0) {
+                rateValue = ((p.count / p.total) * 100);
+                sellRate = rateValue.toFixed(1) + '%';
+            }
+
             const totalStr = p.total === '-' ? p.total : p.total.toLocaleString();
             const resStr = p.reserved === '-' ? p.reserved : p.reserved.toLocaleString();
             const availStr = p.available === '-' ? p.available : p.available.toLocaleString();
@@ -744,8 +751,8 @@ async function generateReport() {
                 <td style="font-weight: bold; color: var(--accent-color);">\${p.count.toLocaleString()}</td>
                 <td>$\${p.revenue.toLocaleString()}</td>
                 <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
-                    <div style="width:\${share}; background:var(--accent-color); height:6px;"></div>
-                </div> \${share}</td>
+                    <div style="width:\${sellRate}; background:var(--accent-color); height:6px;"></div>
+                </div> \${sellRate}</td>
             \`;
             tbody.appendChild(tr);
         });
