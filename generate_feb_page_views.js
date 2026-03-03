@@ -21,7 +21,8 @@ async function main() {
                 $match: {
                     name: "page_view",
                     time: { $gte: startDt, $lt: endDt },
-                    content_name: { $ne: null, $ne: "" }
+                    content_name: { $ne: null, $ne: "" },
+                    canonical_url: { $regex: /^https:\/\/ticket\.ibon\.com\.tw\// }
                 }
             },
             {
