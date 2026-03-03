@@ -39,8 +39,8 @@ async function main() {
         const results = await coll.aggregate(pipeline).toArray();
         console.log(`Found ${results.length} unique programs.`);
 
-        // 移除可能是垃圾資料的結果 (例如未定義的 title)
-        const validResults = results.filter(r => r._id && r._id.trim() !== '' && r._id !== 'null' && r._id !== 'undefined');
+        // 移除可能是垃圾資料的結果 (例如未定義的 title) 以及瀏覽量少於 50 的
+        const validResults = results.filter(r => r._id && r._id.trim() !== '' && r._id !== 'null' && r._id !== 'undefined' && r.views >= 50);
         const top10 = validResults.slice(0, 10);
 
         const totalViews = validResults.reduce((sum, item) => sum + item.views, 0);
