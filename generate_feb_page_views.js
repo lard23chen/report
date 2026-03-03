@@ -15,7 +15,7 @@ async function main() {
         const startDt = new Date("2026-01-31T16:00:00.000Z"); // 台灣時間 2026-02-01 00:00
         const endDt = new Date("2026-02-28T16:00:00.000Z");   // 台灣時間 2026-03-01 00:00
 
-        console.log("Running aggregation pipeline...");
+        console.log("Running aggregation pipeline for daily stats...");
         const pipeline = [
             {
                 $match: {
@@ -27,36 +27,222 @@ async function main() {
             },
             {
                 $group: {
-                    _id: "$content_name",
+                    _id: {
+                        name: "$content_name",
+                        day: { $dateToString: { format: "%Y-%m-%d", date: "$time", timezone: "+08:00" } }
+                    },
                     views: { $sum: 1 }
                 }
-            },
-            {
-                $sort: { views: -1 }
             }
         ];
 
-        const results = await coll.aggregate(pipeline).toArray();
-        console.log(`Found ${results.length} unique programs.`);
+        const rawDailyResults = await coll.aggregate(pipeline).toArray();
+        console.log(`Aggregation complete. Grouping results...`);
 
-        // 移除可能是垃圾資料的結果 (例如未定義的 title) 以及瀏覽量少於 50 的
-        const validResults = results.filter(r => r._id && r._id.trim() !== '' && r._id !== 'null' && r._id !== 'undefined' && r.views >= 50);
-        const top10 = validResults.slice(0, 10);
+        const programMap = new Map();
+        rawDailyResults.forEach(r => {
+            const name = r._id.name;
+            const day = r._id.day;
+            const views = r.views;
+            if (!name || name.trim() === '' || name === 'null' || name === 'undefined') return;
 
-        const totalViews = validResults.reduce((sum, item) => sum + item.views, 0);
+            if (!programMap.has(name)) {
+                programMap.set(name, { name, totalViews: 0, daily: {} });
+            }
+            const prog = programMap.get(name);
+            prog.totalViews += views;
+            prog.daily[day] = (prog.daily[day] || 0) + views;
+        });
 
-        const tableRows = validResults.map((item, index) => {
+        // 移除瀏覽量少於 50 的
+        const validPrograms = Array.from(programMap.values()).filter(p => p.totalViews >= 50);
+        validPrograms.sort((a, b) => b.totalViews - a.totalViews);
+
+        console.log(`Found ${validPrograms.length} unique programs with >= 50 views.`);
+
+        const top10 = validPrograms.slice(0, 10);
+        const totalViews = validPrograms.reduce((sum, item) => sum + item.totalViews, 0);
+
+        // 建立 dmp_details 資料夾
+        const detailsDir = path.join(__dirname, 'dmp_details');
+        if (!fs.existsSync(detailsDir)) {
+            fs.mkdirSync(detailsDir);
+        }
+
+        // 產生所有日期的陣列，讓趨勢圖可以補 0
+        const allDays = [];
+        let curr = new Date("2026-02-01T00:00:00.000Z");
+        while (curr <= new Date("2026-02-28T00:00:00.000Z")) {
+            const dStr = curr.toISOString().slice(0, 10);
+            allDays.push(dStr);
+            curr.setDate(curr.getDate() + 1);
+        }
+
+        // 產生獨立每日報表
+        console.log("Building detail reports...");
+        validPrograms.forEach((prog, idx) => {
+            const safeName = "Detail_" + String(idx).padStart(3, '0');
+            const detailFileName = `A_DMP_PageView_${safeName}.html`;
+            prog.detailLink = `dmp_details/${detailFileName}`;
+
+            const chartData = allDays.map(d => prog.daily[d] || 0);
+
+            const tableRowsHtml = allDays.map(d => {
+                const amount = prog.daily[d] || 0;
+                return `<tr>
+                    <td style="text-align: center;">${d}</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: ${amount > 0 ? '600' : '400'};">${amount.toLocaleString()}</td>
+                </tr>`;
+            }).join('');
+
+            const detailHtml = `
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${prog.name} - 流量趨勢分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --glass-bg: rgba(15, 23, 42, 0.6);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 40px 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; }
+        .header h1 { font-size: 2rem; color: #a78bfa; margin-bottom: 10px; }
+        .header p { color: var(--text-secondary); font-size: 1.1rem; }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-container { height: 350px; width: 100%; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: right; padding: 12px; color: var(--text-secondary); border-bottom: 2px solid rgba(255,255,255,0.1); }
+        th:first-child { text-align: center; }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        tr:hover { background-color: rgba(255,255,255,0.03); }
+        
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.1); color: #fff;
+            text-decoration: none; padding: 10px 20px; border-radius: 8px;
+            margin-bottom: 20px; transition: 0.2s;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../A_DMP_PageView_Report_2026-02.html" class="btn-back">⬅ 返回總表</a>
+        <div class="header">
+            <h1>${prog.name}</h1>
+            <p>2026年02月 每日流量趨勢 (總瀏覽量: ${prog.totalViews.toLocaleString()})</p>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #60a5fa;">每日瀏覽量趨勢</h3>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #a78bfa;">每日數據明細</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">日期 (Date)</th>
+                        <th style="width: 50%;">瀏覽量 (Page Views)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRowsHtml}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        const labels = ${JSON.stringify(allDays)};
+        const data = ${JSON.stringify(chartData)};
+
+        Chart.register(ChartDataLabels);
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Page Views',
+                    data: data,
+                    borderColor: '#a78bfa',
+                    backgroundColor: 'rgba(167, 139, 250, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#a78bfa',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#f8fafc',
+                        align: 'top',
+                        offset: 4,
+                        font: { size: 10 },
+                        formatter: val => val > 0 ? val.toLocaleString() : ''
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } } }
+                },
+                layout: { padding: { top: 20 } }
+            }
+        });
+    </script>
+</body>
+</html>`;
+            fs.writeFileSync(path.join(detailsDir, detailFileName), detailHtml, 'utf8');
+        });
+
+        // 產生主表 tableRows
+        const tableRows = validPrograms.map((item, index) => {
             const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
-            const percentage = ((item.views / totalViews) * 100).toFixed(2);
+            const percentage = ((item.totalViews / totalViews) * 100).toFixed(2);
             return '<tr>' +
                 '<td style="text-align: center;"><span class="rank ' + rankClass + '">' + (index + 1) + '</span></td>' +
-                '<td style="font-weight: 500;">' + item._id + '</td>' +
-                '<td style="text-align: right; color: #60a5fa; font-weight: 600;">' + item.views.toLocaleString() + '</td>' +
+                '<td style="font-weight: 500;"><a href="' + item.detailLink + '" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed rgba(96,165,250,0.5); padding-bottom: 2px; display: inline-block;">' + item.name + '</a></td>' +
+                '<td style="text-align: right; color: #f8fafc; font-weight: 600;">' + item.totalViews.toLocaleString() + '</td>' +
                 '<td style="text-align: right; color: var(--text-secondary);">' + percentage + '%</td>' +
                 '</tr>';
         }).join('');
 
-        console.log("Building HTML report...");
+        console.log("Building Main HTML report...");
 
         const htmlContent = `
 <!DOCTYPE html>
@@ -252,6 +438,7 @@ async function main() {
             max-height: 600px;
             overflow-y: auto;
             border-radius: 8px;
+            position: relative;
         }
         
         /* Custom Scrollbar */
@@ -259,6 +446,11 @@ async function main() {
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
+        /* tooltip styling specific to link */
+        td a:hover {
+            color: #93c5fd;
+        }
 
     </style>
 </head>
@@ -268,7 +460,7 @@ async function main() {
         <div class="header">
             <div class="header-left">
                 <h1>2026年02月 節目流量統計</h1>
-                <p>First-Party DMP Page View 分析報表</p>
+                <p>First-Party DMP Page View 分析報表 (點擊名稱查看每日趨勢)</p>
             </div>
             <div class="stat-card">
                 <h3>總瀏覽量 (Total Page Views)</h3>
@@ -291,7 +483,7 @@ async function main() {
                 <div style="padding: 30px 30px 15px;">
                     <div class="card-title" style="margin-bottom: 0;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                        所有節目瀏覽量排行明細
+                        所有節目瀏覽量排行明細 (點擊節目名稱可查看詳細圖表)
                     </div>
                 </div>
                 
@@ -322,8 +514,8 @@ async function main() {
     </a>
 
     <script>
-        const top10Labels = ${JSON.stringify(top10.map(t => t._id))};
-        const top10Data = ${JSON.stringify(top10.map(t => t.views))};
+        const top10Labels = ${JSON.stringify(top10.map(t => t.name))};
+        const top10Data = ${JSON.stringify(top10.map(t => t.totalViews))};
 
         // Initialize Chart
         Chart.register(ChartDataLabels);
@@ -397,7 +589,7 @@ async function main() {
 
         const outPath = path.join(__dirname, 'A_DMP_PageView_Report_2026-02.html');
         fs.writeFileSync(outPath, htmlContent, 'utf8');
-        console.log('Report generated successfully at ' + outPath);
+        console.log('Main report generated successfully at ' + outPath);
 
     } catch (err) {
         console.error("Error:", err);
