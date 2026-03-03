@@ -242,10 +242,11 @@ async function main() {
 
         const rawDataArr = [];
         validPrograms.forEach(prog => {
+            const attributionIdStr = prog.ids.size > 0 ? Array.from(prog.ids).join(', ') : '-';
             allDays.forEach(d => {
                 const amt = prog.daily[d] || 0;
                 if (amt > 0) {
-                    rawDataArr.push({ name: prog.name, date: d, views: amt });
+                    rawDataArr.push({ name: prog.name, attr: attributionIdStr, date: d, views: amt });
                 }
             });
         });
@@ -545,11 +546,12 @@ async function main() {
         const top10Data = ${JSON.stringify(top10.map(t => t.totalViews))};
 
         function exportRawData() {
-            let csvContent = "\\uFEFF節目名稱,日期,瀏覽量\\n";
+            let csvContent = "\\uFEFF節目名稱,Attribution ID,日期,瀏覽量\\n";
             for (let i = 0; i < rawData.length; i++) {
                 let item = rawData[i];
                 let safeName = item.name.replace(/"/g, '""');
-                csvContent += '"' + safeName + '",' + item.date + ',' + item.views + "\\n";
+                let safeAttr = item.attr.replace(/"/g, '""');
+                csvContent += '"' + safeName + '","' + safeAttr + '",' + item.date + ',' + item.views + "\\n";
             }
             
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
