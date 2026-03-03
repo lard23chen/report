@@ -233,6 +233,16 @@ async function main() {
             fs.writeFileSync(path.join(detailsDir, detailFileName), detailHtml, 'utf8');
         });
 
+        const rawDataArr = [];
+        validPrograms.forEach(prog => {
+            allDays.forEach(d => {
+                const amt = prog.daily[d] || 0;
+                if (amt > 0) {
+                    rawDataArr.push({ name: prog.name, date: d, views: amt });
+                }
+            });
+        });
+
         // 產生主表 tableRows
         const tableRows = validPrograms.map((item, index) => {
             const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
@@ -465,9 +475,12 @@ async function main() {
                 <h1>2026年02月 節目流量統計</h1>
                 <p>First-Party DMP Page View 分析報表 (點擊名稱查看每日趨勢)</p>
             </div>
-            <div class="stat-card">
-                <h3>總瀏覽量 (Total Page Views)</h3>
-                <div class="value">${totalViews.toLocaleString()}</div>
+            <div style="display: flex; gap: 15px; align-items: stretch;">
+                <button onclick="exportRawData()" style="cursor: pointer; background: rgba(167, 139, 250, 0.2); color: #a78bfa; border: 1px solid #a78bfa; padding: 0 20px; border-radius: 12px; font-weight: 600; font-family: 'Outfit', 'Noto Sans TC', sans-serif; transition: all 0.3s;" onmouseover="this.style.background='rgba(167, 139, 250, 0.3)'" onmouseout="this.style.background='rgba(167, 139, 250, 0.2)'">匯出 Raw Data</button>
+                <div class="stat-card">
+                    <h3>總瀏覽量 (Total Page Views)</h3>
+                    <div class="value">${totalViews.toLocaleString()}</div>
+                </div>
             </div>
         </div>
 
@@ -517,8 +530,28 @@ async function main() {
     </a>
 
     <script>
+        const rawData = ${JSON.stringify(rawDataArr)};
         const top10Labels = ${JSON.stringify(top10.map(t => t.name))};
         const top10Data = ${JSON.stringify(top10.map(t => t.totalViews))};
+
+        function exportRawData() {
+            let csvContent = "\\uFEFF節目名稱,日期,瀏覽量\\n";
+            for (let i = 0; i < rawData.length; i++) {
+                let item = rawData[i];
+                let safeName = item.name.replace(/"/g, '""');
+                csvContent += '"' + safeName + '",' + item.date + ',' + item.views + "\\n";
+            }
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'DMP_PageView_RawData_2026-02.csv');
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
         // Initialize Chart
         Chart.register(ChartDataLabels);
