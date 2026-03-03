@@ -26,6 +26,10 @@ async function generateReport() {
         console.log(`Fetching data for: ${TARGET_NAME}...`);
         const data = await collection.find({ [TARGET_FIELD]: TARGET_NAME }).toArray();
         console.log(`Fetched ${data.length} records.`);
+
+        console.log("Fetching Section Data...");
+        const sectionData = await db.collection('Qware_A_Section_number').find({ '場次名稱': TARGET_NAME }).toArray();
+
         const topEventId = 39311;
         console.log(`Fetching GA Data for ActivityID: ${topEventId}`);
         const gaSessions = await db.collection("QwareTrafficSession").find({ ActivityID: topEventId }).toArray();
@@ -343,12 +347,15 @@ async function generateReport() {
     <!-- Detailed Price Table (Full Width) -->
     <div class="main-content">
         <div class="chart-card" style="grid-column: span 2;">
-            <h3>各票價銷售詳情 (Sales by Price)</h3>
+            <h3>各票區銷售詳情 (Sales by Section)</h3>
             <table id="priceTable">
                 <thead>
                     <tr>
-                        <th>票價 (Price)</th>
-                        <th>銷售張數 (Qty)</th>
+                        <th>票區名稱 (Section)</th>
+                        <th>座位總數 (Total)</th>
+                        <th>保留數 (Reserved)</th>
+                        <th>可售數 (Available)</th>
+                        <th>銷售張數 (Sold Qty)</th>
                         <th>營收 (Revenue)</th>
                         <th>佔比 (Share)</th>
                     </tr>
@@ -434,6 +441,7 @@ async function generateReport() {
 
 <script>
     const dbData = ${JSON.stringify(data)};
+    const sectionData = ${JSON.stringify(sectionData)};
     const gaSessions = ${JSON.stringify(gaSessions)};
     const gaReads = ${JSON.stringify(gaReads)};
 
@@ -483,19 +491,37 @@ async function generateReport() {
         const dates = Object.keys(salesByDate).sort();
         const dailyTickets = dates.map(d => salesByDate[d]);
 
-        // 2. Price Distribution
-        const priceStats = {}; // { price: { count, revenue } }
+        // 2. Section Distribution
+        const sectionStats = {};
+        sectionData.forEach(s => {
+            const name = s['票區名稱'];
+            if(name) {
+                sectionStats[name] = {
+                    total: parseInt(s['座位總數']) || 0,
+                    reserved: parseInt(s['保留數']) || 0,
+                    available: parseInt(s['可售數']) || 0,
+                    count: 0,
+                    revenue: 0
+                };
+            }
+        });
+
         validOrders.forEach(o => {
+            const seatInfo = o['座位資訊/票區'] || '';
+            const secName = seatInfo.split('_')[0] || seatInfo;
             const p = o['售價'] || 0;
-            if(!priceStats[p]) priceStats[p] = { count: 0, revenue: 0 };
-            priceStats[p].count++;
-            priceStats[p].revenue += p;
+
+            if(!sectionStats[secName]) {
+                sectionStats[secName] = { total: '-', reserved: '-', available: '-', count: 0, revenue: 0 };
+            }
+            sectionStats[secName].count++;
+            sectionStats[secName].revenue += p;
         });
         
-        const priceArray = Object.keys(priceStats).map(p => ({
-            price: parseInt(p),
-            ...priceStats[p]
-        })).sort((a,b) => b.price - a.price); // High to Low price
+        const sectionArray = Object.keys(sectionStats).map(sec => ({
+            name: sec,
+            ...sectionStats[sec]
+        })).sort((a,b) => b.revenue - a.revenue); // High to Low revenue by default
 
         // 3. Payment Methods
         const paymentStats = {};
@@ -700,14 +726,22 @@ async function generateReport() {
             natTbody.appendChild(tr);
         });
 
-        // Render Price Table
+        // Render Section Table
         const tbody = document.querySelector('#priceTable tbody');
-        priceArray.forEach(p => {
+        sectionArray.forEach(p => {
+            if (p.count === 0 && p.total === 0) return; // Skip completely empty mappings
             const tr = document.createElement('tr');
             const share = revenue ? ((p.revenue / revenue) * 100).toFixed(1) + '%' : '0%';
+            const totalStr = p.total === '-' ? p.total : p.total.toLocaleString();
+            const resStr = p.reserved === '-' ? p.reserved : p.reserved.toLocaleString();
+            const availStr = p.available === '-' ? p.available : p.available.toLocaleString();
+            
             tr.innerHTML = \`
-                <td>\${p.price === 0 ? '公關/免費票' : '$' + p.price.toLocaleString()}</td>
-                <td>\${p.count.toLocaleString()}</td>
+                <td>\${p.name}</td>
+                <td style="color: #94a3b8;">\${totalStr}</td>
+                <td style="color: #ef4444;">\${resStr}</td>
+                <td style="color: #4ade80;">\${availStr}</td>
+                <td style="font-weight: bold; color: var(--accent-color);">\${p.count.toLocaleString()}</td>
                 <td>$\${p.revenue.toLocaleString()}</td>
                 <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
                     <div style="width:\${share}; background:var(--accent-color); height:6px;"></div>
