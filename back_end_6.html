@@ -1,0 +1,1797 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8">
+    <title>人工退票管理後台</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, "微軟正黑體";
+            background-color: #eeeeee;
+            font-size: 14px;
+        }
+
+        /* ===== 左側選單 ===== */
+        .sidebar {
+            width: 200px;
+            height: 100vh;
+            float: left;
+            background-color: #2f4050;
+            color: #ffffff;
+        }
+
+        .sidebar h2 {
+            margin: 0;
+            padding: 15px;
+            background-color: #1c2833;
+            font-size: 16px;
+        }
+
+        .menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .menu li {
+            padding: 12px;
+            border-bottom: 1px solid #445566;
+            cursor: pointer;
+        }
+
+        .menu li:hover {
+            background-color: #445566;
+        }
+
+        .menu li.active {
+            background-color: #e91e63;
+        }
+
+        /* ===== 右側內容 ===== */
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        #page3 .section.query2 {
+            display: none;
+        }
+
+        /* 區塊 */
+        .section {
+            background-color: #ffffff;
+            border: 1px solid #cccccc;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .member-details {
+            margin-top: 15px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        .member-details summary {
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+
+        .member-details[open] summary {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .refundInvoiceInfo-details {
+            margin-top: 15px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        .refundInvoiceInfo-details summary {
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+
+        .refundInvoiceInfo-details[open] summary {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .refundBankInfo-details {
+            margin-top: 15px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        .refundBankInfo-details summary {
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+
+        .refundBankInfo-details[open] summary {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .order-details {
+            margin-top: 15px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        .order-details summary {
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+
+        .order-details[open] summary {
+            border-bottom: 1px solid #ccc;
+        }
+
+        /* 表單 */
+        .form-row {
+            margin-bottom: 10px;
+        }
+
+        .form-row.pay-inline {
+            display: flex !important;
+            align-items: center;
+        }
+
+        .form-row.pay-inline .label {
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+
+        .form-row.pay-inline .radio-item {
+            margin-right: 15px;
+        }
+
+        .label {
+            display: inline-block;
+            width: 120px;
+        }
+
+        input[type=text],
+        input[type=date],
+        select {
+            padding: 5px;
+            width: 200px;
+        }
+
+        .ticket-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            /* 關鍵 */
+        }
+
+        /* 按鈕 */
+        .button-area {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .button-area {
+            margin-bottom: 15px;
+            /* 依需求可調整 10~24px */
+        }
+
+        input[type=button] {
+            padding: 6px 12px;
+        }
+
+        /* 表格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #cccccc;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .auto-style1 {
+            text-align: center;
+        }
+
+        .auto-style2 {
+            color: #800000;
+        }
+
+        .auto-style3 {
+            display: inline-block;
+            width: 120px;
+            color: #800000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 左側選單 -->
+    <div class="sidebar">
+        <h2>人工退票管理</h2>
+        <ul class="menu">
+            <li class="active" onclick="switchPage('page1', this)">退票活動</li>
+            <li onclick="switchPage('page2', this)">退票訂單</li>
+            <li onclick="switchPage('page4', this)">業務請款作業</li>
+            <li onclick="switchPage('page3', this)">管服作業</li>
+            <li onclick="switchPage('page5', this)">報表設定</li>
+        </ul>
+    </div>
+
+    <!-- 右側內容 -->
+    <div class="content">
+
+
+        <!-- ===== page1 ===== -->
+        <div id="page1" class="page active">
+
+            <div class="section">
+                <div class="section-title">退票活動管理</div>
+                <div class="button-area">
+                    <input type="button" value="新增活動" onclick="showAddEventForm()">
+                </div>
+            </div>
+            <!-- 下方:新增 / 編輯 活動設定(預設隱藏) -->
+            <div class="section" id="addEventForm" style="display:none;">
+                <div class="section-title">新增可退票活動（設定可退票期間）</div>
+
+                <form>
+
+                    <div class="form-row">
+                        <span class="label">系統別：</span>
+                        <select style="width: 211px; height: 28px">
+                            <option>請選擇</option>
+                            <option>A系統</option>
+                            <option>E系統</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">活動名稱：</span>
+                        <input type="text" style="width: 400px;">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">票券類別：</span>
+                        <select style="width: 211px; height: 28px">
+                            <option>請選擇</option>
+                            <option>娛樂票</option>
+                            <option>運動票</option>
+                            <option>電影票</option>
+                            <option>展覽</option>
+                            <option>旅遊</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">可退票起始日：</span>
+                        <input type="date">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">可退票結束日：</span>
+                        <input type="date">
+                    </div>
+                    <div class="form-row">
+                        <span class="label">代收代號註記：</span>
+                        <input type="text" style="width: 200px;">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">狀態：</span>
+                        <select style="width: 211px; height: 28px">
+                            <option>有效</option>
+                            <option>停用</option>
+                        </select>
+                    </div>
+
+                    <div class="button-area">
+                        <input type="button" value="取消" onclick="hideAddEventForm()">
+                        <input type="button" value="儲存">
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="section">
+                <div class="section-title">退票活動查詢</div>
+                <div class="form-row">
+                    <span class="label">票券&nbsp;&nbsp;&nbsp; 類別：</span>
+                    <select style="width: 211px; height: 28px" name="D1">
+                        <option>娛樂票</option>
+                        <option>運動票</option>
+                        <option>電影票</option>
+                        <option>展覽</option>
+                        <option>旅遊</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <span class="label">關鍵字查詢：</span>
+                    <input type="text" id="activityKeyword" style="width: 237px;" maxlength="6">
+                    <p style="color: rgb(255, 0, 0);"> 限6個中英文含特殊符號</p>
+                </div>
+                <div class="form-row">
+                    <span class="label">可退票日期：</span>
+                    <input type="date"> ～ <input type="date">
+                </div>
+                <div class="button-area">
+                    <input type="button" value="查詢" id="btnQueryActivity" onclick="validateActivitySearch()">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">查詢結果</div>
+                <table>
+                    <tr>
+                        <th style="width: 156px">系統別</th>
+                        <th style="width: 1194px">活動名稱</th>
+                        <th style="width: 496px">類別</th>
+                        <th style="width: 463px">可退起始日期</th>
+                        <th style="width: 462px">可退結束日期</th>
+                        <th style="width: 259px">狀態</th>
+                        <th style="width: 259px">代收代號註記</th>
+                        <th>操作</th>
+                    </tr>
+                    <tr>
+                        <td class="auto-style1" style="width: 156px; height: 49px;">A系統</td>
+                        <td style="width: 1194px; height: 49px;">2026真愛秀．藍寶石大歌廳 </td>
+                        <td class="auto-style1" style="width: 496px; height: 49px;">娛樂票</td>
+                        <td class="auto-style1" style="width: 463px; height: 49px;">2025/10/13</td>
+                        <td class="auto-style1" style="width: 462px; height: 49px;">2026/01/23</td>
+                        <td class="auto-style1" style="width: 259px; height: 49px;">有效</td>
+                        <td class="auto-style1" style="width: 259px; height: 49px;">N61,N52,N32</td>
+                        <td style="height: 49px"><input type="button" value="修改"></td>
+                    </tr>
+                    <tr>
+                        <td class="auto-style1" style="width: 156px">A系統</td>
+                        <td style="width: 1194px">2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL </td>
+                        <td class="auto-style1" style="width: 496px">娛樂票</td>
+                        <td class="auto-style1" style="width: 463px">2025/12/13</td>
+                        <td class="auto-style1" style="width: 462px">2026/03/23</td>
+                        <td class="auto-style1" style="width: 259px">有效</td>
+                        <td class="auto-style1" style="width: 259px; height: 49px;">N61,N52,N32</td>
+                        <td><input type="button" value="修改"></td>
+                    </tr>
+                    <tr>
+                        <td class="auto-style1" style="width: 156px">A系統</td>
+                        <td style="width: 1194px">2026台維斯盃國際男子網球團體錦標賽 </td>
+                        <td class="auto-style1" style="width: 496px">運動票</td>
+                        <td class="auto-style1" style="width: 463px">2026/01/12</td>
+                        <td class="auto-style1" style="width: 462px">2026/04/15</td>
+                        <td class="auto-style1" style="width: 259px">有效</td>
+                        <td class="auto-style1" style="width: 259px; height: 49px;">N61,N52,N32</td>
+                        <td><input type="button" value="修改"></td>
+                    </tr>
+                    <tr>
+                        <td class="auto-style1" style="width: 156px">E系統</td>
+                        <td style="width: 1194px">次元光譜　D.S　Vol.1 </td>
+                        <td class="auto-style1" style="width: 496px">展覽</td>
+                        <td class="auto-style1" style="width: 463px">2026/01/12</td>
+                        <td class="auto-style1" style="width: 462px">2026/0213</td>
+                        <td class="auto-style1" style="width: 259px">有效</td>
+                        <td class="auto-style1" style="width: 259px; height: 49px;">N61,N52,N32</td>
+                        <td><input type="button" value="修改"></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
+        <div id="page2" class="page">
+
+            <!-- 上方：退票訂單 -->
+            <div class="section">
+                <div class="section-title">退票訂單</div>
+                <div class="button-area">
+                    <input type="button" value="新增退票" onclick="showRefundForm()">
+                </div>
+            </div>
+
+            <!-- 下方：新增人工退票（預設隱藏） -->
+            <div class="section" id="refundFormSection" style="display:none;">
+                <div class="section-title">新增人工退票</div>
+
+                <form>
+
+                    <div class="form-row">
+                        <span class="label">系統別：</span>
+                        <select style="width: 211px; height: 28px">
+                            <option>請選擇</option>
+                            <option>A系統</option>
+                            <option>E系統</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">票券類別：</span>
+                        <select style="width: 211px; height: 28px">
+                            <option>請選擇</option>
+                            <option>娛樂票</option>
+                            <option>運動票</option>
+                            <option>電影票</option>
+                            <option>展覽</option>
+                            <option>旅遊</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">活動名稱：</span>
+                        <select style="width: 211px; height: 28px">
+                            <option>請選擇</option>
+                            <option>2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL</option>
+                            <option>2026真愛秀．藍寶石大歌廳</option>
+                            <option>2026台維斯盃國際男子網球團體錦標賽</option>
+                            <option>Hello，Taiwan！Just for You！～越南之星演唱會！</option>
+                            <option>2026真愛秀．藍寶石大歌廳</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">訂單編號：</span>
+                        <input type="text" style="width: 200px;">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">退票張數：</span>
+                        <select style="width: 211px; height: 28px">
+                            <option>請選擇</option>
+                            <option>1張</option>
+                            <option>2張</option>
+                            <option>3張</option>
+                            <option>4張</option>
+                            <option>5張</option>
+                            <option>6張</option>
+                            <option>7張</option>
+                            <option>8張</option>
+                        </select>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="auto-style4">
+                            <span class="label">第一張票：</span>
+
+
+                            <input type="text" class="ticket-content" placeholder="黃3A區_4排10號">
+
+                            <input type="text" class="ticket-price" placeholder="3000">
+                    </div>
+                    <div class="ticket-row">
+                        <span class="auto-style4">
+
+                            <span class="label">第二張票：</span>
+
+
+                            <input type="text" class="ticket-content" placeholder="黃3A區_4排11號">
+
+                            <input type="text" class="ticket-price" placeholder="3000">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">票價總額：</span>
+                        <input type="text" style="width: 200px;">
+                    </div>
+                    <div class="form-row pay-inline">
+                        <span class="label">購票支付：</span>
+
+                        <label class="radio-item">
+                            <input type="radio" name="payType" value="credit">
+                            刷卡(含行動支付)
+                        </label>
+
+                        <label class="radio-item">
+                            <input type="radio" name="payType" value="wallet">
+                            ATM虛擬帳號
+                        </label>
+
+                        <label class="radio-item">
+                            <input type="radio" name="payType" value="cash">
+                            ibon付現
+                        </label>
+                    </div>
+                    <div class="form-row pay-inline">
+                        <span class="label">退款方式：</span>
+
+                        <label class="radio-item">
+                            <input type="radio" name="payType" value="credit">
+                            刷退
+                        </label>
+
+                        <label class="radio-item">
+                            <input type="radio" name="payType" value="wallet">
+                            匯退
+                        </label>
+                    </div>
+                    <div class="form-row pay-inline">
+                        <span class="label">折抵方式：</span>
+
+                        <label class="radio-item">
+                            <input type="radio" name="payType" value="credit">
+                            無
+                        </label>
+
+                        <label class="radio-item">
+                            <input type="radio" name="payType" value="credit">
+                            文化幣
+                        </label>
+
+                        <label class="radio-item">
+                            <input type="radio" name="payType" value="wallet">
+                            動滋券
+                        </label>
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">折抵金額：</span>
+                        <input type="text" style="width: 200px;">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">退票手續費：</span>
+                        <input type="text" style="width: 200px;">
+                    </div>
+                    <div class="form-row">
+                        <span class="label">ATM匯費：</span>
+                        <input type="text" id="inputAtmFee" style="width: 200px;">
+                    </div>
+                    <div class="form-row">
+                        <span class="label">實際退款：</span>
+                        <input type="text" style="width: 200px;">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">代收代號：</span>
+                        <input type="text" style="width: 200px;">
+                    </div>
+                    <div class="form-row">
+                        <span class="label">退票來源：</span>
+                        <input type="text" style="width: 200px;">
+                    </div>
+                    </details>
+                    <details class="member-details">
+                        <summary>會員資訊</summary>
+
+                        <div class="form-row">
+                            <br>
+                            <span class="label">會員姓名：</span>
+                            <input type="text" value="王美花" style="width:400px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">會員 Email：</span>
+                            <input type="text" value="anne_lin@qware.com.tw" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">常用 Email：</span>
+                            <input type="text" value="linyichunanne@yahoo.com.tw" style="width:400px;">
+                        </div>
+
+
+                        <div class="form-row">
+                            <span class="label">會員電話：</span>
+                            <input type="text" value="0934567889" style="width:400px;">
+                        </div>
+                    </details>
+                    </details>
+
+                    <details class="refundInvoiceInfo-details">
+                        <summary>手續費發票資訊</summary>
+
+                        <div class="form-row">
+                            <br>
+
+                            <div class="form-row pay-inline">
+                                <span class="label">發票類型：</span>
+
+                                <label class="radio-item">
+                                    <input type="radio" name="payType" value="credit">
+                                    捐贈
+                                </label>
+
+                                <label class="radio-item">
+                                    <input type="radio" name="payType" value="credit">
+                                    二聯式雲端發票
+                                </label>
+
+                                <label class="radio-item">
+                                    <input type="radio" name="payType" value="wallet">
+                                    三聯式紙本
+                                </label>
+                            </div>
+
+
+                            <div class="form-row">
+                                <span class="label">發票抬頭：</span>
+                                <input type="text" value="安源資訊股份有限公司" style="width:400px;">
+                            </div>
+
+                            <div class="form-row">
+                                <span class="label">統一編號：</span>
+                                <input type="text" value="07328402" style="width:400px;">
+                            </div>
+                            <div class="form-row">
+                                <span class="label">收件人姓名：</span>
+                                <input type="text" value="王美花" style="width:400px;">
+                            </div>
+                            <div class="form-row">
+                                <span class="label">發票寄送地址：</span>
+                                <input type="text" value="台北市內湖區洲子街100號3樓" style="width:400px;">
+                            </div>
+                            <div class="form-row">
+                                <span class="label">收件人電話：</span>
+                                <input type="text" value="0936198285" style="width:400px;">
+                            </div>
+                    </details>
+                    <details class="refundBankInfo-details">
+                        <summary>退款帳號資訊</summary>
+
+                        <div class="form-row">
+                            <br>
+                            <span class="label">銀行代碼：</span>
+                            <input type="text" id="bankCode" value="822" style="width:400px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">銀行名稱：</span>
+                            <input type="text" id="bankName" value="中國信託" style="width:400px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">分行名稱：</span>
+                            <input type="text" id="bankBranch" value="東湖分行" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">戶名：</span>
+                            <input type="text" id="bankAccountName" value="王美花" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">帳號：</span>
+                            <input type="text" id="bankAccountNo" value="0115647890" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">存摺影本：</span>
+                            <input type="text" value="上傳" style="width:400px;">
+                        </div>
+                    </details>
+
+
+                    <div class="button-area">
+                        <input type="button" value="取消" onclick="hideRefundForm()">
+                        <input type="button" value="儲存" onclick="validateRefundOrder()">
+                    </div>
+                </form>
+            </div>
+            <div class="section">
+                <div class="section-title">退票訂單查詢</div>
+                <div class="form-row">
+                    <span class="label">子系統訂單編號：</span>
+                    <input type="text">
+                </div>
+                <div class="form-row">
+                    <span class="label">會員姓名：</span>
+                    <input type="text">
+                </div>
+                <div class="form-row">
+                    <span class="label">會員電話：</span>
+                    <input type="text">
+                </div>
+
+                <div class="form-row">
+                    <span class="label">退票日期：</span>
+                    <input type="date"> ～ <input type="date">
+                </div>
+                <div class="form-row">
+                    <span class="label">處理狀態：</span>
+                    <select style="width: 211px; height: 28px">
+                        <option>請選擇</option>
+                        <option>待處理</option>
+                        <option>待補件</option>
+                        <option>申請中</option>
+                        <option>審核中</option>
+                        <option>退款中</option>
+                        <option>結案</option>
+                    </select>
+                </div>
+                <div class="button-area">
+                    <input type="button" value="查詢">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">查詢結果(待處理-申請中-審核中-退款中-結案)</div>
+                <table>
+                    <tr>
+                        <th style="width: 99px">退票單號</th>
+                        <th style="width: 105px">退票日期</th>
+                        <th style="width: 112px">子系統訂單編號</th>
+                        <th style="width: 79px">會員姓名</th>
+                        <th style="width: 399px">活動名稱</th>
+                        <th style="width: 99px">處理狀態</th>
+                        <th style="width: 179px">處理日期</th>
+                        <th>操作</th>
+                    </tr>
+                    <tr>
+                        <td class="auto-style1" style="width: 99px">R1234567890</td>
+                        <td class="auto-style1" style="width: 105px">2025/12/15</td>
+                        <td class="auto-style1" style="width: 112px">A1234567890123</td>
+                        <td class="auto-style1" style="width: 79px">王美花</td>
+                        <td style="width: 399px">2026真愛秀．藍寶石大歌廳</td>
+                        <td class="auto-style1" style="width: 99px">待處理</td>
+                        <td class="auto-style1" style="width: 179px">2025/12/16</td>
+                        <td class="auto-style1"><input type="button" value="處理"></td>
+                    </tr>
+                    <tr>
+                        <td class="auto-style1" style="width: 99px">R1234567891</td>
+                        <td class="auto-style1" style="width: 105px">2025/12/15</td>
+                        <td class="auto-style1" style="width: 112px">A2224567890123</td>
+                        <td class="auto-style1" style="width: 79px">高子文</td>
+                        <td style="width: 399px">2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL</td>
+                        <td class="auto-style1" style="width: 99px">待補件</td>
+                        <td class="auto-style1" style="width: 179px">2025/12/16</td>
+                        <td class="auto-style1"><input type="button" value="處理"></td>
+                    </tr>
+                    <tr>
+                        <td class="auto-style1" style="width: 99px">R1234567894</td>
+                        <td class="auto-style1" style="width: 105px">2025/12/15</td>
+                        <td class="auto-style1" style="width: 112px">A2345678904561</td>
+                        <td class="auto-style1" style="width: 79px">張家心</td>
+                        <td style="width: 399px">2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL</td>
+                        <td class="auto-style1" style="width: 99px">申請中</td>
+                        <td class="auto-style1" style="width: 179px">2025/12/16</td>
+                        <td class="auto-style1"><input type="button" value="處理"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="auto-style1" style="width: 99px">R1234567898</td>
+                        <td class="auto-style1" style="width: 105px">2025/12/15</td>
+                        <td class="auto-style1" style="width: 112px">E6782345678904</td>
+                        <td class="auto-style1" style="width: 79px">楊美珠</td>
+                        <td style="width: 399px">次元光譜　D.S　Vol.1 </td>
+                        <td class="auto-style1" style="width: 99px">退款中</td>
+                        <td class="auto-style1" style="width: 179px">2025/12/16</td>
+                        <td class="auto-style1"><input type="button" value="預覽"></td>
+                    </tr>
+
+                </table>
+            </div>
+
+            <!-- 新增 / 編輯退票案件 -->
+            <div class="section">
+                <div class="section-title">退票訂單處理</div>
+
+                <form>
+
+                    <div class="form-row">
+                        <span class="label">申請日期：</span>
+                        <input type="text" value="2025/12/15" readonly
+                            style="width: 200px; background-color:#f0f0f0; color:#666;">
+                    </div>
+                    <div class="form-row">
+                        <span class="label">退票單號：</span>
+                        <input type="text" value="R1234567890" readonly
+                            style="width: 200px; background-color:#f0f0f0; color:#666;">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">系統別：</span>
+                        <input type="text" value="A系統" readonly
+                            style="width: 200px; background-color:#f0f0f0; color:#666;">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">訂單編號：</span>
+                        <input type="text" value="A1234567890123" readonly
+                            style="width: 200px; background-color:#f0f0f0; color:#666;">
+                    </div>
+
+                    <div class="form-row">
+                        <span class="label">票券類別：</span>
+                        <input type="text" value="娛樂票" style="width: 200px;">
+                    </div>
+                    <details class="order-details">
+                        <summary>退票訂單資訊</summary>
+                        <div class="form-row">
+                            <br>
+                            <span class="label">活動名稱：</span>
+                            <input type="text" value="2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL" style="width:420x;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">場次日期：</span>
+                            <input type="text" value="2026/03/11" style="width:420px;">
+                        </div>
+
+                        <div class="form-row pay-inline">
+                            <span class="label">購票支付：</span>
+
+                            <label class="radio-item">
+                                <input type="radio" name="payType" value="credit">
+                                刷卡(含行動支付)
+                            </label>
+
+                            <label class="radio-item">
+                                <input type="radio" name="payType" value="wallet">
+                                ATM虛擬帳號
+                            </label>
+
+                            <label class="radio-item">
+                                <input type="radio" name="payType" value="cash">
+                                ibon付現
+                            </label>
+                        </div>
+                        <div class="form-row pay-inline">
+                            <span class="label">退款方式：</span>
+
+                            <label class="radio-item">
+                                <input type="radio" name="refundMethod" value="credit" id="rbRefundCredit"
+                                    onchange="updateAtmFee(this.value)">
+                                刷退
+                            </label>
+
+                            <label class="radio-item">
+                                <input type="radio" name="refundMethod" value="wallet" id="rbRefundWallet"
+                                    onchange="updateAtmFee(this.value)">
+                                匯退<span style="color:red;">(選擇匯退時，下方ATM匯費自動增加30元，同時退款帳號資訊下的填寫資料皆為必填)
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">取票狀態：</span>
+                            <input type="text" value="未取" style="width:420px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">退票張數：</span>
+                            <input type="text" value="2" style="width:420px;">
+                        </div>
+
+                        <div class="ticket-row">
+                            <span class="auto-style4">
+                                <span class="label">第一張票：</span>
+
+
+                                <input type="text" class="ticket-content" placeholder="黃3A區_4排10號">
+
+                                <input type="text" class="ticket-price" placeholder="3000">
+                        </div>
+                        <div class="ticket-row">
+                            <span class="auto-style4">
+
+                                <span class="label">第二張票：</span>
+
+
+                                <input type="text" class="ticket-content" placeholder="黃3A區_4排11號">
+
+                                <input type="text" class="ticket-price" placeholder="3000">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">票價總額：</span>
+                            <input type="text" value="6000" style="width:420px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label"><span class="auto-style2">退票手續費</span>：</span>
+                            <input type="text" value="600" style="width:420px;">
+                        </div>
+                        <div class="form-row pay-inline">
+                            <span class="label">折抵方式：</span>
+
+                            <label class="radio-item">
+                                <input type="radio" name="payType" value="credit">
+                                無
+                            </label>
+
+                            <label class="radio-item">
+                                <input type="radio" name="payType" value="credit">
+                                文化幣
+                            </label>
+
+                            <label class="radio-item">
+                                <input type="radio" name="payType" value="wallet">
+                                動滋券
+                            </label>
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">折抵金額：</span>
+                            <input type="text" value="100" style="width:420px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">ATM匯費：</span>
+                            <input type="text" value="10" style="width:420px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">實際退款：</span>
+                            <input type="text" value="5300" style="width:420px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="auto-style3">代收代號：</span>
+                            <input type="text" value="N65" style="width:420px;">
+                        </div>
+
+
+                    </details>
+                    <details class="member-details">
+                        <summary>會員資訊</summary>
+
+                        <div class="form-row">
+                            <br>
+                            <span class="label">會員姓名：</span>
+                            <input type="text" value="王美花" style="width:400px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">會員 Email：</span>
+                            <input type="text" value="anne_lin@qware.com.tw" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">常用 Email：</span>
+                            <input type="text" value="linyichunanne@yahoo.com.tw" style="width:400px;">
+                        </div>
+
+
+                        <div class="form-row">
+                            <span class="label">會員電話：</span>
+                            <input type="text" value="0934567889" style="width:400px;">
+                        </div>
+                    </details>
+
+                    <details class="refundInvoiceInfo-details">
+                        <summary>手續費發票資訊</summary>
+
+                        <div class="form-row">
+                            <br>
+                            <span class="label">發票類型：</span>
+                            <input type="text" value="三聯式紙本" style="width:400px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">發票抬頭：</span>
+                            <input type="text" value="安源資訊股份有限公司" style="width:400px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">統一編號：</span>
+                            <input type="text" value="07328402" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">收件人姓名：</span>
+                            <input type="text" value="王美花" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">發票寄送地址：</span>
+                            <input type="text" value="台北市內湖區洲子街100號3樓" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">收件人電話：</span>
+                            <input type="text" value="0936198285" style="width:400px;">
+                        </div>
+                    </details>
+                    <details class="refundBankInfo-details">
+                        <summary>退款帳號資訊</summary>
+
+                        <div class="form-row">
+                            <br>
+                            <span class="label">銀行代碼：</span>
+                            <input type="text" value="822" style="width:400px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">銀行名稱：</span>
+                            <input type="text" value="中國信託" style="width:400px;">
+                        </div>
+
+                        <div class="form-row">
+                            <span class="label">分行名稱：</span>
+                            <input type="text" value="東湖分行" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">戶名：</span>
+                            <input type="text" value="王美花" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">帳號：</span>
+                            <input type="text" value="0115647890" style="width:400px;">
+                        </div>
+                        <div class="form-row">
+                            <span class="label">存摺影本：</span>
+                            <input type="text" value="預覽" style="width:400px;">
+                        </div>
+                    </details>
+
+                    <!-- 付款方式 Radio -->
+                    <div class="form-row">
+                        <span class="label"><br>處理進度：</span>
+
+                        <label class="radio-item">
+                            <input type="radio" name="processStatus" value="DONE" onclick="toggleRemark(false)" checked>
+                            完成
+                        </label>
+
+                        <label class="radio-item">
+                            <input type="radio" name="processStatus" value="EXPIRED" onclick="toggleRemark(false)">
+                            逾期不受理
+                        </label>
+
+                        <label class="radio-item">
+                            <input type="radio" name="processStatus" value="PENDING" onclick="toggleRemark(true)">
+                            待補件
+                        </label>
+
+                        <label class="radio-item">
+                            <input type="radio" name="processStatus" value="OTHER" onclick="toggleRemark(true)">
+                            其它
+                        </label>
+                    </div>
+                    <div id="remarkArea" style="display:none; margin-left: 20px;">
+                        <label class="label">備註：</label>
+                        <input type="text" id="remarkInput" placeholder="請輸入說明內容">
+                    </div>
+                    <div class="button-area">
+                        <input type="button" value="取消">
+                        <input type="button" value="儲存">
+                    </div>
+                </form>
+            </div>
+
+
+        </div>
+
+        <!-- ===== page3 ===== -->
+        <div id="page3" class="page">
+
+            <div class="section">
+                <div class="section-title">管服作業(業務已向財務申請退款,財務可鎖定請款單號)
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">查詢條件-可查【審核中】的單號</div>
+                <div class="form-row">
+                    <span class="label">請款單號：</span>
+                    <input type="text">
+
+                </div>
+
+                <div class="form-row">
+                    <span class="label">請款日期：</span>
+                    <input type="date"> ～ <input type="date">
+                </div>
+                <div class="button-area">
+                    <input type="button" value="查詢">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">查詢結果<br>請款日期：2025/12/01~12/31<br>共計：4筆</div>
+                <div class="button-area">
+
+                </div>
+                <table>
+                    <tr>
+                        <th>請款日期</th>
+                        <th>請款單號</th>
+                        <th>取票狀態</th>
+                        <th>付款方式</th>
+                        <th>總筆數</th>
+                        <th>退款總額</th>
+                        <th>預設退款日期</th>
+                        <th>操作</th>
+                        <th>實際匯款日期</th>
+                    </tr>
+                    <tr>
+                        <td>2025/12/11</td>
+                        <td>P12345890</td>
+                        <td>未取</td>
+                        <td>刷卡(含行動支付)</td>
+                        <td>3</td>
+                        <td>2560</td>
+                        <td>2025/12/20</td>
+                        <td><input type="button" value="退回"></td>
+                        <td>
+                            <input type="date">
+                            <input type="button" value="鎖定">
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025/12/22</td>
+                        <td>P56704589</td>
+                        <td>未取</td>
+                        <td>ATM</td>
+                        <td>4</td>
+                        <td>3780</td>
+                        <td>2025/12/29</td>
+                        <td><input type="button" value="退回"></td>
+                        <td>
+                            <input type="date">
+                            <input type="button" value="鎖定">
+
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>2025/12/22</td>
+                        <td>P56345890</td>
+                        <td>未取</td>
+                        <td>ATM</td>
+                        <td>7</td>
+                        <td>4500</td>
+                        <td>2025/12/27</td>
+                        <td><input type="button" value="退回"></td>
+                        <td>
+                            <input type="date">
+                            <input type="button" value="鎖定">
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025/12/22</td>
+                        <td>P78123434</td>
+                        <td>未取</td>
+                        <td>刷卡(含行動支付)</td>
+                        <td>10</td>
+                        <td>23,120</td>
+                        <td>2025/12/30</td>
+                        <td><input type="button" value="退回"></td>
+                        <td>
+                            <input type="date">
+                            <input type="button" value="鎖定">
+
+                        </td>
+
+                    </tr>
+
+                </table>
+            </div>
+            <div class="section query2">
+                <div class="section-title">查詢條件2-退款單號申請</div>
+
+                <div class="form-row">
+                    <span class="label">取票狀態：</span>
+                    <select style="width: 211px; height: 28px">
+                        <option>全部</option>
+                        <option>已取</option>
+                        <option>未取</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <span class="label">付款方式：</span>
+                    <select style="width: 211px; height: 28px">
+                        <option>全部</option>
+                        <option>刷卡(含行動支付)</option>
+                        <option>ATM</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <span class="label">退票日期：</span>
+                    <input type="date"> ～ <input type="date">
+                </div>
+                <div class="button-area">
+                    <input type="button" value="查詢">
+                </div>
+            </div>
+            <div class="section query2">
+                <div class="section-title">
+                    查詢結果<br>退款單號：P56704589<br>處理狀態：申請中<br>退票日期：2025/12/01~12/31<br>取票狀態：未取<br>付款方式：ATM<br>共計：4筆，總金額：12,000，退票手續費：400，匯費：120，匯退總額：9,240
+                </div>
+                <div class="button-area">
+
+
+                </div>
+                <table>
+                    <tr>
+                        <th>退票日期</th>
+                        <th>演出節目</th>
+                        <th>取票狀態</th>
+                        <th>訂單編號</th>
+                        <th>張數</th>
+                        <th>總金額</th>
+                        <th>抵用金額</th>
+                        <th>退票手續費</th>
+                        <th>匯費</th>
+                        <th>匯款金額</th>
+                        <th>代收代號</th>
+                        <th>銀行名稱</th>
+                        <th>銀行代碼</th>
+                        <th>分行名稱</th>
+                        <th>戶名</th>
+                        <th>帳號</th>
+                        <th>退票發票</th>
+                        <th>匯退日期</th>
+                        <th>手機號碼</th>
+                        <th>操作</th>
+                    </tr>
+                    <tr>
+                        <td>2025/12/22</td>
+                        <td>藍寶石歌廳秀</td>
+                        <td>未取</td>
+                        <td>A1234567890123</td>
+                        <td>3</td>
+                        <td>3000</td>
+                        <td>100</td>
+                        <td>300</td>
+                        <td>30</td>
+                        <td>2560</td>
+                        <td>N65</td>
+                        <td>中國信託</td>
+                        <td>822</td>
+                        <td>中原分行</td>
+                        <td>王美花</td>
+                        <td>6789879089</td>
+                        <td>二聯式雲端發票</td>
+                        <td>2026/01/20</td>
+                        <td>0987654321</td>
+                        <td><input type="button" value="預覽"></td>
+                    </tr>
+                    <tr>
+                        <td>2025/12/23</td>
+                        <td>藍寶石歌廳秀</td>
+                        <td>未取</td>
+                        <td>A1234567890123</td>
+                        <td>3</td>
+                        <td>3000</td>
+                        <td>100</td>
+                        <td>300</td>
+                        <td>30</td>
+                        <td>2560</td>
+                        <td>N65</td>
+                        <td>中國信託</td>
+                        <td>822</td>
+                        <td>三重分行</td>
+                        <td>江美雲</td>
+                        <td>7889879089</td>
+                        <td>二聯式雲端發票</td>
+                        <td>2026/01/20</td>
+                        <td>0987654321</td>
+                        <td><input type="button" value="預覽"></td>
+                    </tr>
+                    <tr>
+                        <td>2025/12/25</td>
+                        <td>統一獅中職36年</td>
+                        <td>未取</td>
+                        <td>A677887890123</td>
+                        <td>3</td>
+                        <td>3000</td>
+                        <td>100</td>
+                        <td>300</td>
+                        <td>30</td>
+                        <td>2560</td>
+                        <td>N65</td>
+                        <td>中國信託</td>
+                        <td>822</td>
+                        <td>中原分行</td>
+                        <td>高達花</td>
+                        <td>6789879089</td>
+                        <td>二聯式雲端發票</td>
+                        <td>2026/01/20</td>
+                        <td>0987654321</td>
+                        <td><input type="button" value="預覽"></td>
+                    </tr>
+                    <tr>
+                        <td>2025/12/23</td>
+                        <td>高雄櫻花季</td>
+                        <td>未取</td>
+                        <td>A3456667890112</td>
+                        <td>3</td>
+                        <td>2000</td>
+                        <td>100</td>
+                        <td>300</td>
+                        <td>30</td>
+                        <td>1560</td>
+                        <td>N76</td>
+                        <td>國泰世華</td>
+                        <td>013</td>
+                        <td>城東分行</td>
+                        <td>林小娟</td>
+                        <td>6789879089</td>
+                        <td>二聯式雲端發票</td>
+                        <td>2026/01/20</td>
+                        <td>0934654328</td>
+                        <td><input type="button" value="預覽"></td>
+                    </tr>
+                </table>
+                <div class="button-area">
+                    <input type="button" value="匯出退票檔">
+
+                </div>
+            </div>
+
+        </div><!-- 結束 page3 -->
+
+
+        <!-- ===== page4 ===== -->
+        <div id="page4" class="page">
+
+            <div class="section">
+                <div class="section-title">業務請款作業(申請中-業務可向財務申請退款)
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">查詢條件1-可查處理狀態(審核中/退款中/結案)</div>
+                <div class="form-row">
+                    <span class="label">請款單號：</span>
+                    <input type="text">
+                </div>
+                <div class="form-row">
+                    <span class="label">退款方式：</span>
+                    <select style="width: 211px; height: 28px">
+                        <option>全部</option>
+                        <option>刷退</option>
+                        <option>匯退</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <span class="label">折抵方式：</span>
+                    <select style="width: 211px; height: 28px">
+                        <option>全部</option>
+                        <option>無</option>
+                        <option>文化幣</option>
+                        <option>動滋券</option>
+                        <option>無+文化幣</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <span class="label">處理狀態：</span>
+                    <select style="width: 211px; height: 28px">
+                        <option>全部</option>
+                        <option>審核中</option>
+                        <option>退款中</option>
+                        <option>結案</option>
+                    </select>
+                </div>
+
+
+                <div class="form-row">
+                    <span class="label">請款日期：</span>
+                    <input type="date"> ～ <input type="date">
+                </div>
+                <div class="button-area">
+                    <input type="button" value="查詢">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">查詢結果<br>請款日期：2025/12/01~12/31<br>共計：4筆</div>
+                <div class="button-area">
+
+                </div>
+                <table>
+                    <tr>
+                        <th>請款日期</th>
+                        <th>請款單號</th>
+                        <th>取票狀態</th>
+                        <th>折抵方式</th>
+                        <th>退款方式</th>
+                        <th>總筆數</th>
+                        <th>退款總額</th>
+                        <th>退款日期</th>
+                        <th>處理進度</th>
+                        <th>操作</th>
+                    </tr>
+                    <tr>
+                        <td>2025/12/11</td>
+                        <td>P12345890</td>
+                        <td>未取</td>
+                        <td>無</td>
+                        <td>刷退</td>
+                        <td>3</td>
+                        <td>2560</td>
+                        <td>2025/12/20</td>
+                        <td>結案</td>
+                        <td><input type="button" value="預覽"></td>
+                    </tr>
+                    <tr>
+                        <td>2025/12/22</td>
+                        <td>P56704589</td>
+                        <td>未取</td>
+                        <td>動滋券</td>
+                        <td>ATM</td>
+                        <td>4</td>
+                        <td>3780</td>
+                        <td>2025/12/29</td>
+                        <td>退款中</td>
+                        <td><input type="button" value="預覽"></td>
+                    </tr>
+                    <tr>
+                        <td>2025/12/22</td>
+                        <td>P56345890</td>
+                        <td>未取</td>
+                        <td>文化幣</td>
+                        <td>ATM</td>
+                        <td>7</td>
+                        <td>4500</td>
+                        <td>2025/12/27</td>
+                        <td>審核中</td>
+                        <td>
+                            <input type="button" value="匯退單匯出" style="margin-right:10px;">
+                            <input type="button" value="sales note匯出" style="margin-right:10px;">
+                            <input type="button" value="取消">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025/12/22</td>
+                        <td>P78123434</td>
+                        <td>未取</td>
+                        <td>無+文化幣</td>
+                        <td>刷退</td>
+                        <td>10</td>
+                        <td>23,120</td>
+                        <td>2025/12/30</td>
+                        <td>審核中</td>
+                        <td><input type="button" value="取消"></td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="section">
+                <div class="section-title">查詢條件2-退款單號申請</div>
+
+                <div class="form-row">
+                    <span class="label">退款方式：</span>
+                    <select style="width: 211px; height: 28px">
+                        <option>全部</option>
+                        <option>刷退</option>
+                        <option>匯退</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <span class="label">取票狀態：</span>
+                    <select style="width: 211px; height: 28px">
+                        <option>全部</option>
+                        <option>已取</option>
+                        <option>未取</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <span class="label">折抵方式：</span>
+                    <select style="width: 211px; height: 28px">
+                        <option>無</option>
+                        <option>無+文化幣</option>
+                        <option>動滋券</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <span class="label">退票日期：</span>
+                    <input type="date"> ～ <input type="date">
+                </div>
+                <div class="button-area">
+                    <input type="button" value="查詢">
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">
+                    查詢結果<br>退款日期：2025/12/22<br>退款單號：P56704589<br>處理狀態：申請中<br>退票日期：2025/12/01~12/31<br>取票狀態：未取<br>付款方式：ATM<br>共計：4筆，總金額：12,000，退票手續費：400，匯費：120，匯退總額：9,240
+                </div>
+                <div class="button-area">
+
+
+                </div>
+                <table>
+                    <tr>
+                        <th>退票日期</th>
+                        <th>演出節目</th>
+                        <th>取票狀態</th>
+                        <th>訂單編號</th>
+                        <th>張數</th>
+                        <th>總金額</th>
+                        <th>抵用金額</th>
+                        <th>退票手續費</th>
+                        <th>匯費</th>
+                        <th>匯款金額</th>
+                        <th>代收代號</th>
+                        <th>銀行名稱</th>
+                        <th>銀行代碼</th>
+                        <th>分行名稱</th>
+                        <th>戶名</th>
+                        <th>帳號</th>
+                        <th>退票發票</th>
+                        <th>匯退日期</th>
+                        <th>手機號碼</th>
+
+                    </tr>
+                    <tr>
+                        <td>2025/12/22</td>
+                        <td>藍寶石歌廳秀</td>
+                        <td>未取</td>
+                        <td>A1234567890123</td>
+                        <td>3</td>
+                        <td>3000</td>
+                        <td>100</td>
+                        <td>300</td>
+                        <td>30</td>
+                        <td>2560</td>
+                        <td>N65</td>
+                        <td>中國信託</td>
+                        <td>822</td>
+                        <td>中原分行</td>
+                        <td>王美花</td>
+                        <td>6789879089</td>
+                        <td>二聯式雲端發票</td>
+                        <td>2026/01/20</td>
+                        <td>0987654321</td>
+
+                    </tr>
+                    <tr>
+                        <td>2025/12/23</td>
+                        <td>藍寶石歌廳秀</td>
+                        <td>未取</td>
+                        <td>A1234567890123</td>
+                        <td>3</td>
+                        <td>3000</td>
+                        <td>100</td>
+                        <td>300</td>
+                        <td>30</td>
+                        <td>2560</td>
+                        <td>N65</td>
+                        <td>中國信託</td>
+                        <td>822</td>
+                        <td>三重分行</td>
+                        <td>江美雲</td>
+                        <td>7889879089</td>
+                        <td>二聯式雲端發票</td>
+                        <td>2026/01/20</td>
+                        <td>0987654321</td>
+
+                    </tr>
+                    <tr>
+                        <td>2025/12/25</td>
+                        <td>統一獅中職36年</td>
+                        <td>未取</td>
+                        <td>A677887890123</td>
+                        <td>3</td>
+                        <td>3000</td>
+                        <td>100</td>
+                        <td>300</td>
+                        <td>30</td>
+                        <td>2560</td>
+                        <td>N65</td>
+                        <td>中國信託</td>
+                        <td>822</td>
+                        <td>中原分行</td>
+                        <td>高達花</td>
+                        <td>6789879089</td>
+                        <td>二聯式雲端發票</td>
+                        <td>2026/01/20</td>
+                        <td>0987654321</td>
+
+                    </tr>
+                    <tr>
+                        <td>2025/12/23</td>
+                        <td>高雄櫻花季</td>
+                        <td>未取</td>
+                        <td>A3456667890112</td>
+                        <td>3</td>
+                        <td>2000</td>
+                        <td>100</td>
+                        <td>300</td>
+                        <td>30</td>
+                        <td>1560</td>
+                        <td>N76</td>
+                        <td>國泰世華</td>
+                        <td>013</td>
+                        <td>城東分行</td>
+                        <td>林小娟</td>
+                        <td>6789879089</td>
+                        <td>二聯式雲端發票</td>
+                        <td>2026/01/20</td>
+                        <td>0934654328</td>
+
+                    </tr>
+                </table>
+                <div class="button-area">
+                    <input type="button" value="匯出退票檔">
+
+                </div>
+            </div>
+
+        </div><!-- 結束 page4 -->
+
+        <!-- ===== page5 ===== -->
+        <div id="page5" class="page">
+
+            <div class="section">
+                <div class="section-title">訂單查詢</div>
+                <div class="button-area">
+                    <input type="button" value="人工退票">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">查詢條件</div>
+                <div class="form-row">
+                    <span class="label">訂單編號：</span>
+                    <input type="text">
+                </div>
+                <div class="form-row">
+                    <span class="label">訂單日期：</span>
+                    <input type="date"> ～ <input type="date">
+                </div>
+                <div class="button-area">
+                    <input type="button" value="查詢">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">查詢結果</div>
+                <table>
+                    <tr>
+                        <th>訂單編號</th>
+                        <th>金額</th>
+                        <th>狀態</th>
+                        <th>操作</th>
+                    </tr>
+                    <tr>
+                        <td>123456</td>
+                        <td>$1,200</td>
+                        <td>成功</td>
+                        <td><input type="button" value="預覽"></td>
+                    </tr>
+                </table>
+            </div>
+        </div><!-- 結束 page5 -->
+
+        <script>
+            function switchPage(pageId, el) {
+                var pages = document.getElementsByClassName("page");
+                for (var i = 0; i < pages.length; i++) {
+                    pages[i].className = "page";
+                }
+                document.getElementById(pageId).className = "page active";
+
+                var menus = document.querySelectorAll(".menu li");
+                for (var j = 0; j < menus.length; j++) {
+                    menus[j].className = "";
+                }
+                el.className = "active";
+            }
+        </script>
+        <script>
+            function toggleCultureCoin(show) {
+                var area = document.getElementById("cultureCoinArea");
+                area.style.display = show ? "block" : "none";
+            }
+        </script>
+        <script>
+            /* ===== 新增活動 ===== */
+            function showAddEventForm() {
+                document.getElementById("addEventForm").style.display = "block";
+            }
+
+            function hideAddEventForm() {
+                document.getElementById("addEventForm").style.display = "none";
+            }
+
+            /* ===== 新增退票 ===== */
+            function showRefundForm() {
+                document.getElementById("refundFormSection").style.display = "block";
+            }
+
+            function hideRefundForm() {
+                document.getElementById("refundFormSection").style.display = "none";
+            }
+        </script>
+        <script>
+            function toggleRemark(show) {
+                const area = document.getElementById('remarkArea');
+                const input = document.getElementById('remarkInput');
+
+                if (show) {
+                    area.style.display = 'block';
+                    input.focus();
+                } else {
+                    area.style.display = 'none';
+                    input.value = '';
+                }
+            }
+        </script>
+        <script>
+            /* ===== 驗證邏輯: 退票活動查詢 ===== */
+            function validateActivitySearch() {
+                // 取得欄位
+                var keyword = document.getElementById("activityKeyword").value.trim();
+
+                // 檢查長度 (限6個字)
+                if (keyword.length > 6) {
+                    alert("關鍵字不能超過6個字 (含中英文及符號)");
+                } else {
+                    alert("搜尋中...");
+                    // 實際送出表單的程式碼可寫在這裡
+                }
+            }
+        </script>
+        <script>
+            /* ===== 退票訂單處理邏輯 ===== */
+            var originalAtmFee = 30; // 假設初始匯費 (可從 input 讀取)
+
+            function updateAtmFee(method) {
+                var atmFeeInput = document.getElementById("inputAtmFee");
+                if (!atmFeeInput) return;
+
+                // 從 input 讀取初始值 (若未使用預設變數，可改為每次 toggle 前後的計算)
+                // 這裡採用簡單邏輯：匯退=基礎+30, 刷退=基礎
+                // 為避免重複加減，可以先重置回基礎，再判斷
+
+                // 假設基礎匯費是 input 當前值減去(如果是匯退狀態)
+                // 但因為我們沒有儲存狀態，這裡使用最簡單的 Toggle 邏輯：
+                // 若選匯退 -> 加上 30 (如果是從刷退切過來)
+                // 但為了精確，建議鎖定一個基準值。
+
+                var currentFee = parseInt(atmFeeInput.value) || 0;
+
+                if (method === 'wallet') {
+                    // 切換到匯退 -> +30
+                    // 為避免重複加，檢查是否已經加過 (這在純前端較難判斷，除非存 global variable)
+                    // 這裡邏輯：刷退(基準) -> 匯退(+30)
+                    // 假設預設是刷退(或者無)，Fee是基準。
+                    // 我們用一個簡單方式：如果切換到匯退，就設為 60 (30+30)，刷退設為 30
+                    // 依據畫面上預設是 30。
+
+                    atmFeeInput.value = 60; // 30 + 30
+                } else {
+                    // 切換到刷退
+                    atmFeeInput.value = 30; // 還原
+                }
+            }
+
+            function validateRefundOrder() {
+                // 1. 檢查退款方式
+                var method = document.querySelector('input[name="refundMethod"]:checked');
+                if (!method) {
+                    alert("請選擇退款方式");
+                    return;
+                }
+
+                // 2. 若為匯退 (wallet)，檢查銀行資訊必填
+                if (method.value === 'wallet') {
+                    var bankCode = document.getElementById("bankCode").value;
+                    var bankName = document.getElementById("bankName").value;
+                    var bankBranch = document.getElementById("bankBranch").value;
+                    var accName = document.getElementById("bankAccountName").value;
+                    var accNo = document.getElementById("bankAccountNo").value;
+
+                    if (bankCode === "" || bankName === "" || bankBranch === "" || accName === "" || accNo === "") {
+                        alert("選擇「匯退」時，退款帳號資訊為必填！");
+                        return;
+                    }
+                }
+
+                alert("儲存成功！");
+                // document.forms[0].submit();
+            }
+        </script>
+</body>
+
+</html>
