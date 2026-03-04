@@ -519,7 +519,7 @@ async function main() {
                             <tr>
                                 <th style="width: 80px; text-align: center;">排名</th>
                                 <th>節目名稱 (Content Name)</th>
-                                <th style="width: 15%; color: #bbf7d0;">Attribution ID</th>
+                                <th style="width: 15%; color: #bbf7d0;">節目ID</th>
                                 <th style="text-align: right;">瀏覽量 (Page Views)</th>
                                 <th style="text-align: right; width: 120px;">佔比</th>
                             </tr>
@@ -546,7 +546,7 @@ async function main() {
         const top10Data = ${JSON.stringify(top10.map(t => t.totalViews))};
 
         function exportRawData() {
-            let csvContent = "\\uFEFF節目名稱,Attribution ID,日期,瀏覽量\\n";
+            let csvContent = "\\uFEFF節目名稱,節目ID,日期,瀏覽量\\n";
             for (let i = 0; i < rawData.length; i++) {
                 let item = rawData[i];
                 let safeName = item.name.replace(/"/g, '""');
