@@ -126,7 +126,8 @@ async function main() {
 
 
             let monthDisplay = s.month;
-            if (s.month === '2026-02') {
+            const currentMonthStr = new Date().toISOString().substring(0, 7);
+            if (s.month === currentMonthStr) {
                 monthDisplay += '<br><span style="font-size: 0.75em; color: var(--text-secondary);">(部份數據)</span>';
             }
 

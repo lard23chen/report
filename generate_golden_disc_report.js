@@ -35,6 +35,9 @@ async function generateReport() {
         const gaSessions = await db.collection("QwareTrafficSession").find({ ActivityID: topEventId }).toArray();
         const gaReads = await db.collection("QwareTrafficGAReadTime").find({ ActivityID: topEventId }).toArray();
 
+        console.log("Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...");
+        const pageViews = await db.collection("Qware_A_Traffic_session_data").find({ '節目名稱': TARGET_NAME }).toArray();
+
         // Map member nationality
         console.log("Fetching Member Data for Nationalities...");
         const memberIds = [...new Set(data.map(d => d['會員編號']).filter(id => id && id !== '-'))];
@@ -444,6 +447,7 @@ async function generateReport() {
     const sectionData = ${JSON.stringify(sectionData)};
     const gaSessions = ${JSON.stringify(gaSessions)};
     const gaReads = ${JSON.stringify(gaReads)};
+    const pageViews = ${JSON.stringify(pageViews)};
 
     function init() {
         // Filter Valid Orders
@@ -483,13 +487,26 @@ async function generateReport() {
         
         // 1. Daily Trend
         const salesByDate = {}; // { YYYY-MM-DD: tickets }
+        const viewsByDate = {}; // { YYYY-MM-DD: views }
+
         validOrders.forEach(o => {
             if(!o['交易時間']) return;
             const date = o['交易時間'].split(' ')[0];
             salesByDate[date] = (salesByDate[date] || 0) + 1; // 銷售張數
         });
-        const dates = Object.keys(salesByDate).sort();
-        const dailyTickets = dates.map(d => salesByDate[d]);
+
+        pageViews.forEach(v => {
+            if (!v['瀏覽日期']) return;
+            const dStr = typeof v['瀏覽日期'] === 'string' ? v['瀏覽日期'] : new Date(v['瀏覽日期']).toISOString();
+            const date = dStr.split('T')[0];
+            viewsByDate[date] = (viewsByDate[date] || 0) + (parseInt(v['瀏覽量']) || 0);
+        });
+
+        const allDatesSet = new Set([...Object.keys(salesByDate), ...Object.keys(viewsByDate)]);
+        const dates = Array.from(allDatesSet).sort();
+        
+        const dailyTickets = dates.map(d => salesByDate[d] || 0);
+        const dailyViews = dates.map(d => viewsByDate[d] || 0);
 
         // 2. Section Distribution
         const sectionStats = {};
@@ -611,33 +628,77 @@ async function generateReport() {
             type: 'line',
             data: {
                 labels: dates,
-                datasets: [{
-                    label: '張數 (Tickets)',
-                    data: dailyTickets,
-                    borderColor: '#ffd700',
-                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                    tension: 0.3,
-                    fill: true,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
+                datasets: [
+                    {
+                        label: '瀏覽量 (Page Views)',
+                        data: dailyViews,
+                        borderColor: '#42A5F5',
+                        backgroundColor: 'rgba(66, 165, 245, 0.1)',
+                        borderDash: [5, 5],
+                        tension: 0.3,
+                        fill: false,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: '銷售張數 (Tickets)',
+                        data: dailyTickets,
+                        borderColor: '#ffd700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        yAxisID: 'y'
+                    }
+                ]
             },
             plugins: [ChartDataLabels],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { 
-                    legend: { display: false },
+                    legend: { display: true, labels: { color: '#ccc' } },
                     datalabels: {
                         color: '#eee',
                         align: 'top',
-                        font: { weight: 'bold' },
-                        formatter: Math.round
+                        font: { weight: 'bold', size: 10 },
+                        formatter: function(value, context) {
+                            if (value === 0) return '';
+                            if (context.datasetIndex === 0) { // Page views
+                                if (value >= 1000000) return (value/1000000).toFixed(1) + 'M';
+                                if (value >= 1000) return (value/1000).toFixed(1) + 'k';
+                            }
+                            return Math.round(value);
+                        }
                     }
                 },
                 scales: {
                     x: { grid: { color: '#333' }, ticks: { color: '#888' } },
-                    y: { grid: { color: '#333' }, ticks: { color: '#888' } }
+                    y: { 
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Ticket Sales', color: '#ffd700' },
+                        grid: { color: '#333' }, 
+                        ticks: { color: '#ffd700' } 
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Page Views', color: '#42A5F5' },
+                        grid: { drawOnChartArea: false }, 
+                        ticks: { 
+                            color: '#42A5F5',
+                            callback: function(value) {
+                                if(value >= 1000000) return value/1000000 + 'M';
+                                if(value >= 1000) return value/1000 + 'k';
+                                return value;
+                            }
+                        } 
+                    }
                 }
             }
         });

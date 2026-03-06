@@ -1004,8 +1004,8 @@ async function generateReportForMonth(targetMonth) {
 </html>
         `;
 
-        const reportFileName = `Qware_Revenue_Report_${fileTitle.replace(/ /g, '_')}.html`;
-        const outputPath = path.join(__dirname, 'report', reportFileName);
+        const reportFileName = `A_Qware_Revenue_Report_${fileTitle.replace(/ /g, '_')}.html`;
+        const outputPath = path.join(__dirname, reportFileName);
         fs.writeFileSync(outputPath, htmlContent);
         console.log(`Report generated: ${reportFileName}`);
 

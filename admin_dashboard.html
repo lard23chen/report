@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>點餐系統後台管理</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #F3F4F6;
+            --sidebar-bg: #1F2937;
+            --text-main: #111827;
+            --text-light: #6B7280;
+            --border-color: #E5E7EB;
+            --white: #FFFFFF;
+            --danger: #EF4444;
+            --success: #10B981;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Microsoft JhengHei';
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-bottom: 1px solid #374151;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .menu li {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #D1D5DB;
+        }
+
+        .menu li:hover,
+        .menu li.active {
+            background-color: #374151;
+            color: var(--white);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-section h2 {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 1.8rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-edit {
+            background-color: #F59E0B;
+            color: var(--white);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* Table */
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #F8FAFC;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #F9FAFB;
+        }
+
+        .tag {
+            padding: 4px 8px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tag-meal {
+            background: #E0E7FF;
+            color: #4338CA;
+        }
+
+        .tag-drink {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Modal (CRUD) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-cancel {
+            background: #E5E7EB;
+            color: #374151;
+        }
+
+        .btn-cancel:hover {
+            background: #D1D5DB;
+        }
+
+        /* Filter bar */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-bar select {
+            padding: 8px 30px 8px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--white);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            ☕ 績效餐點系統後台
+        </div>
+        <ul class="menu">
+            <li class="active" onclick="switchTab('orders')"><i class="fas fa-list-alt"></i> 點餐明細管理</li>
+            <li onclick="switchTab('menu')"><i class="fas fa-utensils"></i> 餐點選項設定</li>
+            <li onclick="switchTab('staff')"><i class="fas fa-users"></i> 人員清單維護</li>
+            <li><i class="fas fa-cog"></i> 系統設定</li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Header -->
+        <div class="header-section">
+            <h2>點餐明細管理 (CRUD)</h2>
+            <button class="btn btn-primary" onclick="openModal('add')">
+                <i class="fas fa-plus"></i> 新增訂單
+            </button>
+        </div>
+
+        <!-- Filter Area -->
+        <div class="filter-bar">
+            <select id="dateFilter">
+                <option value="all">所有日期</option>
+                <option value="0306" selected>03/06 (即將到來)</option>
+                <option value="0206">02/06 (過去記錄)</option>
+            </select>
+            <select id="mealFilter">
+                <option value="all">所有主食</option>
+                <option value="meal">排骨特餐</option>
+                <option value="meal">雞腿特餐</option>
+            </select>
+        </div>
+
+        <!-- Data Table -->
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>人員名稱</th>
+                        <th>主食選項 (EAT)</th>
+                        <th>飲料選項 (DRINK)</th>
+                        <th>點餐日期</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="orderTableBody">
+                    <!-- 預設載入 03/06 的資料呈現 -->
+                    <tr>
+                        <td>1</td>
+                        <td>高念平</td>
+                        <td><span class="tag tag-meal">3.排骨特餐</span></td>
+                        <td><span class="tag tag-drink">A.青四季春無糖微冰</span></td>
+                        <td>03/06</td>
+                        <td class="actions">
+                            <button class="btn btn-edit" onclick="openModal('edit', this)"><i
+                                    class="fas fa-pen"></i></button>
+                            <button class="btn btn-danger" onclick="deleteRow(this)"><i
+                                    class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>游國楷</td>
+                        <td><span class="tag tag-meal">3.排骨特餐</span></td>
+                        <td><span class="tag tag-drink">C.珍珠奶茶微糖微冰</span></td>
+                        <td>03/06</td>
+                        <td class="actions">
+                            <button class="btn btn-edit" onclick="openModal('edit', this)"><i
+                                    class="fas fa-pen"></i></button>
+                            <button class="btn btn-danger" onclick="deleteRow(this)"><i
+                                    class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>謝楷評</td>
+                        <td><span class="tag tag-meal">2.雞腿特餐</span></td>
+                        <td><span class="tag tag-drink">B.紅柚翡翠微糖微冰</span></td>
+                        <td>03/06</td>
+                        <td class="actions">
+                            <button class="btn btn-edit" onclick="openModal('edit', this)"><i
+                                    class="fas fa-pen"></i></button>
+                            <button class="btn btn-danger" onclick="deleteRow(this)"><i
+                                    class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>陳春惠</td>
+                        <td><span class="tag tag-meal">2.雞腿特餐</span></td>
+                        <td><span class="tag tag-drink">B.紅柚翡翠微糖微冰</span></td>
+                        <td>03/06</td>
+                        <td class="actions">
+                            <button class="btn btn-edit" onclick="openModal('edit', this)"><i
+                                    class="fas fa-pen"></i></button>
+                            <button class="btn btn-danger" onclick="deleteRow(this)"><i
+                                    class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal (Add/Edit Form) -->
+    <div class="modal-overlay" id="crudModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modalTitle">新增人員點餐</span>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label>人員名稱</label>
+                <select id="staffSelect">
+                    <option>高念平</option>
+                    <option>游國楷</option>
+                    <option>謝楷評</option>
+                    <option>陳春惠</option>
+                    <option>薛仁奇</option>
+                    <option>劉道鈞</option>
+                    <option>李佳馨</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>點餐日期區間</label>
+                <select id="dateSelect">
+                    <option value="0306">03/06</option>
+                    <option value="0206">02/06</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>選擇主食 (EAT)</label>
+                <select id="mealSelect">
+                    <option>1.招牌特餐</option>
+                    <option>2.雞腿特餐</option>
+                    <option>3.排骨特餐</option>
+                    <option>4.叉燒特餐</option>
+                    <option>素食</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>選擇飲料 (DRINK)</label>
+                <select id="drinkSelect">
+                    <option>A.青四季春無糖微冰</option>
+                    <option>B.紅柚翡翠微糖微冰</option>
+                    <option>C.珍珠奶茶微糖微冰</option>
+                    <option>不需飲料</option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveData()">儲存更新</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Control Function
+        const modal = document.getElementById('crudModal');
+        const modalTitle = document.getElementById('modalTitle');
+        let currentRow = null;
+
+        function openModal(mode, btn = null) {
+            modal.classList.add('active');
+            if (mode === 'add') {
+                modalTitle.innerText = "新增人員點餐";
+                currentRow = null;
+                // reset form values
+            } else if (mode === 'edit') {
+                modalTitle.innerText = "修改點餐內容";
+                currentRow = btn.closest('tr');
+
+                // Get values from table and set to select inputs (Simulation)
+                const cells = currentRow.getElementsByTagName('td');
+                document.getElementById('staffSelect').value = cells[1].innerText;
+                document.getElementById('dateSelect').value = cells[4].innerText.replace('/', '');
+            }
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // JS Simulated CRUD 
+        function saveData() {
+            const staff = document.getElementById('staffSelect').value;
+            const meal = document.getElementById('mealSelect').value;
+            const drink = document.getElementById('drinkSelect').value;
+            const dateStr = document.getElementById('dateSelect').options[document.getElementById('dateSelect').selectedIndex].text;
+
+            if (currentRow) {
+                // UPDATE action
+                const cells = currentRow.getElementsByTagName('td');
+                cells[1].innerText = staff;
+                cells[2].innerHTML = \`<span class="tag tag-meal">\${meal}</span>\`;
+                cells[3].innerHTML = \`<span class="tag tag-drink">\${drink}</span>\`;
+                cells[4].innerText = dateStr;
+            } else {
+                // CREATE action
+                const tbody = document.getElementById('orderTableBody');
+                const nextId = tbody.rows.length + 1;
+                const newRow = \`
+                    <tr>
+                        <td>\${nextId}</td>
+                        <td>\${staff}</td>
+                        <td><span class="tag tag-meal">\${meal}</span></td>
+                        <td><span class="tag tag-drink">\${drink}</span></td>
+                        <td>\${dateStr}</td>
+                        <td class="actions">
+                            <button class="btn btn-edit" onclick="openModal('edit', this)"><i class="fas fa-pen"></i></button>
+                            <button class="btn btn-danger" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                \`;
+                tbody.insertAdjacentHTML('beforeend', newRow);
+            }
+            closeModal();
+        }
+
+        function deleteRow(btn) {
+            // DELETE action
+            if (confirm("確定要刪除這筆報名資料嗎？")) {
+                const row = btn.closest('tr');
+                row.remove();
+            }
+        }
+
+        // Basic Tab Switch UI function
+        function switchTab(tab) {
+            document.querySelectorAll('.menu li').forEach(li => li.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // 這裡可以透過 JS 來抽換 \`.main-content\` 的 HTML 結構
+            // 若選擇「餐點選項設定」，就可以顯示 Meal/Drink 的 CRUD Table。
+        }
+    </script>
+</body>
+
+</html>
