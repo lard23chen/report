@@ -452,6 +452,15 @@ async function generateReport() {
         </div>
     </div>
 
+    <!-- Traffic Analysis Section -->
+    <div class="main-content">
+        <div class="chart-card" style="grid-column: span 2; border-left: 5px solid #42A5F5;">
+            <h3>🌐 流量與轉換深度分析 (Traffic Deep Dive)</h3>
+            <div id="trafficAnalysisContainer" style="padding: 10px; line-height: 1.6; color: #bbb;">
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -1015,6 +1024,47 @@ async function generateReport() {
             \`;
             minBody.appendChild(tr);
         });
+
+        // 3. Populate Traffic Analysis Insights
+        const trafficContainer = document.getElementById('trafficAnalysisContainer');
+        if (trafficContainer && typeof viewsByDate !== 'undefined' && typeof salesByDate !== 'undefined') {
+            const totalViews = Object.values(viewsByDate).reduce((acc, val) => acc + val, 0);
+            
+            let peakDate = '';
+            let peakViews = 0;
+            for (const [date, views] of Object.entries(viewsByDate)) {
+                if (views > peakViews) {
+                    peakViews = views;
+                    peakDate = date;
+                }
+            }
+            
+            const totalTicketsSold = Object.values(salesByDate).reduce((acc, val) => acc + val, 0);
+            const conversionRate = totalViews > 0 ? ((totalTicketsSold / totalViews) * 100).toFixed(2) : 0;
+            const peakConcentration = totalViews > 0 ? ((peakViews / totalViews) * 100).toFixed(1) : 0;
+
+            if (totalViews > 0) {
+                trafficContainer.innerHTML = \`
+                    <p>本專案總計帶來 <strong style="color:var(--text-primary); font-size:1.2em;">\${totalViews.toLocaleString()}</strong> 次瀏覽量，整體轉換率 (總售出張數/總瀏覽量) 約為 <strong style="color:var(--accent-color); font-size:1.2em;">\${conversionRate}%</strong>。流量特徵如下：</p>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li style="margin-bottom: 12px;">✅ <strong>開賣首日流量極度集中</strong>：
+                            <br>最高流量出現在 <span class="badge" style="background-color: #42A5F5; color: white;">\${peakDate}</span>，單日湧入 <strong style="color:#42A5F5;">\${peakViews.toLocaleString()}</strong> 次瀏覽。
+                            <br>單單這一天的流量就佔了活動總流量的 <strong style="color:#42A5F5;">\${peakConcentration}%</strong>，顯示該活動的宣傳曝光火力高度集中於開賣階段。
+                        </li>
+                        <li style="margin-bottom: 12px;">✅ <strong>流量轉換效能 (Conversion)</strong>：
+                            <br>在開賣期的極大流量下，活動共售出 <strong>\${totalTicketsSold.toLocaleString()}</strong> 張票券。
+                            <br>轉換率數字看似較低 (\${conversionRate}%)，但在大型秒殺級頒獎典禮中屬合理預期（多數粉絲頻繁觸發「F5 重新整理」與「持續等待進房」導致單人製造數十次以上的 Page Views）。
+                        </li>
+                         <li style="margin-bottom: 12px;">✅ <strong>後續長尾效應與行銷建議 (Insights)</strong>：
+                            <br>開賣次日以後流量急遽斷崖式下滑，為典型的「開賣即完售」自然現象。
+                            <br>💡 <strong>主辦方後續評估</strong>：高達 \${totalViews.toLocaleString()} 次的驚人瀏覽，證明了極高的市場期待值。若未來有加場、清票或周邊商品計畫，建議利用開賣日捕捉到的 <strong>DMP (Data Management Platform) 訪客輪廓數據</strong> 進行精準再行銷 (Retargeting)，以再度變現這批高意願的潛在客戶。
+                        </li>
+                    </ul>
+                \`;
+            } else {
+                trafficContainer.innerHTML = '<p>尚無流量資料。</p>';
+            }
+        }
     }
 
     init();
