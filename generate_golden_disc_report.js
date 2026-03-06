@@ -323,23 +323,25 @@ async function generateReport() {
 
     <!-- Main Trend & Payment Analysis -->
     <div class="main-content">
-        <!-- Page Views Chart -->
-        <div class="chart-card" style="grid-column: span 2;">
-            <h3 style="border-left-color: #42A5F5;">每日瀏覽量趨勢 (Daily Page Views)</h3>
-            <div style="height: 350px;">
-                <canvas id="viewChart"></canvas>
+        <!-- Left Column: Both Charts -->
+        <div style="display: flex; flex-direction: column; gap: 25px;">
+            <!-- Page Views Chart -->
+            <div class="chart-card">
+                <h3 style="border-left-color: #42A5F5;">每日瀏覽量趨勢 (Daily Page Views)</h3>
+                <div style="height: 280px;">
+                    <canvas id="viewChart"></canvas>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div class="main-content">
-        <!-- Main Trend Chart -->
-        <div class="chart-card">
-            <h3>每日銷售趨勢 (Sales Trend)</h3>
-            <div style="height: 350px;">
-                <canvas id="trendChart"></canvas>
+            <!-- Main Trend Chart -->
+            <div class="chart-card">
+                <h3>每日銷售趨勢 (Sales Trend)</h3>
+                <div style="height: 280px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
             </div>
         </div>
+        
         
         <!-- Payment Methods Table -->
         <div class="chart-card">
@@ -683,7 +685,10 @@ async function generateReport() {
                                 if(value >= 1000) return value/1000 + 'k';
                                 return value;
                             }
-                        } 
+                        },
+                        afterFit: function(axis) {
+                            axis.width = 60;
+                        }
                     }
                 }
             }
@@ -730,7 +735,10 @@ async function generateReport() {
                         display: true,
                         position: 'left',
                         grid: { color: '#333' }, 
-                        ticks: { color: '#ffd700' } 
+                        ticks: { color: '#ffd700' },
+                        afterFit: function(axis) {
+                            axis.width = 60;
+                        }
                     }
                 }
             }
