@@ -323,6 +323,16 @@ async function generateReport() {
 
     <!-- Main Trend & Payment Analysis -->
     <div class="main-content">
+        <!-- Page Views Chart -->
+        <div class="chart-card" style="grid-column: span 2;">
+            <h3 style="border-left-color: #42A5F5;">每日瀏覽量趨勢 (Daily Page Views)</h3>
+            <div style="height: 350px;">
+                <canvas id="viewChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
         <!-- Main Trend Chart -->
         <div class="chart-card">
             <h3>每日銷售趨勢 (Sales Trend)</h3>
@@ -623,8 +633,8 @@ async function generateReport() {
 
         // --- Render Charts ---
 
-        // Trend Chart
-        new Chart(document.getElementById('trendChart'), {
+        // Page Views Chart
+        new Chart(document.getElementById('viewChart'), {
             type: 'line',
             data: {
                 labels: dates,
@@ -634,23 +644,10 @@ async function generateReport() {
                         data: dailyViews,
                         borderColor: '#42A5F5',
                         backgroundColor: 'rgba(66, 165, 245, 0.1)',
-                        borderDash: [5, 5],
-                        tension: 0.3,
-                        fill: false,
-                        pointRadius: 3,
-                        pointHoverRadius: 5,
-                        yAxisID: 'y1'
-                    },
-                    {
-                        label: '銷售張數 (Tickets)',
-                        data: dailyTickets,
-                        borderColor: '#ffd700',
-                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
                         tension: 0.3,
                         fill: true,
                         pointRadius: 4,
-                        pointHoverRadius: 6,
-                        yAxisID: 'y'
+                        pointHoverRadius: 6
                     }
                 ]
             },
@@ -659,17 +656,15 @@ async function generateReport() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { 
-                    legend: { display: true, labels: { color: '#ccc' } },
+                    legend: { display: false },
                     datalabels: {
                         color: '#eee',
                         align: 'top',
                         font: { weight: 'bold', size: 10 },
                         formatter: function(value, context) {
                             if (value === 0) return '';
-                            if (context.datasetIndex === 0) { // Page views
-                                if (value >= 1000000) return (value/1000000).toFixed(1) + 'M';
-                                if (value >= 1000) return (value/1000).toFixed(1) + 'k';
-                            }
+                            if (value >= 1000000) return (value/1000000).toFixed(1) + 'M';
+                            if (value >= 1000) return (value/1000).toFixed(1) + 'k';
                             return Math.round(value);
                         }
                     }
@@ -680,16 +675,7 @@ async function generateReport() {
                         type: 'linear',
                         display: true,
                         position: 'left',
-                        title: { display: true, text: 'Ticket Sales', color: '#ffd700' },
                         grid: { color: '#333' }, 
-                        ticks: { color: '#ffd700' } 
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: { display: true, text: 'Page Views', color: '#42A5F5' },
-                        grid: { drawOnChartArea: false }, 
                         ticks: { 
                             color: '#42A5F5',
                             callback: function(value) {
@@ -698,6 +684,53 @@ async function generateReport() {
                                 return value;
                             }
                         } 
+                    }
+                }
+            }
+        });
+
+        // Trend Chart (Tickets)
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: '銷售張數 (Tickets)',
+                        data: dailyTickets,
+                        borderColor: '#ffd700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#eee',
+                        align: 'top',
+                        font: { weight: 'bold', size: 10 },
+                        formatter: function(value, context) {
+                            if (value === 0) return '';
+                            return Math.round(value);
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: '#333' }, ticks: { color: '#888' } },
+                    y: { 
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        grid: { color: '#333' }, 
+                        ticks: { color: '#ffd700' } 
                     }
                 }
             }
