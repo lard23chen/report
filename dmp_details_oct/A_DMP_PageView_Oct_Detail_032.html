@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MilkLove：LOVE SIGNAL In Taipei - 流量趨勢分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --glass-bg: rgba(15, 23, 42, 0.6);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 40px 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; }
+        .header h1 { font-size: 2rem; color: #a78bfa; margin-bottom: 10px; }
+        .header p { color: var(--text-secondary); font-size: 1.1rem; }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-container { height: 350px; width: 100%; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: right; padding: 12px; color: var(--text-secondary); border-bottom: 2px solid rgba(255,255,255,0.1); }
+        th:first-child { text-align: center; }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        tr:hover { background-color: rgba(255,255,255,0.03); }
+        
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.1); color: #fff;
+            text-decoration: none; padding: 10px 20px; border-radius: 8px;
+            margin-bottom: 20px; transition: 0.2s;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="#" onclick="window.close(); return false;" class="btn-back">✖ 關閉視窗</a>
+        <div class="header">
+            <h1>MilkLove：LOVE SIGNAL In Taipei</h1>
+            <p>2025年10月 每日流量趨勢 (總瀏覽量: 1,313)</p>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #60a5fa;">每日瀏覽量趨勢</h3>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #a78bfa;">每日數據明細</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">日期 (Date)</th>
+                        <th style="width: 30%;">瀏覽量 (Page Views)</th>
+                        <th style="width: 30%;">佔比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td style="text-align: center;">2025-10-01</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">25</td>
+                    <td style="text-align: right; color: var(--text-secondary);">1.90%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-02</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">29</td>
+                    <td style="text-align: right; color: var(--text-secondary);">2.21%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-03</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">61</td>
+                    <td style="text-align: right; color: var(--text-secondary);">4.65%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-04</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">48</td>
+                    <td style="text-align: right; color: var(--text-secondary);">3.66%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-05</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">165</td>
+                    <td style="text-align: right; color: var(--text-secondary);">12.57%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-06</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">48</td>
+                    <td style="text-align: right; color: var(--text-secondary);">3.66%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-07</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">58</td>
+                    <td style="text-align: right; color: var(--text-secondary);">4.42%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-08</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">45</td>
+                    <td style="text-align: right; color: var(--text-secondary);">3.43%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-09</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">63</td>
+                    <td style="text-align: right; color: var(--text-secondary);">4.80%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-10</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">41</td>
+                    <td style="text-align: right; color: var(--text-secondary);">3.12%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-11</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">50</td>
+                    <td style="text-align: right; color: var(--text-secondary);">3.81%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-12</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">104</td>
+                    <td style="text-align: right; color: var(--text-secondary);">7.92%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-13</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">71</td>
+                    <td style="text-align: right; color: var(--text-secondary);">5.41%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-14</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">42</td>
+                    <td style="text-align: right; color: var(--text-secondary);">3.20%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-15</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">77</td>
+                    <td style="text-align: right; color: var(--text-secondary);">5.86%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-16</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">55</td>
+                    <td style="text-align: right; color: var(--text-secondary);">4.19%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-17</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">69</td>
+                    <td style="text-align: right; color: var(--text-secondary);">5.26%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-18</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">160</td>
+                    <td style="text-align: right; color: var(--text-secondary);">12.19%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-19</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">102</td>
+                    <td style="text-align: right; color: var(--text-secondary);">7.77%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-20</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-21</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-22</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-23</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-24</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-25</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-26</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-27</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-28</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-29</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-30</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2025-10-31</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 400;">0</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.00%</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        const labels = ["2025-10-01","2025-10-02","2025-10-03","2025-10-04","2025-10-05","2025-10-06","2025-10-07","2025-10-08","2025-10-09","2025-10-10","2025-10-11","2025-10-12","2025-10-13","2025-10-14","2025-10-15","2025-10-16","2025-10-17","2025-10-18","2025-10-19","2025-10-20","2025-10-21","2025-10-22","2025-10-23","2025-10-24","2025-10-25","2025-10-26","2025-10-27","2025-10-28","2025-10-29","2025-10-30","2025-10-31"];
+        const data = [25,29,61,48,165,48,58,45,63,41,50,104,71,42,77,55,69,160,102,0,0,0,0,0,0,0,0,0,0,0,0];
+
+        Chart.register(ChartDataLabels);
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Page Views',
+                    data: data,
+                    borderColor: '#a78bfa',
+                    backgroundColor: 'rgba(167, 139, 250, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#a78bfa',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#f8fafc',
+                        align: 'top',
+                        offset: 4,
+                        font: { size: 10 },
+                        formatter: val => val > 0 ? val.toLocaleString() : ''
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } } }
+                },
+                layout: { padding: { top: 20 } }
+            }
+        });
+    </script>
+</body>
+</html>
