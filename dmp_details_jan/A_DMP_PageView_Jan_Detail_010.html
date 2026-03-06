@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPBL例行賽　福爾摩沙夢想家主場 - 流量趨勢分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --glass-bg: rgba(15, 23, 42, 0.6);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 40px 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; }
+        .header h1 { font-size: 2rem; color: #a78bfa; margin-bottom: 10px; }
+        .header p { color: var(--text-secondary); font-size: 1.1rem; }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-container { height: 350px; width: 100%; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: right; padding: 12px; color: var(--text-secondary); border-bottom: 2px solid rgba(255,255,255,0.1); }
+        th:first-child { text-align: center; }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        tr:hover { background-color: rgba(255,255,255,0.03); }
+        
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.1); color: #fff;
+            text-decoration: none; padding: 10px 20px; border-radius: 8px;
+            margin-bottom: 20px; transition: 0.2s;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="#" onclick="window.close(); return false;" class="btn-back">✖ 關閉視窗</a>
+        <div class="header">
+            <h1>TPBL例行賽　福爾摩沙夢想家主場</h1>
+            <p>2026年01月 每日流量趨勢 (總瀏覽量: 15,418)</p>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #60a5fa;">每日瀏覽量趨勢</h3>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #a78bfa;">每日數據明細</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">日期 (Date)</th>
+                        <th style="width: 30%;">瀏覽量 (Page Views)</th>
+                        <th style="width: 30%;">佔比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td style="text-align: center;">2026-01-01</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">25</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.16%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-02</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">51</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.33%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-03</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">58</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.38%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-04</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">99</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.64%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-05</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">2,357</td>
+                    <td style="text-align: right; color: var(--text-secondary);">15.29%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-06</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">453</td>
+                    <td style="text-align: right; color: var(--text-secondary);">2.94%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-07</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">8,964</td>
+                    <td style="text-align: right; color: var(--text-secondary);">58.14%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-08</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">521</td>
+                    <td style="text-align: right; color: var(--text-secondary);">3.38%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-09</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">216</td>
+                    <td style="text-align: right; color: var(--text-secondary);">1.40%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-10</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">187</td>
+                    <td style="text-align: right; color: var(--text-secondary);">1.21%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-11</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">147</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.95%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-12</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">174</td>
+                    <td style="text-align: right; color: var(--text-secondary);">1.13%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-13</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">133</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.86%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-14</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">93</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.60%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-15</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">83</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.54%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-16</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">107</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.69%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-17</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">224</td>
+                    <td style="text-align: right; color: var(--text-secondary);">1.45%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-18</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">192</td>
+                    <td style="text-align: right; color: var(--text-secondary);">1.25%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-19</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">97</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.63%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-20</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">76</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.49%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-21</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">59</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.38%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-22</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">69</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.45%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-23</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">54</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.35%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-24</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">77</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.50%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-25</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">62</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.40%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-26</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">204</td>
+                    <td style="text-align: right; color: var(--text-secondary);">1.32%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-27</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">83</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.54%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-28</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">80</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.52%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-29</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">135</td>
+                    <td style="text-align: right; color: var(--text-secondary);">0.88%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-30</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">154</td>
+                    <td style="text-align: right; color: var(--text-secondary);">1.00%</td>
+                </tr><tr>
+                    <td style="text-align: center;">2026-01-31</td>
+                    <td style="text-align: right; color: #60a5fa; font-weight: 600;">184</td>
+                    <td style="text-align: right; color: var(--text-secondary);">1.19%</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        const labels = ["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"];
+        const data = [25,51,58,99,2357,453,8964,521,216,187,147,174,133,93,83,107,224,192,97,76,59,69,54,77,62,204,83,80,135,154,184];
+
+        Chart.register(ChartDataLabels);
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Page Views',
+                    data: data,
+                    borderColor: '#a78bfa',
+                    backgroundColor: 'rgba(167, 139, 250, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#a78bfa',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#f8fafc',
+                        align: 'top',
+                        offset: 4,
+                        font: { size: 10 },
+                        formatter: val => val > 0 ? val.toLocaleString() : ''
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } } }
+                },
+                layout: { padding: { top: 20 } }
+            }
+        });
+    </script>
+</body>
+</html>
