@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台灣餐飲業智慧選址系統</title>
+    <title>全台商圈熱力地圖 | 智慧選址系統</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Chart.js -->
@@ -12,85 +14,158 @@
 </head>
 <body>
     <div class="dashboard">
-        <!-- 左側面板：篩選條件 -->
-        <aside class="sidebar">
-            <h2>🌍 智慧選址條件</h2>
+        <!-- 滿版地圖 -->
+        <div id="map"></div>
+
+        <!-- 頂部：數據鮮度 -->
+        <div class="data-freshness glass-panel">
+            <div class="status-dot"></div>
+            <span>Data updated 2 hrs ago</span>
+        </div>
+
+        <!-- 左側面板：圖層與條件控制 -->
+        <aside class="left-panel glass-panel">
+            <h2>🌍 商圈熱力地圖</h2>
             
-            <div class="form-group">
-                <label for="city">目標城市</label>
-                <select id="city">
-                    <option value="taipei">台北市</option>
-                    <option value="new_taipei">新北市</option>
-                    <option value="taichung">台中市</option>
-                    <option value="kaohsiung">高雄市</option>
-                </select>
+            <!-- 快捷導航 Chips -->
+            <div class="section-block">
+                <label>快速定位 (Hot Spots)</label>
+                <div class="chips-container">
+                    <button class="chip" data-lat="25.0422" data-lng="121.5080">西門町</button>
+                    <button class="chip" data-lat="25.0339" data-lng="121.5644">信義商圈</button>
+                    <button class="chip" data-lat="25.0569" data-lng="121.5098">大稻埕</button>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="district">行政區</label>
-                <select id="district">
-                    <option value="daan">大安區</option>
-                    <option value="xinyi">信義區</option>
-                    <option value="zhongshan">中山區</option>
-                </select>
+            <!-- 控制面板：下拉選單等 -->
+            <div class="section-block">
+                <div class="form-group">
+                    <label>區域選擇</label>
+                    <select id="district-select">
+                        <option value="daan">大安區</option>
+                        <option value="xinyi">信義區</option>
+                        <option value="zhongshan">中山區</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>業態選擇</label>
+                    <div class="segmented-control">
+                        <input type="radio" id="cat-cafe" name="category" value="cafe" checked>
+                        <label for="cat-cafe">☕ 咖啡廳</label>
+                        <input type="radio" id="cat-bar" name="category" value="bar">
+                        <label for="cat-bar">🍸 餐酒館</label>
+                        <input type="radio" id="cat-fast" name="category" value="fastfood">
+                        <label for="cat-fast">🍔 速食</label>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="restaurant-type">餐飲類型</label>
-                <select id="restaurant-type">
-                    <option value="cafe">咖啡廳 / 輕食</option>
-                    <option value="fastfood">速食 / 小吃</option>
-                    <option value="finedining">高價位餐廳</option>
-                    <option value="izakaya">居酒屋 / 酒吧</option>
-                </select>
+            <!-- 圖層開關 -->
+            <div class="section-block">
+                <label>疊加數據圖層 (Data Layers)</label>
+                <div class="layer-toggles">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="layer-density" checked>
+                        <span class="slider"></span>
+                        <span class="label-text">🔴 競爭密度層 (Heatmap)</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="layer-traffic">
+                        <span class="slider"></span>
+                        <span class="label-text">🟣 人流動能層 (Hexagon Binning)</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="layer-rent">
+                        <span class="slider"></span>
+                        <span class="label-text">💲 租金水位層 (Choropleth)</span>
+                    </label>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="budget">每月租金預算 (萬)</label>
-                <input type="range" id="budget" min="5" max="50" value="15" step="1">
-                <span id="budget-value">15 萬</span>
+            <!-- 捷運功能 -->
+            <div class="section-block">
+                <label>交通機能分析</label>
+                <button id="btn-isochrone" class="btn-primary">
+                    📍 繪製捷運站 5/10 分鐘步行圈 (Isochrone)
+                </button>
             </div>
-
-            <button id="analyze-btn" class="primary-btn">開始綜合分析</button>
-
-            <!-- 綜合評分結果區塊 -->
-            <div class="score-card" id="score-card" style="display: none;">
-                <h3>綜合選址評分</h3>
-                <div class="score-value" id="final-score">85</div>
-                <p>📍 建議：此區域年輕客群多，適合開設該類型餐廳，但競爭強度偏高。</p>
-            </div>
+            
         </aside>
 
-        <!-- 中間區域：地圖 -->
-        <main class="map-container">
-            <div id="map"></div>
-        </main>
+        <!-- 右側面板：區域側寫 (Detail Drawer) -->
+        <aside class="right-drawer glass-panel" id="right-drawer">
+            <button class="close-btn" id="close-drawer">✕</button>
+            <h2 id="profile-title">商圈區域側寫</h2>
+            <p class="subtitle" id="profile-subtitle">點擊地圖標記顯示詳細分析</p>
 
-        <!-- 右側面板：數據分析 -->
-        <aside class="analytics-panel">
-            <h2>📊 區域數據分析</h2>
-            
-            <div class="chart-container">
-                <canvas id="populationChart"></canvas>
+            <!-- 商圈健康度指標 -->
+            <div class="health-indicator">
+                <span>商圈健康度 (Saturation Index)</span>
+                <div class="traffic-light">
+                    <div class="light red"></div>
+                    <div class="light yellow"></div>
+                    <div class="light green active"></div>
+                </div>
             </div>
 
-            <div class="chart-container">
-                <canvas id="competitorChart"></canvas>
+            <div class="chart-box">
+                <canvas id="radarChart"></canvas>
             </div>
 
-            <div class="info-card">
-                <h4>周邊設施指標</h4>
-                <ul class="facility-list">
-                    <li>捷運站：<strong id="mrt-count">3</strong> 站</li>
-                    <li>辦公大樓：<strong id="office-count">12</strong> 棟</li>
-                    <li>學校：<strong id="school-count">2</strong> 所</li>
-                </ul>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">平均客單價</div>
+                    <div class="stat-value">NT$ 450</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">店面空置率</div>
+                    <div class="stat-value">4.2%</div>
+                </div>
             </div>
+
+            <button id="add-pk-btn" class="btn-outline">⚔️ 加入地點 PK 對比</button>
         </aside>
+
+        <!-- 下方面板：時間軸與 PK 對比清單 -->
+        <div class="bottom-panel glass-panel">
+            <div class="time-slider-container">
+                <label>人流時段切換</label>
+                <div class="time-slider-controls">
+                    <div class="segmented-control small">
+                        <input type="radio" id="day-work" name="day_type" value="weekday" checked>
+                        <label for="day-work">平日</label>
+                        <input type="radio" id="day-rest" name="day_type" value="weekend">
+                        <label for="day-rest">假日</label>
+                    </div>
+                    <input type="range" id="time-range" min="0" max="4" value="2" step="1">
+                    <span id="time-label" class="time-label">🌞 午餐 (12:00-14:00)</span>
+                </div>
+            </div>
+
+            <!-- PK 對比清單 (隱藏) -->
+            <div id="pk-sheet" class="pk-sheet hidden">
+                <h3>⚔️ 地點 PK 實時對比</h3>
+                <div class="pk-grid">
+                    <div class="pk-col">
+                        <h4>A: <span id="pk-loc-a">尚未選擇</span></h4>
+                        <p>預估人流: <strong id="pk-traffic-a">--</strong></p>
+                        <p>租金佔比: <strong id="pk-rent-a">--</strong></p>
+                    </div>
+                    <div class="pk-vs">VS</div>
+                    <div class="pk-col">
+                        <h4>B: <span id="pk-loc-b">尚未選擇</span></h4>
+                        <p>預估人流: <strong id="pk-traffic-b">--</strong></p>
+                        <p>租金佔比: <strong id="pk-rent-b">--</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
