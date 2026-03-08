@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐飲營運大腦 | F&B Ops Brain</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/ops_brain.css?v=1">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 側邊欄 -->
+        <aside class="sidebar glass-panel">
+            <div class="logo">
+                <i class="fa-solid fa-brain"></i>
+                <span>Ops Brain</span>
+            </div>
+            <nav class="user-nav">
+                <a href="#" class="active"><i class="fa-solid fa-chart-line"></i> 營運主視圖</a>
+                <a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> 實時損益分析</a>
+                <a href="#"><i class="fa-solid fa-cart-shopping"></i> 預測性採購</a>
+                <a href="#"><i class="fa-solid fa-database"></i> 數據接入設定</a>
+            </nav>
+            <!-- 異常警告區塊 -->
+            <div class="alert-box critical mt-auto">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div class="alert-content">
+                    <h4>警報：毛利率低於閾值</h4>
+                    <p>今日預估毛利率 58% (低於 60%)，食材成本佔比達 36.5%。已推送分析報告。</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主內容區 -->
+        <main class="main-content">
+            <!-- 頂部資訊列 (Data Ingestion & Context) -->
+            <header class="top-bar glass-panel">
+                <div class="ingestion-status">
+                    <span class="status-badge sync"><i class="fa-solid fa-cash-register"></i> POS 銷售數據</span>
+                    <span class="status-badge sync"><i class="fa-solid fa-boxes-stacked"></i> ERP 庫存</span>
+                    <span class="status-badge sync"><i class="fa-solid fa-receipt"></i> 電子發票平台</span>
+                </div>
+                <div class="external-context">
+                    <div class="context-item alert-weather">
+                        <i class="fa-solid fa-cloud-showers-heavy"></i>
+                        <span>明日 70% 降雨 (外帶食材預算調降介入中)</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 實時損益分析邏輯 (Live P&L) -->
+            <div class="kpi-grid">
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">今日預估總營收</div>
+                    <div class="kpi-value" id="live-revenue">NT$ 124,500</div>
+                    <div class="kpi-progress">
+                        <div class="progress-bar"><div class="fill" style="width: 85%;"></div></div>
+                        <span class="progress-text">目標達成率 85%</span>
+                    </div>
+                </div>
+                <div class="kpi-card glass-panel alert-kpi">
+                    <div class="kpi-header">食材成本估算</div>
+                    <div class="kpi-value">NT$ 45,442</div>
+                    <div class="kpi-trend danger">佔比 36.5% <i class="fa-solid fa-arrow-up"></i> (超標)</div>
+                </div>
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">邊際貢獻 (Margin)</div>
+                    <div class="kpi-value text-gradient">NT$ 66,258</div>
+                    <div class="kpi-formula">營收 - (食材 + 租金/人工)</div>
+                </div>
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">預計淨利潤 (Net Profit)</div>
+                    <div class="kpi-value text-accent">NT$ 32,800</div>
+                    <div class="kpi-trend success">毛利率 58.0%</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- 左側：視覺化對比視圖 -->
+                <div class="chart-section glass-panel">
+                    <div class="section-header">
+                        <h3><i class="fa-solid fa-chart-area"></i> 食材成本走勢對比 (本週 vs 上週)</h3>
+                        <div class="chart-actions">
+                            <button class="btn-sm outline">匯出報告</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="costTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 右側：行動中心 (Action Center) -->
+                <div class="action-center glass-panel">
+                    <div class="section-header">
+                        <h3><i class="fa-solid fa-bolt"></i> 行動中心</h3>
+                    </div>
+                    <div class="action-tabs">
+                        <button class="tab active">待簽核採購 (2)</button>
+                        <button class="tab">待入庫清單 (1)</button>
+                    </div>
+                    <div class="action-list scrollable">
+                        <!-- 行動清單項目 -->
+                        <div class="action-item">
+                            <div class="item-icon bg-orange"><i class="fa-solid fa-file-signature"></i></div>
+                            <div class="item-info">
+                                <h4>PO-260308-01 (生鮮肉品)</h4>
+                                <span>供應商：美福肉品 | 總額：NT$ 28,500</span>
+                            </div>
+                            <button class="btn-action">簽核</button>
+                        </div>
+                        <div class="action-item">
+                            <div class="item-icon bg-orange"><i class="fa-solid fa-file-signature"></i></div>
+                            <div class="item-info">
+                                <h4>PO-260308-02 (當季蔬菜)</h4>
+                                <span>供應商：果菜批發 | 總額：NT$ 12,000</span>
+                            </div>
+                            <button class="btn-action">簽核</button>
+                        </div>
+                        <div class="action-item">
+                            <div class="item-icon bg-green"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                            <div class="item-info">
+                                <h4>物流 RC-4402 (醬料乾貨)</h4>
+                                <span>預定到達：10:30 AM | 待驗收 12 項</span>
+                            </div>
+                            <button class="btn-action outline">入庫</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 預測性採購決策 (Predictive Procurement) -->
+            <div class="procurement-section glass-panel mt-20">
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-robot"></i> AI 預測性採購決策 (未來 3 日預測)</h3>
+                    <div class="info-badge">自動化條件：庫存 < (未來3日預測值 + 10%安全水位)</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>品項名稱</th>
+                                <th>目前庫存 <i class="fa-solid fa-database text-muted"></i></th>
+                                <th>AI 預測需求 (3日)</th>
+                                <th>建議採購量 (+10%安全)</th>
+                                <th>歷史單價波動審查</th>
+                                <th>自動化執行</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>紐西蘭特級肋眼</td>
+                                <td>12 kg <span class="badge danger">低水位</span></td>
+                                <td>35.5 kg</td>
+                                <td><strong>39 kg</strong></td>
+                                <td class="price-up"><i class="fa-solid fa-triangle-exclamation"></i> 漲幅 6.5% (>5%)</td>
+                                <td><button class="btn-sm"><i class="fa-solid fa-paper-plane"></i> 人工發送</button></td>
+                            </tr>
+                            <tr>
+                                <td>高山高麗菜</td>
+                                <td>8 kg</td>
+                                <td>15 kg</td>
+                                <td><strong>16.5 kg</strong></td>
+                                <td class="price-down"><i class="fa-solid fa-arrow-down"></i> -2.0% (正常)</td>
+                                <td><button class="btn-sm auto"><i class="fa-solid fa-check"></i> API 自動下單</button></td>
+                            </tr>
+                            <tr>
+                                <td>外帶環保餐盒 (M)</td>
+                                <td>1,200 個</td>
+                                <td><span class="weather-adjusted">2,100 個 <i class="fa-solid fa-cloud-showers-heavy" title="因降雨機率>70%調升外帶需求"></i></span></td>
+                                <td><strong>1,250 個</strong></td>
+                                <td class="price-stable">- 價格持平</td>
+                                <td><button class="btn-sm"><i class="fa-solid fa-paper-plane"></i> Email 傳送</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/ops_brain.js?v=1"></script>
+</body>
+</html>
