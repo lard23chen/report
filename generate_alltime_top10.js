@@ -55,11 +55,160 @@ async function main() {
             };
         });
 
+        const top10Names = top10.map(t => t.name);
+
+        console.log("Running aggregation for monthly details on Top 10...");
+        const dailyResults = await coll.aggregate([
+            {
+                $match: {
+                    name: "page_view",
+                    bu: "D",
+                    content_name: { $in: top10Names },
+                    canonical_url: { $regex: /^https:\/\/ticket\.ibon\.com\.tw\// },
+                    time: { $exists: true, $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        name: "$content_name",
+                        month: { $dateToString: { format: "%Y-%m", date: "$time" } }
+                    },
+                    views: { $sum: 1 }
+                }
+            }
+        ]).toArray();
+
+        // 為了避免折線圖太長，歷史累計我們用每個月份作統計單位
+        const programMonthlyData = {};
+        top10Names.forEach(n => programMonthlyData[n] = {});
+        const allMonthsSet = new Set();
+        
+        dailyResults.forEach(r => {
+            const name = r._id.name;
+            const monthStr = r._id.month;
+            if (programMonthlyData[name] && monthStr) {
+                programMonthlyData[name][monthStr] = r.views;
+                allMonthsSet.add(monthStr);
+            }
+        });
+
+        const allMonthsSorted = Array.from(allMonthsSet).sort();
+
+        // Build details
+        const detailsDir = path.join(__dirname, 'dmp_details_alltime');
+        if (!fs.existsSync(detailsDir)) {
+            fs.mkdirSync(detailsDir);
+        }
+
+        top10.forEach((prog, idx) => {
+            const detailFileName = `A_DMP_PageView_AllTime_Detail_${idx.toString().padStart(3, '0')}.html`;
+            prog.detailLink = `dmp_details_alltime/${detailFileName}`;
+            
+            const chartData = allMonthsSorted.map(m => programMonthlyData[prog.name][m] || 0);
+            const totalMonthlyViews = chartData.reduce((acc, v) => acc + v, 0);
+
+            let tableRowsHtml = '';
+            // 反向排序讓最新月份在上面
+            const reversedMonths = [...allMonthsSorted].reverse();
+            reversedMonths.forEach(m => {
+                const amt = programMonthlyData[prog.name][m] || 0;
+                if (amt > 0) {
+                    const pct = totalMonthlyViews > 0 ? ((amt / totalMonthlyViews) * 100).toFixed(2) : '0.00';
+                    tableRowsHtml += `
+                        <tr>
+                            <td style="color: #94a3b8;">${m}</td>
+                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">${amt.toLocaleString()}</td>
+                            <td style="text-align: right; color: #a78bfa;">${pct}%</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            const detailHtml = `
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${prog.name} - DMP 流量詳情</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+        }
+        body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background: var(--bg-color); color: #f8fafc; padding: 40px 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header { margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; }
+        .header h1 { font-size: 2rem; color: #60a5fa; margin-bottom: 10px; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 1px solid var(--card-border); }
+        .chart-container { height: 300px; width: 100%; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; color: #94a3b8; border-bottom: 2px solid rgba(255,255,255,0.1); }
+        th:nth-child(2), th:nth-child(3) { text-align: right; }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        tr:hover { background-color: rgba(255,255,255,0.03); }
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; }
+        .btn-back:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="#" onclick="window.close(); return false;" class="btn-back">✖ 關閉視窗</a>
+        <div class="header">
+            <h1>${prog.name}</h1>
+            <p>歷史每月流量趨勢 (總瀏覽量: ${prog.totalViews.toLocaleString()})</p>
+        </div>
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #60a5fa;">每月瀏覽量趨勢</h3>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #a78bfa;">每月數據明細</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">月份 (Month)</th>
+                        <th style="width: 30%;">瀏覽量 (Page Views)</th>
+                        <th style="width: 30%;">佔比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRowsHtml}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        const labels = ${JSON.stringify(allMonthsSorted)};
+        const data = ${JSON.stringify(chartData)};
+        Chart.register(ChartDataLabels);
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: { labels: labels, datasets: [{ label: 'Page Views', data: data, borderColor: '#a78bfa', backgroundColor: 'rgba(167, 139, 250, 0.1)', borderWidth: 3, tension: 0.3, fill: true, pointBackgroundColor: '#a78bfa' }] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, datalabels: { color: '#f8fafc', align: 'top', formatter: val => val > 0 ? val.toLocaleString() : '', font: { size: 10 } } },
+                scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font: {size: 10} } } }
+            }
+        });
+    </script>
+</body>
+</html>`;
+            fs.writeFileSync(path.join(detailsDir, detailFileName), detailHtml, 'utf8');
+        });
+
+
+
         const totalTop10Views = top10.reduce((sum, item) => sum + item.totalViews, 0);
 
-        // Calculate total views for all valid programs to get a true percentage if we want,
-        // but it might be too heavy. We can just show the percentage relative to the Top 10.
-        // Or run a count query. Let's run a count query for total page views.
         console.log("Getting total valid page views for percentage calculation...");
         const totalViewsResult = await coll.aggregate([
              {
@@ -84,7 +233,7 @@ async function main() {
             const attributionIdStr = item.ids.size > 0 ? Array.from(item.ids).join(', ') : '-';
             return '<tr>' +
                 '<td style="text-align: center;"><span class="rank ' + rankClass + '">' + item.rank + '</span></td>' +
-                `<td style="font-weight: 500; color: #60a5fa;">${item.name}</td>` +
+                `<td style="font-weight: 500;"><a href="${item.detailLink}" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">${item.name}</a></td>` +
                 '<td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">' + attributionIdStr + '</td>' +
                 '<td style="text-align: right; color: #f8fafc; font-weight: 600;">' + item.totalViews.toLocaleString() + '</td>' +
                 '<td style="text-align: right; color: var(--text-secondary);">' + percentage + '%</td>' +
