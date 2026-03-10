@@ -327,10 +327,11 @@ const D = '__AGG_DATA__';
 
 function fmt(n) { return n.toLocaleString(); }
 function ntd(n) { return 'NT$ ' + fmt(n); }
+function wan(n) { return 'NT$ ' + (n / 10000).toFixed(1) + ' 萬'; }
 
 function init() {
     document.getElementById('meta-total-rows').innerText = fmt(D.totalRows);
-    document.getElementById('val-revenue').innerText = ntd(D.totalRevenue);
+    document.getElementById('val-revenue').innerText = wan(D.totalRevenue);
     document.getElementById('val-tickets').innerText = fmt(D.totalTickets);
     document.getElementById('val-orders').innerText = fmt(D.totalOrders);
     document.getElementById('val-aov').innerText = ntd(D.aov);
@@ -346,7 +347,7 @@ function init() {
         tr.innerHTML = '<td style="font-weight:500;">'+d.date+'</td>'
             +'<td class="text-right">'+fmt(d.orders)+'</td>'
             +'<td class="text-right">'+fmt(d.tickets)+'</td>'
-            +'<td class="text-right">'+ntd(d.revenue)+'</td>'
+            +'<td class="text-right">'+wan(d.revenue)+'</td>'
             +'<td class="text-right" style="color:#c62828;">'+fmt(d.refundTickets)+'</td>'
             +'<td class="text-right" style="color:#c62828;">'+(d.refundFees>0?ntd(d.refundFees):'-')+'</td>';
         dtb.appendChild(tr);
@@ -356,7 +357,7 @@ function init() {
     ttr.innerHTML = '<td style="font-weight:700;">總計 (Total)</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sO)+'</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sT)+'</td>'
-        +'<td class="text-right" style="color:var(--accent-color);">'+ntd(sR)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+wan(sR)+'</td>'
         +'<td class="text-right" style="color:#c62828;">'+fmt(sRT)+'</td>'
         +'<td class="text-right" style="color:#c62828;">'+(sRF>0?ntd(sRF):'-')+'</td>';
     dtb.appendChild(ttr);
