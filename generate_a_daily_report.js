@@ -176,8 +176,8 @@ async function generateDailyReport() {
         const allDates = data.map(d => d['交易時間'] ? new Date(d['交易時間'].split(' ')[0]) : null).filter(d => d && !isNaN(d.getTime()));
         let dateTitle = "每日分析報表 (A系統)";
         if (allDates.length > 0) {
-            const minDate = new Date(Math.min(...allDates));
-            const maxDate = new Date(Math.max(...allDates));
+            const minDate = new Date(allDates.reduce((min, d) => d < min ? d : min, allDates[0]));
+            const maxDate = new Date(allDates.reduce((max, d) => d > max ? d : max, allDates[0]));
             const fmt = (d) => `${d.getFullYear()}年${String(d.getMonth()+1).padStart(2,'0')}月${String(d.getDate()).padStart(2,'0')}日`;
             dateTitle = `${fmt(minDate)} - ${fmt(maxDate)} 每日分析報表 (A系統)`;
         }
