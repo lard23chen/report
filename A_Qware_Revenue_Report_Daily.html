@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ibon售票系統 2026年03月01日 - 2026年03月10日 每日分析報表 (A系統) - 2026/3/11 上午11:04:47</title>
+    <title>ibon售票系統 2026年03月01日 - 2026年03月10日 每日分析報表 (A系統) - 2026/3/11 上午11:10:56</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="meta">
-            產出時間: 2026/3/11 上午11:04:47<br>
+            產出時間: 2026/3/11 上午11:10:56<br>
             總資料筆數: <span id="meta-total-rows">--</span><br>
             製表者: 自動產出
         </div>
@@ -241,19 +241,7 @@ function showEventDetail(index) {
     });
     document.getElementById('eventDetailModal').style.display = 'flex';
 }
-    items.forEach((ev,i) => {
-        const tr = document.createElement('tr');
-        let html = '<td><span style="background:'+color+'; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">'+(i+1)+'</span></td>';
-        html += '<td>'+ev.name+'</td>';
-        fields.forEach(f => {
-            if (f==='revenue'||f==='amount') html += '<td class="text-right" style="color:'+color+'; font-weight:bold;">'+ntd(ev[f])+'</td>';
-            else if (f==='share') html += '<td class="text-right" style="color:#888;">'+ev[f]+'%</td>';
-            else html += '<td class="text-right">'+fmt(ev[f])+'</td>';
-        });
-        tr.innerHTML = html;
-        tb.appendChild(tr);
-    });
-}
+
 
 function renderListTable(sel, items, fields) {
     const tb = document.querySelector(sel+' tbody');

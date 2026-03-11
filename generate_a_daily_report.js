@@ -457,19 +457,7 @@ function showEventDetail(index) {
     });
     document.getElementById('eventDetailModal').style.display = 'flex';
 }
-    items.forEach((ev,i) => {
-        const tr = document.createElement('tr');
-        let html = '<td><span style="background:'+color+'; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">'+(i+1)+'</span></td>';
-        html += '<td>'+ev.name+'</td>';
-        fields.forEach(f => {
-            if (f==='revenue'||f==='amount') html += '<td class="text-right" style="color:'+color+'; font-weight:bold;">'+ntd(ev[f])+'</td>';
-            else if (f==='share') html += '<td class="text-right" style="color:#888;">'+ev[f]+'%</td>';
-            else html += '<td class="text-right">'+fmt(ev[f])+'</td>';
-        });
-        tr.innerHTML = html;
-        tb.appendChild(tr);
-    });
-}
+
 
 function renderListTable(sel, items, fields) {
     const tb = document.querySelector(sel+' tbody');
