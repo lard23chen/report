@@ -21,15 +21,15 @@ async function generateReport() {
         const collection = db.collection('Qware_Ticket_Data');
 
         console.log("Fetching data for 2025-12...");
-        const data = await collection.find({ "äº¤æ??‚é?": { $regex: "^2025-12" } }).toArray();
+        const data = await collection.find({ "äº¤ï¿½??ï¿½ï¿½?": { $regex: "^2025-12" } }).toArray();
         console.log(`Fetched ${data.length} records.`);
 
         // Calculate Date Range
         const dates = data
-            .map(d => d['äº¤æ??‚é?'] ? new Date(d['äº¤æ??‚é?'].split(' ')[0]) : null)
+            .map(d => d['äº¤ï¿½??ï¿½ï¿½?'] ? new Date(d['äº¤ï¿½??ï¿½ï¿½?'].split(' ')[0]) : null)
             .filter(d => d !== null);
 
-        let dateTitle = "?†æ??±è¡¨";
+        let dateTitle = "?ï¿½ï¿½??ï¿½è¡¨";
         if (dates.length > 0) {
             const minDate = new Date(Math.min(...dates));
             const maxDate = new Date(Math.max(...dates));
@@ -40,11 +40,11 @@ async function generateReport() {
             const endMonth = String(maxDate.getMonth() + 1).padStart(2, '0');
 
             if (startYear === endYear && startMonth === endMonth) {
-                dateTitle = `${startYear}å¹?{startMonth}???†æ??±è¡¨`;
+                dateTitle = `${startYear}ï¿½?{startMonth}???ï¿½ï¿½??ï¿½è¡¨`;
             } else if (startYear === endYear) {
-                dateTitle = `${startYear}å¹?{startMonth}??${endMonth}???†æ??±è¡¨`;
+                dateTitle = `${startYear}ï¿½?{startMonth}??${endMonth}???ï¿½ï¿½??ï¿½è¡¨`;
             } else {
-                dateTitle = `${startYear}å¹?{startMonth}??- ${endYear}å¹?{endMonth}???†æ??±è¡¨`;
+                dateTitle = `${startYear}ï¿½?{startMonth}??- ${endYear}ï¿½?{endMonth}???ï¿½ï¿½??ï¿½è¡¨`;
             }
         }
 
@@ -72,7 +72,7 @@ async function generateReport() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ibon?®ç¥¨ç³»çµ± ${dateTitle} - ${reportTime}</title>
+    <title>ibon?ï¿½ç¥¨ç³»çµ± ${dateTitle} - ${reportTime}</title>
     <!-- Chart.js and Annotation Plugin -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
@@ -251,52 +251,52 @@ async function generateReport() {
         <div style="display: flex; align-items: center; gap: 20px;">
             <img src="${logoBase64 ? logoBase64 : 'https://ticket.ibon.com.tw/assets/img/logo.png'}" alt="ibon Logo" style="height: 45px;">
             <div>
-                <h1>ibon?®ç¥¨ç³»çµ± ${dateTitle}</h1>
+                <h1>ibon?ï¿½ç¥¨ç³»çµ± ${dateTitle}</h1>
                 <div style="margin-top:5px; color: #666;">Data Source: MongoDB (QwareAi / Qware_Ticket_Data)</div>
             </div>
         </div>
         <div class="meta">
-            ?¢å‡º?‚é?: ${reportTime}<br>
-            ç¸½è??™ç???(Total Rows): <span id="meta-total-rows">--</span><br>
-            è£½è¡¨?? ?³ä???
+            ?ï¿½å‡º?ï¿½ï¿½?: ${reportTime}<br>
+            ç¸½ï¿½??ï¿½ï¿½???(Total Rows): <span id="meta-total-rows">--</span><br>
+            è£½è¡¨?? ?ï¿½ï¿½???
         </div>
     </header>
 
     <div class="stats-grid">
         <div class="card">
-            <h3>ç¸½ç???(Total Revenue)</h3>
+            <h3>ç¸½ï¿½???(Total Revenue)</h3>
             <div class="value" id="val-revenue">--</div>
-            <div class="sub">?«æ­£å¸¸äº¤??/div>
+            <div class="sub">?ï¿½æ­£å¸¸äº¤??/div>
         </div>
         <div class="card">
             <h3>å®¢å–®??(AOV)</h3>
             <div class="value" id="val-aov">--</div>
-            <div class="sub">?Ÿæ”¶ / è¨‚å–®ç­†æ•¸</div>
+            <div class="sub">?ï¿½æ”¶ / è¨‚å–®ç­†æ•¸</div>
         </div>
         <div class="card">
-            <h3>ç¸½äº¤?“å¼µ??(Total Tickets)</h3>
+            <h3>ç¸½äº¤?ï¿½å¼µ??(Total Tickets)</h3>
             <div class="value" id="val-tickets">--</div>
-            <div class="sub">ç¸½å”®?ºç¥¨?¸æ•¸??/div>
+            <div class="sub">ç¸½å”®?ï¿½ç¥¨?ï¿½æ•¸??/div>
         </div>
         <div class="card">
-            <h3>ç¸½è??®ç???(Distinct Orders)</h3>
+            <h3>ç¸½ï¿½??ï¿½ï¿½???(Distinct Orders)</h3>
             <div class="value" id="val-orders">--</div>
-            <div class="sub">ä¸é?è¤‡è??®ç·¨??/div>
+            <div class="sub">ä¸ï¿½?è¤‡ï¿½??ï¿½ç·¨??/div>
         </div>
         <div class="card">
             <h3>ç¸½é€€ç¥¨å¼µ??(Total Refunded Tickets)</h3>
             <div class="value" id="val-refund-tickets">--</div>
-            <div class="sub" style="color: #c62828;">å·²é€€ç¥??€ç¥¨ç???/div>
+            <div class="sub" style="color: #c62828;">å·²é€€ï¿½??ï¿½ç¥¨ï¿½???/div>
         </div>
         <div class="card">
-            <h3>ç¸½é€€ç¥¨é?é¡?(Refunded Amt)</h3>
+            <h3>ç¸½é€€ç¥¨ï¿½?ï¿½?(Refunded Amt)</h3>
             <div class="value" id="val-refunded-amount">--</div>
-            <div class="sub">?€ç¥¨ç¥¨?¸å?ç¸½åƒ¹</div>
+            <div class="sub">?ï¿½ç¥¨ç¥¨?ï¿½ï¿½?ç¸½åƒ¹</div>
         </div>
         <div class="card">
-            <h3>?€ç¥¨æ?çºŒè²» (Refund Fees)</h3>
+            <h3>?ï¿½ç¥¨ï¿½?çºŒè²» (Refund Fees)</h3>
             <div class="value" id="val-refund-fees">--</div>
-            <div class="sub">?€ç¥¨ç”¢?Ÿä??Ÿæ”¶</div>
+            <div class="sub">?ï¿½ç¥¨ç”¢?ï¿½ï¿½??ï¿½æ”¶</div>
         </div>
     </div>
 
@@ -315,16 +315,16 @@ async function generateReport() {
     
     <!-- Top 5 Events Table -->
     <div class="table-container">
-        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">?? ?·å”®?’è? Top 5 (By Revenue)</h3>
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">?? ?ï¿½å”®?ï¿½ï¿½? Top 5 (By Revenue)</h3>
         <table id="topEventsTable">
             <thead>
                 <tr>
                     <th style="width: 50px;">Rank</th>
-                    <th>ç¯€?®å?ç¨?/th>
+                    <th>ç¯€?ï¿½ï¿½?ï¿½?/th>
                     <th class="text-right">ç­†æ•¸ (Orders)</th>
                     <th class="text-right">å¼µæ•¸ (Tickets)</th>
-                    <th class="text-right">?‘é? (Revenue)</th>
-                    <th class="text-right">ä½”æ? (Share)</th>
+                    <th class="text-right">?ï¿½ï¿½? (Revenue)</th>
+                    <th class="text-right">ä½”ï¿½? (Share)</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -333,15 +333,15 @@ async function generateReport() {
 
     <!-- Top 5 Refund Events Table -->
     <div class="table-container">
-        <h3 style="color: #c62828; border-bottom: 2px solid #c62828; padding-bottom: 10px;">?? ?€ç¥¨æ?è¡?Top 5 (By Refund Amount)</h3>
+        <h3 style="color: #c62828; border-bottom: 2px solid #c62828; padding-bottom: 10px;">?? ?ï¿½ç¥¨ï¿½?ï¿½?Top 5 (By Refund Amount)</h3>
         <table id="topRefundTable">
             <thead>
                 <tr>
                     <th style="width: 50px;">Rank</th>
-                    <th>ç¯€?®å?ç¨?/th>
+                    <th>ç¯€?ï¿½ï¿½?ï¿½?/th>
                     <th class="text-right">ç­†æ•¸ (Orders)</th>
                     <th class="text-right">å¼µæ•¸ (Tickets)</th>
-                    <th class="text-right">?‘é? (Amount)</th>
+                    <th class="text-right">?ï¿½ï¿½? (Amount)</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -350,15 +350,15 @@ async function generateReport() {
 
     <!-- Payment Methods Table -->
     <div class="table-container">
-        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">?’³ ä»˜æ¬¾?¹å??†æ? (Payment Methods)</h3>
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">?ï¿½ï¿½ ä»˜æ¬¾?ï¿½ï¿½??ï¿½ï¿½? (Payment Methods)</h3>
         <table id="paymentTable">
             <thead>
                 <tr>
-                    <th>ä»˜æ¬¾?¹å?</th>
+                    <th>ä»˜æ¬¾?ï¿½ï¿½?</th>
                     <th class="text-right">ç­†æ•¸ (Orders)</th>
                     <th class="text-right">å¼µæ•¸ (Tickets)</th>
-                    <th class="text-right">?‘é? (Revenue)</th>
-                    <th class="text-right">ä½”æ? (Share)</th>
+                    <th class="text-right">?ï¿½ï¿½? (Revenue)</th>
+                    <th class="text-right">ä½”ï¿½? (Share)</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -367,15 +367,15 @@ async function generateReport() {
 
     <!-- Ticket Type Analysis Table (New) -->
     <div class="table-container">
-        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">?« ?–ç¥¨?¹å??†æ? (Ticket Types: Paper vs Electronic)</h3>
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">?ï¿½ï¿½ ?ï¿½ç¥¨?ï¿½ï¿½??ï¿½ï¿½? (Ticket Types: Paper vs Electronic)</h3>
         <table id="ticketTypeTable">
             <thead>
                 <tr>
-                    <th>é¡å? (Type)</th>
+                    <th>é¡ï¿½? (Type)</th>
                     <th class="text-right">ç­†æ•¸ (Orders)</th>
                     <th class="text-right">å¼µæ•¸ (Tickets)</th>
-                    <th class="text-right">?‘é? (Revenue)</th>
-                    <th class="text-right">ä½”æ? (Share)</th>
+                    <th class="text-right">?ï¿½ï¿½? (Revenue)</th>
+                    <th class="text-right">ä½”ï¿½? (Share)</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -394,11 +394,11 @@ async function generateReport() {
         <div class="modal-body">
             <div class="stats-grid">
                 <div class="card">
-                    <h3>ç¸½ç???/h3>
+                    <h3>ç¸½ï¿½???/h3>
                     <div class="value" id="m-val-revenue">--</div>
                 </div>
                 <div class="card">
-                    <h3>?·å”®å¼µæ•¸</h3>
+                    <h3>?ï¿½å”®å¼µæ•¸</h3>
                     <div class="value" id="m-val-tickets">--</div>
                 </div>
                 <div class="card">
@@ -406,7 +406,7 @@ async function generateReport() {
                     <div class="value" id="m-val-aov">--</div>
                 </div>
                 <div class="card">
-                    <h3>?€ç¥¨é?é¡?(Refunds)</h3>
+                    <h3>?ï¿½ç¥¨ï¿½?ï¿½?(Refunds)</h3>
                     <div class="value" id="m-val-refunds" style="color: #c62828;">--</div>
                 </div>
             </div>
@@ -421,30 +421,30 @@ async function generateReport() {
             </div>
 
             <div class="table-container" style="margin-top:20px;">
-                <h3>?·å”®é»å???(Sales Points)</h3>
+                <h3>?ï¿½å”®é»ï¿½???(Sales Points)</h3>
                 <table id="modalSalesPointTable">
                     <thead>
-                        <tr><th>?·å”®é»?/th><th>å¼µæ•¸ (Tickets)</th><th>?Ÿæ”¶ (Revenue)</th><th class="text-right">ä½”æ? (Share)</th></tr>
+                        <tr><th>?ï¿½å”®ï¿½?/th><th>å¼µæ•¸ (Tickets)</th><th>?ï¿½æ”¶ (Revenue)</th><th class="text-right">ä½”ï¿½? (Share)</th></tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
 
             <div class="table-container" style="margin-top:20px;">
-                <h3>ç¥¨åƒ¹?·å”®è©³æ?</h3>
+                <h3>ç¥¨åƒ¹?ï¿½å”®è©³ï¿½?</h3>
                 <table id="modalPriceTable">
                     <thead>
-                        <tr><th>ç¥¨åƒ¹</th><th>å¼µæ•¸</th><th>?Ÿæ”¶</th><th class="text-right">ä½”æ?</th></tr>
+                        <tr><th>ç¥¨åƒ¹</th><th>å¼µæ•¸</th><th>?ï¿½æ”¶</th><th class="text-right">ä½”ï¿½?</th></tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
 
             <div class="table-container" style="margin-top:20px;">
-                <h3 style="color:#c62828;">?€ç¥¨å???(Refund Analysis)</h3>
+                <h3 style="color:#c62828;">?ï¿½ç¥¨ï¿½???(Refund Analysis)</h3>
                 <table id="modalRefundTable">
                     <thead>
-                        <tr><th>?€ç¥¨å?ç´?(Reason)</th><th>å¼µæ•¸ (Tickets)</th><th>?‹ç?è²?(Fee)</th></tr>
+                        <tr><th>?ï¿½ç¥¨ï¿½?ï¿½?(Reason)</th><th>å¼µæ•¸ (Tickets)</th><th>?ï¿½ï¿½?ï¿½?(Fee)</th></tr>
                     </thead>
                     <tbody></tbody>
                 </table>
@@ -479,18 +479,18 @@ async function generateReport() {
         document.getElementById('modalTitle').innerText = eventName;
         
         // Filter Data (ALL)
-        const allEventData = dbData.filter(d => d['ç¯€???†å??ç¨±'] === eventName);
-        const eventData = allEventData.filter(d => d['?€??] === 'æ­?¸¸'); // Valid Sales
-        const refundData = allEventData.filter(d => d['?€??] === 'å·²é€€ç¥? || d['?€??] === '?€ç¥? || (d['?‹ç?è²?] && d['?‹ç?è²?] > 0)); 
+        const allEventData = dbData.filter(d => d['ç¯€???ï¿½ï¿½??ï¿½ç¨±'] === eventName);
+        const eventData = allEventData.filter(d => d['?ï¿½??] === 'ï¿½?ï¿½ï¿½'); // Valid Sales
+        const refundData = allEventData.filter(d => d['?ï¿½??] === 'å·²é€€ï¿½? || d['?ï¿½??] === '?ï¿½ï¿½? || (d['?ï¿½ï¿½?ï¿½?] && d['?ï¿½ï¿½?ï¿½?] > 0)); 
         
         // 1. Basic Stats
-        const revenue = eventData.reduce((acc, cur) => acc + (cur['?®åƒ¹'] || 0), 0);
+        const revenue = eventData.reduce((acc, cur) => acc + (cur['?ï¿½åƒ¹'] || 0), 0);
         const tickets = eventData.length;
-        const totalRefAmount = allEventData.reduce((acc, cur) => acc + (cur['?‹ç?è²?] || 0), 0);
+        const totalRefAmount = allEventData.reduce((acc, cur) => acc + (cur['?ï¿½ï¿½?ï¿½?] || 0), 0);
         
         const uniqueOrders = new Set();
         eventData.forEach(o => {
-            if(o['è¨‚å–®ç·¨è?']) uniqueOrders.add(o['è¨‚å–®ç·¨è?'].split('_')[0]);
+            if(o['è¨‚å–®ç·¨ï¿½?']) uniqueOrders.add(o['è¨‚å–®ç·¨ï¿½?'].split('_')[0]);
         });
         const orders = uniqueOrders.size;
         const aov = orders ? Math.round(revenue / orders) : 0;
@@ -503,7 +503,7 @@ async function generateReport() {
         // 2. Pricing Stats
         const priceStats = {};
         eventData.forEach(o => {
-            const p = o['?®åƒ¹'] || 0;
+            const p = o['?ï¿½åƒ¹'] || 0;
             if(!priceStats[p]) priceStats[p] = { count: 0, revenue: 0 };
             priceStats[p].count += 1;
             priceStats[p].revenue += p;
@@ -520,7 +520,7 @@ async function generateReport() {
              const share = revenue ? ((p.revenue / revenue) * 100).toFixed(1) : 0;
              const tr = document.createElement('tr');
              tr.innerHTML = \`
-                <td>\${p.price === 0 ? '?è²»/?¬é?' : '$'+p.price.toLocaleString()}</td>
+                <td>\${p.price === 0 ? '?ï¿½è²»/?ï¿½ï¿½?' : '$'+p.price.toLocaleString()}</td>
                 <td>\${p.count.toLocaleString()}</td>
                 <td>$\${p.revenue.toLocaleString()}</td>
                 <td class="text-right">\${share}%</td>
@@ -552,7 +552,7 @@ async function generateReport() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { 
-                    title: { display: true, text: 'ç¥¨åƒ¹?†ä? (Tickets by Price)' },
+                    title: { display: true, text: 'ç¥¨åƒ¹?ï¿½ï¿½? (Tickets by Price)' },
                     legend: { position: 'right' } 
                 }
             }
@@ -561,9 +561,9 @@ async function generateReport() {
         // Trend Chart
         const dailyStats = {};
         eventData.forEach(o => {
-            if(!o['äº¤æ??‚é?']) return;
-            const date = o['äº¤æ??‚é?'].split(' ')[0];
-            dailyStats[date] = (dailyStats[date] || 0) + (o['?®åƒ¹'] || 0);
+            if(!o['äº¤ï¿½??ï¿½ï¿½?']) return;
+            const date = o['äº¤ï¿½??ï¿½ï¿½?'].split(' ')[0];
+            dailyStats[date] = (dailyStats[date] || 0) + (o['?ï¿½åƒ¹'] || 0);
         });
         const dates = Object.keys(dailyStats).sort();
         const amounts = dates.map(d => dailyStats[d]);
@@ -573,7 +573,7 @@ async function generateReport() {
             data: {
                 labels: dates,
                 datasets: [{
-                    label: '?·å”®é¡?,
+                    label: '?ï¿½å”®ï¿½?,
                     data: amounts,
                     borderColor: '#880e4f',
                     backgroundColor: 'rgba(136, 14, 79, 0.1)',
@@ -585,7 +585,7 @@ async function generateReport() {
                  responsive: true,
                  maintainAspectRatio: false,
                  plugins: { 
-                    title: { display: true, text: '?·å”®è¶¨å‹¢ (Sales Trend)' },
+                    title: { display: true, text: '?ï¿½å”®è¶¨å‹¢ (Sales Trend)' },
                     legend: { display: false } 
                  },
                  scales: {
@@ -597,8 +597,8 @@ async function generateReport() {
         // Sales Point Stats
         const pointStats = {};
         eventData.forEach(o => {
-            const point = o['?·å”®é»?] || 'Unknown';
-            const price = o['?®åƒ¹'] || 0;
+            const point = o['?ï¿½å”®ï¿½?] || 'Unknown';
+            const price = o['?ï¿½åƒ¹'] || 0;
             if(!pointStats[point]) pointStats[point] = { tickets: 0, revenue: 0 };
             pointStats[point].tickets += 1;
             pointStats[point].revenue += price;
@@ -626,8 +626,8 @@ async function generateReport() {
         // Refund Stats
         const refundStats = {};
         refundData.forEach(o => {
-            const reason = o['?€ç¥¨å?ç´?] || 'Unknown';
-            const fee = o['?‹ç?è²?] || 0;
+            const reason = o['?ï¿½ç¥¨ï¿½?ï¿½?] || 'Unknown';
+            const fee = o['?ï¿½ï¿½?ï¿½?] || 0;
             if(!refundStats[reason]) refundStats[reason] = { count: 0, fee: 0 };
             refundStats[reason].count += 1;
             refundStats[reason].fee += fee;
@@ -637,7 +637,7 @@ async function generateReport() {
         const rfTbody = document.querySelector('#modalRefundTable tbody');
         rfTbody.innerHTML = '';
         if(refundList.length === 0) {
-            rfTbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">?¡é€€ç¥¨ç???/td></tr>';
+            rfTbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">?ï¿½é€€ç¥¨ï¿½???/td></tr>';
         } else {
             refundList.forEach(r => {
                 const tr = document.createElement('tr');
@@ -655,24 +655,24 @@ async function generateReport() {
         document.getElementById('meta-total-rows').innerText = dbData.length.toLocaleString();
 
         // Filter valid orders
-        const validOrders = dbData.filter(d => d['?€??] === 'æ­?¸¸');
+        const validOrders = dbData.filter(d => d['?ï¿½??] === 'ï¿½?ï¿½ï¿½');
         
         // 1. Overall Stats Calculation
-        const totalRevenue = validOrders.reduce((acc, cur) => acc + (cur['?®åƒ¹'] || 0), 0);
+        const totalRevenue = validOrders.reduce((acc, cur) => acc + (cur['?ï¿½åƒ¹'] || 0), 0);
         
         // Refund Calculations
-        const refundDocs = dbData.filter(d => d['?€??] === 'å·²é€€ç¥? || d['?€??] === '?€ç¥?);
-        const totalRefundedValue = refundDocs.reduce((acc, cur) => acc + (cur['å¯¦é€€?‘é?'] || 0), 0);
-        const totalRefundFees = dbData.reduce((acc, cur) => acc + (cur['?‹ç?è²?] || 0), 0);
+        const refundDocs = dbData.filter(d => d['?ï¿½??] === 'å·²é€€ï¿½? || d['?ï¿½??] === '?ï¿½ï¿½?);
+        const totalRefundedValue = refundDocs.reduce((acc, cur) => acc + (cur['å¯¦é€€?ï¿½ï¿½?'] || 0), 0);
+        const totalRefundFees = dbData.reduce((acc, cur) => acc + (cur['?ï¿½ï¿½?ï¿½?] || 0), 0);
         
         const totalTickets = validOrders.length; 
-        const totalRefundedTickets = dbData.filter(d => d['?€??] === 'å·²é€€ç¥? || d['?€??] === '?€ç¥? || (d['?‹ç?è²?] && d['?‹ç?è²?] > 0)).length; 
+        const totalRefundedTickets = dbData.filter(d => d['?ï¿½??] === 'å·²é€€ï¿½? || d['?ï¿½??] === '?ï¿½ï¿½? || (d['?ï¿½ï¿½?ï¿½?] && d['?ï¿½ï¿½?ï¿½?] > 0)).length; 
 
         // Count distinct orders
         const uniqueOrdersSet = new Set();
         validOrders.forEach(o => {
-            if(o['è¨‚å–®ç·¨è?']) {
-                const baseOrder = o['è¨‚å–®ç·¨è?'].split('_')[0];
+            if(o['è¨‚å–®ç·¨ï¿½?']) {
+                const baseOrder = o['è¨‚å–®ç·¨ï¿½?'].split('_')[0];
                 uniqueOrdersSet.add(baseOrder);
             }
         });
@@ -691,9 +691,9 @@ async function generateReport() {
         // 2a. Payment Method Analysis
         const paymentStats = {}; 
         validOrders.forEach(item => {
-            const method = item['ä»˜æ¬¾?¹å?'] || 'Unknown';
-            const price = item['?®åƒ¹'] || 0;
-            const orderId = item['è¨‚å–®ç·¨è?'] ? item['è¨‚å–®ç·¨è?'].split('_')[0] : 'unknown';
+            const method = item['ä»˜æ¬¾?ï¿½ï¿½?'] || 'Unknown';
+            const price = item['?ï¿½åƒ¹'] || 0;
+            const orderId = item['è¨‚å–®ç·¨ï¿½?'] ? item['è¨‚å–®ç·¨ï¿½?'].split('_')[0] : 'unknown';
 
             if (!paymentStats[method]) {
                 paymentStats[method] = { orders: new Set(), tickets: 0, revenue: 0 };
@@ -729,18 +729,18 @@ async function generateReport() {
         // 2d. Ticket Type Analysis (Paper vs Electronic)
         const typeStats = {
             'ç´™ç¥¨ (Paper/Picked Up)': { orders: new Set(), tickets: 0, revenue: 0 },
-            '?»å?ç¥??ªå? (E-Ticket/Not Printed)': { orders: new Set(), tickets: 0, revenue: 0 },
-            '?¶ä? (Other)': { orders: new Set(), tickets: 0, revenue: 0 }
+            '?ï¿½ï¿½?ï¿½??ï¿½ï¿½? (E-Ticket/Not Printed)': { orders: new Set(), tickets: 0, revenue: 0 },
+            '?ï¿½ï¿½? (Other)': { orders: new Set(), tickets: 0, revenue: 0 }
         };
 
         validOrders.forEach(item => {
-            const method = item['?–ç¥¨?¹å?'];
-            const price = item['?®åƒ¹'] || 0;
-            const orderId = item['è¨‚å–®ç·¨è?'] ? item['è¨‚å–®ç·¨è?'].split('_')[0] : 'unknown';
+            const method = item['?ï¿½ç¥¨?ï¿½ï¿½?'];
+            const price = item['?ï¿½åƒ¹'] || 0;
+            const orderId = item['è¨‚å–®ç·¨ï¿½?'] ? item['è¨‚å–®ç·¨ï¿½?'].split('_')[0] : 'unknown';
             
-            let typeKey = '?¶ä? (Other)';
-            if (method === 'å·²å?') typeKey = 'ç´™ç¥¨ (Paper/Picked Up)';
-            else if (method === '?ªå???) typeKey = '?»å?ç¥??ªå? (E-Ticket/Not Printed)';
+            let typeKey = '?ï¿½ï¿½? (Other)';
+            if (method === 'å·²ï¿½?') typeKey = 'ç´™ç¥¨ (Paper/Picked Up)';
+            else if (method === '?ï¿½ï¿½???) typeKey = '?ï¿½ï¿½?ï¿½??ï¿½ï¿½? (E-Ticket/Not Printed)';
 
             typeStats[typeKey].orders.add(orderId);
             typeStats[typeKey].tickets += 1;
@@ -765,9 +765,9 @@ async function generateReport() {
         // 2b. Top 5 Events Logic
         const eventStats = {}; 
         validOrders.forEach(item => {
-            const name = item['ç¯€???†å??ç¨±'] || 'Unknown';
-            const price = item['?®åƒ¹'] || 0;
-            const orderId = item['è¨‚å–®ç·¨è?'] ? item['è¨‚å–®ç·¨è?'].split('_')[0] : 'unknown';
+            const name = item['ç¯€???ï¿½ï¿½??ï¿½ç¨±'] || 'Unknown';
+            const price = item['?ï¿½åƒ¹'] || 0;
+            const orderId = item['è¨‚å–®ç·¨ï¿½?'] ? item['è¨‚å–®ç·¨ï¿½?'].split('_')[0] : 'unknown';
 
             if (!eventStats[name]) {
                 eventStats[name] = { orders: new Set(), tickets: 0, revenue: 0 };
@@ -807,12 +807,12 @@ async function generateReport() {
 
         // 2c. Top 5 Refund Events Logic
         const refundStats = {};
-        const refundRecords = dbData.filter(d => d['?€??] === 'å·²é€€ç¥? || d['?€??] === '?€ç¥? || (d['?‹ç?è²?] && d['?‹ç?è²?] > 0)); 
+        const refundRecords = dbData.filter(d => d['?ï¿½??] === 'å·²é€€ï¿½? || d['?ï¿½??] === '?ï¿½ï¿½? || (d['?ï¿½ï¿½?ï¿½?] && d['?ï¿½ï¿½?ï¿½?] > 0)); 
         
         refundRecords.forEach(item => {
-            const name = item['ç¯€???†å??ç¨±'] || 'Unknown';
-            const fee = item['?‹ç?è²?] || 0;
-            const orderId = item['è¨‚å–®ç·¨è?'] ? item['è¨‚å–®ç·¨è?'].split('_')[0] : 'unknown';
+            const name = item['ç¯€???ï¿½ï¿½??ï¿½ç¨±'] || 'Unknown';
+            const fee = item['?ï¿½ï¿½?ï¿½?] || 0;
+            const orderId = item['è¨‚å–®ç·¨ï¿½?'] ? item['è¨‚å–®ç·¨ï¿½?'].split('_')[0] : 'unknown';
 
             if (!refundStats[name]) {
                 refundStats[name] = { orders: new Set(), tickets: 0, amount: 0 };
@@ -834,7 +834,7 @@ async function generateReport() {
 
         const topRefundTableBody = document.querySelector('#topRefundTable tbody');
         if(topRefunds.length === 0) {
-             topRefundTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">?¡é€€ç¥¨è???/td></tr>';
+             topRefundTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">?ï¿½é€€ç¥¨ï¿½???/td></tr>';
         } else {
             topRefunds.forEach((ev, index) => {
                 const tr = document.createElement('tr');
@@ -856,11 +856,11 @@ async function generateReport() {
         const dailyProductStats = {}; // { date: { prodName: { revenue, tickets, orders: Set } } }
 
         validOrders.forEach(item => {
-            if (!item['äº¤æ??‚é?']) return;
-            const date = item['äº¤æ??‚é?'].split(' ')[0];
-            const price = item['?®åƒ¹'] || 0;
-            const name = item['ç¯€???†å??ç¨±'] || '?ªçŸ¥';
-            const orderId = item['è¨‚å–®ç·¨è?'] ? item['è¨‚å–®ç·¨è?'].split('_')[0] : 'u';
+            if (!item['äº¤ï¿½??ï¿½ï¿½?']) return;
+            const date = item['äº¤ï¿½??ï¿½ï¿½?'].split(' ')[0];
+            const price = item['?ï¿½åƒ¹'] || 0;
+            const name = item['ç¯€???ï¿½ï¿½??ï¿½ç¨±'] || '?ï¿½çŸ¥';
+            const orderId = item['è¨‚å–®ç·¨ï¿½?'] ? item['è¨‚å–®ç·¨ï¿½?'].split('_')[0] : 'u';
 
             salesByDate[date] = (salesByDate[date] || 0) + price;
 
@@ -898,7 +898,7 @@ async function generateReport() {
                     '------------------',
                     'ç­†æ•¸: ' + stats.orders.size,
                     'å¼µæ•¸: ' + stats.tickets,
-                    '?‘é?: $' + stats.revenue.toLocaleString()
+                    '?ï¿½ï¿½?: $' + stats.revenue.toLocaleString()
                 ];
 
                 myAnnotations['note'+index] = {
@@ -942,7 +942,7 @@ async function generateReport() {
             data: {
                 labels: dates,
                 datasets: [{
-                    label: 'æ¯æ—¥?Ÿæ”¶èµ°å‹¢',
+                    label: 'æ¯æ—¥?ï¿½æ”¶èµ°å‹¢',
                     data: dailySales,
                     borderColor: '#d81b60',
                     backgroundColor: 'rgba(216, 27, 96, 0.1)',
@@ -954,7 +954,7 @@ async function generateReport() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { 
-                    title: { display: true, text: '?Ÿæ”¶è¶¨å‹¢??(Sales Trend)' },
+                    title: { display: true, text: '?ï¿½æ”¶è¶¨å‹¢??(Sales Trend)' },
                     annotation: {
                         annotations: myAnnotations
                     },
@@ -969,13 +969,13 @@ async function generateReport() {
         // 4. Refund Trend Chart
         const dailyRefundsMap = {};
         refundRecords.forEach(item => {
-             let dateStr = item['?€ç¥¨æ???];
+             let dateStr = item['?ï¿½ç¥¨ï¿½???];
              // Fallback if missing, though refund time is best
-             if (!dateStr || dateStr === '-') dateStr = item['äº¤æ??‚é?'];
+             if (!dateStr || dateStr === '-') dateStr = item['äº¤ï¿½??ï¿½ï¿½?'];
              if (!dateStr) return;
              
              const date = dateStr.split(' ')[0];
-             const val = item['å¯¦é€€?‘é?'] || 0;
+             const val = item['å¯¦é€€?ï¿½ï¿½?'] || 0;
              dailyRefundsMap[date] = (dailyRefundsMap[date] || 0) + val;
         });
 
@@ -987,7 +987,7 @@ async function generateReport() {
             data: {
                 labels: rDates,
                 datasets: [{
-                    label: 'æ¯æ—¥?€ç¥¨é?é¡?(Refund Amount)',
+                    label: 'æ¯æ—¥?ï¿½ç¥¨ï¿½?ï¿½?(Refund Amount)',
                     data: rAmounts,
                     borderColor: '#757575',
                     backgroundColor: 'rgba(117, 117, 117, 0.1)',
@@ -999,7 +999,7 @@ async function generateReport() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { 
-                    title: { display: true, text: 'æ¯æ—¥?€ç¥¨èµ°??(Daily Refund Trend)' },
+                    title: { display: true, text: 'æ¯æ—¥?ï¿½ç¥¨èµ°??(Daily Refund Trend)' },
                     tooltip: {
                          callbacks: {
                              label: function(context) {
@@ -1023,7 +1023,7 @@ async function generateReport() {
     init();
 </script>
 
-</body>
+\n<!-- Data Source Footer -->\n<div style="text-align:center; padding: 20px; color: #888; font-size: 0.9em; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 40px; font-family: sans-serif;">\n    Data Source: System Data Excerpts\n</div>\n</body>
 </html>
         `;
 

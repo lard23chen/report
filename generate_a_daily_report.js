@@ -498,7 +498,7 @@ init();
 <a href="report_index.html" class="fixed-btn" style="position:fixed; bottom:30px; right:30px; background:linear-gradient(135deg,#00acc1,#00838f); color:white; padding:12px 24px; border-radius:50px; text-decoration:none; font-weight:600; box-shadow:0 4px 15px rgba(0,172,193,0.4); display:flex; align-items:center; gap:8px; z-index:1000;">
     <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg> 回首頁
 </a>
-</body>
+\n<!-- Data Source Footer -->\n<div style="text-align:center; padding: 20px; color: #888; font-size: 0.9em; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 40px; font-family: sans-serif;">\n    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data_Daily)\n</div>\n</body>
 </html>`;
 
         const fileName = 'A_Qware_Revenue_Report_Daily.html';
