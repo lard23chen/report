@@ -413,7 +413,7 @@ async function main() {
     <div class="main-wrapper">
         <div class="header">
             <div class="title">
-                <h1>搶票事件流量深度分析</h1>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: System Data Excerpts\n</div>
+                <h1>搶票事件流量深度分析</h1>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: MongoDB (QwareAi / GA_EventsStats)\n</div>
                 <div style="color: var(--text-secondary); margin-top: 5px; font-size: 0.9rem;">
                     基於 QwareTrafficSession 與 QwareTrafficGAReadTime 數據
                 </div>
