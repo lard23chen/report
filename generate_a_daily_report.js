@@ -426,7 +426,7 @@ function renderRankTable(sel, items, fields, color) {
         let html = '<td><span style="background:'+color+'; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">'+(i+1)+'</span></td>';
         
         let linkStyle = sel==='#topEventsTable' && ev.sessions && ev.sessions.length > 0 ? 'color:var(--accent-color); text-decoration:underline; cursor:pointer;' : 'color:inherit;';
-        let onClickAttr = sel==='#topEventsTable' && ev.sessions && ev.sessions.length > 0 ? "onclick=\"showEventDetail(" + i + ")\"" : '';
+        let onClickAttr = sel==='#topEventsTable' && ev.sessions && ev.sessions.length > 0 ? 'onclick="showEventDetail(' + i + ')"' : '';
         
         html += '<td><span style="'+linkStyle+'" '+onClickAttr+'>'+ev.name+'</span></td>';
         fields.forEach(f => {
