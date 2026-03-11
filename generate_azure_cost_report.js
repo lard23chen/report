@@ -476,7 +476,11 @@ async function generateReport() {
 
 </script>
 
-\n<!-- Data Source Footer -->\n<div style="text-align:center; padding: 20px; color: #888; font-size: 0.9em; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 40px; font-family: sans-serif;">\n    Data Source: System Data Excerpts\n</div>\n</body>
+<!-- Data Source Footer -->
+<div style="text-align:center; padding: 20px; color: #888; font-size: 0.9em; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 40px; font-family: sans-serif;">
+    Data Source: MongoDB (QwareAi / AzureMonthlyCost)
+</div>
+</body>
 </html>
         `;
 
