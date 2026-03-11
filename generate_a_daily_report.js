@@ -114,7 +114,11 @@ async function generateDailyReport() {
             // Session tracking
             if (!eventSessions[name]) eventSessions[name] = {};
             if (item['場次名稱']) {
-               const sName = item['場次名稱'];
+               let sName = item['場次名稱'];
+               if (item['演出時間/規格'] && item['演出時間/規格'].trim() !== '') {
+                   // Split by space to just get the YYYY-MM-DD part, or keep full if needed
+                   sName += ` (${item['演出時間/規格'].split(' ')[0]})`;
+               }
                if (!eventSessions[name][sName]) eventSessions[name][sName] = { orders: new Set(), tickets: 0, revenue: 0 };
                eventSessions[name][sName].orders.add(orderId);
                eventSessions[name][sName].tickets += 1;
