@@ -81,7 +81,7 @@ async function generateReport() {
 <div class="container">
     <header>
         <div>
-            <h1>ibon售票系統 2025年12月 分析報表 (A系統)</h1>
+            <h1>ibon售票系統 2025年12月 分析報表 (A系統)</h1>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: System Data Excerpts\n</div>
             <div style="color: #666;">Data Source: MongoDB (QwareAi / Qware_Ticket_Data)</div>
         </div>
         <div>產出時間: ${reportTime}<br>製表者: 陳俊良</div>
@@ -195,7 +195,7 @@ async function generateReport() {
     });
 
 </script>
-\n<!-- Data Source Footer -->\n<div style="text-align:center; padding: 20px; color: #888; font-size: 0.9em; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 40px; font-family: sans-serif;">\n    Data Source: System Data Excerpts\n</div>\n</body>
+</body>
 </html>`;
 
         const filename = "Qware_Revenue_Report_2025年12月_分析報表_v2.html";

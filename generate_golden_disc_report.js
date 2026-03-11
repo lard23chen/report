@@ -238,7 +238,7 @@ async function generateReport() {
     <header>
         <div>
             <div class="logo-text">GOLDEN DISC AWARDS</div>
-            <div class="logo-sub">第40屆金唱片頒獎典禮 - 專案銷售分析</div>
+            <div class="logo-sub">第40屆金唱片頒獎典禮 - 專案銷售分析</div>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: System Data Excerpts\n</div>
         </div>
         <div class="meta">
             Generated: ${reportTime}<br>
@@ -1131,7 +1131,7 @@ async function generateReport() {
     回首頁
 </a>
 
-\n<!-- Data Source Footer -->\n<div style="text-align:center; padding: 20px; color: #888; font-size: 0.9em; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 40px; font-family: sans-serif;">\n    Data Source: System Data Excerpts\n</div>\n</body>
+</body>
 </html>
         `;
 

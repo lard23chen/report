@@ -229,7 +229,7 @@ async function main() {
     <div class="container">
         <a href="../A_DMP_PageView_Report_AllTime_Top10.html" class="btn-back">← 返回 Top 10 排行榜</a>
         <div class="header">
-            <h1>${prog.name}</h1>
+            <h1>${prog.name}</h1>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: MongoDB (QwareAi / DMP_PageView...)\n</div>
             <p>First-Party DMP 深度流量分析 · 排名 #${prog.rank}</p>
         </div>
 
@@ -311,7 +311,7 @@ async function main() {
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
         });
     <\/script>
-\n<!-- Data Source Footer -->\n<div style="text-align:center; padding: 20px; color: #888; font-size: 0.9em; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 40px; font-family: sans-serif;">\n    Data Source: MongoDB (QwareAi / DMP_PageView...)\n</div>\n</body>
+</body>
 </html>`;
 
             fs.writeFileSync(path.join(detailsDir, detailFileName), detailHtml, 'utf8');

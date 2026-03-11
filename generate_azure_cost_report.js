@@ -245,7 +245,7 @@ async function generateReport() {
     <header>
         <div>
             <div class="logo-text">Azure Cost Analytics</div>
-            <div class="logo-sub">Azure 雲端費用分析報表</div>
+            <div class="logo-sub">Azure 雲端費用分析報表</div>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: MongoDB (QwareAi / AzureMonthlyCost)\n</div>
         </div>
         <div class="meta">
             資料月份: ${labels[0]} ~ ${labels[labels.length - 1]}<br>
@@ -476,10 +476,7 @@ async function generateReport() {
 
 </script>
 
-<!-- Data Source Footer -->
-<div style="text-align:center; padding: 20px; color: #888; font-size: 0.9em; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 40px; font-family: sans-serif;">
-    Data Source: MongoDB (QwareAi / AzureMonthlyCost)
-</div>
+
 </body>
 </html>
         `;
