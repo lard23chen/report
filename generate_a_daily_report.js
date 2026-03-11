@@ -115,14 +115,17 @@ async function generateDailyReport() {
             if (!eventSessions[name]) eventSessions[name] = {};
             if (item['場次名稱']) {
                let sName = item['場次名稱'];
+               let sDate = '';
                if (item['演出時間/規格'] && item['演出時間/規格'].trim() !== '') {
                    // Split by space to just get the YYYY-MM-DD part, or keep full if needed
-                   sName += ` (${item['演出時間/規格'].split(' ')[0]})`;
+                   sDate = item['演出時間/規格'].split(' ')[0];
+                   sName += ` (${sDate})`;
                }
-               if (!eventSessions[name][sName]) eventSessions[name][sName] = { orders: new Set(), tickets: 0, revenue: 0 };
+               if (!eventSessions[name][sName]) eventSessions[name][sName] = { orders: new Set(), tickets: 0, revenue: 0, date: sDate };
                eventSessions[name][sName].orders.add(orderId);
                eventSessions[name][sName].tickets += 1;
                eventSessions[name][sName].revenue += price;
+               if (!eventSessions[name][sName].date && sDate) eventSessions[name][sName].date = sDate;
             }
         });
         const topByRevenue = Object.entries(eventStats)
@@ -130,8 +133,16 @@ async function generateDailyReport() {
                 let sessions = [];
                 if (eventSessions[name] && Object.keys(eventSessions[name]).length > 0) {
                     sessions = Object.entries(eventSessions[name])
-                        .map(([sName, ss]) => ({ name: sName, orders: ss.orders.size, tickets: ss.tickets, revenue: ss.revenue, shareName: s.revenue ? (ss.revenue / s.revenue * 100).toFixed(1) : '0' }))
-                        .sort((a,b) => b.revenue - a.revenue);
+                        .map(([sName, ss]) => ({ name: sName, orders: ss.orders.size, tickets: ss.tickets, revenue: ss.revenue, shareName: s.revenue ? (ss.revenue / s.revenue * 100).toFixed(1) : '0', date: ss.date }))
+                        .sort((a,b) => {
+                            if (a.date && b.date) {
+                                if (a.date === b.date) return b.revenue - a.revenue;
+                                return a.date.localeCompare(b.date); // ASC (由近到遠)
+                            }
+                            if (a.date) return -1;
+                            if (b.date) return 1;
+                            return b.revenue - a.revenue;
+                        });
                 }
                 return { name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue, share: totalRevenue ? (s.revenue / totalRevenue * 100).toFixed(1) : '0', sessions };
             })
