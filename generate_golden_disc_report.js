@@ -45,19 +45,26 @@ async function generateReport() {
         const members = await memberColl.find({ '會員編號': { $in: memberIds } }).toArray();
 
         const memberNatMap = {};
+        const memberCityMap = {};
         members.forEach(m => {
-            if (m['會員編號'] && m['國家']) {
-                memberNatMap[m['會員編號']] = m['國家'];
+            if (m['會員編號']) {
+                if (m['國家']) memberNatMap[m['會員編號']] = m['國家'];
+                if (m['縣市別']) memberCityMap[m['會員編號']] = m['縣市別'];
             }
         });
 
-        // Attach nationality to ticket data
+        // Attach nationality and city to ticket data
         data.forEach(d => {
             const memberId = d['會員編號'];
             if (memberId && memberNatMap[memberId]) {
                 d['國籍'] = memberNatMap[memberId];
             } else {
                 d['國籍'] = '未知';
+            }
+            if (memberId && memberCityMap[memberId]) {
+                d['縣市別'] = memberCityMap[memberId];
+            } else {
+                d['縣市別'] = '未知';
             }
         });
 
@@ -165,7 +172,7 @@ async function generateReport() {
 
         .demo-content {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 25px;
             margin-bottom: 40px;
         }
@@ -318,6 +325,14 @@ async function generateReport() {
                 </thead>
                 <tbody></tbody>
             </table>
+        </div>
+
+        <!-- City Distribution -->
+        <div class="chart-card">
+            <h3>縣市分佈 (County/City)</h3>
+             <div style="height: 350px;">
+                <canvas id="cityChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -608,21 +623,23 @@ async function generateReport() {
         const genderStats = {};
         validOrders.forEach(o => {
             let g = o['性別'];
-            if(!g || g === '-') g = '未知';
-            genderStats[g] = (genderStats[g] || 0) + 1;
+            if(g && g !== '-' && g !== '未知') {
+                genderStats[g] = (genderStats[g] || 0) + 1;
+            }
         });
 
         // 6. Nationality
         const natStatsRaw = {}; // { nat: { tickets: 0, orders: Set } }
         validOrders.forEach(o => {
             let n = o['國籍'];
-            if(!n || n === '-') n = '未知';
             if (n === 'Taiwan, Province of China') n = 'Taiwan'; // Clean up common data entry
             
-            if (!natStatsRaw[n]) natStatsRaw[n] = { tickets: 0, orders: new Set() };
-            natStatsRaw[n].tickets++;
-            const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
-            natStatsRaw[n].orders.add(orderId);
+            if (n && n !== '-' && n !== '未知' && n !== 'null' && n !== 'undefined') {
+                if (!natStatsRaw[n]) natStatsRaw[n] = { tickets: 0, orders: new Set() };
+                natStatsRaw[n].tickets++;
+                const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
+                natStatsRaw[n].orders.add(orderId);
+            }
         });
 
         const natArray = Object.keys(natStatsRaw).map(k => ({ 
@@ -641,6 +658,26 @@ async function generateReport() {
         
         const natLabels = topNat.map(x => x.nat);
         const natData = topNat.map(x => x.ordersCount);
+
+        // 6.5 City
+        const cityStatsRaw = {};
+        validOrders.forEach(o => {
+            let n = o['縣市別'];
+            if(n && n !== '-' && n !== '未知' && n !== 'null' && n !== 'undefined') {
+                if (!cityStatsRaw[n]) cityStatsRaw[n] = { count: 0 };
+                const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
+                if (!cityStatsRaw[n].orders) cityStatsRaw[n].orders = new Set();
+                cityStatsRaw[n].orders.add(orderId);
+            }
+        });
+
+        const cityArrayStr = Object.keys(cityStatsRaw).map(k => ({
+            city: k,
+            count: cityStatsRaw[k].orders.size
+        })).sort((a,b) => b.count - a.count);
+
+        const cityLabels = cityArrayStr.slice(0, 10).map(x => x.city); // top 10
+        const cityData = cityArrayStr.slice(0, 10).map(x => x.count);
 
         // --- Render Charts ---
 
@@ -753,16 +790,16 @@ async function generateReport() {
             }
         });
 
-        // Age Chart (Bar)
+        // Age Chart (Pie)
         new Chart(document.getElementById('ageChart'), {
-            type: 'bar',
+            type: 'pie',
             data: {
                 labels: ageLabels,
                 datasets: [{
                     label: '人數',
                     data: ageData,
-                    backgroundColor: '#FFD700',
-                    borderRadius: 4
+                    backgroundColor: ['#42A5F5', '#EC407A', '#FFD700', '#66BB6A', '#AB47BC', '#FFA726', '#BDBDBD'],
+                    borderWidth: 0
                 }]
             },
             plugins: [ChartDataLabels],
@@ -770,22 +807,17 @@ async function generateReport() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { 
-                    legend: { display: false },
+                    legend: { position: 'bottom', labels: { color: '#ccc' } },
                     datalabels: {
-                        color: '#eee',
-                        anchor: 'end',
-                        align: 'top',
-                        font: { size: 12 },
+                        color: 'white',
+                        font: { weight: 'bold', size: 12 },
                         formatter: function(value, context) {
+                            if (value === 0) return '';
                             const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                             const p = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
-                            return value.toLocaleString() + ' (' + p + ')';
+                            return [value.toLocaleString(), '(' + p + ')'];
                         }
                     }
-                },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: '#ccc' } },
-                    y: { grid: { color: '#333' }, ticks: { color: '#888' } }
                 }
             }
         });
@@ -816,6 +848,41 @@ async function generateReport() {
                             return [value.toLocaleString(), '(' + p + ')'];
                         }
                     }
+                }
+            }
+        });
+
+        // City Chart (Bar)
+        new Chart(document.getElementById('cityChart'), {
+            type: 'bar',
+            data: {
+                labels: cityLabels,
+                datasets: [{
+                    label: '訂單數',
+                    data: cityData,
+                    backgroundColor: '#66bb6a',
+                    borderRadius: 4
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#eee',
+                        anchor: 'end',
+                        align: 'top',
+                        font: { size: 12 },
+                        formatter: function(value) {
+                            return value.toLocaleString();
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#ccc', maxRotation: 45, minRotation: 45 } },
+                    y: { grid: { color: '#333' }, ticks: { color: '#888' } }
                 }
             }
         });
