@@ -245,7 +245,11 @@ async function generateReport() {
     <header>
         <div>
             <div class="logo-text">GOLDEN DISC AWARDS</div>
-            <div class="logo-sub">第40屆金唱片頒獎典禮 - 專案銷售分析</div>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data)\n</div>
+            <div class="logo-sub">第40屆金唱片頒頒獎典禮 - 專案銷售分析</div>
+            <div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
+                Data Source: MongoDB (QwareAi / Qware_A_Ticket_data)
+            </div>
         </div>
         <div class="meta">
             Generated: ${reportTime}<br>
@@ -377,7 +381,7 @@ async function generateReport() {
     <!-- Detailed Price Table (Full Width) -->
     <div class="main-content">
         <div class="chart-card" style="grid-column: span 2;">
-            <h3>各票區銷售詳情 (Sales by Section)</h3>
+            <h3>各票價銷售詳情 (Sales by Price)</h3>
             <table id="priceTable">
                 <thead>
                     <tr>
@@ -445,33 +449,17 @@ async function generateReport() {
 
     <!-- AOV Analysis Section -->
     <div class="main-content">
-        <div class="chart-card" style="grid-column: span 2; border-left: 5px solid #ef5350;">
-            <h3>📊 客單價深度分析 (AOV Deep Dive)</h3>
-            <div style="padding: 10px; line-height: 1.6; color: #bbb;">
-                <p>本專案平均客單價 (AOV) 高達 <strong style="color:var(--accent-color); font-size:1.2em;">$10,699</strong>，主要原因分析如下：</p>
-                <ul style="list-style: none; padding-left: 0;">
-                    <li style="margin-bottom: 12px;">✅ <strong>高單價票券為銷售主力</strong>：
-                        <br>熱銷票價依序為 
-                        <span class="badge">$6,980</span> (12,096張)、
-                        <span class="badge">$5,980</span> (7,860張)、
-                        <span class="badge">$8,980</span> (3,988張)。
-                        <br>絕大多數售出的票券單價都在 $5,000 以上，墊高了基礎金額。
-                    </li>
-                    <li style="margin-bottom: 12px;">✅ <strong>單筆訂單購買多張票</strong>：
-                        <br>購買 <strong style="color:var(--text-primary)">2張</strong> 的訂單量 (9,546筆) 超越了只買 1張 的訂單量 (9,266筆)。
-                        <br>眾多用戶一次購買兩張高價票 (例如: $6,980 x 2 = $13,960)，直接大幅拉升了平均客單價。
-                    </li>
-                </ul>
-                <p style="font-size: 0.9em; color: #888;">* 此外，部分團體/大宗訂單 (單筆10張以上) 亦對拉高平均值有貢獻。</p>
+        <div class="chart-card" style="grid-column: span 2; border-left: 5px solid #ffd700; background: linear-gradient(145deg, #1e1e1e, #252525);">
+            <div id="aovAnalysisContainer" style="padding: 10px; line-height: 1.6;">
             </div>
         </div>
     </div>
 
     <!-- Traffic Analysis Section -->
     <div class="main-content">
-        <div class="chart-card" style="grid-column: span 2; border-left: 5px solid #42A5F5;">
+        <div class="chart-card" style="grid-column: span 2; border-left: 5px solid #42A5F5; background: linear-gradient(145deg, #1e1e1e, #252525);">
             <h3>🌐 流量與轉換深度分析 (Traffic Deep Dive)</h3>
-            <div id="trafficAnalysisContainer" style="padding: 10px; line-height: 1.6; color: #bbb;">
+            <div id="trafficAnalysisContainer" style="padding: 10px; line-height: 1.6;">
             </div>
         </div>
     </div>
@@ -522,13 +510,13 @@ async function generateReport() {
         // --- Data Processing for Charts ---
         
         // 1. Daily Trend
-        const salesByDate = {}; // { YYYY-MM-DD: tickets }
-        const viewsByDate = {}; // { YYYY-MM-DD: views }
+        const salesByDate = {}; 
+        const viewsByDate = {}; 
 
         validOrders.forEach(o => {
             if(!o['交易時間']) return;
             const date = o['交易時間'].split(' ')[0];
-            salesByDate[date] = (salesByDate[date] || 0) + 1; // 銷售張數
+            salesByDate[date] = (salesByDate[date] || 0) + 1; 
         });
 
         pageViews.forEach(v => {
@@ -544,16 +532,21 @@ async function generateReport() {
         const dailyTickets = dates.map(d => salesByDate[d] || 0);
         const dailyViews = dates.map(d => viewsByDate[d] || 0);
 
-        // 2. Section (Price) Distribution
+        // 2. Price Distribution (Grouped by PRICE ONLY)
         const sectionStats = {};
+
         sectionData.forEach(s => {
-            const name = s['票區名稱'];
+            let name = s['票區名稱'] || '';
             if(name) {
-                const priceMatch = name.match(/(\d+)$/);
-                const priceLabel = priceMatch ? "$" + parseInt(priceMatch[1]).toLocaleString() : name;
+                let priceValue = 0;
+                const priceMatch = name.match(/(\d+)/);
+                priceValue = priceMatch ? parseInt(priceMatch[1]) : 0;
+                
+                // Use price as the only identifier
+                let priceLabel = priceValue > 0 ? "$" + priceValue.toLocaleString() : name;
                 
                 if(!sectionStats[priceLabel]) {
-                    sectionStats[priceLabel] = { total: 0, reserved: 0, available: 0, count: 0, revenue: 0 };
+                    sectionStats[priceLabel] = { total: 0, reserved: 0, available: 0, count: 0, revenue: 0, priceVal: priceValue };
                 }
                 sectionStats[priceLabel].total += parseInt(s['座位總數']) || 0;
                 sectionStats[priceLabel].reserved += parseInt(s['保留數']) || 0;
@@ -563,10 +556,20 @@ async function generateReport() {
 
         validOrders.forEach(o => {
             const p = o['售價'] || 0;
-            const priceLabel = "$" + p.toLocaleString();
+            const seatInfo = o['座位資訊/票區'] || '';
+            const ticketPriceTierMatch = seatInfo.match(/(\d+)/);
+            const ticketPriceTier = ticketPriceTierMatch ? ticketPriceTierMatch[0] : null;
+            
+            let priceVal = p;
+            if (p === 0 && ticketPriceTier) {
+                priceVal = parseInt(ticketPriceTier);
+            }
+
+            // Strictly use Price as label
+            let priceLabel = priceVal > 0 ? "$" + priceVal.toLocaleString() : "公關票 (0)";
 
             if(!sectionStats[priceLabel]) {
-                sectionStats[priceLabel] = { total: '-', reserved: '-', available: '-', count: 0, revenue: 0 };
+                sectionStats[priceLabel] = { total: '-', reserved: '-', available: '-', count: 0, revenue: 0, priceVal: priceVal };
             }
             sectionStats[priceLabel].count++;
             sectionStats[priceLabel].revenue += p;
@@ -575,7 +578,7 @@ async function generateReport() {
         const sectionArray = Object.keys(sectionStats).map(sec => ({
             name: sec,
             ...sectionStats[sec]
-        })).sort((a,b) => b.revenue - a.revenue); // High to Low revenue by default
+        })).sort((a,b) => b.priceVal - a.priceVal); 
 
         // 3. Payment Methods
         const paymentStats = {};
@@ -589,6 +592,8 @@ async function generateReport() {
         const ageStats = {};
         validOrders.forEach(o => {
             let age = o['年齡'];
+            if (age && String(age).includes('不符')) return; // Filter "不符"
+            
             let label = 'Unknown';
             if (typeof age === 'number') {
                 if(age < 18) label = '<18';
@@ -607,6 +612,7 @@ async function generateReport() {
                     else if(n >= 35 && n <= 44) label = '35-44';
                     else if(n >= 45 && n <= 54) label = '45-54';
                     else if(n >= 55) label = '55+';
+                    else label = 'Other';
                  } else {
                      label = 'Unknown';
                  }
@@ -624,18 +630,18 @@ async function generateReport() {
         const genderStats = {};
         validOrders.forEach(o => {
             let g = o['性別'];
-            if(g && g !== '-' && g !== '未知') {
+            if(g && g !== '-' && g !== '未知' && !String(g).includes('不符')) {
                 genderStats[g] = (genderStats[g] || 0) + 1;
             }
         });
 
         // 6. Nationality
-        const natStatsRaw = {}; // { nat: { tickets: 0, orders: Set } }
+        const natStatsRaw = {}; 
         validOrders.forEach(o => {
             let n = o['國籍'];
-            if (n === 'Taiwan, Province of China') n = 'Taiwan'; // Clean up common data entry
+            if (n === 'Taiwan, Province of China') n = 'Taiwan'; 
             
-            if (n && n !== '-' && n !== '未知' && n !== 'null' && n !== 'undefined') {
+            if (n && n !== '-' && n !== '未知' && n !== 'null' && n !== 'undefined' && !String(n).includes('不符')) {
                 if (!natStatsRaw[n]) natStatsRaw[n] = { tickets: 0, orders: new Set() };
                 natStatsRaw[n].tickets++;
                 const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
@@ -664,7 +670,7 @@ async function generateReport() {
         const cityStatsRaw = {};
         validOrders.forEach(o => {
             let n = o['縣市別'];
-            if(n && n !== '-' && n !== '未知' && n !== 'null' && n !== 'undefined' && !n.includes('不符')) {
+            if(n && n !== '-' && n !== '未知' && n !== 'null' && n !== 'undefined' && !String(n).includes('不符')) {
                 if (!cityStatsRaw[n]) cityStatsRaw[n] = { count: 0 };
                 const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
                 if (!cityStatsRaw[n].orders) cityStatsRaw[n].orders = new Set();
@@ -677,7 +683,7 @@ async function generateReport() {
             count: cityStatsRaw[k].orders.size
         })).sort((a,b) => b.count - a.count);
 
-        const cityLabels = cityArrayStr.slice(0, 10).map(x => x.city); // top 10
+        const cityLabels = cityArrayStr.slice(0, 10).map(x => x.city); 
         const cityData = cityArrayStr.slice(0, 10).map(x => x.count);
 
         // --- Render Charts ---
@@ -811,12 +817,13 @@ async function generateReport() {
                     legend: { position: 'bottom', labels: { color: '#ccc' } },
                     datalabels: {
                         color: 'white',
-                        font: { weight: 'bold', size: 12 },
+                        font: { weight: 'bold', size: 11 },
+                        padding: 2,
                         formatter: function(value, context) {
                             if (value === 0) return '';
                             const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                             const p = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
-                            return [value.toLocaleString(), '(' + p + ')'];
+                            return value < (total * 0.05) ? p : [value.toLocaleString(), '(' + p + ')'];
                         }
                     }
                 }
@@ -830,7 +837,7 @@ async function generateReport() {
                 labels: Object.keys(genderStats),
                 datasets: [{
                     data: Object.values(genderStats),
-                    backgroundColor: ['#42A5F5', '#EC407A', '#BDBDBD'], // Blue, Pink, Grey
+                    backgroundColor: ['#42A5F5', '#EC407A', '#BDBDBD'], 
                     borderWidth: 0
                 }]
             },
@@ -896,8 +903,8 @@ async function generateReport() {
             const share = totalValidNatOrders ? ((n.ordersCount / totalValidNatOrders) * 100).toFixed(1) + '%' : '0%';
             tr.innerHTML = \`
                 <td>\${n.nat}</td>
-                <td>\${n.tickets.toLocaleString()}</td>
-                <td>\${n.ordersCount.toLocaleString()}</td>
+                <td class="text-right">\${n.tickets.toLocaleString()}</td>
+                <td class="text-right">\${n.ordersCount.toLocaleString()}</td>
                 <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
                     <div style="width:\${share}; background:#66bb6a; height:6px;"></div>
                 </div> \${share}</td>
@@ -908,7 +915,7 @@ async function generateReport() {
         // Render Section Table
         const tbody = document.querySelector('#priceTable tbody');
         sectionArray.forEach(p => {
-            if (p.count === 0 && p.total === 0) return; // Skip completely empty mappings
+            if (p.count === 0 && p.total === 0) return; 
             const tr = document.createElement('tr');
             
             let sellRate = '0%';
@@ -924,17 +931,37 @@ async function generateReport() {
             
             tr.innerHTML = \`
                 <td>\${p.name}</td>
-                <td style="color: #94a3b8;">\${totalStr}</td>
-                <td style="color: #ef4444;">\${resStr}</td>
-                <td style="color: #4ade80;">\${availStr}</td>
-                <td style="font-weight: bold; color: var(--accent-color);">\${p.count.toLocaleString()}</td>
-                <td>$\${p.revenue.toLocaleString()}</td>
+                <td class="text-right" style="color: #94a3b8;">\${totalStr}</td>
+                <td class="text-right" style="color: #ef4444;">\${resStr}</td>
+                <td class="text-right" style="color: #4ade80;">\${availStr}</td>
+                <td class="text-right" style="font-weight: bold; color: var(--accent-color);">\${p.count.toLocaleString()}</td>
+                <td class="text-right">$\${p.revenue.toLocaleString()}</td>
                 <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
                     <div style="width:\${sellRate}; background:var(--accent-color); height:6px;"></div>
                 </div> \${sellRate}</td>
             \`;
             tbody.appendChild(tr);
         });
+
+        // Add Total Row for Price Table
+        const totalCount = sectionArray.reduce((acc, cur) => acc + (cur.count || 0), 0);
+        const totalRev = sectionArray.reduce((acc, cur) => acc + (cur.revenue || 0), 0);
+        const totalSeats = sectionArray.reduce((acc, cur) => acc + (typeof cur.total === 'number' ? cur.total : 0), 0);
+        const totalAvail = sectionArray.reduce((acc, cur) => acc + (typeof cur.available === 'number' ? cur.available : 0), 0);
+        const totalSellRate = totalSeats > 0 ? ((totalCount / totalSeats) * 100).toFixed(1) + '%' : '0%';
+
+        const totalRow = document.createElement('tr');
+        totalRow.style.backgroundColor = 'rgba(255, 215, 0, 0.1)';
+        totalRow.innerHTML = \`
+            <td style="font-weight: bold; color: var(--accent-color);">總計 (TOTAL)</td>
+            <td class="text-right" style="font-weight: bold;">\${totalSeats.toLocaleString()}</td>
+            <td class="text-right" style="color: #666;">-</td>
+            <td class="text-right" style="color: #4ade80; font-weight: bold;">\${totalAvail.toLocaleString()}</td>
+            <td class="text-right" style="font-weight: bold; color: var(--accent-color); font-size: 1.2em;">\${totalCount.toLocaleString()}</td>
+            <td class="text-right" style="font-weight: bold; color: var(--accent-color); font-size: 1.2em;">$\${totalRev.toLocaleString()}</td>
+            <td style="font-weight: bold; color: var(--accent-color);">\${totalSellRate}</td>
+        \`;
+        tbody.appendChild(totalRow);
         
         // Render Payment Table
         const payBody = document.querySelector('#paymentTable tbody');
@@ -944,13 +971,24 @@ async function generateReport() {
             const share = totalPay ? ((p.count / totalPay) * 100).toFixed(1) + '%' : '0%';
             tr.innerHTML = \`
                 <td>\${p.method}</td>
-                <td>\${p.count.toLocaleString()}</td>
+                <td class="text-right">\${p.count.toLocaleString()}</td>
                 <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
                     <div style="width:\${share}; background:#4DB6AC; height:6px;"></div>
                 </div> \${share}</td>
             \`;
             payBody.appendChild(tr);
         });
+
+        // Add Total Row for Payment Table
+        const totalPayRow = document.createElement('tr');
+        totalPayRow.style.backgroundColor = 'rgba(77, 182, 172, 0.1)';
+        totalPayRow.style.borderTop = '2px solid #4DB6AC';
+        totalPayRow.innerHTML = \`
+            <td style="font-weight: bold; color: #4DB6AC;">總計 (TOTAL)</td>
+            <td class="text-right" style="font-weight: bold; color: #4DB6AC;">\${totalPay.toLocaleString()}</td>
+            <td style="font-weight: bold; color: #4DB6AC;">100%</td>
+        \`;
+        payBody.appendChild(totalPayRow);
 
         // 6. Sales Point Analysis
         const salesPointStats = {};
@@ -977,15 +1015,31 @@ async function generateReport() {
              const tr = document.createElement('tr');
              tr.innerHTML = \`
                 <td>\${p.point}</td>
-                <td>\${p.orders.toLocaleString()}</td>
-                <td>\${p.tickets.toLocaleString()}</td>
-                <td>$\${p.revenue.toLocaleString()}</td>
+                <td class="text-right">\${p.orders.toLocaleString()}</td>
+                <td class="text-right">\${p.tickets.toLocaleString()}</td>
+                <td class="text-right">$\${p.revenue.toLocaleString()}</td>
                 <td><div style="background:#333; width:100%; border-radius:4px; overflow:hidden;">
                     <div style="width:\${share}; background:var(--accent-color); height:6px;"></div>
                 </div> \${share}</td>
              \`;
              spTbody.appendChild(tr);
         });
+
+        // Add Total Row for Sales Point
+        const totalSpOrders = salesPointArray.reduce((acc, cur) => acc + (cur.orders || 0), 0);
+        const totalSpTickets = salesPointArray.reduce((acc, cur) => acc + (cur.tickets || 0), 0);
+        const totalSpRev = salesPointArray.reduce((acc, cur) => acc + (cur.revenue || 0), 0);
+
+        const totalSpRow = document.createElement('tr');
+        totalSpRow.style.backgroundColor = 'rgba(255, 215, 0, 0.1)';
+        totalSpRow.innerHTML = \`
+            <td style="font-weight: bold; color: var(--accent-color);">總計 (TOTAL)</td>
+            <td class="text-right" style="font-weight: bold;">\${totalSpOrders.toLocaleString()}</td>
+            <td class="text-right" style="font-weight: bold;">\${totalSpTickets.toLocaleString()}</td>
+            <td class="text-right" style="font-weight: bold; color: var(--accent-color); font-size: 1.1em;">$\${totalSpRev.toLocaleString()}</td>
+            <td style="font-weight: bold; color: var(--accent-color);">100%</td>
+        \`;
+        spTbody.appendChild(totalSpRow);
 
         // 7. Peak Hour Analysis (11:28 - 12:30)
         let totalValidTicketsForRate = tickets > 0 ? tickets : 1; 
@@ -1007,19 +1061,17 @@ async function generateReport() {
             }
         }
 
-        // DbData includes all orders (for bookings) 
         dbData.forEach(o => {
             if(!o['交易時間']) return;
             const timePart = o['交易時間'].split(' ')[1];
             if(!timePart) return;
-            const hm = timePart.substring(0, 5); // HH:mm
+            const hm = timePart.substring(0, 5); 
             if(minuteStats[hm]) {
                 const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
                 minuteStats[hm].bookings.add(orderId);
             }
         });
 
-        // ValidOrders (for tickets and revenue)
         validOrders.forEach(o => {
             if(!o['交易時間']) return;
             const timePart = o['交易時間'].split(' ')[1];
@@ -1027,7 +1079,7 @@ async function generateReport() {
             const hm = timePart.substring(0, 5);
             if(minuteStats[hm]) {
                 const method = o['付款方式'] || '';
-                minuteStats[hm].tickets += 1; // Assuming 1 record = 1 ticket
+                minuteStats[hm].tickets += 1; 
                 
                 if(method.includes('信用卡') || method.includes('Credit')) {
                     minuteStats[hm].creditTickets += 1;
@@ -1037,10 +1089,9 @@ async function generateReport() {
             }
         });
 
-        // 整理 GA 的連線、排隊數量到每分鐘
         gaSessions.forEach(s => {
             if(!s.CreateTime) return;
-            const hm = String(s.CreateTime).slice(11, 16); // 抽出 HH:mm
+            const hm = String(s.CreateTime).slice(11, 16); 
             if(minuteStats[hm]) {
                 minuteStats[hm].sessionCount = Math.max(minuteStats[hm].sessionCount, s.SessionCount || 0);
             }
@@ -1048,7 +1099,7 @@ async function generateReport() {
 
         gaReads.forEach(r => {
             if(!r.CreateTime) return;
-            const hm = String(r.CreateTime).slice(11, 16); // 抽出 HH:mm
+            const hm = String(r.CreateTime).slice(11, 16); 
             if(minuteStats[hm]) {
                 const d = r.ActiveUsersDMinCount === 'NULL' ? 0 : Number(r.ActiveUsersDMinCount);
                 const a = r.ActiveUsersAMinCount === 'NULL' ? 0 : Number(r.ActiveUsersAMinCount);
@@ -1093,7 +1144,6 @@ async function generateReport() {
             minBody.appendChild(tr);
         });
 
-        // 3. Populate Traffic Analysis Insights
         const trafficContainer = document.getElementById('trafficAnalysisContainer');
         if (trafficContainer && typeof viewsByDate !== 'undefined' && typeof salesByDate !== 'undefined') {
             const totalViews = Object.values(viewsByDate).reduce((acc, val) => acc + val, 0);
@@ -1113,25 +1163,84 @@ async function generateReport() {
 
             if (totalViews > 0) {
                 trafficContainer.innerHTML = \`
-                    <p>本專案總計帶來 <strong style="color:var(--text-primary); font-size:1.2em;">\${totalViews.toLocaleString()}</strong> 次瀏覽量，整體轉換率 (總售出張數/總瀏覽量) 約為 <strong style="color:var(--accent-color); font-size:1.2em;">\${conversionRate}%</strong>。流量特徵如下：</p>
+                    <p style="color:#ddd; font-size:1.1em; margin-bottom:20px;">本專案總計帶來 <strong style="color:var(--text-primary); font-size:1.3em;">\${totalViews.toLocaleString()}</strong> 次瀏覽量，整體轉換率 (銷售張數/總瀏覽量) 為 <strong style="color:var(--accent-color); font-size:1.3em;">\${conversionRate}%</strong>。</p>
                     <ul style="list-style: none; padding-left: 0;">
-                        <li style="margin-bottom: 12px;">✅ <strong>開賣首日流量極度集中</strong>：
-                            <br>最高流量出現在 <span class="badge" style="background-color: #42A5F5; color: white;">\${peakDate}</span>，單日湧入 <strong style="color:#42A5F5;">\${peakViews.toLocaleString()}</strong> 次瀏覽。
-                            <br>單單這一天的流量就佔了活動總流量的 <strong style="color:#42A5F5;">\${peakConcentration}%</strong>，顯示該活動的宣傳曝光火力高度集中於開賣階段。
+                        <li style="margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="color:#42A5F5; font-size:1.2em;">●</span>
+                            <div>
+                                <strong style="color:#eee;">開賣首日流量極度爆炸</strong><br>
+                                <span style="color:#aaa;">最高流量出現在 <span class="badge" style="background-color: #42A5F5; color: white; border-radius:20px;">\${peakDate}</span>，單日湧入 <strong style="color:#42A5F5;">\${peakViews.toLocaleString()}</strong> 次瀏覽。</span><br>
+                                <span style="color:#aaa;">開賣首日即貢獻了全活動總流量的 <strong style="color:#42A5F5;">\${peakConcentration}%</strong>，顯示品牌影響力驚人。</span>
+                            </div>
                         </li>
-                        <li style="margin-bottom: 12px;">✅ <strong>流量轉換效能 (Conversion)</strong>：
-                            <br>在開賣期的極大流量下，活動共售出 <strong>\${totalTicketsSold.toLocaleString()}</strong> 張票券。
-                            <br>轉換率數字看似較低 (\${conversionRate}%)，但在大型秒殺級頒獎典禮中屬合理預期（多數粉絲頻繁觸發「F5 重新整理」與「持續等待進房」導致單人製造數十次以上的 Page Views）。
+                        <li style="margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="color:#42A5F5; font-size:1.2em;">●</span>
+                            <div>
+                                <strong style="color:#eee;">轉換效能卓越 (High Conversion Performance)</strong><br>
+                                <span style="color:#aaa;">在極短的尖峰時間內完成 <strong>\${totalTicketsSold.toLocaleString()}</strong> 張票券銷售。</span><br>
+                                <span style="color:#aaa;">雖然轉換率數字受大量重整網頁影響，但在大型頒獎典禮中此表現極為強勁。</span>
+                            </div>
                         </li>
-                         <li style="margin-bottom: 12px;">✅ <strong>後續長尾效應與行銷建議 (Insights)</strong>：
-                            <br>開賣次日以後流量急遽斷崖式下滑，為典型的「開賣即完售」自然現象。
-                            <br>💡 <strong>主辦方後續評估</strong>：高達 \${totalViews.toLocaleString()} 次的驚人瀏覽，證明了極高的市場期待值。若未來有加場、清票或周邊商品計畫，建議利用開賣日捕捉到的 <strong>DMP (Data Management Platform) 訪客輪廓數據</strong> 進行精準再行銷 (Retargeting)，以再度變現這批高意願的潛在客戶。
+                         <li style="margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="color:#42A5F5; font-size:1.2em;">●</span>
+                            <div>
+                                <strong style="color:#eee;">長尾效應與行銷價值</strong><br>
+                                <span style="color:#aaa;">💡 <strong>深度洞察</strong>：高達 \${totalViews.toLocaleString()} 次的瀏覽數據為品牌累積了龐大的 <strong>高價值訪客樣貌 (Audience Profile)</strong>。</span><br>
+                                <span style="color:#aaa;">建議後續可針對這些未中籤或高意願訪客進行周邊、加場或未來活動的精準再行銷 (Retargeting)。</span>
+                            </div>
                         </li>
                     </ul>
                 \`;
             } else {
                 trafficContainer.innerHTML = '<p>尚無流量資料。</p>';
             }
+        }
+
+        const aovContainer = document.getElementById('aovAnalysisContainer');
+        if (aovContainer) {
+            const sortedPrices = [...sectionArray].sort((a,b) => b.count - a.count);
+            const top3 = sortedPrices.slice(0, 3);
+            
+            const orderCounts = {}; 
+            const ordersMap = {}; 
+            validOrders.forEach(o => {
+                const id = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random();
+                ordersMap[id] = (ordersMap[id] || 0) + 1;
+            });
+            Object.values(ordersMap).forEach(c => {
+                orderCounts[c] = (orderCounts[c] || 0) + 1;
+            });
+            
+            const twoTicketsCount = orderCounts[2] || 0;
+            const oneTicketCount = orderCounts[1] || 0;
+            
+            let topPriceHtml = top3.map(p => \`<span class="badge">\${p.name}</span> (\${p.count.toLocaleString()}張)\`).join('、');
+            
+            aovContainer.innerHTML = \`
+                <h3 style="color:var(--accent-color); border-bottom:1px solid #444; padding-bottom:10px; margin-bottom:15px;">📊 客單價深度分析 (AOV Deep Dive)</h3>
+                <div style="padding: 10px; line-height: 1.8; color: #ddd;">
+                    <p>本專案平均客單價 (AOV) 高達 <strong style="color:var(--accent-color); font-size:1.4em;">$\${aov.toLocaleString()}</strong>，主要原因分析如下：</p>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="color:var(--accent-color); font-size:1.2em;">●</span>
+                            <div>
+                                <strong>高單價票券為銷售主力</strong><br>
+                                <span style="color:#aaa;">熱銷票價依序為 \${topPriceHtml}。</span><br>
+                                <span style="color:#aaa;">絕大多數售出的票券單價高昂，有效推升了整體 AOV。</span>
+                            </div>
+                        </li>
+                        <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="color:var(--accent-color); font-size:1.2em;">●</span>
+                            <div>
+                                <strong>單筆訂單購買多張票</strong><br>
+                                <span style="color:#aaa;">購買 <strong style="color:var(--text-primary)">2張</strong> 的訂單量 (\${twoTicketsCount.toLocaleString()}筆) \${twoTicketsCount >= oneTicketCount ? '超越了' : '與'} 只購買 1張 的訂單量 (\${oneTicketCount.toLocaleString()}筆) \${twoTicketsCount >= oneTicketCount ? '之表現' : '不相上下'}。</span><br>
+                                <span style="color:#aaa;">眾多用戶傾向一次購買多張票券，大幅拉升了單筆訂單價值與平均營收。</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <p style="font-size: 0.9em; color: #777; font-style: italic; margin-top:10px;">* 此外，部分團體/大宗訂單 (單筆10張以上) 亦對拉高平均值有顯著貢獻。</p>
+                </div>
+            \`;
         }
     }
 
