@@ -381,7 +381,7 @@ async function generateReport() {
             <table id="priceTable">
                 <thead>
                     <tr>
-                        <th>票區名稱 (Section)</th>
+                        <th>票價 (Price)</th>
                         <th>座位總數 (Total)</th>
                         <th>保留數 (Reserved)</th>
                         <th>可售數 (Available)</th>
@@ -544,31 +544,32 @@ async function generateReport() {
         const dailyTickets = dates.map(d => salesByDate[d] || 0);
         const dailyViews = dates.map(d => viewsByDate[d] || 0);
 
-        // 2. Section Distribution
+        // 2. Section (Price) Distribution
         const sectionStats = {};
         sectionData.forEach(s => {
             const name = s['票區名稱'];
             if(name) {
-                sectionStats[name] = {
-                    total: parseInt(s['座位總數']) || 0,
-                    reserved: parseInt(s['保留數']) || 0,
-                    available: parseInt(s['可售數']) || 0,
-                    count: 0,
-                    revenue: 0
-                };
+                const priceMatch = name.match(/(\d+)$/);
+                const priceLabel = priceMatch ? "$" + parseInt(priceMatch[1]).toLocaleString() : name;
+                
+                if(!sectionStats[priceLabel]) {
+                    sectionStats[priceLabel] = { total: 0, reserved: 0, available: 0, count: 0, revenue: 0 };
+                }
+                sectionStats[priceLabel].total += parseInt(s['座位總數']) || 0;
+                sectionStats[priceLabel].reserved += parseInt(s['保留數']) || 0;
+                sectionStats[priceLabel].available += parseInt(s['可售數']) || 0;
             }
         });
 
         validOrders.forEach(o => {
-            const seatInfo = o['座位資訊/票區'] || '';
-            const secName = seatInfo.split('_')[0] || seatInfo;
             const p = o['售價'] || 0;
+            const priceLabel = "$" + p.toLocaleString();
 
-            if(!sectionStats[secName]) {
-                sectionStats[secName] = { total: '-', reserved: '-', available: '-', count: 0, revenue: 0 };
+            if(!sectionStats[priceLabel]) {
+                sectionStats[priceLabel] = { total: '-', reserved: '-', available: '-', count: 0, revenue: 0 };
             }
-            sectionStats[secName].count++;
-            sectionStats[secName].revenue += p;
+            sectionStats[priceLabel].count++;
+            sectionStats[priceLabel].revenue += p;
         });
         
         const sectionArray = Object.keys(sectionStats).map(sec => ({
