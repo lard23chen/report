@@ -663,7 +663,7 @@ async function generateReport() {
         const cityStatsRaw = {};
         validOrders.forEach(o => {
             let n = o['縣市別'];
-            if(n && n !== '-' && n !== '未知' && n !== 'null' && n !== 'undefined') {
+            if(n && n !== '-' && n !== '未知' && n !== 'null' && n !== 'undefined' && n !== '資格不符') {
                 if (!cityStatsRaw[n]) cityStatsRaw[n] = { count: 0 };
                 const orderId = o['訂單編號'] ? o['訂單編號'].split('_')[0] : Math.random().toString();
                 if (!cityStatsRaw[n].orders) cityStatsRaw[n].orders = new Set();
