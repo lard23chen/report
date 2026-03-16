@@ -916,7 +916,8 @@ async function generateReport() {
         // Render Section Table
         const tbody = document.querySelector('#priceTable tbody');
         sectionArray.forEach(p => {
-            if (p.count < 100) return; 
+            // 過濾：銷售張數 < 100 OR 可售數為 0 OR 可售數不是數字
+            if (p.count < 100 || p.available === 0 || typeof p.available !== 'number') return; 
             const tr = document.createElement('tr');
             
             let sellRate = '0%';
