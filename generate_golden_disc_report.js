@@ -916,7 +916,7 @@ async function generateReport() {
         // Render Section Table
         const tbody = document.querySelector('#priceTable tbody');
         sectionArray.forEach(p => {
-            if (p.count === 0 && p.total === 0) return; 
+            if (p.count < 100) return; 
             const tr = document.createElement('tr');
             
             let sellRate = '0%';
