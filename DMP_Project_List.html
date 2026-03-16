@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMP 流量項目流線分析 - Qware_A_Traffic_session_data</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        :root {
+            --bg-color: #0b1f31;
+            --card-bg: #162638;
+            --accent: #00d2ff;
+            --accent-glow: rgba(0, 210, 255, 0.4);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --gradient: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+        }
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 40px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        h1 {
+            font-size: 3rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+        .meta { color: var(--text-muted); font-size: 1rem; }
+        
+        .project-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .info-panel {
+            padding: 40px;
+            background: rgba(0,0,0,0.15);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .chart-panel {
+            padding: 40px 40px 20px 20px;
+        }
+
+        .project-name { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            margin-bottom: 15px; 
+            line-height: 1.2;
+            color: #fff;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(0, 210, 255, 0.1);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 210, 255, 0.2);
+        }
+
+        .date-info {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DMP 流量流線分析</h1>
+            <div class="meta">資料來源：QwareAi.Qware_A_Traffic_session_data | 2026/3/16 下午1:41:34</div>
+        </header>
+
+        <div class="project-grid">
+            
+            <div class="project-card">
+                <div class="info-panel">
+                    <span class="badge">ANALYTICS 1</span>
+                    <div class="project-name">第40屆金唱片頒獎典禮 The 40th Golden Disc Awards</div>
+                    
+                    <div style="margin-top: 30px;">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Total Page Views</div>
+                        <div class="stat-value">14,501,552</div>
+                    </div>
+
+                    <div class="date-info">
+                        🕒 數據區間：19 天<br>
+                        📅 2025-12-13 &rarr; 2025-12-31
+                    </div>
+                </div>
+                <div class="chart-panel">
+                    <div class="chart-header">
+                        <div class="chart-title">流量趨勢端點數值 <span style="font-size: 0.75rem; color: #3a7bd5; margin-left:10px;">(Daily Labels Enabled)</span></div>
+                    </div>
+                    <div style="height: 350px;">
+                        <canvas id="chart-0"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="info-panel">
+                    <span class="badge">ANALYTICS 2</span>
+                    <div class="project-name">國泰世華銀行 2026 韋禮安 韋，您好 HI WE1巡迴演唱會</div>
+                    
+                    <div style="margin-top: 30px;">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Total Page Views</div>
+                        <div class="stat-value">2,772,811</div>
+                    </div>
+
+                    <div class="date-info">
+                        🕒 數據區間：7 天<br>
+                        📅 2026-03-05 &rarr; 2026-03-16
+                    </div>
+                </div>
+                <div class="chart-panel">
+                    <div class="chart-header">
+                        <div class="chart-title">流量趨勢端點數值 <span style="font-size: 0.75rem; color: #3a7bd5; margin-left:10px;">(Daily Labels Enabled)</span></div>
+                    </div>
+                    <div style="height: 350px;">
+                        <canvas id="chart-1"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="info-panel">
+                    <span class="badge">ANALYTICS 3</span>
+                    <div class="project-name">deca joins 2026 world tour － 在這裡停一下</div>
+                    
+                    <div style="margin-top: 30px;">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Total Page Views</div>
+                        <div class="stat-value">1,469,169</div>
+                    </div>
+
+                    <div class="date-info">
+                        🕒 數據區間：16 天<br>
+                        📅 2026-02-13 &rarr; 2026-02-28
+                    </div>
+                </div>
+                <div class="chart-panel">
+                    <div class="chart-header">
+                        <div class="chart-title">流量趨勢端點數值 <span style="font-size: 0.75rem; color: #3a7bd5; margin-left:10px;">(Daily Labels Enabled)</span></div>
+                    </div>
+                    <div style="height: 350px;">
+                        <canvas id="chart-2"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        const projectData = [{"name":"第40屆金唱片頒獎典禮 The 40th Golden Disc Awards","daily":{"2025-12-22":489,"2025-12-18":605,"2025-12-21":365,"2025-12-25":279,"2025-12-28":251,"2025-12-31":189,"2025-12-15":2474,"2025-12-16":1147,"2025-12-17":824,"2025-12-20":582,"2025-12-23":1637,"2025-12-26":331,"2025-12-29":222,"2025-12-13":14476799,"2025-12-14":13408,"2025-12-19":550,"2025-12-24":947,"2025-12-27":232,"2025-12-30":221},"totalViews":14501552,"chartLabels":["2025-12-13","2025-12-14","2025-12-15","2025-12-16","2025-12-17","2025-12-18","2025-12-19","2025-12-20","2025-12-21","2025-12-22","2025-12-23","2025-12-24","2025-12-25","2025-12-26","2025-12-27","2025-12-28","2025-12-29","2025-12-30","2025-12-31"],"chartData":[14476799,13408,2474,1147,824,605,550,582,365,489,1637,947,279,331,232,251,222,221,189],"minDate":"2025-12-13","maxDate":"2025-12-31","entryCount":19},{"name":"國泰世華銀行 2026 韋禮安 韋，您好 HI WE1巡迴演唱會","daily":{"2026-03-05":590,"2026-03-06":416,"2026-03-07":108,"2026-03-13":1442743,"2026-03-14":1326028,"2026-03-15":2531,"2026-03-16":395},"totalViews":2772811,"chartLabels":["2026-03-05","2026-03-06","2026-03-07","2026-03-13","2026-03-14","2026-03-15","2026-03-16"],"chartData":[590,416,108,1442743,1326028,2531,395],"minDate":"2026-03-05","maxDate":"2026-03-16","entryCount":7},{"name":"deca joins 2026 world tour － 在這裡停一下","daily":{"2026-02-13":1434487,"2026-02-14":15515,"2026-02-23":1102,"2026-02-17":2378,"2026-02-18":1137,"2026-02-19":810,"2026-02-15":5793,"2026-02-24":1112,"2026-02-25":830,"2026-02-27":253,"2026-02-22":756,"2026-02-20":564,"2026-02-21":866,"2026-02-26":961,"2026-02-16":2503,"2026-02-28":102},"totalViews":1469169,"chartLabels":["2026-02-13","2026-02-14","2026-02-15","2026-02-16","2026-02-17","2026-02-18","2026-02-19","2026-02-20","2026-02-21","2026-02-22","2026-02-23","2026-02-24","2026-02-25","2026-02-26","2026-02-27","2026-02-28"],"chartData":[1434487,15515,5793,2503,2378,1137,810,564,866,756,1102,1112,830,961,253,102],"minDate":"2026-02-13","maxDate":"2026-02-28","entryCount":16}];
+        
+        // 註冊 DataLabels 插件
+        Chart.register(ChartDataLabels);
+
+        window.onload = function() {
+            projectData.forEach((p, i) => {
+                const ctx = document.getElementById('chart-' + i).getContext('2d');
+                
+                const gradient = ctx.createLinearGradient(0, 0, 0, 350);
+                gradient.addColorStop(0, 'rgba(0, 210, 255, 0.3)');
+                gradient.addColorStop(1, 'rgba(0, 210, 255, 0)');
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: p.chartLabels,
+                        datasets: [{
+                            label: '瀏覽量',
+                            data: p.chartData,
+                            borderColor: '#00d2ff',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#00d2ff',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 7,
+                            tension: 0.4,
+                            fill: true,
+                            backgroundColor: gradient
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                top: 30 // 為上端數字留空間
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: {
+                                align: 'top',
+                                anchor: 'end',
+                                offset: 8,
+                                color: '#00d2ff',
+                                font: {
+                                    family: 'Outfit',
+                                    size: 11,
+                                    weight: 'bold'
+                                },
+                                formatter: function(value) {
+                                    return value > 0 ? value.toLocaleString() : '';
+                                },
+                                // 避免太擠，如果數據點太多可以考慮 skip
+                                display: function(context) {
+                                    return true; 
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#1e293b',
+                                titleColor: '#00d2ff',
+                                padding: 15,
+                                displayColors: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.03)' },
+                                ticks: { 
+                                    color: '#64748b',
+                                    font: { size: 10 }
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { 
+                                    color: '#64748b', 
+                                    font: { size: 10 }
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        };
+    </script>
+</body>
+</html>
+        

@@ -539,10 +539,11 @@ async function generateReport() {
             let name = s['票區名稱'] || '';
             if(name) {
                 let priceValue = 0;
-                const priceMatch = name.match(/(\d+)/);
-                priceValue = priceMatch ? parseInt(priceMatch[1]) : 0;
+                // Get all numbers and pick the last one (usually the price)
+                const numbers = name.match(/\d+/g);
+                priceValue = numbers ? parseInt(numbers[numbers.length - 1]) : 0;
                 
-                // Use price as the only identifier
+                // Use price as the ONLY identifier
                 let priceLabel = priceValue > 0 ? "$" + priceValue.toLocaleString() : name;
                 
                 if(!sectionStats[priceLabel]) {
@@ -557,8 +558,8 @@ async function generateReport() {
         validOrders.forEach(o => {
             const p = o['售價'] || 0;
             const seatInfo = o['座位資訊/票區'] || '';
-            const ticketPriceTierMatch = seatInfo.match(/(\d+)/);
-            const ticketPriceTier = ticketPriceTierMatch ? ticketPriceTierMatch[0] : null;
+            const numbers = seatInfo.match(/\d+/g);
+            const ticketPriceTier = numbers ? numbers[numbers.length - 1] : null;
             
             let priceVal = p;
             if (p === 0 && ticketPriceTier) {
