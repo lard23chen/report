@@ -540,11 +540,11 @@ async function generateReport() {
             if(name) {
                 let priceValue = 0;
                 // Get all numbers and pick the last one (usually the price)
-                const numbers = name.match(/\d+/g);
+                const numbers = name.match(/\\d+/g);
                 priceValue = numbers ? parseInt(numbers[numbers.length - 1]) : 0;
                 
-                // Use price as the ONLY identifier
-                let priceLabel = priceValue > 0 ? "$" + priceValue.toLocaleString() : name;
+                // Use price as the ONLY identifier - Just the number
+                let priceLabel = priceValue > 0 ? priceValue.toString() : name;
                 
                 if(!sectionStats[priceLabel]) {
                     sectionStats[priceLabel] = { total: 0, reserved: 0, available: 0, count: 0, revenue: 0, priceVal: priceValue };
@@ -558,7 +558,7 @@ async function generateReport() {
         validOrders.forEach(o => {
             const p = o['售價'] || 0;
             const seatInfo = o['座位資訊/票區'] || '';
-            const numbers = seatInfo.match(/\d+/g);
+            const numbers = seatInfo.match(/\\d+/g);
             const ticketPriceTier = numbers ? numbers[numbers.length - 1] : null;
             
             let priceVal = p;
@@ -566,8 +566,8 @@ async function generateReport() {
                 priceVal = parseInt(ticketPriceTier);
             }
 
-            // Strictly use Price as label
-            let priceLabel = priceVal > 0 ? "$" + priceVal.toLocaleString() : "公關票 (0)";
+            // Strictly use Price as label - Just the number
+            let priceLabel = priceVal > 0 ? priceVal.toString() : "0";
 
             if(!sectionStats[priceLabel]) {
                 sectionStats[priceLabel] = { total: '-', reserved: '-', available: '-', count: 0, revenue: 0, priceVal: priceVal };
