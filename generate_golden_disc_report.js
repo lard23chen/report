@@ -922,8 +922,8 @@ async function generateReport() {
             
             let sellRate = '0%';
             let rateValue = 0;
-            if (p.total !== '-' && p.total > 0) {
-                rateValue = ((p.count / p.total) * 100);
+            if (p.available > 0) {
+                rateValue = ((p.count / p.available) * 100);
                 sellRate = rateValue.toFixed(1) + '%';
             }
 
@@ -950,7 +950,7 @@ async function generateReport() {
         const totalRev = sectionArray.reduce((acc, cur) => acc + (cur.revenue || 0), 0);
         const totalSeats = sectionArray.reduce((acc, cur) => acc + (typeof cur.total === 'number' ? cur.total : 0), 0);
         const totalAvail = sectionArray.reduce((acc, cur) => acc + (typeof cur.available === 'number' ? cur.available : 0), 0);
-        const totalSellRate = totalSeats > 0 ? ((totalCount / totalSeats) * 100).toFixed(1) + '%' : '0%';
+        const totalSellRate = totalAvail > 0 ? ((totalCount / totalAvail) * 100).toFixed(1) + '%' : '0%';
 
         const totalRow = document.createElement('tr');
         totalRow.style.backgroundColor = 'rgba(255, 215, 0, 0.1)';
