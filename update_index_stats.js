@@ -124,39 +124,31 @@ async function updateIndexStats() {
                 const diff = current - previous;
                 const percent = ((Math.abs(diff) / previous) * 100).toFixed(1);
                 const isUp = diff >= 0;
-                return `<div class="change-note">
-                    <span class="change-badge ${isUp ? 'change-up' : 'change-down'}">
+                return `<span class="change-badge ${isUp ? 'change-up' : 'change-down'}">
                         ${isUp ? '▲' : '▼'} ${percent}%
-                    </span>
-                </div>`;
+                    </span>`;
             };
 
             statsHtml += `
                         <tr style="transition: background-color 0.2s;">
                             <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${r._id}</td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                ${r.salesOrderCount.toLocaleString()}
-                                ${getCompareHtml(r.salesOrderCount, nextMonth ? nextMonth.salesOrderCount : null)}
+                                ${r.salesOrderCount.toLocaleString()} ${getCompareHtml(r.salesOrderCount, nextMonth ? nextMonth.salesOrderCount : null)}
                             </td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
-                                ${r.salesTicketCount.toLocaleString()}
-                                ${getCompareHtml(r.salesTicketCount, nextMonth ? nextMonth.salesTicketCount : null)}
+                                ${r.salesTicketCount.toLocaleString()} ${getCompareHtml(r.salesTicketCount, nextMonth ? nextMonth.salesTicketCount : null)}
                             </td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
-                                NT$ ${r.salesAmount.toLocaleString()}
-                                ${getCompareHtml(r.salesAmount, nextMonth ? nextMonth.salesAmount : null)}
+                                NT$ ${r.salesAmount.toLocaleString()} ${getCompareHtml(r.salesAmount, nextMonth ? nextMonth.salesAmount : null)}
                             </td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                ${r.refundOrderCount.toLocaleString()}
-                                ${getCompareHtml(r.refundOrderCount, nextMonth ? nextMonth.refundOrderCount : null)}
+                                ${r.refundOrderCount.toLocaleString()} ${getCompareHtml(r.refundOrderCount, nextMonth ? nextMonth.refundOrderCount : null)}
                             </td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                ${r.refundTicketCount.toLocaleString()}
-                                ${getCompareHtml(r.refundTicketCount, nextMonth ? nextMonth.refundTicketCount : null)}
+                                ${r.refundTicketCount.toLocaleString()} ${getCompareHtml(r.refundTicketCount, nextMonth ? nextMonth.refundTicketCount : null)}
                             </td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                                NT$ ${r.refundFee.toLocaleString()}
-                                ${getCompareHtml(r.refundFee, nextMonth ? nextMonth.refundFee : null)}
+                                NT$ ${r.refundFee.toLocaleString()} ${getCompareHtml(r.refundFee, nextMonth ? nextMonth.refundFee : null)}
                             </td>
                         </tr>
             `;
