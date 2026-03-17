@@ -305,6 +305,26 @@
                 -webkit-overflow-scrolling: touch;
             }
         }
+        .change-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            font-weight: 600;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .change-up {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .change-down {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
     </style>
 </head>
 
@@ -331,77 +351,77 @@
                 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h3 style="color: var(--text-primary); font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                    📊 E系統 月份交易統計 <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">(Monthly Statistics - E-System)</span>
+                    📊 E系統 月份交易統計
                 </h3>
-                <span style="font-size: 0.85rem; color: var(--text-secondary);">Last Updated: 2026/3/2 下午4:26:06</span>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">最後更新: 2026/3/17 上午10:37:16</span>
             </div>
             <div style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: separate; border-spacing: 0; color: var(--text-secondary); font-size: 0.95rem;">
                     <thead>
                         <tr>
-                            <th style="text-align: left; padding: 1rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">月份 (Month)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票筆數 (Orders)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票張數 (Tickets)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票金額 (Revenue)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票筆數 (Ref Orders)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票張數 (Ref Tix)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票手續費 (Fees)</th>
+                            <th style="text-align: left; padding: 1rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">月份</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">購票筆數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">購票張數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">購票金額</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">退票筆數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">退票張數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">退票手續費</th>
                         </tr>
                     </thead>
                     <tbody>
                         
                 <tr style="transition: background-color 0.2s;">
-                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">2026-02</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">27,027<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▼ 48.9%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">51,570<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▼ 32.2%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ 14,974,716<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▼ 27.4%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">1,750<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▲ 90.6%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">3,636<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▲ 121.8%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ 148,045<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▲ 179.7%</span></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">2026-02</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">27,027<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 48.9%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">51,570<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 32.2%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">NT$ 14,974,716<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 27.4%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">1,750<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 90.6%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">3,636<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 121.8%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">NT$ 148,045<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 179.7%</span></td>
                 </tr>
             
                 <tr style="transition: background-color 0.2s;">
-                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">2026-01</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">52,901<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▲ 65.7%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">76,107<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▲ 47.3%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ 20,616,134<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▲ 40.1%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">918<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▼ 16.5%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">1,639<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▼ 16.3%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ 52,935<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▼ 0.3%</span></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">2026-01</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">52,901<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 65.7%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">76,107<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 47.3%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">NT$ 20,616,134<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 40.1%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">918<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 16.5%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">1,639<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 16.3%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">NT$ 52,935<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 0.3%</span></td>
                 </tr>
             
                 <tr style="transition: background-color 0.2s;">
-                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">2025-12</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">31,924<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▲ 56%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">51,669<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▲ 37%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ 14,711,143<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▲ 44.1%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">1,099<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▲ 98.4%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">1,959<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▲ 95.1%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ 53,078<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▲ 39.5%</span></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">2025-12</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">31,924<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 56.0%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">51,669<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 37.0%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">NT$ 14,711,143<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 44.1%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">1,099<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 98.4%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">1,959<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 95.1%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">NT$ 53,078<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 39.5%</span></td>
                 </tr>
             
                 <tr style="transition: background-color 0.2s;">
-                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">2025-11</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">20,468<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▼ 15.1%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">37,724<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▼ 17.8%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ 10,207,720<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▼ 17.6%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">554<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▼ 9.8%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">1,004<span style="font-size: 0.8em; color: var(--success-color); margin-left: 8px;">▼ 8.5%</span></td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ 38,050<span style="font-size: 0.8em; color: var(--warning-color); margin-left: 8px;">▲ 12.4%</span></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">2025-11</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">20,468<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 15.1%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">37,724<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 17.8%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">NT$ 10,207,720<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 17.6%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">554<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 9.8%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">1,004<span class="change-badge change-up" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▼ 8.5%</span></td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">NT$ 38,050<span class="change-badge change-down" style="display: inline-block; white-space: nowrap; margin-left: 4px;">▲ 12.4%</span></td>
                 </tr>
             
                 <tr style="transition: background-color 0.2s;">
-                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">2025-10</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">24,097</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">45,894</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ 12,382,649</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">614</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">1,097</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ 33,855</td>
+                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">2025-10</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">24,097</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">45,894</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">NT$ 12,382,649</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">614</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">1,097</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">NT$ 33,855</td>
                 </tr>
             
             <tr style="background-color: rgba(255, 255, 255, 0.05); font-weight: bold;">
-                <td style="padding: 1rem; color: var(--text-primary); border-top: 2px solid rgba(255,255,255,0.1);">總計 (Total)</td>
+                <td style="padding: 1rem; color: var(--text-primary); border-top: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">總計</td>
                 <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">156,417</td>
                 <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">262,964</td>
                 <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">NT$ 72,892,362</td>

@@ -99,22 +99,22 @@ async function main() {
             const formatMoM = (current, previous, isNegativeGood = false) => {
                 if (!previous || previous === 0) return '';
                 const diff = current - previous;
-                const pct = ((diff / previous) * 100).toFixed(1);
+                const pct = ((Math.abs(diff) / previous) * 100).toFixed(1);
 
-                let color = '';
+                let badgeClass = '';
                 let arrow = '';
 
                 if (diff > 0) {
-                    color = isNegativeGood ? 'var(--warning-color)' : 'var(--success-color)';
+                    badgeClass = isNegativeGood ? 'change-down' : 'change-up';
                     arrow = '▲';
                 } else if (diff < 0) {
-                    color = isNegativeGood ? 'var(--success-color)' : 'var(--warning-color)';
+                    badgeClass = isNegativeGood ? 'change-up' : 'change-down';
                     arrow = '▼';
                 } else {
-                    return `<span style="font-size: 0.8em; color: var(--text-secondary); margin-left: 8px;">-</span>`;
+                    return '';
                 }
 
-                return `<span style="font-size: 0.8em; color: ${color}; margin-left: 8px;">${arrow} ${Math.abs(pct)}%</span>`;
+                return `<span class="change-badge ${badgeClass}" style="display: inline-block; white-space: nowrap; margin-left: 4px;">${arrow} ${pct}%</span>`;
             };
 
             const ordersMoM = formatMoM(s.orderCount, prevS ? prevS.orderCount : null);
@@ -133,13 +133,13 @@ async function main() {
 
             tableRows += `
                 <tr style="transition: background-color 0.2s;">
-                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${monthDisplay}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">${s.orderCount.toLocaleString()}${ordersMoM}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${s.totalTickets.toLocaleString()}${ticketsMoM}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ ${s.totalRevenue.toLocaleString()}${revenueMoM}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">${s.refundOrderCount.toLocaleString()}${refOrdersMoM}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">${s.refundTickets.toLocaleString()}${refTicketsMoM}</td>
-                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ ${s.refundFees.toLocaleString()}${refFeesMoM}</td>
+                    <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">${monthDisplay}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">${s.orderCount.toLocaleString()}${ordersMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">${s.totalTickets.toLocaleString()}${ticketsMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">NT$ ${s.totalRevenue.toLocaleString()}${revenueMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">${s.refundOrderCount.toLocaleString()}${refOrdersMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">${s.refundTickets.toLocaleString()}${refTicketsMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">NT$ ${s.refundFees.toLocaleString()}${refFeesMoM}</td>
                 </tr>
             `;
         });
@@ -147,7 +147,7 @@ async function main() {
         // Add Total Row
         tableRows += `
             <tr style="background-color: rgba(255, 255, 255, 0.05); font-weight: bold;">
-                <td style="padding: 1rem; color: var(--text-primary); border-top: 2px solid rgba(255,255,255,0.1);">總計 (Total)</td>
+                <td style="padding: 1rem; color: var(--text-primary); border-top: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">總計</td>
                 <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalStats.orders.toLocaleString()}</td>
                 <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalStats.tickets.toLocaleString()}</td>
                 <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">NT$ ${totalStats.revenue.toLocaleString()}</td>
@@ -160,21 +160,21 @@ async function main() {
         const statsHtml = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h3 style="color: var(--text-primary); font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                    📊 E系統 月份交易統計 <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">(Monthly Statistics - E-System)</span>
+                    📊 E系統 月份交易統計
                 </h3>
-                <span style="font-size: 0.85rem; color: var(--text-secondary);">Last Updated: ${new Date().toLocaleString('zh-TW')}</span>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">最後更新: ${new Date().toLocaleString('zh-TW')}</span>
             </div>
             <div style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: separate; border-spacing: 0; color: var(--text-secondary); font-size: 0.95rem;">
                     <thead>
                         <tr>
-                            <th style="text-align: left; padding: 1rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">月份 (Month)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票筆數 (Orders)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票張數 (Tickets)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票金額 (Revenue)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票筆數 (Ref Orders)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票張數 (Ref Tix)</th>
-                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票手續費 (Fees)</th>
+                            <th style="text-align: left; padding: 1rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">月份</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">購票筆數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">購票張數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">購票金額</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">退票筆數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">退票張數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">退票手續費</th>
                         </tr>
                     </thead>
                     <tbody>
