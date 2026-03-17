@@ -228,6 +228,19 @@ async function generateMemberReport() {
             else disabilityStats['No'] += d.count;
         });
 
+        // 9. Member Update Recency (By Year)
+        console.log("Aggregating Update Recency...");
+        const updateAgg = await collection.aggregate([
+            {
+                $project: {
+                    year: { $substr: ["$更新時間", 0, 4] }
+                }
+            },
+            { $group: { _id: "$year", count: { $sum: 1 } } },
+            { $sort: { _id: 1 } }
+        ]).toArray();
+        const updateArray = updateAgg.map(u => ({ year: u._id || 'Unknown', count: u.count }));
+
 
         // --- HTML Generation ---
         const reportTime = new Date().toLocaleString('zh-TW');
@@ -592,6 +605,41 @@ async function generateMemberReport() {
         </div>
     </div>
 
+    <!-- Member Update Recency -->
+    <div class="main-content">
+        <div class="chart-card full-width" style="border-left: 5px solid #FF5252;">
+            <h3>會員最後更新年份分析 (Member Update Recency by Year)</h3>
+            <div style="margin-bottom: 10px; font-size: 0.9em; color: #888;">
+                * 統計會員資料最後一次變動/更新的年份分佈
+            </div>
+             <div style="height: 400px;">
+                <canvas id="updateChart"></canvas>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>年份</th>
+                        <th>人數</th>
+                        <th>佔比</th>
+                        <th>與現況差距</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${updateArray.reverse().map(u => {
+            const diff = u.year === 'Unknown' ? 'N/A' : (currentYear - parseInt(u.year)) + " 年";
+            return `
+                        <tr>
+                            <td>${u.year}</td>
+                            <td>${u.count.toLocaleString()}</td>
+                            <td>${((u.count / totalMembers) * 100).toFixed(2)}%</td>
+                            <td>${diff}</td>
+                        </tr>
+                    `}).join('')}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -607,6 +655,7 @@ async function generateMemberReport() {
     const disabilityData = ${JSON.stringify(disabilityStats)};
     const zodiacData = ${JSON.stringify(zodiacStats)};
     const chineseZodiacData = ${JSON.stringify(chineseZodiacStats)};
+    const updateData = ${JSON.stringify([...updateArray].reverse())};
 
     // 9. Zodiac Chart (Stacked Bar)
     new Chart(document.getElementById('zodiacChart'), {
@@ -975,6 +1024,43 @@ async function generateMemberReport() {
             },
             scales: {
                 x: { grid: { display: false }, ticks: { color: '#ccc', autoSkip: false, maxRotation: 45, minRotation: 45 } },
+                y: { grid: { color: '#333' }, ticks: { color: '#888' } }
+            }
+        }
+    });
+
+    // 11. Update Recency Chart (Bar)
+    new Chart(document.getElementById('updateChart'), {
+        type: 'bar',
+        data: {
+            labels: updateData.map(d => d.year),
+            datasets: [{
+                label: '人數',
+                data: updateData.map(d => d.count),
+                backgroundColor: '#FF5252',
+                borderRadius: 4
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                datalabels: {
+                    color: 'white',
+                    anchor: 'end',
+                    align: 'top',
+                    offset: 4,
+                    font: { size: 10, weight: 'bold' },
+                    formatter: (value, ctx) => {
+                         const percentage = ((value / ${totalMembers}) * 100).toFixed(1) + '%';
+                         return value.toLocaleString() + ' (' + percentage + ')';
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#ccc' } },
                 y: { grid: { color: '#333' }, ticks: { color: '#888' } }
             }
         }
