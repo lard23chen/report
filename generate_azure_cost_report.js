@@ -230,6 +230,35 @@ async function generateReport() {
             border-color: rgba(255,255,255,0.2);
             background: linear-gradient(135deg, #4a4a4a, #2a2a2a);
         }
+        .filter-container {
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid #333;
+        }
+        .filter-container label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .filter-container select {
+            background: #2c2c2c;
+            color: white;
+            border: 1px solid #444;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+        }
+        .filter-container select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
     </style>
 </head>
 <body>
@@ -253,10 +282,24 @@ async function generateReport() {
             </div>
         </div>
         <div class="meta">
-            資料月份: ${labels[0]} ~ ${labels[labels.length - 1]}<br>
+            資料月份: <span id="rangeText"></span><br>
             產生時間: ${reportTime}
         </div>
     </header>
+
+    <div class="filter-container">
+        <div>
+            <label>開始月份 (From):</label>
+            <select id="startMonthSelect"></select>
+        </div>
+        <div>
+            <label>結束月份 (To):</label>
+            <select id="endMonthSelect"></select>
+        </div>
+        <div style="margin-left: auto; color: #888; font-size: 0.85em;">
+            * 篩選下方圖表與表格區間
+        </div>
+    </div>
 
     <div class="stats-grid">
         <div class="card card-total">
@@ -303,34 +346,8 @@ async function generateReport() {
                         <th>總費用 (Total)</th>
                     </tr>
                 </thead>
-                <tbody>
-                    ${[...docs].reverse().map((d, index) => {
-                let allIndex = allDocs.findIndex(a => a.YearMonth === d.YearMonth);
-                let prev = allIndex > 0 ? allDocs[allIndex - 1] : null;
-
-                const getChangeHTML = (currVal, prevVal) => {
-                    if (!prevVal) return '';
-                    const diff = currVal - prevVal;
-                    const pct = ((diff / prevVal) * 100).toFixed(1);
-                    // 費用增加顯示紅色，減少顯示綠色
-                    if (diff > 0) return '<span style="color: #ef5350; font-size: 1em; font-weight: bold; margin-left: 5px;">▲ ' + pct + '%</span>';
-                    if (diff < 0) return '<span style="color: #66BB6A; font-size: 1em; font-weight: bold; margin-left: 5px;">▼ ' + Math.abs(pct) + '%</span>';
-                    return '<span style="color: #888; font-size: 1em; font-weight: bold; margin-left: 5px;">- 0%</span>';
-                };
-
-                const total = d.QWARE_Ticket_TotalCost || 0;
-                const otherCost = (d.PaymentPortal_Cost || 0) + (d.SystemHotel_Cost || 0) + (d.Common_Cost || 0) + (d.PayGateway_Cost || 0) + (d.iSharingGift_Cost || 0) + (d.SystemCloudCard_Cost || 0);
-                const prevOtherCost = prev ? (prev.PaymentPortal_Cost || 0) + (prev.SystemHotel_Cost || 0) + (prev.Common_Cost || 0) + (prev.PayGateway_Cost || 0) + (prev.iSharingGift_Cost || 0) + (prev.SystemCloudCard_Cost || 0) : null;
-
-                return '<tr>' +
-                    '<td style="font-weight: bold; font-size: 1.1em;">' + d.YearMonth + '</td>' +
-                    '<td><span style="font-size: 1.1em; font-weight: bold;">' + (d.SystemA_Cost || 0).toLocaleString() + '</span> ' + getChangeHTML(d.SystemA_Cost, prev?.SystemA_Cost) + '</td>' +
-                    '<td><span style="font-size: 1.1em; font-weight: bold;">' + (d.SystemD_Cost || 0).toLocaleString() + '</span> ' + getChangeHTML(d.SystemD_Cost, prev?.SystemD_Cost) + '</td>' +
-                    '<td><span style="font-size: 1.1em; font-weight: bold;">' + (d.SystemE_Cost || 0).toLocaleString() + '</span> ' + getChangeHTML(d.SystemE_Cost, prev?.SystemE_Cost) + '</td>' +
-                    '<td><span style="font-size: 1.1em; font-weight: bold;">' + otherCost.toLocaleString() + '</span> ' + getChangeHTML(otherCost, prevOtherCost) + '</td>' +
-                    '<td><span style="font-size: 1.3em; font-weight: bold; color: var(--accent-color);">' + total.toLocaleString() + '</span> ' + getChangeHTML(total, prev?.QWARE_Ticket_TotalCost) + '</td>' +
-                    '</tr>';
-            }).join('')}
+                <tbody id="tableBody">
+                    <!-- Data will be injected via JS -->
                 </tbody>
             </table>
         </div>
@@ -359,22 +376,104 @@ async function generateReport() {
 </div>
 
 <script>
-    const labels = ${JSON.stringify(labels)};
-    const costTotal = ${JSON.stringify(costTotal)};
-    const costA = ${JSON.stringify(costA)};
-    const costD = ${JSON.stringify(costD)};
-    const costE = ${JSON.stringify(costE)};
-    const costOther = ${JSON.stringify(costOther)};
+    const allData = ${JSON.stringify(allDocs)};
     
+    let trendChart, stackedChart;
+    const startSelect = document.getElementById('startMonthSelect');
+    const endSelect = document.getElementById('endMonthSelect');
+    const tableBody = document.getElementById('tableBody');
+    const rangeText = document.getElementById('rangeText');
+
+    function initFilters() {
+        const months = allData.map(d => d.YearMonth);
+        months.forEach(m => {
+            const optStart = new Option(m, m);
+            const optEnd = new Option(m, m);
+            startSelect.add(optStart);
+            endSelect.add(optEnd);
+        });
+
+        // Default: Last 12 months
+        const defaultStartIndex = Math.max(0, allData.length - 12);
+        startSelect.selectedIndex = defaultStartIndex;
+        endSelect.selectedIndex = allData.length - 1;
+
+        startSelect.addEventListener('change', updateView);
+        endSelect.addEventListener('change', updateView);
+    }
+
+    function getOtherCost(d) {
+        return (d.PaymentPortal_Cost || 0) + (d.SystemHotel_Cost || 0) + (d.Common_Cost || 0) + (d.PayGateway_Cost || 0) + (d.iSharingGift_Cost || 0) + (d.SystemCloudCard_Cost || 0);
+    }
+
+    function getChangeHTML(currVal, prevVal) {
+        if (prevVal === undefined || prevVal === null) return '';
+        const diff = currVal - prevVal;
+        const pct = ((diff / (prevVal || 1)) * 100).toFixed(1);
+        if (diff > 0) return '<span style="color: #ef5350; font-size: 0.9em; font-weight: bold; margin-left: 5px;">▲ ' + pct + '%</span>';
+        if (diff < 0) return '<span style="color: #66BB6A; font-size: 0.9em; font-weight: bold; margin-left: 5px;">▼ ' + Math.abs(pct) + '%</span>';
+        return '<span style="color: #888; font-size: 0.9em; font-weight: bold; margin-left: 5px;">- 0%</span>';
+    }
+
+    function updateView() {
+        const start = startSelect.value;
+        const end = endSelect.value;
+        
+        const filtered = allData.filter(d => d.YearMonth >= start && d.YearMonth <= end);
+        const labels = filtered.map(d => d.YearMonth);
+        
+        // Update Meta
+        document.getElementById('rangeText').textContent = labels[0] + ' ~ ' + labels[labels.length - 1];
+
+        // Prepare Chart Data
+        const costA = filtered.map(d => d.SystemA_Cost || 0);
+        const costD = filtered.map(d => d.SystemD_Cost || 0);
+        const costE = filtered.map(d => d.SystemE_Cost || 0);
+        const costTotal = filtered.map(d => d.QWARE_Ticket_TotalCost || 0);
+        const costOther = filtered.map(d => getOtherCost(d));
+
+        // Update Charts
+        trendChart.data.labels = labels;
+        trendChart.data.datasets[0].data = costA;
+        trendChart.data.datasets[1].data = costD;
+        trendChart.data.datasets[2].data = costE;
+        trendChart.update();
+
+        stackedChart.data.labels = labels;
+        stackedChart.data.datasets[0].data = costA;
+        stackedChart.data.datasets[1].data = costD;
+        stackedChart.data.datasets[2].data = costE;
+        stackedChart.data.datasets[3].data = costOther;
+        stackedChart.update();
+
+        // Update Table
+        tableBody.innerHTML = [...filtered].reverse().map(d => {
+            const idx = allData.findIndex(a => a.YearMonth === d.YearMonth);
+            const prev = idx > 0 ? allData[idx - 1] : null;
+            const total = d.QWARE_Ticket_TotalCost || 0;
+            const other = getOtherCost(d);
+            const prevOther = prev ? getOtherCost(prev) : null;
+
+            return \`<tr>
+                <td style="font-weight: bold; font-size: 1.1em;">\${d.YearMonth}</td>
+                <td><span style="font-size: 1.1em; font-weight: bold;">\${(d.SystemA_Cost || 0).toLocaleString()}</span> \${getChangeHTML(d.SystemA_Cost, prev?.SystemA_Cost)}</td>
+                <td><span style="font-size: 1.1em; font-weight: bold;">\${(d.SystemD_Cost || 0).toLocaleString()}</span> \${getChangeHTML(d.SystemD_Cost, prev?.SystemD_Cost)}</td>
+                <td><span style="font-size: 1.1em; font-weight: bold;">\${(d.SystemE_Cost || 0).toLocaleString()}</span> \${getChangeHTML(d.SystemE_Cost, prev?.SystemE_Cost)}</td>
+                <td><span style="font-size: 1.1em; font-weight: bold;">\${other.toLocaleString()}</span> \${getChangeHTML(other, prevOther)}</td>
+                <td><span style="font-size: 1.3em; font-weight: bold; color: var(--accent-color);">\${total.toLocaleString()}</span> \${getChangeHTML(total, prev?.QWARE_Ticket_TotalCost)}</td>
+            </tr>\`;
+        }).join('');
+    }
+
     // 1. 每月總費用折線圖
-    new Chart(document.getElementById('trendChart'), {
+    trendChart = new Chart(document.getElementById('trendChart'), {
         type: 'line',
         data: {
-            labels: labels,
+            labels: [],
             datasets: [
                 {
                     label: 'A系統',
-                    data: costA,
+                    data: [],
                     borderColor: '#FF7043',
                     backgroundColor: 'rgba(255, 112, 67, 0.1)',
                     tension: 0.3,
@@ -384,7 +483,7 @@ async function generateReport() {
                 },
                 {
                     label: 'D系統',
-                    data: costD,
+                    data: [],
                     borderColor: '#42A5F5',
                     backgroundColor: 'rgba(66, 165, 245, 0.1)',
                     tension: 0.3,
@@ -394,7 +493,7 @@ async function generateReport() {
                 },
                 {
                     label: 'E系統',
-                    data: costE,
+                    data: [],
                     borderColor: '#66BB6A',
                     backgroundColor: 'rgba(102, 187, 106, 0.1)',
                     tension: 0.3,
@@ -429,29 +528,29 @@ async function generateReport() {
     });
 
     // 2. 系統費用堆疊長條圖
-    new Chart(document.getElementById('stackedChart'), {
+    stackedChart = new Chart(document.getElementById('stackedChart'), {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: [],
             datasets: [
                 {
                     label: 'A系統',
-                    data: costA,
+                    data: [],
                     backgroundColor: '#FF7043'
                 },
                 {
                     label: 'D系統',
-                    data: costD,
+                    data: [],
                     backgroundColor: '#42A5F5'
                 },
                 {
                     label: 'E系統',
-                    data: costE,
+                    data: [],
                     backgroundColor: '#66BB6A'
                 },
                 {
                     label: '其他費用',
-                    data: costOther,
+                    data: [],
                     backgroundColor: '#AB47BC'
                 }
             ]
@@ -478,6 +577,9 @@ async function generateReport() {
             }
         }
     });
+
+    initFilters();
+    updateView();
 
 </script>
 
