@@ -151,23 +151,25 @@ async function main() {
                     }
                 });
 
-                clientData.push({
-                    activityId: eId,
-                    name: event.Name, // We can keep Name the same; UI renders the date bracket e.g., [2026-01-25] Name
-                    maxSession: maxSession,
-                    maxActiveD: maxActiveD,
-                    maxActiveA: maxActiveA,
-                    maxActiveDMin: maxActiveDMin,
-                    maxActiveAMin: maxActiveAMin,
-                    maxSessionTime: maxSessionTime,
-                    maxActiveDTime: maxActiveDTime,
-                    maxActiveATime: maxActiveATime,
-                    maxActiveDMinTime: maxActiveDMinTime,
-                    maxActiveAMinTime: maxActiveAMinTime,
-                    start: dailyData.length > 0 ? dailyData[0].time : '',
-                    end: dailyData.length > 0 ? dailyData[dailyData.length - 1].time : '',
-                    data: dailyData
-                });
+                if (maxSession > 500) {
+                    clientData.push({
+                        activityId: eId,
+                        name: event.Name, // We can keep Name the same; UI renders the date bracket e.g., [2026-01-25] Name
+                        maxSession: maxSession,
+                        maxActiveD: maxActiveD,
+                        maxActiveA: maxActiveA,
+                        maxActiveDMin: maxActiveDMin,
+                        maxActiveAMin: maxActiveAMin,
+                        maxSessionTime: maxSessionTime,
+                        maxActiveDTime: maxActiveDTime,
+                        maxActiveATime: maxActiveATime,
+                        maxActiveDMinTime: maxActiveDMinTime,
+                        maxActiveAMinTime: maxActiveAMinTime,
+                        start: dailyData.length > 0 ? dailyData[0].time : '',
+                        end: dailyData.length > 0 ? dailyData[dailyData.length - 1].time : '',
+                        data: dailyData
+                    });
+                }
             }
         }
 
