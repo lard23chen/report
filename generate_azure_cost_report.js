@@ -349,6 +349,9 @@ async function generateReport() {
                 <tbody id="tableBody">
                     <!-- Data will be injected via JS -->
                 </tbody>
+                <tfoot id="tableFoot" style="border-top: 2px solid var(--accent-color);">
+                    <!-- Total will be injected via JS -->
+                </tfoot>
             </table>
         </div>
     </div>
@@ -447,12 +450,20 @@ async function generateReport() {
         stackedChart.update();
 
         // Update Table
+        let sumA = 0, sumD = 0, sumE = 0, sumOther = 0, sumTotal = 0;
+
         tableBody.innerHTML = [...filtered].reverse().map(d => {
             const idx = allData.findIndex(a => a.YearMonth === d.YearMonth);
             const prev = idx > 0 ? allData[idx - 1] : null;
             const total = d.QWARE_Ticket_TotalCost || 0;
             const other = getOtherCost(d);
             const prevOther = prev ? getOtherCost(prev) : null;
+
+            sumA += (d.SystemA_Cost || 0);
+            sumD += (d.SystemD_Cost || 0);
+            sumE += (d.SystemE_Cost || 0);
+            sumOther += other;
+            sumTotal += total;
 
             return \`<tr>
                 <td style="font-weight: bold; font-size: 1.1em;">\${d.YearMonth}</td>
@@ -463,6 +474,15 @@ async function generateReport() {
                 <td><span style="font-size: 1.3em; font-weight: bold; color: var(--accent-color);">\${total.toLocaleString()}</span> \${getChangeHTML(total, prev?.QWARE_Ticket_TotalCost)}</td>
             </tr>\`;
         }).join('');
+
+        document.getElementById('tableFoot').innerHTML = \`<tr style="background: rgba(255, 255, 255, 0.05);">
+            <td style="font-weight: bold; color: var(--accent-color); font-size: 1.1em;">區間總計 (Total)</td>
+            <td style="font-weight: bold; font-size: 1.25em; color: #fff;">\${sumA.toLocaleString()}</td>
+            <td style="font-weight: bold; font-size: 1.25em; color: #fff;">\${sumD.toLocaleString()}</td>
+            <td style="font-weight: bold; font-size: 1.25em; color: #fff;">\${sumE.toLocaleString()}</td>
+            <td style="font-weight: bold; font-size: 1.25em; color: #fff;">\${sumOther.toLocaleString()}</td>
+            <td style="font-weight: bold; font-size: 1.5em; color: var(--color-total);">\${sumTotal.toLocaleString()}</td>
+        </tr>\`;
     }
 
     // 1. 每月總費用折線圖
