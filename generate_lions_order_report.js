@@ -51,7 +51,17 @@ async function main() {
         data.forEach(d => {
             if (d['狀態'] !== '正常') return;
 
-            const revenue = d['售價'] && d['售價'].$numberDecimal ? parseFloat(d['售價'].$numberDecimal) : (typeof d['售價'] === 'number' ? d['售價'] : 0);
+            let revenue = 0;
+            if (d['售價']) {
+                if (typeof d['售價'] === 'number') {
+                    revenue = d['售價'];
+                } else if (d['售價'].$numberDecimal) {
+                    revenue = parseFloat(d['售價'].$numberDecimal);
+                } else {
+                    revenue = parseFloat(d['售價'].toString());
+                }
+            }
+            
             totalRevenue += revenue;
             totalTickets += 1;
 
