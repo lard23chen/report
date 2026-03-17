@@ -213,35 +213,31 @@
         <div>
             <div class="logo-text">Qware Member Analysis</div>
             <div class="logo-sub">會員資料庫深度分析</div>
-<!-- Data Source Header -->
-<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
-    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
-    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data)</div>
         </div>
         <div class="meta">
-            Generated: 2026/3/6 上午9:10:25<br>
-            Total Members: 2,789,049
+            Generated: 2026/3/17 下午2:18:03<br>
+            Total Members: 3,046,771
         </div>
     </header>
 
     <div class="stats-grid">
         <div class="card">
             <h3>總會員數 (Total Members)</h3>
-            <div class="value">2,789,049</div>
+            <div class="value">3,046,771</div>
         </div>
         <div class="card">
             <h3>最大來源 (Top Source)</h3>
             <div class="value" style="font-size: 1.8em;">GOOGLE</div>
-            <div class="sub">967,043 members</div>
+            <div class="sub">1,001,510 members</div>
         </div>
         <div class="card">
             <h3>主要國家 (Top Country)</h3>
             <div class="value" style="font-size: 1.8em;">台灣</div>
-            <div class="sub">2,697,292 members</div>
+            <div class="sub">2,941,032 members</div>
         </div>
         <div class="card">
             <h3>女性佔比 (Female %)</h3>
-            <div class="value">64.7%</div>
+            <div class="value">64.2%</div>
         </div>
     </div>
 
@@ -257,15 +253,15 @@
                 <tbody>
                     
                         <tr>
-                            <td>女</td>
-                            <td>1,803,891</td>
-                            <td>64.7%</td>
+                            <td>男</td>
+                            <td>1,090,573</td>
+                            <td>35.8%</td>
                         </tr>
                     
                         <tr>
-                            <td>男</td>
-                            <td>985,158</td>
-                            <td>35.3%</td>
+                            <td>女</td>
+                            <td>1,956,198</td>
+                            <td>64.2%</td>
                         </tr>
                     
                 </tbody>
@@ -309,7 +305,7 @@
                 <canvas id="blacklistChart"></canvas>
             </div>
             <div style="text-align: center; margin-top: 15px; font-weight: bold; color: #F44336;">
-                黑名單人數: 22,111 (0.79%)
+                黑名單人數: 27,192 (0.89%)
             </div>
         </div>
 
@@ -320,7 +316,7 @@
                 <canvas id="disabilityChart"></canvas>
             </div>
             <div style="text-align: center; margin-top: 15px; font-weight: bold; color: #FF9800;">
-                身障人數: 13,818 (0.50%)
+                身障人數: 15,275 (0.50%)
             </div>
         </div>
     </div>
@@ -360,7 +356,7 @@
         <div class="chart-card full-width" style="border-left: 5px solid #00E676;">
             <h3>台灣縣市分佈 (Taiwan City Distribution)</h3>
             <div style="margin-bottom: 10px; font-size: 0.9em; color: #888;">
-                * 僅統計國家為「台灣」之會員 (共 2,697,292 人)
+                * 僅統計國家為「台灣」之會員 (共 2,941,032 人)
             </div>
              <div style="height: 400px;">
                 <canvas id="cityChart"></canvas>
@@ -372,17 +368,17 @@
 
 <script>
     // Data Preparation
-    const genderData = {"女":1803891,"男":985158};
-    const ageData = {"<18":44010,"18-24":492350,"25-34":1096812,"35-44":700907,"45-54":359659,"55-64":80341,"65+":14970,"Unknown":0};
-    const socialData = [{"name":"GOOGLE","count":967043},{"name":"OP","count":939742},{"name":"LINE","count":533056},{"name":"FB","count":288910},{"name":"APPLE","count":52544},{"name":"MAJOR","count":7754}];
-    const countryData = [{"name":"台灣","count":2697292},{"name":"其他","count":57732},{"name":"日本","count":19995},{"name":"韓國","count":8021},{"name":"中國","count":6009}]; // Top 15
-    const cityData = [{"name":"格式不符","count":640151},{"name":"新北市","count":429314},{"name":"高雄市","count":288318},{"name":"臺北市","count":258094},{"name":"臺中市","count":235325},{"name":"桃園市","count":205127},{"name":"臺南市","count":196018},{"name":"彰化縣","count":72444},{"name":"屏東縣","count":53060},{"name":"新竹縣","count":50093},{"name":"新竹市","count":43501},{"name":"雲林縣","count":33572},{"name":"苗栗縣","count":32261},{"name":"基隆市","count":30427},{"name":"宜蘭縣","count":28557},{"name":"嘉義縣","count":25659},{"name":"南投縣","count":23369},{"name":"嘉義市","count":19897},{"name":"花蓮縣","count":15970},{"name":"臺東縣","count":9971},{"name":"澎湖縣","count":3423},{"name":"金門縣","count":2385},{"name":"連江縣","count":356}];
-    const taiwanTotal = 2697292;
-    const monthlyGrowthData = [{"month":"2025-02","count":12436},{"month":"2025-03","count":72453},{"month":"2025-04","count":39401},{"month":"2025-05","count":84528},{"month":"2025-06","count":67325},{"month":"2025-07","count":51767},{"month":"2025-08","count":56811},{"month":"2025-09","count":127974},{"month":"2025-10","count":110799},{"month":"2025-11","count":43619},{"month":"2025-12","count":148281},{"month":"2026-01","count":42327},{"month":"2026-02","count":23107}];
-    const blacklistData = {"Yes":22111,"No":2766938};
-    const disabilityData = {"Yes":13818,"No":2775231};
-    const zodiacData = {"牡羊座 (Aries)":{"男":74627,"女":137614},"金牛座 (Taurus)":{"男":77393,"女":142601},"雙子座 (Gemini)":{"男":77985,"女":144159},"巨蟹座 (Cancer)":{"男":85039,"女":156896},"獅子座 (Leo)":{"男":83702,"女":156490},"處女座 (Virgo)":{"男":88208,"女":160940},"天秤座 (Libra)":{"男":89538,"女":162077},"天蠍座 (Scorpio)":{"男":89508,"女":161935},"射手座 (Sagittarius)":{"男":85024,"女":152596},"摩羯座 (Capricorn)":{"男":78400,"女":143361},"水瓶座 (Aquarius)":{"男":76929,"女":141512},"雙魚座 (Pisces)":{"男":78805,"女":143710}};
-    const chineseZodiacData = {"鼠 (Rat)":{"男":78766,"女":145862},"牛 (Ox)":{"男":79106,"女":148287},"虎 (Tiger)":{"男":68958,"女":129363},"兔 (Rabbit)":{"男":77001,"女":141660},"龍 (Dragon)":{"男":89191,"女":164077},"蛇 (Snake)":{"男":77047,"女":141927},"馬 (Horse)":{"男":84775,"女":153224},"羊 (Goat)":{"男":85549,"女":152133},"猴 (Monkey)":{"男":86981,"女":153923},"雞 (Rooster)":{"男":92459,"女":167505},"狗 (Dog)":{"男":84249,"女":154796},"豬 (Pig)":{"男":81076,"女":151134}};
+    const genderData = {"男":1090573,"女":1956198};
+    const ageData = {"<18":53561,"18-24":552149,"25-34":1184814,"35-44":761947,"45-54":393202,"55-64":85395,"65+":15700,"Unknown":3};
+    const socialData = [{"name":"GOOGLE","count":1001510},{"name":"OP","count":957072},{"name":"LINE","count":556214},{"name":"FB","count":288910},{"name":"MAJOR","count":179660},{"name":"APPLE","count":63405}];
+    const countryData = [{"name":"台灣","count":2941032},{"name":"其他","count":70526},{"name":"日本","count":20756},{"name":"韓國","count":8314},{"name":"中國","count":6143}]; // Top 15
+    const cityData = [{"name":"格式不符","count":665822},{"name":"新北市","count":471415},{"name":"高雄市","count":328849},{"name":"臺北市","count":282802},{"name":"臺中市","count":257228},{"name":"桃園市","count":225951},{"name":"臺南市","count":216990},{"name":"彰化縣","count":79345},{"name":"屏東縣","count":61980},{"name":"新竹縣","count":55149},{"name":"新竹市","count":47831},{"name":"雲林縣","count":37083},{"name":"苗栗縣","count":35414},{"name":"基隆市","count":33514},{"name":"宜蘭縣","count":31247},{"name":"嘉義縣","count":28101},{"name":"南投縣","count":25491},{"name":"嘉義市","count":21862},{"name":"花蓮縣","count":17362},{"name":"臺東縣","count":10790},{"name":"澎湖縣","count":3776},{"name":"金門縣","count":2629},{"name":"連江縣","count":401}];
+    const taiwanTotal = 2941032;
+    const monthlyGrowthData = [{"month":"2025-02","count":12436},{"month":"2025-03","count":72453},{"month":"2025-04","count":39400},{"month":"2025-05","count":84527},{"month":"2025-06","count":67325},{"month":"2025-07","count":51767},{"month":"2025-08","count":56810},{"month":"2025-09","count":127973},{"month":"2025-10","count":110799},{"month":"2025-11","count":43616},{"month":"2025-12","count":148278},{"month":"2026-01","count":42326},{"month":"2026-02","count":157813}];
+    const blacklistData = {"Yes":27192,"No":3019579};
+    const disabilityData = {"Yes":15275,"No":3031496};
+    const zodiacData = {"牡羊座 (Aries)":{"男":82748,"女":149273},"金牛座 (Taurus)":{"男":85340,"女":154302},"雙子座 (Gemini)":{"男":85777,"女":156034},"巨蟹座 (Cancer)":{"男":93632,"女":169772},"獅子座 (Leo)":{"男":92143,"女":169314},"處女座 (Virgo)":{"男":97191,"女":173931},"天秤座 (Libra)":{"男":98738,"女":175307},"天蠍座 (Scorpio)":{"男":98555,"女":175274},"射手座 (Sagittarius)":{"男":94261,"女":165300},"摩羯座 (Capricorn)":{"男":86945,"女":155447},"水瓶座 (Aquarius)":{"男":86424,"女":154860},"雙魚座 (Pisces)":{"男":88819,"女":157380}};
+    const chineseZodiacData = {"鼠 (Rat)":{"男":87184,"女":158723},"牛 (Ox)":{"男":87475,"女":160899},"虎 (Tiger)":{"男":76102,"女":140250},"兔 (Rabbit)":{"男":84998,"女":152804},"龍 (Dragon)":{"男":98335,"女":177643},"蛇 (Snake)":{"男":84837,"女":152752},"馬 (Horse)":{"男":93176,"女":165104},"羊 (Goat)":{"男":93846,"女":163551},"猴 (Monkey)":{"男":95773,"女":166409},"雞 (Rooster)":{"男":102000,"女":180979},"狗 (Dog)":{"男":96510,"女":172047},"豬 (Pig)":{"男":90337,"女":165033}};
 
     // 9. Zodiac Chart (Stacked Bar)
     new Chart(document.getElementById('zodiacChart'), {
@@ -624,7 +620,7 @@
                     align: 'top',
                     font: { size: 11 },
                     formatter: (value, ctx) => {
-                        const total = 2789049;
+                        const total = 3046771;
                         const percentage = ((value / total) * 100).toFixed(1) + '%';
                         return value.toLocaleString() + ' (' + percentage + ')';
                     }
@@ -663,7 +659,7 @@
                     offset: 4,
                     font: { weight: 'bold', size: 11 },
                     formatter: (value, ctx) => {
-                         const total = 2789049;
+                         const total = 3046771;
                          const percentage = ((value / total) * 100).toFixed(1) + '%';
                          return value.toLocaleString() + ' / ' + percentage;
                     }
@@ -702,7 +698,7 @@
                     offset: 4,
                     font: { weight: 'bold', size: 11 },
                     formatter: (value, ctx) => {
-                         const total = 2789049;
+                         const total = 3046771;
                          const percentage = ((value / total) * 100).toFixed(1) + '%';
                          return value.toLocaleString() + ' / ' + percentage;
                     }
@@ -777,8 +773,6 @@
     </svg>
     回首頁
 </a>
-
-
 
 </body>
 </html>
