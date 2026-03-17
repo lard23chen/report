@@ -18,7 +18,8 @@ async function generateReport() {
         const db = client.db("QwareAi");
         const collection = db.collection('GA_MonthlyStats');
 
-        const docs = await collection.find({}).sort({ ID: 1 }).toArray();
+        // Fetch and sort by YearMonth for chronological data
+        const docs = await collection.find({}).sort({ YearMonth: 1 }).toArray();
 
         // 整理給前端圖表用的資料
         const chartData = docs.map(d => {
@@ -240,13 +241,15 @@ async function generateReport() {
     <header>
         <div>
             <div class="logo-text">Traffic Analytics</div>
-            <div class="logo-sub">Google Analytics 流量系統分析</div>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: MongoDB (QwareAi / GA_MonthlyStats)\n</div>
-            <div style="margin-top:8px; color: var(--text-secondary); font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
-                Data Source: MongoDB (QwareAi / GA_MonthlyStats)</div>
+            <div class="logo-sub">Google Analytics 流量系統分析</div>
+            <!-- Data Source Header -->
+            <div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
+                Data Source: MongoDB (QwareAi / GA_MonthlyStats)
+            </div>
         </div>
         <div class="meta">
-            分析區間: 2025/01 ~ 2026/01<br>
+            分析區間: ${chartData[0].month} ~ ${chartData[chartData.length - 1].month}<br>
             產生時間: ${reportTime}
         </div>
     </header>
