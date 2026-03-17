@@ -17,13 +17,12 @@ async function generateReport() {
         await client.connect();
         const db = client.db("QwareAi");
         const collection = db.collection('GA_MonthlyStats');
-
-        // Fetch and sort by YearMonth for chronological data
-        const docs = await collection.find({}).sort({ YearMonth: 1 }).toArray();
+        // Fetch and sort by ID for chronological data
+        const docs = await collection.find({}).sort({ ID: 1 }).toArray();
 
         // 整理給前端圖表用的資料
         const chartData = docs.map(d => {
-            const ym = d.YearMonth || d.StartDate.toISOString().slice(0, 7).replace("-", "/");
+            const ym = (d.YearMonth || d.StartDate.toISOString().slice(0, 7)).replace(/-/g, "/");
             const sumAll = (d.A_Total || 0) + (d.D_Total || 0) + (d.E_Total || 0);
             return {
                 month: ym,
