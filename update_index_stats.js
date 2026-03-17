@@ -124,30 +124,28 @@ async function updateIndexStats() {
                 const diff = current - previous;
                 const percent = ((Math.abs(diff) / previous) * 100).toFixed(1);
                 const isUp = diff >= 0;
-                return `<span class="change-badge ${isUp ? 'change-up' : 'change-down'}">
-                        ${isUp ? '▲' : '▼'} ${percent}%
-                    </span>`;
+                return `<span class="change-badge ${isUp ? 'change-up' : 'change-down'}" style="display: inline-block; white-space: nowrap; margin-left: 4px;">${isUp ? '▲' : '▼'} ${percent}%</span>`;
             };
 
             statsHtml += `
                         <tr style="transition: background-color 0.2s;">
-                            <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${r._id}</td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                            <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">${r._id}</td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">
                                 ${r.salesOrderCount.toLocaleString()} ${getCompareHtml(r.salesOrderCount, nextMonth ? nextMonth.salesOrderCount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">
                                 ${r.salesTicketCount.toLocaleString()} ${getCompareHtml(r.salesTicketCount, nextMonth ? nextMonth.salesTicketCount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">
                                 NT$ ${r.salesAmount.toLocaleString()} ${getCompareHtml(r.salesAmount, nextMonth ? nextMonth.salesAmount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">
                                 ${r.refundOrderCount.toLocaleString()} ${getCompareHtml(r.refundOrderCount, nextMonth ? nextMonth.refundOrderCount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">
                                 ${r.refundTicketCount.toLocaleString()} ${getCompareHtml(r.refundTicketCount, nextMonth ? nextMonth.refundTicketCount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">
                                 NT$ ${r.refundFee.toLocaleString()} ${getCompareHtml(r.refundFee, nextMonth ? nextMonth.refundFee : null)}
                             </td>
                         </tr>
