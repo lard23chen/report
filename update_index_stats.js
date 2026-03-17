@@ -85,8 +85,8 @@ async function updateIndexStats() {
         const totalSalesOrders = validResults.reduce((acc, r) => acc + r.salesOrderCount, 0);
         const totalSalesTickets = validResults.reduce((acc, r) => acc + r.salesTicketCount, 0);
         const totalSalesAmount = validResults.reduce((acc, r) => acc + r.salesAmount, 0);
-
         const totalRefundOrders = validResults.reduce((acc, r) => acc + r.refundOrderCount, 0);
+        const totalRefundTickets = validResults.reduce((acc, r) => acc + r.refundTicketCount, 0);
         const totalRefundFee = validResults.reduce((acc, r) => acc + r.refundFee, 0);
 
         // Generate HTML
@@ -109,6 +109,7 @@ async function updateIndexStats() {
                             <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票張數 (Tickets)</th>
                             <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票金額 (Revenue)</th>
                             <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票筆數 (Refund Orders)</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票張數 (Refund Tickets)</th>
                             <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票手續費 (Fees)</th>
                         </tr>
                     </thead>
@@ -117,37 +118,49 @@ async function updateIndexStats() {
 
         validResults.forEach((r, index) => {
             const nextMonth = validResults[index + 1];
-            let compareHtml = '';
-            if (nextMonth) {
-                const diff = r.salesAmount - nextMonth.salesAmount;
-                const percent = ((Math.abs(diff) / nextMonth.salesAmount) * 100).toFixed(1);
+            
+            const getCompareHtml = (current, previous) => {
+                if (!previous) return '';
+                const diff = current - previous;
+                const percent = ((Math.abs(diff) / previous) * 100).toFixed(1);
                 const isUp = diff >= 0;
-                compareHtml = `<div class="change-note">
+                return `<div class="change-note">
                     <span class="change-badge ${isUp ? 'change-up' : 'change-down'}">
                         ${isUp ? '▲' : '▼'} ${percent}%
                     </span>
                 </div>`;
-            }
+            };
 
             statsHtml += `
                         <tr style="transition: background-color 0.2s;">
                             <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${r._id}</td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">${r.salesOrderCount.toLocaleString()}</td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${r.salesTicketCount.toLocaleString()}</td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                ${r.salesOrderCount.toLocaleString()}
+                                ${getCompareHtml(r.salesOrderCount, nextMonth ? nextMonth.salesOrderCount : null)}
+                            </td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
+                                ${r.salesTicketCount.toLocaleString()}
+                                ${getCompareHtml(r.salesTicketCount, nextMonth ? nextMonth.salesTicketCount : null)}
+                            </td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
                                 NT$ ${r.salesAmount.toLocaleString()}
-                                ${compareHtml}
+                                ${getCompareHtml(r.salesAmount, nextMonth ? nextMonth.salesAmount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <div style="color: var(--text-primary);">${r.refundOrderCount.toLocaleString()} 筆</div>
-                                <div style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.8;">(${r.refundTicketCount.toLocaleString()} 張票)</div>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                ${r.refundOrderCount.toLocaleString()}
+                                ${getCompareHtml(r.refundOrderCount, nextMonth ? nextMonth.refundOrderCount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ ${r.refundFee.toLocaleString()}</td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                ${r.refundTicketCount.toLocaleString()}
+                                ${getCompareHtml(r.refundTicketCount, nextMonth ? nextMonth.refundTicketCount : null)}
+                            </td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                                NT$ ${r.refundFee.toLocaleString()}
+                                ${getCompareHtml(r.refundFee, nextMonth ? nextMonth.refundFee : null)}
+                            </td>
                         </tr>
             `;
         });
-
-        const totalRefundTickets = validResults.reduce((acc, r) => acc + r.refundTicketCount, 0);
 
         statsHtml += `
                         <tr style="background-color: rgba(255, 255, 255, 0.05); font-weight: bold;">
@@ -155,15 +168,10 @@ async function updateIndexStats() {
                             <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalSalesOrders.toLocaleString()}</td>
                             <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalSalesTickets.toLocaleString()}</td>
                             <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">NT$ ${totalSalesAmount.toLocaleString()}</td>
-                            <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">
-                                <div>${totalRefundOrders.toLocaleString()} 筆</div>
-                                <div style="font-size: 0.75rem; opacity: 0.8;">(${totalRefundTickets.toLocaleString()} 張票)</div>
-                            </td>
+                            <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalRefundOrders.toLocaleString()}</td>
+                            <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalRefundTickets.toLocaleString()}</td>
                             <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">NT$ ${totalRefundFee.toLocaleString()}</td>
                         </tr>
-        `;
-
-        statsHtml += `
                     </tbody>
                 </table>
             </div>
@@ -198,8 +206,6 @@ async function updateIndexStats() {
         const chartDataVals = chartDataArray.map(r => r.salesAmount);
 
         htmlContent = htmlContent.replace(/labels:\s*\[.*?\]/, `labels: ${JSON.stringify(chartLabels)}`);
-        // We only want to replace the first data array (for the main line chart), but since we know the context we can do a global-ish replace
-        // But let's be safe and replace the first match of data: [...] which should be our target
         htmlContent = htmlContent.replace(/data:\s*\[.*?\]/, `data: ${JSON.stringify(chartDataVals)}`);
 
         fs.writeFileSync(indexPath, htmlContent, 'utf-8');
