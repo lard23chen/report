@@ -115,18 +115,39 @@ async function updateIndexStats() {
                     <tbody>
         `;
 
-        validResults.forEach(r => {
+        validResults.forEach((r, index) => {
+            const nextMonth = validResults[index + 1];
+            let compareHtml = '';
+            if (nextMonth) {
+                const diff = r.salesAmount - nextMonth.salesAmount;
+                const percent = ((Math.abs(diff) / nextMonth.salesAmount) * 100).toFixed(1);
+                const isUp = diff >= 0;
+                compareHtml = `<div class="change-note">
+                    <span class="change-badge ${isUp ? 'change-up' : 'change-down'}">
+                        ${isUp ? '▲' : '▼'} ${percent}%
+                    </span>
+                </div>`;
+            }
+
             statsHtml += `
                         <tr style="transition: background-color 0.2s;">
                             <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${r._id}</td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">${r.salesOrderCount.toLocaleString()}</td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${r.salesTicketCount.toLocaleString()}</td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">NT$ ${r.salesAmount.toLocaleString()}</td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">${r.refundOrderCount.toLocaleString()}</td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                NT$ ${r.salesAmount.toLocaleString()}
+                                ${compareHtml}
+                            </td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <div style="color: var(--text-primary);">${r.refundOrderCount.toLocaleString()} 筆</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.8;">(${r.refundTicketCount.toLocaleString()} 張票)</div>
+                            </td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">NT$ ${r.refundFee.toLocaleString()}</td>
                         </tr>
             `;
         });
+
+        const totalRefundTickets = validResults.reduce((acc, r) => acc + r.refundTicketCount, 0);
 
         statsHtml += `
                         <tr style="background-color: rgba(255, 255, 255, 0.05); font-weight: bold;">
@@ -134,7 +155,10 @@ async function updateIndexStats() {
                             <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalSalesOrders.toLocaleString()}</td>
                             <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalSalesTickets.toLocaleString()}</td>
                             <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">NT$ ${totalSalesAmount.toLocaleString()}</td>
-                            <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalRefundOrders.toLocaleString()}</td>
+                            <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">
+                                <div>${totalRefundOrders.toLocaleString()} 筆</div>
+                                <div style="font-size: 0.75rem; opacity: 0.8;">(${totalRefundTickets.toLocaleString()} 張票)</div>
+                            </td>
                             <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">NT$ ${totalRefundFee.toLocaleString()}</td>
                         </tr>
         `;
