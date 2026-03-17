@@ -228,18 +228,31 @@ async function generateMemberReport() {
             else disabilityStats['No'] += d.count;
         });
 
-        // 9. Member Update Recency (By Year)
-        console.log("Aggregating Update Recency...");
-        const updateAgg = await collection.aggregate([
+        // 9. Member Login Recency (By Year)
+        console.log("Aggregating Login Recency...");
+        const loginAgg = await collection.aggregate([
             {
                 $project: {
-                    year: { $substr: ["$更新時間", 0, 4] }
+                    year: { 
+                        $cond: {
+                            if: { $and: [
+                                { $ne: ["$最後登入時間", null] }, 
+                                { $ne: ["$最後登入時間", ""] },
+                                { $ne: [{ $type: "$最後登入時間" }, "missing"] }
+                            ] },
+                            then: { $substr: ["$最後登入時間", 0, 4] },
+                            else: "沒有登入過"
+                        }
+                    }
                 }
             },
             { $group: { _id: "$year", count: { $sum: 1 } } },
             { $sort: { _id: 1 } }
         ]).toArray();
-        const updateArray = updateAgg.map(u => ({ year: u._id || 'Unknown', count: u.count }));
+        const loginArray = loginAgg.map(u => ({ 
+            year: (!u._id || u._id === "null" || u._id === "NULL") ? "沒有登入過" : u._id, 
+            count: u.count 
+        }));
 
 
         // --- HTML Generation ---
@@ -605,15 +618,15 @@ async function generateMemberReport() {
         </div>
     </div>
 
-    <!-- Member Update Recency -->
+    <!-- Member Login Recency -->
     <div class="main-content">
         <div class="chart-card full-width" style="border-left: 5px solid #FF5252;">
-            <h3>會員最後更新年份分析 (Member Update Recency by Year)</h3>
+            <h3>會員最後登入年份分析 (Member Login Recency by Year)</h3>
             <div style="margin-bottom: 10px; font-size: 0.9em; color: #888;">
-                * 統計會員資料最後一次變動/更新的年份分佈
+                * 統計會員最後一次登入系統的年份分佈，若無資料則表示該用戶從未登入過。
             </div>
              <div style="height: 400px;">
-                <canvas id="updateChart"></canvas>
+                <canvas id="loginChart"></canvas>
             </div>
             <table>
                 <thead>
@@ -625,8 +638,9 @@ async function generateMemberReport() {
                     </tr>
                 </thead>
                 <tbody>
-                    ${updateArray.reverse().map(u => {
-            const diff = u.year === 'Unknown' ? 'N/A' : (currentYear - parseInt(u.year)) + " 年";
+                    ${loginArray.map(u => {
+            const isYear = /^\d{4}$/.test(u.year);
+            const diff = isYear ? (currentYear - parseInt(u.year)) + " 年" : "-";
             return `
                         <tr>
                             <td>${u.year}</td>
@@ -655,7 +669,7 @@ async function generateMemberReport() {
     const disabilityData = ${JSON.stringify(disabilityStats)};
     const zodiacData = ${JSON.stringify(zodiacStats)};
     const chineseZodiacData = ${JSON.stringify(chineseZodiacStats)};
-    const updateData = ${JSON.stringify([...updateArray].reverse())};
+    const loginData = ${JSON.stringify(loginArray)};
 
     // 9. Zodiac Chart (Stacked Bar)
     new Chart(document.getElementById('zodiacChart'), {
@@ -1029,14 +1043,14 @@ async function generateMemberReport() {
         }
     });
 
-    // 11. Update Recency Chart (Bar)
-    new Chart(document.getElementById('updateChart'), {
+    // 11. Login Recency Chart (Bar)
+    new Chart(document.getElementById('loginChart'), {
         type: 'bar',
         data: {
-            labels: updateData.map(d => d.year),
+            labels: loginData.map(d => d.year),
             datasets: [{
                 label: '人數',
-                data: updateData.map(d => d.count),
+                data: loginData.map(d => d.count),
                 backgroundColor: '#FF5252',
                 borderRadius: 4
             }]
