@@ -66,13 +66,13 @@ async function main() {
 
         for (let event of topEvents) {
             let eId = event._id;
+            let eName = event.Name;
 
             // Filter sessions for this event
             let evSessions = allSessions.filter(s => s.ActivityID === eId);
             let evReads = allReads.filter(r => r.ActivityID === eId);
 
-            // Group by minute (hh:mm string) or timestamp to harmonize the X-axis.
-            // Since they both have CreateTime as string '2025-04-18 10:56:24.703', we can truncate to minute '2025-04-18 10:56:00'.
+            // Group by minute (hh:mm string)
             let timeMap = new Map();
 
             evSessions.forEach(s => {
@@ -80,7 +80,7 @@ async function main() {
                 if (!timeKey) return;
 
                 if (!timeMap.has(timeKey)) {
-                    timeMap.set(timeKey, { time: timeKey, session: s.SessionCount, activeD: null, activeA: null, activeDMin: null, activeAMin: null });
+                    timeMap.set(timeKey, { time: timeKey, session: s.SessionCount, activeD: null, activeA: null, activeDMin: null, activeAMin: null, orders: 0, tickets: 0 });
                 } else {
                     timeMap.get(timeKey).session = Math.max(timeMap.get(timeKey).session, s.SessionCount);
                 }
@@ -91,7 +91,7 @@ async function main() {
                 if (!timeKey) return;
 
                 if (!timeMap.has(timeKey)) {
-                    timeMap.set(timeKey, { time: timeKey, session: null, activeD: (r.ActiveUsersDCount === 'NULL' ? 0 : Number(r.ActiveUsersDCount)), activeA: (r.ActiveUsersACount === 'NULL' ? 0 : Number(r.ActiveUsersACount)), activeDMin: (r.ActiveUsersDMinCount === 'NULL' ? 0 : Number(r.ActiveUsersDMinCount)), activeAMin: (r.ActiveUsersAMinCount === 'NULL' ? 0 : Number(r.ActiveUsersAMinCount)) });
+                    timeMap.set(timeKey, { time: timeKey, session: null, activeD: (r.ActiveUsersDCount === 'NULL' ? 0 : Number(r.ActiveUsersDCount)), activeA: (r.ActiveUsersACount === 'NULL' ? 0 : Number(r.ActiveUsersACount)), activeDMin: (r.ActiveUsersDMinCount === 'NULL' ? 0 : Number(r.ActiveUsersDMinCount)), activeAMin: (r.ActiveUsersAMinCount === 'NULL' ? 0 : Number(r.ActiveUsersAMinCount)), orders: 0, tickets: 0 });
                 } else {
                     let d = timeMap.get(timeKey);
                     let dCount = (r.ActiveUsersDCount === 'NULL' ? 0 : Number(r.ActiveUsersDCount));
@@ -107,7 +107,7 @@ async function main() {
 
             let timeDataArr = Array.from(timeMap.values()).sort((a, b) => a.time.localeCompare(b.time));
 
-            // Group by Date (YYYY-MM-DD) to split events crossing multiple days
+            // Group by Date (YYYY-MM-DD)
             let dateGroups = new Map();
             timeDataArr.forEach(item => {
                 let dateStr = item.time.slice(0, 10);
@@ -118,6 +118,33 @@ async function main() {
             });
 
             for (let [dateStr, dailyData] of dateGroups.entries()) {
+                // FETCH TICKET STATS for this event on this day
+                const currentMonthPrefix = "2026-03";
+                const isCurrentMonth = dateStr.startsWith(currentMonthPrefix);
+                const ticketCollName = isCurrentMonth ? "Qware_A_Ticket_data_Daily" : "Qware_Ticket_Data";
+                
+                console.log(`fetching tickets for ${eName} on ${dateStr} from ${ticketCollName}...`);
+                
+                // Match by Event Name and Date
+                // We use regex to match the date part of "交易時間"
+                const ticketsData = await db.collection(ticketCollName).find({
+                    "節目/商品名稱": eName,
+                    "交易時間": { $regex: new RegExp(`^${dateStr}`) },
+                    "狀態": "正常"
+                }).toArray();
+
+                // Group tickets by minute
+                const ticketTrend = {};
+                ticketsData.forEach(tick => {
+                    const tTime = tick["交易時間"] ? tick["交易時間"].slice(0, 16) : null;
+                    if (!tTime) return;
+                    if (!ticketTrend[tTime]) ticketTrend[tTime] = { orders: new Set(), tickets: 0 };
+                    
+                    const orderId = tick["訂單編號"] ? tick["訂單編號"].split('_')[0] : tick._id;
+                    ticketTrend[tTime].orders.add(orderId);
+                    ticketTrend[tTime].tickets += 1;
+                });
+
                 let maxSession = 0;
                 let maxActiveD = 0;
                 let maxActiveA = 0;
@@ -130,6 +157,12 @@ async function main() {
                 let maxActiveAMinTime = '';
 
                 dailyData.forEach(item => {
+                    // Update per-minute ticket stats
+                    if (ticketTrend[item.time]) {
+                        item.orders = ticketTrend[item.time].orders.size;
+                        item.tickets = ticketTrend[item.time].tickets;
+                    }
+
                     if (item.session > maxSession) {
                         maxSession = item.session;
                         maxSessionTime = item.time;
@@ -155,7 +188,7 @@ async function main() {
                 if (maxSession > 2000) {
                     clientData.push({
                         activityId: eId,
-                        name: event.Name, // We can keep Name the same; UI renders the date bracket e.g., [2026-01-25] Name
+                        name: eName,
                         maxSession: maxSession,
                         maxActiveD: maxActiveD,
                         maxActiveA: maxActiveA,
@@ -425,29 +458,29 @@ async function main() {
 
 <div class="summary-grid">
     <div class="card card-1">
-        <h3>最高 Session 數量 (連線數)</h3>
+        <h3>最高 A session數</h3>
         <div class="value" id="valSession" style="color: #3b82f6;">-</div>
         <div class="sub" id="subSessionTime">Peak Time: -</div>
     </div>
-    <div class="card card-2">
-        <h3>D系統GA 30分鐘最高</h3>
-        <div class="value" id="valActiveD" style="color: #f59e0b;">-</div>
-        <div class="sub" id="subActiveDTime">Peak Time: -</div>
-    </div>
-    <div class="card card-3">
-        <h3>A系統GA 30分鐘最高</h3>
-        <div class="value" id="valActiveA" style="color: #10b981;">-</div>
-        <div class="sub" id="subActiveATime">Peak Time: -</div>
-    </div>
     <div class="card card-4">
-        <h3>D系統GA 每分鐘最高</h3>
+        <h3>最高 D每分鐘流量</h3>
         <div class="value" id="valActiveDMin" style="color: #fbbf24;">-</div>
         <div class="sub" id="subActiveDMinTime">Peak Time: -</div>
     </div>
     <div class="card card-5">
-        <h3>A系統GA 每分鐘最高</h3>
+        <h3>最高 A每分鐘流量</h3>
         <div class="value" id="valActiveAMin" style="color: #34d399;">-</div>
         <div class="sub" id="subActiveAMinTime">Peak Time: -</div>
+    </div>
+    <div class="card card-2">
+        <h3>最高 每分鐘訂單</h3>
+        <div class="value" id="valMaxOrders" style="color: #f59e0b;">-</div>
+        <div class="sub" id="subMaxOrdersTime">Peak Time: -</div>
+    </div>
+    <div class="card card-3">
+        <h3>最高 每分鐘張數</h3>
+        <div class="value" id="valMaxTickets" style="color: #10b981;">-</div>
+        <div class="sub" id="subMaxTicketsTime">Peak Time: -</div>
     </div>
     <div class="card card-6">
         <h3>資料記錄區間</h3>
@@ -461,11 +494,11 @@ async function main() {
         <thead>
             <tr>
                 <th>GATime</th>
-                <th>ActiveUsersDCount</th>
-                <th>ActiveUsersDMinCount</th>
-                <th>ActiveUsersACount</th>
-                <th>ActiveUsersAMinCount</th>
-                <th>SessionCount</th>
+                <th>D每分鐘流量</th>
+                <th>A每分鐘流量</th>
+                <th>A session數</th>
+                <th>每分鐘訂單</th>
+                <th>每分鐘張數</th>
             </tr>
         </thead>
         <tbody>
@@ -475,9 +508,9 @@ async function main() {
 
 <div class="chart-container">
     <div style="position: absolute; top: 20px; right: 25px; z-index: 10;">
-        <span class="sys-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6;">Session</span>
-        <span class="sys-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b;">Active D (排隊最小)</span>
-        <span class="sys-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">Active A (搶票最小)</span>
+        <span class="sys-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6;">A session數</span>
+        <span class="sys-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b;">D流量</span>
+        <span class="sys-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">A流量</span>
     </div>
     <canvas id="mainChart"></canvas>
 </div>
@@ -495,27 +528,29 @@ async function main() {
 
         const d = serverData[idx];
 
+        // Calc peak tickets/orders
+        let maxOrders = 0; let maxOrdersTime = '';
+        let maxTickets = 0; let maxTicketsTime = '';
+        d.data.forEach(item => {
+            if (item.orders > maxOrders) { maxOrders = item.orders; maxOrdersTime = item.time; }
+            if (item.tickets > maxTickets) { maxTickets = item.tickets; maxTicketsTime = item.time; }
+        });
+
         // Update cards
         document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
-        document.getElementById('valActiveD').innerText = d.maxActiveD.toLocaleString();
-        document.getElementById('valActiveA').innerText = d.maxActiveA.toLocaleString();
         document.getElementById('valActiveDMin').innerText = d.maxActiveDMin.toLocaleString();
         document.getElementById('valActiveAMin').innerText = d.maxActiveAMin.toLocaleString();
+        document.getElementById('valMaxOrders').innerText = maxOrders.toLocaleString();
+        document.getElementById('valMaxTickets').innerText = maxTickets.toLocaleString();
         
         document.getElementById('subSessionTime').innerText = "發生時間點: " + (d.maxSessionTime || '-');
-        document.getElementById('subActiveDTime').innerText = "發生時間點: " + (d.maxActiveDTime || '-');
-        document.getElementById('subActiveATime').innerText = "發生時間點: " + (d.maxActiveATime || '-');
         document.getElementById('subActiveDMinTime').innerText = "發生時間點: " + (d.maxActiveDMinTime || '-');
         document.getElementById('subActiveAMinTime').innerText = "發生時間點: " + (d.maxActiveAMinTime || '-');
+        document.getElementById('subMaxOrdersTime').innerText = "發生時間點: " + (maxOrdersTime || '-');
+        document.getElementById('subMaxTicketsTime').innerText = "發生時間點: " + (maxTicketsTime || '-');
         
         document.getElementById('valTime').innerText = d.start.slice(5) + " ~ " + d.end.slice(5);
         document.getElementById('valTimeSub').innerText = "總數據點數: " + d.data.length;
-
-        // Draw Chart
-        const labels = d.data.map(item => item.time.slice(5)); // MD DD HH:mm
-        const sessionArr = d.data.map(item => item.session);
-        const activeDMinArr = d.data.map(item => item.activeDMin);
-        const activeAMinArr = d.data.map(item => item.activeAMin);
 
         // Update Table
         const tbody = document.querySelector('#dataTable tbody');
@@ -524,11 +559,11 @@ async function main() {
             const bg = isMax ? ' style="background: rgba(59, 130, 246, 0.2);"' : '';
             return '<tr' + bg + '>' +
                 '<td>' + item.time + '</td>' +
-                '<td style="color: #fbbf24;">' + (item.activeD || 0).toLocaleString() + '</td>' +
                 '<td style="color: #fcd34d;">' + (item.activeDMin || 0).toLocaleString() + '</td>' +
-                '<td style="color: #34d399;">' + (item.activeA || 0).toLocaleString() + '</td>' +
                 '<td style="color: #6ee7b7;">' + (item.activeAMin || 0).toLocaleString() + '</td>' +
                 '<td style="color: #60a5fa; font-weight: ' + (isMax ? 'bold' : 'normal') + ';">' + (item.session || 0).toLocaleString() + (isMax ? ' ⭐' : '') + '</td>' +
+                '<td style="color: #ff9800;">' + (item.orders || 0).toLocaleString() + '</td>' +
+                '<td style="color: #e91e63;">' + (item.tickets || 0).toLocaleString() + '</td>' +
                 '</tr>';
         }).join('');
 
@@ -543,84 +578,57 @@ async function main() {
             type: 'line',
             plugins: [ChartDataLabels],
             data: {
-                labels: labels,
+                labels: d.data.map(item => item.time.slice(5)),
                 datasets: [
                     {
-                        label: 'Session_Count',
-                        data: sessionArr,
+                        label: 'A session數',
+                        data: d.data.map(item => item.session),
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.05)',
                         yAxisID: 'y',
                         tension: 0.3,
                         fill: true,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
+                        pointRadius: 2
                     },
                     {
-                        label: 'ActiveUsersDMinCount (排隊最小)',
-                        data: activeDMinArr,
+                        label: 'D流量 (每分)',
+                        data: d.data.map(item => item.activeDMin),
                         borderColor: '#f59e0b',
                         backgroundColor: 'rgba(245, 158, 11, 0.05)',
                         yAxisID: 'y1',
                         tension: 0.3,
                         fill: true,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
+                        pointRadius: 2
                     },
                     {
-                        label: 'ActiveUsersAMinCount (搶票最小)',
-                        data: activeAMinArr,
+                        label: 'A流量 (每分)',
+                        data: d.data.map(item => item.activeAMin),
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.05)',
                         yAxisID: 'y1',
                         tension: 0.3,
                         fill: true,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
+                        pointRadius: 2
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
+                interaction: { mode: 'index', intersect: false },
                 plugins: {
                     legend: { display: false },
                     datalabels: {
-                        color: function(context) {
-                            return context.dataset.borderColor;
-                        },
+                        color: ctx => ctx.dataset.borderColor,
                         align: 'top',
                         font: { size: 10, family: 'Outfit' },
-                        formatter: function(value, context) {
-                            return value > 0 ? (value >= 1000 ? (value/1000).toFixed(1) + 'k' : value) : '';
-                        }
+                        formatter: val => val > 0 ? (val >= 1000 ? (val/1000).toFixed(1) + 'k' : val) : ''
                     }
                 },
                 scales: {
-                    x: {
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#94a3b8', maxTicksLimit: 12 }
-                    },
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#60a5fa', callback: v => (v >= 1000 ? (v/1000)+'k' : v) },
-                        title: { display: true, text: 'Sessions', color: '#60a5fa' }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        grid: { drawOnChartArea: false },
-                        ticks: { color: '#fbbf24', callback: v => (v >= 1000 ? (v/1000)+'k' : v) },
-                        title: { display: true, text: 'Active Users', color: '#fbbf24' }
-                    }
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', maxTicksLimit: 12 } },
+                    y: { position: 'left', grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'Sessions', color: '#60a5fa' } },
+                    y1: { position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Traffic', color: '#fbbf24' } }
                 }
             }
         });
