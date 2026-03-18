@@ -19,10 +19,12 @@ async function main() {
 
         // 1. 取得所有節目清單 (依照 MAX SessionCount 排序)
         const topEvents = await db.collection("QwareTrafficSession").aggregate([
+            { $sort: { CreateTime: 1 } }, // Sort so $last gets the latest name
             {
                 $group: {
                     _id: "$ActivityID",
-                    Name: { $first: "$ActivityInfoName" },
+                    Name: { $last: "$ActivityInfoName" },
+                    AllNames: { $addToSet: "$ActivityInfoName" },
                     MaxSessions: { $max: "$SessionCount" }
                 }
             },
@@ -125,10 +127,9 @@ async function main() {
                 
                 console.log(`fetching tickets for ${eName} on ${dateStr} from ${ticketCollName}...`);
                 
-                // Match by Event Name and Date
-                // We use regex to match the date part of "交易時間"
+                // Match by all associated event names and date
                 const ticketsData = await db.collection(ticketCollName).find({
-                    "節目/商品名稱": eName,
+                    "節目/商品名稱": { $in: event.AllNames },
                     "交易時間": { $regex: new RegExp(`^${dateStr}`) },
                     "狀態": "正常"
                 }).toArray();
