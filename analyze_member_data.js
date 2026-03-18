@@ -234,14 +234,30 @@ async function generateMemberReport() {
             {
                 $project: {
                     year: { 
-                        $cond: {
-                            if: { $and: [
-                                { $ne: ["$最後登入時間", null] }, 
-                                { $ne: ["$最後登入時間", ""] },
-                                { $ne: [{ $type: "$最後登入時間" }, "missing"] }
-                            ] },
-                            then: { $substr: ["$最後登入時間", 0, 4] },
-                            else: "沒有登入過"
+                        $let: {
+                            vars: {
+                                raw: {
+                                    $cond: {
+                                        if: { $and: [
+                                            { $ne: ["$最後登入時間", null] }, 
+                                            { $ne: ["$最後登入時間", ""] },
+                                            { $ne: [{ $type: "$最後登入時間" }, "missing"] }
+                                        ] },
+                                        then: { $substr: ["$最後登入時間", 0, 4] },
+                                        else: "2020以前"
+                                    }
+                                }
+                            },
+                            in: {
+                                $cond: {
+                                    if: { $or: [
+                                        { $eq: ["$$raw", "2020以前"] },
+                                        { $lte: ["$$raw", "2020"] }
+                                    ] },
+                                    then: "2020以前",
+                                    else: "$$raw"
+                                }
+                            }
                         }
                     }
                 }
@@ -249,10 +265,17 @@ async function generateMemberReport() {
             { $group: { _id: "$year", count: { $sum: 1 } } },
             { $sort: { _id: 1 } }
         ]).toArray();
-        const loginArray = loginAgg.map(u => ({ 
-            year: (!u._id || u._id === "null" || u._id === "NULL") ? "沒有登入過" : u._id, 
-            count: u.count 
-        }));
+
+        // Merge results in JS to ensure uniqueness and handle any unexpected nulls
+        const loginMap = {};
+        loginAgg.forEach(u => {
+            const year = (!u._id || u._id === "null" || u._id === "NULL" || u._id === "沒有登入過") ? "2020以前" : u._id;
+            loginMap[year] = (loginMap[year] || 0) + u.count;
+        });
+        
+        const loginArray = Object.entries(loginMap).map(([year, count]) => ({ year, count }));
+        // Sort again since map doesn't guarantee order
+        loginArray.sort((a, b) => a.year.localeCompare(b.year));
 
 
         // --- HTML Generation ---
@@ -623,7 +646,7 @@ async function generateMemberReport() {
         <div class="chart-card full-width" style="border-left: 5px solid #FF5252;">
             <h3>會員最後登入年份分析 (Member Login Recency by Year)</h3>
             <div style="margin-bottom: 10px; font-size: 0.9em; color: #888;">
-                * 統計會員最後一次登入系統的年份分佈，若無資料則表示該用戶從未登入過。
+                * 統計會員最後一次登入系統的年份分佈。2020年以前及從未登入之紀錄已合併顯示為「2020以前」。
             </div>
              <div style="height: 400px;">
                 <canvas id="loginChart"></canvas>
