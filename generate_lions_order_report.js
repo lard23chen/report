@@ -93,20 +93,30 @@ async function main() {
                 ageStats["未知"]++;
             }
 
-            const minute = d['交易時間'].slice(11, 16); // HH:mm
-            if (!minuteTrend[minute]) minuteTrend[minute] = { tickets: 0, revenue: 0 };
-            minuteTrend[minute].tickets += 1;
-            minuteTrend[minute].revenue += revenue;
+            // Grouping by 30-minute intervals
+            const hour = d['交易時間'].slice(11, 13);
+            const rawMinute = parseInt(d['交易時間'].slice(14, 16));
+            const minutePart = rawMinute < 30 ? "00" : "30";
+            const timeKey = `${hour}:${minutePart}`;
+
+            if (!minuteTrend[timeKey]) minuteTrend[timeKey] = { tickets: 0, revenue: 0 };
+            minuteTrend[timeKey].tickets += 1;
+            minuteTrend[timeKey].revenue += revenue;
         });
 
         const orderCount = orderIds.size;
         const aov = orderCount > 0 ? Math.round(totalRevenue / orderCount) : 0;
 
         // Prepare Trend Data
-        const sortedMinutes = Object.keys(minuteTrend).sort();
-        const trendLabels = sortedMinutes;
-        const trendTickets = sortedMinutes.map(m => minuteTrend[m].tickets);
-        const trendRevenue = sortedMinutes.map(m => minuteTrend[m].revenue);
+        // Ensure all 30-min slots from 18:00 to 23:30 are represented
+        const trendLabels = [];
+        for (let h = 18; h <= 23; h++) {
+            trendLabels.push(`${h.toString().padStart(2, '0')}:00`);
+            trendLabels.push(`${h.toString().padStart(2, '0')}:30`);
+        }
+        
+        const trendTickets = trendLabels.map(label => (minuteTrend[label] ? minuteTrend[label].tickets : 0));
+        const trendRevenue = trendLabels.map(label => (minuteTrend[label] ? minuteTrend[label].revenue : 0));
 
         // --- HTML Generation ---
         const reportTime = new Date().toLocaleString('zh-TW');
@@ -119,6 +129,7 @@ async function main() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${eventName} - 訂單分析報告</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -200,8 +211,8 @@ async function main() {
 
         <div class="main-grid">
             <div class="chart-box">
-                <h3>銷售趨勢 (Sales Trend - Every Minute)</h3>
-                <div style="height: 400px;">
+                <h3>銷售趨勢 (每30分鐘單位)</h3>
+                <div style="height: 450px;">
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
@@ -290,23 +301,41 @@ async function main() {
                         borderColor: '#ff9800',
                         backgroundColor: 'rgba(255, 152, 0, 0.1)',
                         fill: true,
-                        yAxisID: 'y'
+                        yAxisID: 'y',
+                        datalabels: {
+                            color: '#e65100',
+                            align: 'top',
+                            anchor: 'end',
+                            offset: 5,
+                            font: { weight: 'bold' }
+                        }
                     },
                     {
                         label: '銷售金額',
                         data: ${JSON.stringify(trendRevenue)},
                         borderColor: '#e91e63',
                         borderDash: [5, 5],
-                        yAxisID: 'y1'
+                        yAxisID: 'y1',
+                        datalabels: {
+                            color: '#ad1457',
+                            align: 'bottom',
+                            anchor: 'start',
+                            offset: 5,
+                            formatter: (val) => val > 0 ? 'NT$' + (val/10000).toFixed(1) + 'w' : ''
+                        }
                     }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { position: 'left', title: { display: true, text: '張數' } },
-                    y1: { position: 'right', title: { display: true, text: '金額' }, grid: { drawOnChartArea: false } }
+                    y: { position: 'left', title: { display: true, text: '張數' }, beginAtZero: true },
+                    y1: { position: 'right', title: { display: true, text: '金額' }, grid: { drawOnChartArea: false }, beginAtZero: true }
+                },
+                plugins: {
+                    legend: { position: 'bottom' }
                 }
             }
         });
