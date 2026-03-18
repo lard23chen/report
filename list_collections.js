@@ -15,9 +15,9 @@ const client = new MongoClient(uri, {
 async function listCols() {
     try {
         await client.connect();
-        const db = client.db('allticket');
+        const db = client.db('QwareAi');
         const collections = await db.listCollections().toArray();
-        console.log("Collections:", JSON.stringify(collections.map(c => c.name)));
+        console.log("Collections:", JSON.stringify(collections.map(c => c.name), null, 2));
     } catch (error) {
         console.error(error);
     } finally {
