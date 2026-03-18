@@ -26,6 +26,7 @@ async function main() {
                     MaxSessions: { $max: "$SessionCount" }
                 }
             },
+            { $match: { MaxSessions: { $gt: 2000 } } },
             { $sort: { MaxSessions: -1 } }
         ]).toArray();
 
@@ -151,7 +152,7 @@ async function main() {
                     }
                 });
 
-                if (maxSession > 500) {
+                if (maxSession > 2000) {
                     clientData.push({
                         activityId: eId,
                         name: event.Name, // We can keep Name the same; UI renders the date bracket e.g., [2026-01-25] Name
