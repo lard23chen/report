@@ -44,12 +44,7 @@ async function generateReport() {
             costTotal.push(doc.QWARE_Ticket_TotalCost || 0);
 
             // Calculate other costs
-            const others = (doc.PaymentPortal_Cost || 0) +
-                (doc.SystemHotel_Cost || 0) +
-                (doc.Common_Cost || 0) +
-                (doc.PayGateway_Cost || 0) +
-                (doc.iSharingGift_Cost || 0) +
-                (doc.SystemCloudCard_Cost || 0);
+            const others = (doc.Common_Cost || 0);
             costOther.push(others);
         });
 
@@ -406,7 +401,7 @@ async function generateReport() {
     }
 
     function getOtherCost(d) {
-        return (d.PaymentPortal_Cost || 0) + (d.SystemHotel_Cost || 0) + (d.Common_Cost || 0) + (d.PayGateway_Cost || 0) + (d.iSharingGift_Cost || 0) + (d.SystemCloudCard_Cost || 0);
+        return (d.Common_Cost || 0);
     }
 
     function getChangeHTML(currVal, prevVal) {
