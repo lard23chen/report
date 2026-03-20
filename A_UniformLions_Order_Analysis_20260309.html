@@ -91,40 +91,16 @@
             </div>
         </div>
 
-        <div class="main-grid">
+        <div class="main-grid" style="grid-template-columns: 1fr;">
             <div class="chart-box">
                 <h3>銷售趨勢 (每30分鐘單位)</h3>
                 <div style="height: 450px;">
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
-            <div class="chart-box">
-                <h3>性別比例 (Gender Ratio)</h3>
-                <div style="height: 300px;">
-                    <canvas id="genderChart"></canvas>
-                </div>
-                <table style="margin-top: 20px;">
-                    
-                        <tr>
-                            <td>男</td>
-                            <td style="text-align: right;">14,297 人 <span class="percentage">(64.9%)</span></td>
-                        </tr>
-                    
-                        <tr>
-                            <td>女</td>
-                            <td style="text-align: right;">7,258 人 <span class="percentage">(32.9%)</span></td>
-                        </tr>
-                    
-                        <tr>
-                            <td>其他</td>
-                            <td style="text-align: right;">485 人 <span class="percentage">(2.2%)</span></td>
-                        </tr>
-                    
-                </table>
-            </div>
         </div>
 
-        <div class="main-grid">
+        <div class="main-grid" style="grid-template-columns: 1fr;">
             <div class="chart-box">
                 <h3>票別分析 (Ticket Types)</h3>
                 <table>
@@ -207,12 +183,6 @@
                         
                     </tbody>
                 </table>
-            </div>
-            <div class="chart-box">
-                <h3>年齡層分析 (Age Distribution)</h3>
-                <div style="height: 250px;">
-                    <canvas id="ageChart"></canvas>
-                </div>
             </div>
         </div>
 
@@ -305,36 +275,6 @@
                 plugins: {
                     legend: { position: 'bottom' }
                 }
-            }
-        });
-
-        // Gender Chart
-        new Chart(document.getElementById('genderChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['男', '女', '其他'],
-                datasets: [{
-                    data: [14297, 7258, 485],
-                    backgroundColor: ['#2196f3', '#f44336', '#9c27b0']
-                }]
-            }
-        });
-
-        // Age Chart
-        new Chart(document.getElementById('ageChart'), {
-            type: 'bar',
-            data: {
-                labels: ["20以下","21-30","31-40","41-50","51+","未知"],
-                datasets: [{
-                    label: '人數',
-                    data: [989,6241,8096,6036,678,0],
-                    backgroundColor: '#ffc107'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
             }
         });
     </script>

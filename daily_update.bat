@@ -9,4 +9,10 @@ echo Running generate_golden_disc_report.js...
 "D:\nodejs\node.exe" generate_golden_disc_report.js >> daily_log.txt 2>&1
 
 echo [%date% %time%] Update Completed. >> daily_log.txt
+
+echo Pushing to Git...
+git add .
+git commit -m "Auto Update Daily Reports: %date% %time%"
+git push origin main >> daily_log.txt 2>&1
+
 echo Done.
