@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025年11月至2026年1月 每日費用分析報告</title>
+    <title>跨月份 每日雲端費用分析報告 (Mongo Source)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -37,7 +37,6 @@
         
         .table-wrapper { max-height: 800px; overflow-y: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
@@ -50,18 +49,16 @@
             font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
             box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); z-index: 50;
         }
-        .btn-home:hover { opacity: 0.9; transform: translateY(-3px); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>2025年11月 -  2026年1月 每日費用分析報告</h1>
-<!-- Data Source Header -->
-<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
-    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
-    Data Source: Google Sheet / Excel Data
-</div>
+            <h1>每日雲端費用分析報告</h1>
+            <div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
+                Data Source: MongoDB (AzureMonthlyCost_Daily)
+            </div>
             <p>包含 A系統、D系統、E系統、共用與會員機器的每日費用及活動明細</p>
         </div>
 
@@ -77,9 +74,7 @@
                 <h3 style="margin: 0; color: #34d399;">每日費用明細</h3>
                 <select id="monthFilter" style="background: rgba(15, 23, 42, 0.8); color: #cbd5e1; border: 1px solid var(--card-border); padding: 8px 16px; border-radius: 6px; font-family: 'Outfit'; font-size: 1rem; outline: none; cursor: pointer;">
                     <option value="all">所有月份 (All Months)</option>
-                    <option value="2025/11">2025年 11月</option>
-                    <option value="2025/12">2025年 12月</option>
-                    <option value="2026/01">2026年 01月</option>
+                    <option value="2025/11">2025年 11月</option><option value="2025/12">2025年 12月</option><option value="2026/01">2026年 01月</option><option value="2026/02">2026年 02月</option>
                 </select>
             </div>
             <div class="table-wrapper">
@@ -100,432 +95,1584 @@
                     </thead>
                     <tbody>
                         
-    <tr data-month="2025/11">
-      <td>2025/11/01</td>
-      <td style="text-align: right;">28,723</td>
-      <td style="text-align: right;">7,983</td>
-      <td style="text-align: right;">4,578</td>
-      <td style="text-align: right;">2,478</td>
-      <td style="text-align: right;">6,272</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">50,035</td>
-      <td>A系統-小型(免監控)</td>
-      <td>Yu-Gi-Oh! CHAMPIONSHIP SERIES ASIA ~ Taipei 2025</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/02</td>
-      <td style="text-align: right;">22,874</td>
-      <td style="text-align: right;">7,251</td>
-      <td style="text-align: right;">5,058</td>
-      <td style="text-align: right;">2,339</td>
-      <td style="text-align: right;">5,501</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">43,024</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/03</td>
-      <td style="text-align: right;">38,422</td>
-      <td style="text-align: right;">10,155</td>
-      <td style="text-align: right;">5,230</td>
-      <td style="text-align: right;">3,124</td>
-      <td style="text-align: right;">6,940</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">63,870</td>
-      <td>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
-      <td>中華職棒36年冬季聯盟<br>本田響矢首次台北粉絲見面會-VVIP</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/04</td>
-      <td style="text-align: right;">33,859</td>
-      <td style="text-align: right;">9,463</td>
-      <td style="text-align: right;">5,212</td>
-      <td style="text-align: right;">3,048</td>
-      <td style="text-align: right;">7,126</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,707</td>
-      <td>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
-      <td>OPEN！ DREAM WORLD 夢想演唱會<br>本田響矢首次台北粉絲見面會-VIP</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/05</td>
-      <td style="text-align: right;">34,977</td>
-      <td style="text-align: right;">8,317</td>
-      <td style="text-align: right;">5,195</td>
-      <td style="text-align: right;">3,043</td>
-      <td style="text-align: right;">6,971</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,502</td>
-      <td>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
-      <td>SMART CSNP FAN MEETING IN TAIPEI<br>本田響矢首次台北粉絲見面會-一般區</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/06</td>
-      <td style="text-align: right;">29,679</td>
-      <td style="text-align: right;">7,714</td>
-      <td style="text-align: right;">5,500</td>
-      <td style="text-align: right;">2,718</td>
-      <td style="text-align: right;">6,339</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,950</td>
-      <td>A系統-小型(免監控)</td>
-      <td>紫羅蘭永恆花園 交響音樂會 高雄站-加場</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/07</td>
-      <td style="text-align: right;">27,796</td>
-      <td style="text-align: right;">7,246</td>
-      <td style="text-align: right;">5,595</td>
-      <td style="text-align: right;">45,964</td>
-      <td style="text-align: right;">5,565</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">92,166</td>
-      <td>A系統-小型(免監控)</td>
-      <td>2025 YoungKey Girls 洋基女孩決選會</td>
-      <td style="font-size: 0.85em; color: #94a3b8;">共用本日費用為 Azure RI（Reserved Instance）月費，依各資源RI 購買日分別按月計費：SQLMI_BC_Compute_Premium-$43,088。</td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/08</td>
-      <td style="text-align: right;">52,619</td>
-      <td style="text-align: right;">11,428</td>
-      <td style="text-align: right;">5,562</td>
-      <td style="text-align: right;">31,841</td>
-      <td style="text-align: right;">8,410</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">109,860</td>
-      <td>A系統-中型(小型監控)</td>
-      <td>QWER 1ST WORLD TOUR ＜ROCKATION＞ in TAIPEI <br>加場</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/09</td>
-      <td style="text-align: right;">22,675</td>
-      <td style="text-align: right;">6,304</td>
-      <td style="text-align: right;">5,230</td>
-      <td style="text-align: right;">2,525</td>
-      <td style="text-align: right;">4,584</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">41,318</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;">A系統維運：agw-$1,529、appserver-$1,324、dbmi-$10,650、vm-$5,616、log-$1,263、redis-$317、storage-$670 = $21,369</td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/10</td>
-      <td style="text-align: right;">22,832</td>
-      <td style="text-align: right;">6,486</td>
-      <td style="text-align: right;">5,479</td>
-      <td style="text-align: right;">2,365</td>
-      <td style="text-align: right;">4,582</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">41,744</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/11</td>
-      <td style="text-align: right;">22,608</td>
-      <td style="text-align: right;">6,014</td>
-      <td style="text-align: right;">5,182</td>
-      <td style="text-align: right;">2,297</td>
-      <td style="text-align: right;">4,419</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">40,521</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/12</td>
-      <td style="text-align: right;">22,625</td>
-      <td style="text-align: right;">6,476</td>
-      <td style="text-align: right;">5,356</td>
-      <td style="text-align: right;">19,390</td>
-      <td style="text-align: right;">4,585</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,432</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;">共用本日費用為 Azure RI（Reserved Instance）月費，依各資源RI 購買日分別按月計費：Standard_P0_v3_Windows-$2,429、Standard_P0_v3_Windows-$14,571。</td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/13</td>
-      <td style="text-align: right;">22,547</td>
-      <td style="text-align: right;">5,423</td>
-      <td style="text-align: right;">5,332</td>
-      <td style="text-align: right;">2,411</td>
-      <td style="text-align: right;">4,414</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">40,128</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/14</td>
-      <td style="text-align: right;">28,046</td>
-      <td style="text-align: right;">6,071</td>
-      <td style="text-align: right;">5,496</td>
-      <td style="text-align: right;">13,587</td>
-      <td style="text-align: right;">5,176</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,375</td>
-      <td>A系統-小型(免監控)</td>
-      <td>中華職棒36年冬季聯盟<br>簽名會參加資格券四場</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/15</td>
-      <td style="text-align: right;">23,677</td>
-      <td style="text-align: right;">68,403</td>
-      <td style="text-align: right;">5,341</td>
-      <td style="text-align: right;">3,749</td>
-      <td style="text-align: right;">4,507</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">105,677</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/16</td>
-      <td style="text-align: right;">114,364</td>
-      <td style="text-align: right;">422,127</td>
-      <td style="text-align: right;">6,418</td>
-      <td style="text-align: right;">6,836</td>
-      <td style="text-align: right;">11,198</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">560,943</td>
-      <td>A系統-大型(中型監控)</td>
-      <td>AAA</td>
-      <td style="font-size: 0.85em; color: #94a3b8;">D系統大型監控：ALB LCU 4萬*4、m6i.2xlarge * 504、cache.m6g.xlarge*3、db.m6i.xlarge。<br>A系統費用分析：費用超過1千項目 agw-$16,028、appservice-$22,000、dbmi-$39,468、vm-$12,604、log-$14,092、redis-$1,529、流量-$1,480 =$107,201、UAT費用：$5,093.。</td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/17</td>
-      <td style="text-align: right;">29,647</td>
-      <td style="text-align: right;">6,392</td>
-      <td style="text-align: right;">11,309</td>
-      <td style="text-align: right;">2,637</td>
-      <td style="text-align: right;">5,420</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">55,405</td>
-      <td>A系統-小型(免監控)</td>
-      <td>本田響矢首次台北粉絲見面會-VVIP</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/18</td>
-      <td style="text-align: right;">23,891</td>
-      <td style="text-align: right;">6,012</td>
-      <td style="text-align: right;">5,238</td>
-      <td style="text-align: right;">2,562</td>
-      <td style="text-align: right;">4,022</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">41,725</td>
-      <td>A系統-小型(免監控)</td>
-      <td>本田響矢首次台北粉絲見面會-VIP</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/19</td>
-      <td style="text-align: right;">23,241</td>
-      <td style="text-align: right;">5,220</td>
-      <td style="text-align: right;">5,159</td>
-      <td style="text-align: right;">2,486</td>
-      <td style="text-align: right;">3,226</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">39,332</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/20</td>
-      <td style="text-align: right;">22,990</td>
-      <td style="text-align: right;">5,397</td>
-      <td style="text-align: right;">5,286</td>
-      <td style="text-align: right;">7,405</td>
-      <td style="text-align: right;">3,128</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">44,207</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/21</td>
-      <td style="text-align: right;">38,397</td>
-      <td style="text-align: right;">7,598</td>
-      <td style="text-align: right;">5,755</td>
-      <td style="text-align: right;">3,329</td>
-      <td style="text-align: right;">4,532</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">59,612</td>
-      <td>A系統-小型(免監控)<br>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
-      <td>AAA開放取票(11/21 12:00起、11/22、11/23 整天)<br>Yu－Gi－Oh！CHAMPIONSHIP SERIES ASIA Taipei 2025<br>LMSY DEAL WITH YOU IN TAIPEI</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/22</td>
-      <td style="text-align: right;">23,518</td>
-      <td style="text-align: right;">5,479</td>
-      <td style="text-align: right;">5,407</td>
-      <td style="text-align: right;">2,858</td>
-      <td style="text-align: right;">3,454</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">40,716</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/23</td>
-      <td style="text-align: right;">22,434</td>
-      <td style="text-align: right;">5,224</td>
-      <td style="text-align: right;">5,281</td>
-      <td style="text-align: right;">2,692</td>
-      <td style="text-align: right;">3,295</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">38,926</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/24</td>
-      <td style="text-align: right;">22,562</td>
-      <td style="text-align: right;">6,303</td>
-      <td style="text-align: right;">5,730</td>
-      <td style="text-align: right;">2,657</td>
-      <td style="text-align: right;">3,404</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">40,656</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/25</td>
-      <td style="text-align: right;">23,174</td>
-      <td style="text-align: right;">5,324</td>
-      <td style="text-align: right;">5,378</td>
-      <td style="text-align: right;">2,738</td>
-      <td style="text-align: right;">3,261</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">39,875</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/26</td>
-      <td style="text-align: right;">22,848</td>
-      <td style="text-align: right;">5,040</td>
-      <td style="text-align: right;">5,210</td>
-      <td style="text-align: right;">2,435</td>
-      <td style="text-align: right;">3,398</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">38,930</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/27</td>
-      <td style="text-align: right;">24,470</td>
-      <td style="text-align: right;">5,354</td>
-      <td style="text-align: right;">5,287</td>
-      <td style="text-align: right;">2,748</td>
-      <td style="text-align: right;">3,273</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">41,131</td>
-      <td></td>
-      <td></td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/28</td>
-      <td style="text-align: right;">27,392</td>
-      <td style="text-align: right;">6,173</td>
-      <td style="text-align: right;">5,373</td>
-      <td style="text-align: right;">2,715</td>
-      <td style="text-align: right;">4,018</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">45,671</td>
-      <td>A系統-小型(免監控)</td>
-      <td>TPBL例行賽　福爾摩沙夢想家主場-三上悠亞六日套票(D-FANS)</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/29</td>
-      <td style="text-align: right;">93,948</td>
-      <td style="text-align: right;">45,435</td>
-      <td style="text-align: right;">7,483</td>
-      <td style="text-align: right;">5,312</td>
-      <td style="text-align: right;">9,960</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">162,138</td>
-      <td>A系統-大型(小型監控)<br>E系統-大型(免監控)<br>A系統-大型(免監控)</td>
-      <td>NEXZ SPECIAL CONCERT ＜ONE BEAT＞ in Taipei<br>2025臺南總舖師四季辦桌．冬季場<br>2025 LEE CHAE MIN FANMEETING TOUR ‘Chaem-into you’ in TAIPEI</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/11">
-      <td>2025/11/30</td>
-      <td style="text-align: right;">48,732</td>
-      <td style="text-align: right;">11,767</td>
-      <td style="text-align: right;">5,625</td>
-      <td style="text-align: right;">2,803</td>
-      <td style="text-align: right;">4,834</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">73,760</td>
-      <td>A系統-小型(免監控)<br>A系統-小型(免監控)<br>A系統-小型(小型監控)</td>
-      <td>2026 Chuei Li Yu Fan Meeting 'Drawing Yu' in TAIPEI<br>Love Design KaoJane - First Fan Meeting in Taipei<br>TPBL例行賽　福爾摩沙夢想家主場-三上悠亞六日套票(全面開賣)</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
-    <tr data-month="2025/12">
-      <td>2025/12/01</td>
-      <td style="text-align: right;">46,241</td>
-      <td style="text-align: right;">8,390</td>
-      <td style="text-align: right;">6,921</td>
-      <td style="text-align: right;">5,317</td>
-      <td style="text-align: right;">4,120</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">70,989</td>
-      <td>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
-      <td>台星釋票(小巨蛋)<br>李聖傑開放取票</td>
-      <td style="font-size: 0.85em; color: #94a3b8;"></td>
-    </tr>
-  
+        <tr data-month="2025/11">
+            <td>2025/11/01</td>
+            <td style="text-align: right;">28,723</td>
+            <td style="text-align: right;">7,983</td>
+            <td style="text-align: right;">4,578</td>
+            <td style="text-align: right;">2,478</td>
+            <td style="text-align: right;">6,272</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">50,035</td>
+            <td>A系統-小型(免監控)</td>
+            <td>Yu-Gi-Oh! CHAMPIONSHIP SERIES ASIA ~ Taipei 2025</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/02</td>
+            <td style="text-align: right;">22,874</td>
+            <td style="text-align: right;">7,251</td>
+            <td style="text-align: right;">5,058</td>
+            <td style="text-align: right;">2,339</td>
+            <td style="text-align: right;">5,501</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">43,024</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/03</td>
+            <td style="text-align: right;">38,422</td>
+            <td style="text-align: right;">10,155</td>
+            <td style="text-align: right;">5,230</td>
+            <td style="text-align: right;">3,124</td>
+            <td style="text-align: right;">6,940</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">63,870</td>
+            <td>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
+            <td>中華職棒36年冬季聯盟<br>本田響矢首次台北粉絲見面會-VVIP</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/04</td>
+            <td style="text-align: right;">33,859</td>
+            <td style="text-align: right;">9,463</td>
+            <td style="text-align: right;">5,212</td>
+            <td style="text-align: right;">3,048</td>
+            <td style="text-align: right;">7,126</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,707</td>
+            <td>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
+            <td>OPEN！ DREAM WORLD 夢想演唱會<br>本田響矢首次台北粉絲見面會-VIP</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/05</td>
+            <td style="text-align: right;">34,977</td>
+            <td style="text-align: right;">8,317</td>
+            <td style="text-align: right;">5,195</td>
+            <td style="text-align: right;">3,043</td>
+            <td style="text-align: right;">6,971</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,502</td>
+            <td>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
+            <td>SMART CSNP FAN MEETING IN TAIPEI<br>本田響矢首次台北粉絲見面會-一般區</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/06</td>
+            <td style="text-align: right;">29,679</td>
+            <td style="text-align: right;">7,714</td>
+            <td style="text-align: right;">5,500</td>
+            <td style="text-align: right;">2,718</td>
+            <td style="text-align: right;">6,339</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,950</td>
+            <td>A系統-小型(免監控)</td>
+            <td>紫羅蘭永恆花園 交響音樂會 高雄站-加場</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/07</td>
+            <td style="text-align: right;">27,796</td>
+            <td style="text-align: right;">7,246</td>
+            <td style="text-align: right;">5,595</td>
+            <td style="text-align: right;">45,964</td>
+            <td style="text-align: right;">5,565</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">92,166</td>
+            <td>A系統-小型(免監控)</td>
+            <td>2025 YoungKey Girls 洋基女孩決選會</td>
+            <td style="font-size: 0.85em; color: #94a3b8;">共用本日費用為 Azure RI（Reserved Instance）月費，依各資源RI 購買日分別按月計費：SQLMI_BC_Compute_Premium-$43,088。</td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/08</td>
+            <td style="text-align: right;">52,619</td>
+            <td style="text-align: right;">11,428</td>
+            <td style="text-align: right;">5,562</td>
+            <td style="text-align: right;">31,841</td>
+            <td style="text-align: right;">8,410</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">109,860</td>
+            <td>A系統-中型(小型監控)</td>
+            <td>QWER 1ST WORLD TOUR ＜ROCKATION＞ in TAIPEI <br>加場</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/09</td>
+            <td style="text-align: right;">22,675</td>
+            <td style="text-align: right;">6,304</td>
+            <td style="text-align: right;">5,230</td>
+            <td style="text-align: right;">2,525</td>
+            <td style="text-align: right;">4,584</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">41,318</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;">A系統維運：agw-$1,529、appserver-$1,324、dbmi-$10,650、vm-$5,616、log-$1,263、redis-$317、storage-$670 = $21,369</td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/10</td>
+            <td style="text-align: right;">22,832</td>
+            <td style="text-align: right;">6,486</td>
+            <td style="text-align: right;">5,479</td>
+            <td style="text-align: right;">2,365</td>
+            <td style="text-align: right;">4,582</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">41,744</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/11</td>
+            <td style="text-align: right;">22,608</td>
+            <td style="text-align: right;">6,014</td>
+            <td style="text-align: right;">5,182</td>
+            <td style="text-align: right;">2,297</td>
+            <td style="text-align: right;">4,419</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">40,521</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/12</td>
+            <td style="text-align: right;">22,625</td>
+            <td style="text-align: right;">6,476</td>
+            <td style="text-align: right;">5,356</td>
+            <td style="text-align: right;">19,390</td>
+            <td style="text-align: right;">4,585</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,432</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;">共用本日費用為 Azure RI（Reserved Instance）月費，依各資源RI 購買日分別按月計費：Standard_P0_v3_Windows-$2,429、Standard_P0_v3_Windows-$14,571。</td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/13</td>
+            <td style="text-align: right;">22,547</td>
+            <td style="text-align: right;">5,423</td>
+            <td style="text-align: right;">5,332</td>
+            <td style="text-align: right;">2,411</td>
+            <td style="text-align: right;">4,414</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">40,128</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/14</td>
+            <td style="text-align: right;">28,046</td>
+            <td style="text-align: right;">6,071</td>
+            <td style="text-align: right;">5,496</td>
+            <td style="text-align: right;">13,587</td>
+            <td style="text-align: right;">5,176</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,375</td>
+            <td>A系統-小型(免監控)</td>
+            <td>中華職棒36年冬季聯盟<br>簽名會參加資格券四場</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/15</td>
+            <td style="text-align: right;">23,677</td>
+            <td style="text-align: right;">68,403</td>
+            <td style="text-align: right;">5,341</td>
+            <td style="text-align: right;">3,749</td>
+            <td style="text-align: right;">4,507</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">105,677</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/16</td>
+            <td style="text-align: right;">114,364</td>
+            <td style="text-align: right;">422,127</td>
+            <td style="text-align: right;">6,418</td>
+            <td style="text-align: right;">6,836</td>
+            <td style="text-align: right;">11,198</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">560,943</td>
+            <td>A系統-大型(中型監控)</td>
+            <td>AAA</td>
+            <td style="font-size: 0.85em; color: #94a3b8;">D系統大型監控：ALB LCU 4萬*4、m6i.2xlarge * 504、cache.m6g.xlarge*3、db.m6i.xlarge。<br>A系統費用分析：費用超過1千項目 agw-$16,028、appservice-$22,000、dbmi-$39,468、vm-$12,604、log-$14,092、redis-$1,529、流量-$1,480 =$107,201、UAT費用：$5,093.。</td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/17</td>
+            <td style="text-align: right;">29,647</td>
+            <td style="text-align: right;">6,392</td>
+            <td style="text-align: right;">11,309</td>
+            <td style="text-align: right;">2,637</td>
+            <td style="text-align: right;">5,420</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">55,405</td>
+            <td>A系統-小型(免監控)</td>
+            <td>本田響矢首次台北粉絲見面會-VVIP</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/18</td>
+            <td style="text-align: right;">23,891</td>
+            <td style="text-align: right;">6,012</td>
+            <td style="text-align: right;">5,238</td>
+            <td style="text-align: right;">2,562</td>
+            <td style="text-align: right;">4,022</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">41,725</td>
+            <td>A系統-小型(免監控)</td>
+            <td>本田響矢首次台北粉絲見面會-VIP</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/19</td>
+            <td style="text-align: right;">23,241</td>
+            <td style="text-align: right;">5,220</td>
+            <td style="text-align: right;">5,159</td>
+            <td style="text-align: right;">2,486</td>
+            <td style="text-align: right;">3,226</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">39,332</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/20</td>
+            <td style="text-align: right;">22,990</td>
+            <td style="text-align: right;">5,397</td>
+            <td style="text-align: right;">5,286</td>
+            <td style="text-align: right;">7,405</td>
+            <td style="text-align: right;">3,128</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">44,207</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/21</td>
+            <td style="text-align: right;">38,397</td>
+            <td style="text-align: right;">7,598</td>
+            <td style="text-align: right;">5,755</td>
+            <td style="text-align: right;">3,329</td>
+            <td style="text-align: right;">4,532</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">59,612</td>
+            <td>A系統-小型(免監控)<br>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
+            <td>AAA開放取票(11/21 12:00起、11/22、11/23 整天)<br>Yu－Gi－Oh！CHAMPIONSHIP SERIES ASIA Taipei 2025<br>LMSY DEAL WITH YOU IN TAIPEI</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/22</td>
+            <td style="text-align: right;">23,518</td>
+            <td style="text-align: right;">5,479</td>
+            <td style="text-align: right;">5,407</td>
+            <td style="text-align: right;">2,858</td>
+            <td style="text-align: right;">3,454</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">40,716</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/23</td>
+            <td style="text-align: right;">22,434</td>
+            <td style="text-align: right;">5,224</td>
+            <td style="text-align: right;">5,281</td>
+            <td style="text-align: right;">2,692</td>
+            <td style="text-align: right;">3,295</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">38,926</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/24</td>
+            <td style="text-align: right;">22,562</td>
+            <td style="text-align: right;">6,303</td>
+            <td style="text-align: right;">5,730</td>
+            <td style="text-align: right;">2,657</td>
+            <td style="text-align: right;">3,404</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">40,656</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/25</td>
+            <td style="text-align: right;">23,174</td>
+            <td style="text-align: right;">5,324</td>
+            <td style="text-align: right;">5,378</td>
+            <td style="text-align: right;">2,738</td>
+            <td style="text-align: right;">3,261</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">39,875</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/26</td>
+            <td style="text-align: right;">22,848</td>
+            <td style="text-align: right;">5,040</td>
+            <td style="text-align: right;">5,210</td>
+            <td style="text-align: right;">2,435</td>
+            <td style="text-align: right;">3,398</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">38,930</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/27</td>
+            <td style="text-align: right;">24,470</td>
+            <td style="text-align: right;">5,354</td>
+            <td style="text-align: right;">5,287</td>
+            <td style="text-align: right;">2,748</td>
+            <td style="text-align: right;">3,273</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">41,131</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/28</td>
+            <td style="text-align: right;">27,392</td>
+            <td style="text-align: right;">6,173</td>
+            <td style="text-align: right;">5,373</td>
+            <td style="text-align: right;">2,715</td>
+            <td style="text-align: right;">4,018</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">45,671</td>
+            <td>A系統-小型(免監控)</td>
+            <td>TPBL例行賽　福爾摩沙夢想家主場-三上悠亞六日套票(D-FANS)</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/29</td>
+            <td style="text-align: right;">93,948</td>
+            <td style="text-align: right;">45,435</td>
+            <td style="text-align: right;">7,483</td>
+            <td style="text-align: right;">5,312</td>
+            <td style="text-align: right;">9,960</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">162,138</td>
+            <td>A系統-大型(小型監控)<br>E系統-大型(免監控)<br>A系統-大型(免監控)</td>
+            <td>NEXZ SPECIAL CONCERT ＜ONE BEAT＞ in Taipei<br>2025臺南總舖師四季辦桌．冬季場<br>2025 LEE CHAE MIN FANMEETING TOUR ‘Chaem-into you’ in TAIPEI</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/11">
+            <td>2025/11/30</td>
+            <td style="text-align: right;">48,732</td>
+            <td style="text-align: right;">11,767</td>
+            <td style="text-align: right;">5,625</td>
+            <td style="text-align: right;">2,803</td>
+            <td style="text-align: right;">4,834</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">73,760</td>
+            <td>A系統-小型(免監控)<br>A系統-小型(免監控)<br>A系統-小型(小型監控)</td>
+            <td>2026 Chuei Li Yu Fan Meeting 'Drawing Yu' in TAIPEI<br>Love Design KaoJane - First Fan Meeting in Taipei<br>TPBL例行賽　福爾摩沙夢想家主場-三上悠亞六日套票(全面開賣)</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/01</td>
+            <td style="text-align: right;">46,241</td>
+            <td style="text-align: right;">8,390</td>
+            <td style="text-align: right;">6,921</td>
+            <td style="text-align: right;">5,317</td>
+            <td style="text-align: right;">4,120</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">70,989</td>
+            <td>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
+            <td>台星釋票(小巨蛋)<br>李聖傑開放取票</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/02</td>
+            <td style="text-align: right;">31,548</td>
+            <td style="text-align: right;">7,670</td>
+            <td style="text-align: right;">8,323</td>
+            <td style="text-align: right;">2,715</td>
+            <td style="text-align: right;">3,388</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">53,644</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/03</td>
+            <td style="text-align: right;">31,055</td>
+            <td style="text-align: right;">6,558</td>
+            <td style="text-align: right;">8,200</td>
+            <td style="text-align: right;">2,476</td>
+            <td style="text-align: right;">3,350</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,639</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/04</td>
+            <td style="text-align: right;">31,830</td>
+            <td style="text-align: right;">7,044</td>
+            <td style="text-align: right;">8,473</td>
+            <td style="text-align: right;">2,515</td>
+            <td style="text-align: right;">3,354</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">53,215</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/05</td>
+            <td style="text-align: right;">38,560</td>
+            <td style="text-align: right;">8,289</td>
+            <td style="text-align: right;">8,630</td>
+            <td style="text-align: right;">2,671</td>
+            <td style="text-align: right;">4,393</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">62,543</td>
+            <td>A系統-小型(免監控)</td>
+            <td>Love Design KaoJane - First Fan Meeting in Taipei(清票重售)</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/06</td>
+            <td style="text-align: right;">37,581</td>
+            <td style="text-align: right;">7,171</td>
+            <td style="text-align: right;">8,579</td>
+            <td style="text-align: right;">2,378</td>
+            <td style="text-align: right;">3,453</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">59,163</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/07</td>
+            <td style="text-align: right;">46,819</td>
+            <td style="text-align: right;">7,735</td>
+            <td style="text-align: right;">8,488</td>
+            <td style="text-align: right;">45,429</td>
+            <td style="text-align: right;">4,701</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">113,173</td>
+            <td>A系統-小型(免監控)</td>
+            <td>韓星加場</td>
+            <td style="font-size: 0.85em; color: #94a3b8;">共用：SQLMI_BC(A系統) = $43,088</td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/08</td>
+            <td style="text-align: right;">30,074</td>
+            <td style="text-align: right;">6,292</td>
+            <td style="text-align: right;">8,220</td>
+            <td style="text-align: right;">30,588</td>
+            <td style="text-align: right;">3,203</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">78,378</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;">共用：SQLDB_GP(禮贈)、VM(B2s、D2s_v3、DS1_v2、E2as_v4、E4as_v4) = $28,294</td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/09</td>
+            <td style="text-align: right;">30,080</td>
+            <td style="text-align: right;">8,344</td>
+            <td style="text-align: right;">9,243</td>
+            <td style="text-align: right;">2,534</td>
+            <td style="text-align: right;">3,312</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">53,513</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/10</td>
+            <td style="text-align: right;">30,413</td>
+            <td style="text-align: right;">7,834</td>
+            <td style="text-align: right;">9,193</td>
+            <td style="text-align: right;">2,687</td>
+            <td style="text-align: right;">3,333</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">53,460</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/11</td>
+            <td style="text-align: right;">34,546</td>
+            <td style="text-align: right;">7,339</td>
+            <td style="text-align: right;">8,816</td>
+            <td style="text-align: right;">2,589</td>
+            <td style="text-align: right;">3,257</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">56,546</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/12</td>
+            <td style="text-align: right;">197,916</td>
+            <td style="text-align: right;">154,447</td>
+            <td style="text-align: right;">20,069</td>
+            <td style="text-align: right;">26,880</td>
+            <td style="text-align: right;">33,098</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">432,410</td>
+            <td>E系統-大型(小型監控)</td>
+            <td>Cheer　Up啦啦隊快閃店活動</td>
+            <td style="font-size: 0.85em; color: #94a3b8;">共用：Appservice = $17,000</td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/13</td>
+            <td style="text-align: right;">260,131</td>
+            <td style="text-align: right;">1,121,083</td>
+            <td style="text-align: right;">28,891</td>
+            <td style="text-align: right;">16,365</td>
+            <td style="text-align: right;">31,135</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">1,457,605</td>
+            <td>A系統-大型(大型監控)</td>
+            <td>第40屆金唱片頒獎典禮 The 40th Golden Disc Awards</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/14</td>
+            <td style="text-align: right;">35,114</td>
+            <td style="text-align: right;">10,923</td>
+            <td style="text-align: right;">8,466</td>
+            <td style="text-align: right;">13,350</td>
+            <td style="text-align: right;">3,246</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">71,097</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;">共用：Appservice(P1_v3) = $10,326</td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/15</td>
+            <td style="text-align: right;">33,039</td>
+            <td style="text-align: right;">9,931</td>
+            <td style="text-align: right;">9,541</td>
+            <td style="text-align: right;">4,089</td>
+            <td style="text-align: right;">3,216</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">59,816</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;">共用：VM(D2s_v3) = $1,216</td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/16</td>
+            <td style="text-align: right;">33,352</td>
+            <td style="text-align: right;">8,705</td>
+            <td style="text-align: right;">10,122</td>
+            <td style="text-align: right;">2,734</td>
+            <td style="text-align: right;">3,246</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,159</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/17</td>
+            <td style="text-align: right;">33,288</td>
+            <td style="text-align: right;">8,045</td>
+            <td style="text-align: right;">10,220</td>
+            <td style="text-align: right;">2,706</td>
+            <td style="text-align: right;">3,280</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">57,538</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/18</td>
+            <td style="text-align: right;">39,824</td>
+            <td style="text-align: right;">8,772</td>
+            <td style="text-align: right;">10,459</td>
+            <td style="text-align: right;">3,147</td>
+            <td style="text-align: right;">3,810</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">66,012</td>
+            <td>A系統-小型(免監控)</td>
+            <td>林安可感謝球迷見面會</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/19</td>
+            <td style="text-align: right;">33,670</td>
+            <td style="text-align: right;">8,313</td>
+            <td style="text-align: right;">10,743</td>
+            <td style="text-align: right;">3,293</td>
+            <td style="text-align: right;">3,210</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">59,229</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/20</td>
+            <td style="text-align: right;">69,569</td>
+            <td style="text-align: right;">14,189</td>
+            <td style="text-align: right;">11,009</td>
+            <td style="text-align: right;">8,765</td>
+            <td style="text-align: right;">7,157</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">110,689</td>
+            <td>A系統-中型(小型監控)</td>
+            <td>2026 FTISLAND CONCERT ‘FTSODE’ in TAIPEI</td>
+            <td style="font-size: 0.85em; color: #94a3b8;">共用：SQLDB_GP(禮贈) = $4,790</td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/21</td>
+            <td style="text-align: right;">33,533</td>
+            <td style="text-align: right;">6,571</td>
+            <td style="text-align: right;">10,278</td>
+            <td style="text-align: right;">2,811</td>
+            <td style="text-align: right;">3,150</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">56,343</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/22</td>
+            <td style="text-align: right;">41,206</td>
+            <td style="text-align: right;">8,004</td>
+            <td style="text-align: right;">11,127</td>
+            <td style="text-align: right;">3,040</td>
+            <td style="text-align: right;">3,135</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">66,512</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/23</td>
+            <td style="text-align: right;">131,044</td>
+            <td style="text-align: right;">78,231</td>
+            <td style="text-align: right;">14,841</td>
+            <td style="text-align: right;">5,097</td>
+            <td style="text-align: right;">9,066</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">238,279</td>
+            <td>A系統-大型(中型監控)<br>A系統-大型(中型監控)</td>
+            <td>第40屆金唱片頒獎典禮 The 40th Golden Disc Awards<br>2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL<br>(中信卡友優先購)</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/24</td>
+            <td style="text-align: right;">127,081</td>
+            <td style="text-align: right;">68,039</td>
+            <td style="text-align: right;">22,138</td>
+            <td style="text-align: right;">4,986</td>
+            <td style="text-align: right;">11,739</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">233,984</td>
+            <td>E系統-大型(免監控)<br>A系統-大型(中型監控)</td>
+            <td>至冬之戀－桂Gui 個展<br>2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL<br>(全面販售)</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/25</td>
+            <td style="text-align: right;">35,651</td>
+            <td style="text-align: right;">7,725</td>
+            <td style="text-align: right;">10,180</td>
+            <td style="text-align: right;">2,569</td>
+            <td style="text-align: right;">6,794</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">62,919</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/26</td>
+            <td style="text-align: right;">46,360</td>
+            <td style="text-align: right;">10,529</td>
+            <td style="text-align: right;">13,144</td>
+            <td style="text-align: right;">2,774</td>
+            <td style="text-align: right;">4,608</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">77,415</td>
+            <td>E系統-中型(免監控)</td>
+            <td>至冬之戀－桂GUI個展簽名會</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/27</td>
+            <td style="text-align: right;">41,850</td>
+            <td style="text-align: right;">8,656</td>
+            <td style="text-align: right;">10,283</td>
+            <td style="text-align: right;">2,487</td>
+            <td style="text-align: right;">3,142</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">66,418</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/28</td>
+            <td style="text-align: right;">40,215</td>
+            <td style="text-align: right;">8,319</td>
+            <td style="text-align: right;">10,195</td>
+            <td style="text-align: right;">2,419</td>
+            <td style="text-align: right;">3,148</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">64,296</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/29</td>
+            <td style="text-align: right;">42,471</td>
+            <td style="text-align: right;">9,919</td>
+            <td style="text-align: right;">10,417</td>
+            <td style="text-align: right;">2,607</td>
+            <td style="text-align: right;">3,141</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">68,555</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/30</td>
+            <td style="text-align: right;">58,611</td>
+            <td style="text-align: right;">13,351</td>
+            <td style="text-align: right;">11,006</td>
+            <td style="text-align: right;">-1,030</td>
+            <td style="text-align: right;">4,661</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">86,600</td>
+            <td>A系統-小型(小型監控)</td>
+            <td>2026 FTISLAND CONCERT ‘FTSODE’ in TAIPEI加場</td>
+            <td style="font-size: 0.85em; color: #94a3b8;">共用：VM(B2s、D2s_v3、DS1_v2、E2as_v4、E4as_v4) 、Appservice(P0_v3) = $4,255</td>
+        </tr>
+    
+        <tr data-month="2025/12">
+            <td>2025/12/31</td>
+            <td style="text-align: right;">39,540</td>
+            <td style="text-align: right;">9,106</td>
+            <td style="text-align: right;">10,542</td>
+            <td style="text-align: right;">2,689</td>
+            <td style="text-align: right;">3,222</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">65,099</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/01</td>
+            <td style="text-align: right;">37,951</td>
+            <td style="text-align: right;">8,580</td>
+            <td style="text-align: right;">9,599</td>
+            <td style="text-align: right;">4,760</td>
+            <td style="text-align: right;">3,101</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">63,991</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/02</td>
+            <td style="text-align: right;">38,167</td>
+            <td style="text-align: right;">8,679</td>
+            <td style="text-align: right;">10,381</td>
+            <td style="text-align: right;">2,506</td>
+            <td style="text-align: right;">3,175</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">62,908</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/03</td>
+            <td style="text-align: right;">37,580</td>
+            <td style="text-align: right;">12,071</td>
+            <td style="text-align: right;">10,266</td>
+            <td style="text-align: right;">2,558</td>
+            <td style="text-align: right;">3,269</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">65,743</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/04</td>
+            <td style="text-align: right;">78,311</td>
+            <td style="text-align: right;">13,740</td>
+            <td style="text-align: right;">12,051</td>
+            <td style="text-align: right;">2,943</td>
+            <td style="text-align: right;">4,435</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">111,480</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;">有流量，12:00-19:00，azure機器有擴展。aws佔13,684、AZURE佔55706【3466(gateway)+6117(AppService)+2652(Bandwidth)+1395(CDN)+26059(log)+16017(sql mi) 】</td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/05</td>
+            <td style="text-align: right;">56,510</td>
+            <td style="text-align: right;">22,575</td>
+            <td style="text-align: right;">11,804</td>
+            <td style="text-align: right;">2,767</td>
+            <td style="text-align: right;">4,010</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">97,666</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/06</td>
+            <td style="text-align: right;">38,873</td>
+            <td style="text-align: right;">16,701</td>
+            <td style="text-align: right;">10,576</td>
+            <td style="text-align: right;">2,538</td>
+            <td style="text-align: right;">3,399</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">72,087</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/07</td>
+            <td style="text-align: right;">104,570</td>
+            <td style="text-align: right;">13,359</td>
+            <td style="text-align: right;">12,802</td>
+            <td style="text-align: right;">47,264</td>
+            <td style="text-align: right;">6,630</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">184,626</td>
+            <td>A系統-中型(小型監控)</td>
+            <td>第40屆金唱片頒獎典禮 The 40th Golden Disc Awards<br>(視線不良區釋票)</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/08</td>
+            <td style="text-align: right;">81,517</td>
+            <td style="text-align: right;">7,819</td>
+            <td style="text-align: right;">10,714</td>
+            <td style="text-align: right;">21,930</td>
+            <td style="text-align: right;">3,161</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">125,140</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;">A系統網站流量升高，azure機器有擴展。AWS佔17,953、AZURE佔54,843【11,115(gateway)+1730(AppService)+3888(Bandwidth)+512(CDN)+26999(log)+10599(sql mi)】</td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/09</td>
+            <td style="text-align: right;">77,150</td>
+            <td style="text-align: right;">7,852</td>
+            <td style="text-align: right;">9,607</td>
+            <td style="text-align: right;">2,892</td>
+            <td style="text-align: right;">3,041</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">100,542</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;">A系統網站流量升高，azure機器有擴展。AWS佔12,267、AZURE佔56,125【3424(gateway)+2075(AppService)+5065(Bandwidth)+480(CDN)+34482(log)+10599(sql mi)】</td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/10</td>
+            <td style="text-align: right;">52,696</td>
+            <td style="text-align: right;">7,479</td>
+            <td style="text-align: right;">8,952</td>
+            <td style="text-align: right;">2,459</td>
+            <td style="text-align: right;">2,978</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">74,563</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/11</td>
+            <td style="text-align: right;">32,815</td>
+            <td style="text-align: right;">6,531</td>
+            <td style="text-align: right;">8,305</td>
+            <td style="text-align: right;">2,400</td>
+            <td style="text-align: right;">2,966</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">53,017</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/12</td>
+            <td style="text-align: right;">29,945</td>
+            <td style="text-align: right;">6,562</td>
+            <td style="text-align: right;">8,331</td>
+            <td style="text-align: right;">17,106</td>
+            <td style="text-align: right;">3,071</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">65,015</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/13</td>
+            <td style="text-align: right;">30,116</td>
+            <td style="text-align: right;">6,418</td>
+            <td style="text-align: right;">8,325</td>
+            <td style="text-align: right;">2,520</td>
+            <td style="text-align: right;">2,924</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">50,303</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/14</td>
+            <td style="text-align: right;">30,180</td>
+            <td style="text-align: right;">5,466</td>
+            <td style="text-align: right;">8,274</td>
+            <td style="text-align: right;">12,850</td>
+            <td style="text-align: right;">2,987</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">59,756</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/15</td>
+            <td style="text-align: right;">33,989</td>
+            <td style="text-align: right;">5,995</td>
+            <td style="text-align: right;">8,458</td>
+            <td style="text-align: right;">2,594</td>
+            <td style="text-align: right;">2,948</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">53,985</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/16</td>
+            <td style="text-align: right;">47,424</td>
+            <td style="text-align: right;">5,902</td>
+            <td style="text-align: right;">8,466</td>
+            <td style="text-align: right;">2,653</td>
+            <td style="text-align: right;">2,884</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">67,329</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;">aws佔28,527, azure 佔18,897，正常</td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/17</td>
+            <td style="text-align: right;">49,700</td>
+            <td style="text-align: right;">5,287</td>
+            <td style="text-align: right;">8,433</td>
+            <td style="text-align: right;">2,606</td>
+            <td style="text-align: right;">2,887</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">68,913</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/18</td>
+            <td style="text-align: right;">49,871</td>
+            <td style="text-align: right;">5,373</td>
+            <td style="text-align: right;">8,437</td>
+            <td style="text-align: right;">2,574</td>
+            <td style="text-align: right;">2,902</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">69,157</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/19</td>
+            <td style="text-align: right;">50,031</td>
+            <td style="text-align: right;">6,521</td>
+            <td style="text-align: right;">14,951</td>
+            <td style="text-align: right;">2,863</td>
+            <td style="text-align: right;">3,793</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">78,159</td>
+            <td>E系統-大型(免監控)<br>E系統-大型(免監控)</td>
+            <td>2026斯巴達障礙跑競賽台南場：Kids 小勇士賽<br>2026斯巴達障礙跑競賽台南場：三色周末</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/20</td>
+            <td style="text-align: right;">49,891</td>
+            <td style="text-align: right;">5,426</td>
+            <td style="text-align: right;">8,396</td>
+            <td style="text-align: right;">7,408</td>
+            <td style="text-align: right;">2,908</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">74,030</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/21</td>
+            <td style="text-align: right;">51,693</td>
+            <td style="text-align: right;">6,321</td>
+            <td style="text-align: right;">8,335</td>
+            <td style="text-align: right;">3,034</td>
+            <td style="text-align: right;">2,939</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">72,322</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/22</td>
+            <td style="text-align: right;">50,671</td>
+            <td style="text-align: right;">6,130</td>
+            <td style="text-align: right;">13,178</td>
+            <td style="text-align: right;">2,622</td>
+            <td style="text-align: right;">3,594</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">76,195</td>
+            <td>E系統-大型(免監控)</td>
+            <td>King＆Prince「STARRING」台北快閃店</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/23</td>
+            <td style="text-align: right;">39,989</td>
+            <td style="text-align: right;">7,416</td>
+            <td style="text-align: right;">10,850</td>
+            <td style="text-align: right;">2,727</td>
+            <td style="text-align: right;">3,918</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">64,900</td>
+            <td>E系統-大型(免監控)<br>A系統-小型(免監控)</td>
+            <td>Fujisaki Hikari老師簽名會<br>Girlfreen – Love Letter Solo Fanmeeting in Taipei</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/24</td>
+            <td style="text-align: right;">38,550</td>
+            <td style="text-align: right;">6,986</td>
+            <td style="text-align: right;">8,536</td>
+            <td style="text-align: right;">2,682</td>
+            <td style="text-align: right;">4,147</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">60,902</td>
+            <td>A系統-小型(小型監控)<br>A系統-小型(小型監控)</td>
+            <td>2026 Jang Wooyoung Concert ＜half half＞ in Taipei<br>炎亞綸《Ikigai》巡迴演唱會－高雄站</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/25</td>
+            <td style="text-align: right;">45,560</td>
+            <td style="text-align: right;">7,601</td>
+            <td style="text-align: right;">8,911</td>
+            <td style="text-align: right;">2,704</td>
+            <td style="text-align: right;">3,916</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">68,692</td>
+            <td>A系統-小型(小型監控)</td>
+            <td>2026 tripleS Concert ＜My Secret New Zone＞ in Taipei</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/26</td>
+            <td style="text-align: right;">36,103</td>
+            <td style="text-align: right;">6,026</td>
+            <td style="text-align: right;">8,654</td>
+            <td style="text-align: right;">2,968</td>
+            <td style="text-align: right;">3,665</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">57,416</td>
+            <td>A系統-小型(免監控)</td>
+            <td>2026「萊！萊坐」有你真好同樂會</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/27</td>
+            <td style="text-align: right;">30,021</td>
+            <td style="text-align: right;">6,102</td>
+            <td style="text-align: right;">8,516</td>
+            <td style="text-align: right;">3,034</td>
+            <td style="text-align: right;">2,912</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">50,585</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/28</td>
+            <td style="text-align: right;">30,346</td>
+            <td style="text-align: right;">6,053</td>
+            <td style="text-align: right;">8,708</td>
+            <td style="text-align: right;">3,024</td>
+            <td style="text-align: right;">3,005</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,136</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/29</td>
+            <td style="text-align: right;">30,330</td>
+            <td style="text-align: right;">6,196</td>
+            <td style="text-align: right;">8,707</td>
+            <td style="text-align: right;">3,221</td>
+            <td style="text-align: right;">2,923</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,377</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/30</td>
+            <td style="text-align: right;">30,214</td>
+            <td style="text-align: right;">5,325</td>
+            <td style="text-align: right;">8,686</td>
+            <td style="text-align: right;">3,246</td>
+            <td style="text-align: right;">2,955</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">50,426</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/01">
+            <td>2026/01/31</td>
+            <td style="text-align: right;">42,616</td>
+            <td style="text-align: right;">7,058</td>
+            <td style="text-align: right;">8,868</td>
+            <td style="text-align: right;">3,369</td>
+            <td style="text-align: right;">4,170</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">66,080</td>
+            <td>A系統-小型(小型監控)<br>A系統-小型(免監控)</td>
+            <td>2026 idntt 1st FANMEETING in TAIPEI ＜FIRST ACTION＞<br>GinnyJayna 1st Fan Meeting ｛THE TEMPTING VENOM｝ in Taipei</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/01</td>
+            <td style="text-align: right;">30,326</td>
+            <td style="text-align: right;">5,520</td>
+            <td style="text-align: right;">7,873</td>
+            <td style="text-align: right;">5,134</td>
+            <td style="text-align: right;">3,265</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">52,118</td>
+            <td>A系統-小型(免監控)</td>
+            <td>STAY SWEET－INK WARUNTORN＆SERIOUS BACON LIVE IN TAIWAN</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/02</td>
+            <td style="text-align: right;">29,220</td>
+            <td style="text-align: right;">5,208</td>
+            <td style="text-align: right;">8,383</td>
+            <td style="text-align: right;">2,932</td>
+            <td style="text-align: right;">2,977</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">48,719</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/03</td>
+            <td style="text-align: right;">29,011</td>
+            <td style="text-align: right;">5,186</td>
+            <td style="text-align: right;">8,929</td>
+            <td style="text-align: right;">2,938</td>
+            <td style="text-align: right;">2,996</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">49,060</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/04</td>
+            <td style="text-align: right;">29,723</td>
+            <td style="text-align: right;">5,499</td>
+            <td style="text-align: right;">9,585</td>
+            <td style="text-align: right;">3,164</td>
+            <td style="text-align: right;">3,065</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,036</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/05</td>
+            <td style="text-align: right;">32,117</td>
+            <td style="text-align: right;">5,899</td>
+            <td style="text-align: right;">9,355</td>
+            <td style="text-align: right;">2,938</td>
+            <td style="text-align: right;">3,221</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">53,530</td>
+            <td>A系統-小型(免監控)</td>
+            <td>GinnyJayna 1st Fan Meeting ｛THE TEMPTING VENOM｝ in Taipei-福利加購</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/06</td>
+            <td style="text-align: right;">38,508</td>
+            <td style="text-align: right;">7,111</td>
+            <td style="text-align: right;">9,771</td>
+            <td style="text-align: right;">3,291</td>
+            <td style="text-align: right;">3,744</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">62,425</td>
+            <td>A系統-小型(免監控)<br>A系統-小型(免監控)<br>A系統-小型(小型監控)</td>
+            <td>2026第十二屆台灣國際兒童影展<br>2026UniGirls新球季發表會<br>2026蘇永康演唱會<br>遠傳會員</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/07</td>
+            <td style="text-align: right;">42,720</td>
+            <td style="text-align: right;">7,532</td>
+            <td style="text-align: right;">9,769</td>
+            <td style="text-align: right;">46,473</td>
+            <td style="text-align: right;">4,300</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">110,793</td>
+            <td>A系統-小型(小型監控)<br>A系統-小型(小型監控)</td>
+            <td>2026 SEVENUS SPRING MINI CONCERT ［Stay With Us］ in TAIPEI<br>2026蘇永康演唱會<br>全面啟售</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/08</td>
+            <td style="text-align: right;">29,835</td>
+            <td style="text-align: right;">5,473</td>
+            <td style="text-align: right;">9,075</td>
+            <td style="text-align: right;">19,875</td>
+            <td style="text-align: right;">3,105</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">67,363</td>
+            <td>A系統-小型(免監控)</td>
+            <td>GinnyJayna 1st Fan Meeting ｛THE TEMPTING VENOM｝ in Taipei－福利加購</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/09</td>
+            <td style="text-align: right;">29,976</td>
+            <td style="text-align: right;">5,627</td>
+            <td style="text-align: right;">9,125</td>
+            <td style="text-align: right;">2,645</td>
+            <td style="text-align: right;">3,810</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,182</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/10</td>
+            <td style="text-align: right;">30,648</td>
+            <td style="text-align: right;">6,350</td>
+            <td style="text-align: right;">9,496</td>
+            <td style="text-align: right;">2,659</td>
+            <td style="text-align: right;">3,291</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">52,445</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/11</td>
+            <td style="text-align: right;">59,542</td>
+            <td style="text-align: right;">8,906</td>
+            <td style="text-align: right;">11,042</td>
+            <td style="text-align: right;">5,402</td>
+            <td style="text-align: right;">7,345</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">92,237</td>
+            <td>A系統-中型(小型監控)</td>
+            <td>Team Taiwan高雄澄清湖自辦練習賽</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/12</td>
+            <td style="text-align: right;">53,530</td>
+            <td style="text-align: right;">6,421</td>
+            <td style="text-align: right;">10,451</td>
+            <td style="text-align: right;">18,394</td>
+            <td style="text-align: right;">5,508</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">94,304</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/13</td>
+            <td style="text-align: right;">62,105</td>
+            <td style="text-align: right;">10,315</td>
+            <td style="text-align: right;">24,948</td>
+            <td style="text-align: right;">3,691</td>
+            <td style="text-align: right;">8,683</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">109,743</td>
+            <td>E系統-大型(小型監控)<br>A系統-小型(小型監控)<br>A系統-小型(小型監控)<br>A系統-小型(小型監控)</td>
+            <td>i-dle　CITY　of　SENSE<br>一般票全面開賣<br>2026 tripleS Concert ＜My Secret New Zone＞ in Taipei 福利加購<br>deca joins 2026 world tour － 在這裡停一下<br>deca joins 2026 world tour － 在這裡停一下</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/14</td>
+            <td style="text-align: right;">32,433</td>
+            <td style="text-align: right;">4,831</td>
+            <td style="text-align: right;">9,154</td>
+            <td style="text-align: right;">13,156</td>
+            <td style="text-align: right;">3,407</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">62,981</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/15</td>
+            <td style="text-align: right;">32,656</td>
+            <td style="text-align: right;">4,705</td>
+            <td style="text-align: right;">8,956</td>
+            <td style="text-align: right;">2,620</td>
+            <td style="text-align: right;">3,387</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">52,324</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/16</td>
+            <td style="text-align: right;">32,624</td>
+            <td style="text-align: right;">4,523</td>
+            <td style="text-align: right;">8,934</td>
+            <td style="text-align: right;">2,689</td>
+            <td style="text-align: right;">3,399</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">52,170</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/17</td>
+            <td style="text-align: right;">32,555</td>
+            <td style="text-align: right;">4,533</td>
+            <td style="text-align: right;">8,959</td>
+            <td style="text-align: right;">2,743</td>
+            <td style="text-align: right;">3,363</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">52,153</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/18</td>
+            <td style="text-align: right;">31,833</td>
+            <td style="text-align: right;">4,496</td>
+            <td style="text-align: right;">8,985</td>
+            <td style="text-align: right;">2,721</td>
+            <td style="text-align: right;">3,508</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,544</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/19</td>
+            <td style="text-align: right;">31,903</td>
+            <td style="text-align: right;">4,520</td>
+            <td style="text-align: right;">9,021</td>
+            <td style="text-align: right;">2,735</td>
+            <td style="text-align: right;">3,345</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,523</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/20</td>
+            <td style="text-align: right;">32,225</td>
+            <td style="text-align: right;">4,503</td>
+            <td style="text-align: right;">9,204</td>
+            <td style="text-align: right;">7,660</td>
+            <td style="text-align: right;">3,263</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">56,855</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/21</td>
+            <td style="text-align: right;">36,288</td>
+            <td style="text-align: right;">4,683</td>
+            <td style="text-align: right;">9,137</td>
+            <td style="text-align: right;">2,780</td>
+            <td style="text-align: right;">3,984</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">56,872</td>
+            <td>A系統-小型(免監控)</td>
+            <td>青春點點點逝世９周年追思紀念會－返校日</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/22</td>
+            <td style="text-align: right;">31,226</td>
+            <td style="text-align: right;">4,527</td>
+            <td style="text-align: right;">8,517</td>
+            <td style="text-align: right;">2,705</td>
+            <td style="text-align: right;">3,320</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">50,294</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/23</td>
+            <td style="text-align: right;">31,545</td>
+            <td style="text-align: right;">4,691</td>
+            <td style="text-align: right;">8,553</td>
+            <td style="text-align: right;">2,637</td>
+            <td style="text-align: right;">3,473</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">50,900</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/24</td>
+            <td style="text-align: right;">28,337</td>
+            <td style="text-align: right;">4,796</td>
+            <td style="text-align: right;">8,307</td>
+            <td style="text-align: right;">2,594</td>
+            <td style="text-align: right;">3,520</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">47,554</td>
+            <td></td>
+            <td></td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/25</td>
+            <td style="text-align: right;">52,753</td>
+            <td style="text-align: right;">6,177</td>
+            <td style="text-align: right;">8,552</td>
+            <td style="text-align: right;">3,350</td>
+            <td style="text-align: right;">5,327</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">76,159</td>
+            <td>A系統-小型(小型監控)<br>A系統-小型(小型監控)</td>
+            <td>tripleS 福利 加開名額<br>2026蘇永康演唱會</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/26</td>
+            <td style="text-align: right;">35,706</td>
+            <td style="text-align: right;">6,492</td>
+            <td style="text-align: right;">8,415</td>
+            <td style="text-align: right;">3,126</td>
+            <td style="text-align: right;">4,353</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">58,093</td>
+            <td>A系統-小型(免監控)<br>A系統-小型(免監控)<br>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
+            <td>Idntt福利<br>做伙來應援！2026樂天女孩開季見面會-金猿優先購<br>統一獅37年一般季票購票(舊會員續約)<br>2026兆豐銀行中華職棒熱身賽</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/27</td>
+            <td style="text-align: right;">31,694</td>
+            <td style="text-align: right;">6,272</td>
+            <td style="text-align: right;">8,589</td>
+            <td style="text-align: right;">3,223</td>
+            <td style="text-align: right;">4,167</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">53,944</td>
+            <td>A系統-小型(免監控)<br>A系統-小型(免監控)</td>
+            <td>做伙來應援！2026樂天女孩開季見面會-全面開賣<br>統一獅37年一般季票資格券(全面開賣)</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
+        <tr data-month="2026/02">
+            <td>2026/02/28</td>
+            <td style="text-align: right;">30,511</td>
+            <td style="text-align: right;">5,185</td>
+            <td style="text-align: right;">8,808</td>
+            <td style="text-align: right;">2,887</td>
+            <td style="text-align: right;">4,059</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">51,450</td>
+            <td>A系統-小型(小型監控)</td>
+            <td>114 學年度高中籃球甲級聯賽總決賽(免費索票)</td>
+            <td style="font-size: 0.85em; color: #94a3b8;"></td>
+        </tr>
+    
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
     
-    <a href="report_index.html" class="btn-home">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-        </svg>
-        回首頁
-    </a>
+    <a href="report_index.html" class="btn-home">回首頁</a>
 
     <script>
         const ctx = document.getElementById('expenseChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ["2025/11/01","2025/11/02","2025/11/03","2025/11/04","2025/11/05","2025/11/06","2025/11/07","2025/11/08","2025/11/09","2025/11/10","2025/11/11","2025/11/12","2025/11/13","2025/11/14","2025/11/15","2025/11/16","2025/11/17","2025/11/18","2025/11/19","2025/11/20","2025/11/21","2025/11/22","2025/11/23","2025/11/24","2025/11/25","2025/11/26","2025/11/27","2025/11/28","2025/11/29","2025/11/30","2025/12/01"],
+                labels: ["2025/11/01","2025/11/02","2025/11/03","2025/11/04","2025/11/05","2025/11/06","2025/11/07","2025/11/08","2025/11/09","2025/11/10","2025/11/11","2025/11/12","2025/11/13","2025/11/14","2025/11/15","2025/11/16","2025/11/17","2025/11/18","2025/11/19","2025/11/20","2025/11/21","2025/11/22","2025/11/23","2025/11/24","2025/11/25","2025/11/26","2025/11/27","2025/11/28","2025/11/29","2025/11/30","2025/12/01","2025/12/02","2025/12/03","2025/12/04","2025/12/05","2025/12/06","2025/12/07","2025/12/08","2025/12/09","2025/12/10","2025/12/11","2025/12/12","2025/12/13","2025/12/14","2025/12/15","2025/12/16","2025/12/17","2025/12/18","2025/12/19","2025/12/20","2025/12/21","2025/12/22","2025/12/23","2025/12/24","2025/12/25","2025/12/26","2025/12/27","2025/12/28","2025/12/29","2025/12/30","2025/12/31","2026/01/01","2026/01/02","2026/01/03","2026/01/04","2026/01/05","2026/01/06","2026/01/07","2026/01/08","2026/01/09","2026/01/10","2026/01/11","2026/01/12","2026/01/13","2026/01/14","2026/01/15","2026/01/16","2026/01/17","2026/01/18","2026/01/19","2026/01/20","2026/01/21","2026/01/22","2026/01/23","2026/01/24","2026/01/25","2026/01/26","2026/01/27","2026/01/28","2026/01/29","2026/01/30","2026/01/31","2026/02/01","2026/02/02","2026/02/03","2026/02/04","2026/02/05","2026/02/06","2026/02/07","2026/02/08","2026/02/09","2026/02/10","2026/02/11","2026/02/12","2026/02/13","2026/02/14","2026/02/15","2026/02/16","2026/02/17","2026/02/18","2026/02/19","2026/02/20","2026/02/21","2026/02/22","2026/02/23","2026/02/24","2026/02/25","2026/02/26","2026/02/27","2026/02/28"],
                 datasets: [
                     {
                         label: '總計',
-                        data: [50035,43024,63870,58707,58502,51950,92166,109860,41318,41744,40521,58432,40128,58375,105677,560943,55405,41725,39332,44207,59612,40716,38926,40656,39875,38930,41131,45671,162138,73760,70989],
+                        data: [50035,43024,63870,58707,58502,51950,92166,109860,41318,41744,40521,58432,40128,58375,105677,560943,55405,41725,39332,44207,59612,40716,38926,40656,39875,38930,41131,45671,162138,73760,70989,53644,51639,53215,62543,59163,113173,78378,53513,53460,56546,432410,1457605,71097,59816,58159,57538,66012,59229,110689,56343,66512,238279,233984,62919,77415,66418,64296,68555,86600,65099,63991,62908,65743,111480,97666,72087,184626,125140,100542,74563,53017,65015,50303,59756,53985,67329,68913,69157,78159,74030,72322,76195,64900,60902,68692,57416,50585,51136,51377,50426,66080,52118,48719,49060,51036,53530,62425,110793,67363,51182,52445,92237,94304,109743,62981,52324,52170,52153,51544,51523,56855,56872,50294,50900,47554,76159,58093,53944,51450],
                         borderColor: '#60a5fa',
                         backgroundColor: 'rgba(96, 165, 250, 0.1)',
                         borderWidth: 3,
@@ -535,7 +1682,7 @@
                     },
                     {
                         label: 'A系統',
-                        data: [28723,22874,38422,33859,34977,29679,27796,52619,22675,22832,22608,22625,22547,28046,23677,114364,29647,23891,23241,22990,38397,23518,22434,22562,23174,22848,24470,27392,93948,48732,46241],
+                        data: [28723,22874,38422,33859,34977,29679,27796,52619,22675,22832,22608,22625,22547,28046,23677,114364,29647,23891,23241,22990,38397,23518,22434,22562,23174,22848,24470,27392,93948,48732,46241,31548,31055,31830,38560,37581,46819,30074,30080,30413,34546,197916,260131,35114,33039,33352,33288,39824,33670,69569,33533,41206,131044,127081,35651,46360,41850,40215,42471,58611,39540,37951,38167,37580,78311,56510,38873,104570,81517,77150,52696,32815,29945,30116,30180,33989,47424,49700,49871,50031,49891,51693,50671,39989,38550,45560,36103,30021,30346,30330,30214,42616,30326,29220,29011,29723,32117,38508,42720,29835,29976,30648,59542,53530,62105,32433,32656,32624,32555,31833,31903,32225,36288,31226,31545,28337,52753,35706,31694,30511],
                         borderColor: '#a78bfa',
                         backgroundColor: 'transparent',
                         borderWidth: 2,
@@ -544,7 +1691,7 @@
                     },
                     {
                         label: 'D系統(AWS)',
-                        data: [7983,7251,10155,9463,8317,7714,7246,11428,6304,6486,6014,6476,5423,6071,68403,422127,6392,6012,5220,5397,7598,5479,5224,6303,5324,5040,5354,6173,45435,11767,8390],
+                        data: [7983,7251,10155,9463,8317,7714,7246,11428,6304,6486,6014,6476,5423,6071,68403,422127,6392,6012,5220,5397,7598,5479,5224,6303,5324,5040,5354,6173,45435,11767,8390,7670,6558,7044,8289,7171,7735,6292,8344,7834,7339,154447,1121083,10923,9931,8705,8045,8772,8313,14189,6571,8004,78231,68039,7725,10529,8656,8319,9919,13351,9106,8580,8679,12071,13740,22575,16701,13359,7819,7852,7479,6531,6562,6418,5466,5995,5902,5287,5373,6521,5426,6321,6130,7416,6986,7601,6026,6102,6053,6196,5325,7058,5520,5208,5186,5499,5899,7111,7532,5473,5627,6350,8906,6421,10315,4831,4705,4523,4533,4496,4520,4503,4683,4527,4691,4796,6177,6492,6272,5185],
                         borderColor: '#f472b6',
                         backgroundColor: 'transparent',
                         borderWidth: 2,
@@ -556,42 +1703,19 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
                 plugins: {
-                    legend: {
-                        labels: { color: '#e2e8f0', font: { family: 'Noto Sans TC' } }
-                    },
+                    legend: { labels: { color: '#e2e8f0' } },
                     tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        titleFont: { size: 14 },
-                        bodyFont: { size: 14 },
+                        mode: 'index',
+                        intersect: false,
                         callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', minimumFractionDigits: 0 }).format(context.parsed.y);
-                                }
-                                return label;
-                            }
+                            label: (context) => context.dataset.label + ': $' + context.parsed.y.toLocaleString()
                         }
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#94a3b8' }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#94a3b8', maxTicksLimit: 15 }
-                    }
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 15 } }
                 }
             }
         });
@@ -601,11 +1725,8 @@
             const rows = document.querySelectorAll('tbody tr');
             rows.forEach(row => {
                 const month = row.getAttribute('data-month');
-                if (selectedMonth === 'all' || month === selectedMonth) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                if (selectedMonth === 'all' || month === selectedMonth) row.style.display = '';
+                else row.style.display = 'none';
             });
         });
     </script>

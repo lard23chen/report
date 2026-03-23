@@ -1,71 +1,74 @@
 const fs = require('fs');
-const csv = require('csv-parser');
+const { MongoClient } = require('mongodb');
 
-const results = [];
+const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const client = new MongoClient(uri);
 
-fs.createReadStream('temp_sheet_all.csv')
-  .pipe(csv({ headers: false }))
-  .on('data', (data) => {
-    let dateStr = data[1] ? data[1].trim().substring(0, 10) : '';
-    const isValidDate = /^(2025\/11|2025\/12|2026\/01)\/\d{2}$/.test(dateStr);
-    
-    if (data[0] === '' && isValidDate) {
-      results.push({
-        date: dateStr,
-        sysA: parseCurrency(data[2]),
-        sysD: parseCurrency(data[3]),
-        sysE: parseCurrency(data[4]),
-        shared: parseCurrency(data[5]),
-        member: parseCurrency(data[6]),
-        total: parseCurrency(data[7]),
-        monitorLevel: data[8] ? data[8].trim() : '',
-        activity: data[9] ? data[9].trim() : '',
-        notes: data[10] ? data[10].trim() : ''
-      });
+async function run() {
+    try {
+        await client.connect();
+        const db = client.db("QwareAi");
+        const collection = db.collection('AzureMonthlyCost_Daily');
+
+        console.log("Fetching data from AzureMonthlyCost_Daily...");
+        const rawData = await collection.find({}).sort({ Date: 1 }).toArray();
+
+        // Transform data to match the expected format in generateHTML
+        const results = rawData.map(d => ({
+            date: d.Date,
+            sysA: parseFloat(d.ASys) || 0,
+            sysD: parseFloat(d.DSysAWS) || 0,
+            sysE: parseFloat(d.ESys) || 0,
+            shared: parseFloat(d.Shared) || 0,
+            member: parseFloat(d.Member) || 0,
+            total: parseFloat(d.TotalRevenue) || 0,
+            monitorLevel: d.Level || '',
+            activity: d.Activity || '',
+            notes: d.Note || ''
+        }));
+
+        generateHTML(results);
+
+    } catch (e) {
+        console.error("Error:", e);
+    } finally {
+        await client.close();
     }
-  })
-  .on('end', () => {
-    generateHTML(results);
-  });
-
-function parseCurrency(val) {
-  if (!val) return 0;
-  return parseInt(val.replace(/\$|,/g, '').trim(), 10) || 0;
 }
 
 function generateHTML(data) {
-  // sort data by date just in case
-  data.sort((a, b) => a.date.localeCompare(b.date));
+    // Labels and data for Chart.js
+    const labels = data.map(d => d.date);
+    const sysAData = data.map(d => d.sysA);
+    const sysDData = data.map(d => d.sysD);
+    const sysEData = data.map(d => d.sysE);
+    const totalData = data.map(d => d.total);
 
-  const labels = data.map(d => d.date);
-  const sysAData = data.map(d => d.sysA);
-  const sysDData = data.map(d => d.sysD);
-  const sysEData = data.map(d => d.sysE);
-  const sharedData = data.map(d => d.shared);
-  const memberData = data.map(d => d.member);
-  const totalData = data.map(d => d.total);
+    // Filter options for dropdown (Unique months)
+    const months = [...new Set(data.map(d => d.date.substring(0, 7)))].sort();
+    const filterOptions = months.map(m => `<option value="${m}">${m.replace('/', '年 ')}月</option>`).join('');
 
-  const tableRows = data.map(d => `
-    <tr data-month="${d.date.substring(0, 7)}">
-      <td>${d.date}</td>
-      <td style="text-align: right;">${d.sysA.toLocaleString()}</td>
-      <td style="text-align: right;">${d.sysD.toLocaleString()}</td>
-      <td style="text-align: right;">${d.sysE.toLocaleString()}</td>
-      <td style="text-align: right;">${d.shared.toLocaleString()}</td>
-      <td style="text-align: right;">${d.member.toLocaleString()}</td>
-      <td style="text-align: right; color: #60a5fa; font-weight: bold;">${d.total.toLocaleString()}</td>
-      <td>${d.monitorLevel.replace(/\n/g, '<br>')}</td>
-      <td>${d.activity.replace(/\n/g, '<br>')}</td>
-      <td style="font-size: 0.85em; color: #94a3b8;">${d.notes.replace(/\n/g, '<br>')}</td>
-    </tr>
-  `).join('');
+    const tableRows = data.map(d => `
+        <tr data-month="${d.date.substring(0, 7)}">
+            <td>${d.date}</td>
+            <td style="text-align: right;">${d.sysA.toLocaleString()}</td>
+            <td style="text-align: right;">${d.sysD.toLocaleString()}</td>
+            <td style="text-align: right;">${d.sysE.toLocaleString()}</td>
+            <td style="text-align: right;">${d.shared.toLocaleString()}</td>
+            <td style="text-align: right;">${d.member.toLocaleString()}</td>
+            <td style="text-align: right; color: #60a5fa; font-weight: bold;">${d.total.toLocaleString()}</td>
+            <td>${(d.monitorLevel || '').replace(/\n/g, '<br>')}</td>
+            <td>${(d.activity || '').replace(/\n/g, '<br>')}</td>
+            <td style="font-size: 0.85em; color: #94a3b8;">${(d.notes || '').replace(/\n/g, '<br>')}</td>
+        </tr>
+    `).join('');
 
-  const html = `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025年11月至2026年1月 每日費用分析報告</title>
+    <title>跨月份 每日雲端費用分析報告 (Mongo Source)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -99,7 +102,6 @@ function generateHTML(data) {
         
         .table-wrapper { max-height: 800px; overflow-y: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
@@ -112,13 +114,16 @@ function generateHTML(data) {
             font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
             box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); z-index: 50;
         }
-        .btn-home:hover { opacity: 0.9; transform: translateY(-3px); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>2025年11月 -  2026年1月 每日費用分析報告</h1>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: Google Sheet / Excel Data\n</div>
+            <h1>每日雲端費用分析報告</h1>
+            <div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
+                Data Source: MongoDB (AzureMonthlyCost_Daily)
+            </div>
             <p>包含 A系統、D系統、E系統、共用與會員機器的每日費用及活動明細</p>
         </div>
 
@@ -134,9 +139,7 @@ function generateHTML(data) {
                 <h3 style="margin: 0; color: #34d399;">每日費用明細</h3>
                 <select id="monthFilter" style="background: rgba(15, 23, 42, 0.8); color: #cbd5e1; border: 1px solid var(--card-border); padding: 8px 16px; border-radius: 6px; font-family: 'Outfit'; font-size: 1rem; outline: none; cursor: pointer;">
                     <option value="all">所有月份 (All Months)</option>
-                    <option value="2025/11">2025年 11月</option>
-                    <option value="2025/12">2025年 12月</option>
-                    <option value="2026/01">2026年 01月</option>
+                    ${filterOptions}
                 </select>
             </div>
             <div class="table-wrapper">
@@ -163,12 +166,7 @@ function generateHTML(data) {
         </div>
     </div>
     
-    <a href="report_index.html" class="btn-home">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-        </svg>
-        回首頁
-    </a>
+    <a href="report_index.html" class="btn-home">回首頁</a>
 
     <script>
         const ctx = document.getElementById('expenseChart').getContext('2d');
@@ -210,42 +208,19 @@ function generateHTML(data) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
                 plugins: {
-                    legend: {
-                        labels: { color: '#e2e8f0', font: { family: 'Noto Sans TC' } }
-                    },
+                    legend: { labels: { color: '#e2e8f0' } },
                     tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        titleFont: { size: 14 },
-                        bodyFont: { size: 14 },
+                        mode: 'index',
+                        intersect: false,
                         callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', minimumFractionDigits: 0 }).format(context.parsed.y);
-                                }
-                                return label;
-                            }
+                            label: (context) => context.dataset.label + ': $' + context.parsed.y.toLocaleString()
                         }
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#94a3b8' }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#94a3b8', maxTicksLimit: 15 }
-                    }
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 15 } }
                 }
             }
         });
@@ -255,17 +230,16 @@ function generateHTML(data) {
             const rows = document.querySelectorAll('tbody tr');
             rows.forEach(row => {
                 const month = row.getAttribute('data-month');
-                if (selectedMonth === 'all' || month === selectedMonth) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                if (selectedMonth === 'all' || month === selectedMonth) row.style.display = '';
+                else row.style.display = 'none';
             });
         });
     </script>
 </body>
 </html>`;
 
-  fs.writeFileSync('daily_expense_report.html', html, 'utf8');
-  console.log('Report generated: daily_expense_report.html');
+    fs.writeFileSync('daily_expense_report.html', html, 'utf8');
+    console.log('Report generated: daily_expense_report.html');
 }
+
+run();
