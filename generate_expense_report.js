@@ -9,7 +9,7 @@ async function run() {
         await client.connect();
         const db = client.db("QwareAi");
         const collection = db.collection('AzureMonthlyCost_Daily');
-        console.log("Fetching latest data from MongoDB...");
+        console.log("Updating report with activity data in chart tooltips...");
         const rawData = await collection.find({}).sort({ Date: 1 }).toArray();
         const results = rawData.map(d => ({
             date: d.Date,
@@ -42,7 +42,6 @@ function generateHTML(data) {
 <head>
     <meta charset="UTF-8">
     <title>每日雲端費用明細與分析報告</title>
-    <!-- Chart.js and DataLabels Plugin -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
@@ -59,14 +58,14 @@ function generateHTML(data) {
         td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; font-size: 0.9rem; }
         tr:hover { background-color: rgba(255,255,255,0.03); }
         .table-wrapper { max-height: 550px; overflow-y: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
-        .select-month { background: #1e293b; color: #60a5fa; border: 2px solid #3b82f6; padding: 10px 25px; border-radius: 999px; cursor: pointer; font-size: 1.1rem; font-weight: 700; outline: none; }
-        .btn-home { position: fixed; bottom: 30px; right: 30px; background: #3b82f6; color: white; text-decoration: none; padding: 12px 24px; border-radius: 9999px; font-weight: bold; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); z-index: 50; }
+        .select-month { background: #1e293b; color: #34d399; border: 2px solid #34d399; padding: 10px 25px; border-radius: 999px; cursor: pointer; font-size: 1.1rem; font-weight: 700; outline: none; }
+        .btn-home { position: fixed; bottom: 30px; right: 30px; background: #3b82f6; color: white; text-decoration: none; padding: 12px 24px; border-radius: 9999px; font-weight: bold; z-index: 50; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div><h1>每日雲端報表與費用分析</h1><div style="color: #94a3b8; margin-top: 5px;">Source: MongoDB (AzureMonthlyCost_Daily) • 全域連動面板</div></div>
+            <div><h1>每日雲端報表與費用分析</h1><div style="color: #94a3b8; margin-top: 5px;">Source: MongoDB (AzureMonthlyCost_Daily) • 圖表已整合活動名稱</div></div>
             <select id="monthFilter" class="select-month"><option value="all">所有月份 (All History)</option>${filterOptions}</select>
         </div>
         <div class="card">
@@ -79,7 +78,7 @@ function generateHTML(data) {
             </div>
         </div>
         <div class="card">
-            <h3 style="color: #a78bfa; margin: 0 0 20px 0; font-size: 1.25rem;">📈 全系統費用走勢趨勢圖</h3>
+            <h3 style="color: #a78bfa; margin: 0 0 20px 0; font-size: 1.25rem;">📈 全系統費用走勢趨勢圖 (滑鼠移至總計點查看活動)</h3>
             <div class="chart-container"><canvas id="expenseChart"></canvas></div>
         </div>
     </div>
@@ -107,14 +106,14 @@ function generateHTML(data) {
             const ctx = document.getElementById('expenseChart').getContext('2d');
             if (expenseChart) expenseChart.destroy();
             
-            const showLabels = dat.length <= 31; // Only show data labels if viewing one month
+            const showLabels = dat.length <= 31;
 
             expenseChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dat.map(d => d.date.substring(5)), // Show MM/DD to save space
+                    labels: dat.map(d => d.date.substring(5)),
                     datasets: [
-                        { label: '總計', data: dat.map(d=>d.total), borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.1)', fill: true, tension: 0.3, borderWidth: 4, pointRadius: 4 },
+                        { label: '總計', data: dat.map(d=>d.total), borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.1)', fill: true, tension: 0.3, borderWidth: 4, pointRadius: 5 },
                         { label: 'A系統', data: dat.map(d=>d.sysA), borderColor: '#a78bfa', fill: false, tension: 0.3, pointRadius: 2 },
                         { label: 'D系統', data: dat.map(d=>d.sysD), borderColor: '#f472b6', fill: false, tension: 0.3, pointRadius: 2 },
                         { label: 'E系統', data: dat.map(d=>d.sysE), borderColor: '#fbbf24', fill: false, tension: 0.3, pointRadius: 2 },
@@ -126,8 +125,30 @@ function generateHTML(data) {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', labels: { color: '#e2e8f0', font: { family: 'Outfit', size: 14 } } },
-                        tooltip: { mode: 'index', intersect: false },
+                        legend: { position: 'top', labels: { color: '#e2e8f0', font: { family: 'Outfit', size: 13 } } },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 15,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 14 },
+                            callbacks: {
+                                label: (c) => {
+                                    let label = c.dataset.label + ': $' + c.parsed.y.toLocaleString();
+                                    return label;
+                                },
+                                afterBody: (items) => {
+                                    // Get original index of the hovered point
+                                    const idx = items[0].dataIndex;
+                                    const actualData = dat[idx];
+                                    if (actualData && actualData.activity) {
+                                        return '\\n活動: ' + actualData.activity.substring(0, 50) + '...';
+                                    }
+                                    return '';
+                                }
+                            }
+                        },
                         datalabels: {
                             display: showLabels,
                             align: 'top',
