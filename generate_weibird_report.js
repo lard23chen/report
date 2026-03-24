@@ -637,16 +637,14 @@ async function generateReport() {
         });
         const sortedDates = Object.keys(trend).sort();
         new Chart(document.getElementById('trendChart'), {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: sortedDates,
                 datasets: [{
-                    label: '張數',
+                    label: '每日銷售張數',
                     data: sortedDates.map(d => trend[d]),
-                    borderColor: '#38bdf8',
-                    tension: 0.4,
-                    fill: true,
-                    backgroundColor: 'rgba(56, 189, 248, 0.1)'
+                    backgroundColor: '#38bdf8',
+                    borderRadius: 4
                 }]
             },
             options: {
@@ -656,6 +654,37 @@ async function generateReport() {
                 scales: {
                     y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
                     x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // City Chart (New)
+        const cityStats = {};
+        validOrders.forEach(o => {
+            const city = o['縣市別'] || '未知';
+            if (city !== '格式不符' && city !== '未知') {
+                cityStats[city] = (cityStats[city] || 0) + 1;
+            }
+        });
+        const topCities = Object.entries(cityStats).sort((a,b) => b[1] - a[1]).slice(0, 10);
+        new Chart(document.getElementById('cityChart'), {
+            type: 'bar',
+            data: {
+                labels: topCities.map(c => c[0]),
+                datasets: [{
+                    data: topCities.map(c => c[1]),
+                    backgroundColor: '#818cf8',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    y: { grid: { display: false }, ticks: { color: '#94a3b8' } }
                 }
             }
         });
