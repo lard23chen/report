@@ -121,7 +121,8 @@ async function main() {
 
             for (let [dateStr, dailyData] of dateGroups.entries()) {
                 // FETCH TICKET STATS for this event on this day
-                const currentMonthPrefix = "2026-03";
+                const now = new Date();
+                const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
                 const isCurrentMonth = dateStr.startsWith(currentMonthPrefix);
                 const ticketCollName = isCurrentMonth ? "Qware_A_Ticket_data_Daily" : "Qware_Ticket_Data";
                 
