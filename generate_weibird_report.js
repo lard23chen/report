@@ -23,6 +23,7 @@ async function generateReport() {
         const collection = db.collection('Qware_A_Ticket_data_Daily');
 
         const TARGET_NAME = '國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場';
+        const TARGET_NAME_GA = '國泰世華銀行 2026 韋禮安 韋，您好 HI WE1巡迴演唱會';
         const TARGET_FIELD = '節目/商品名稱';
 
         console.log(`Fetching data for: ${TARGET_NAME}...`);
@@ -39,7 +40,7 @@ async function generateReport() {
         const gaReads = await db.collection("QwareTrafficGAReadTime").find({ ActivityID: topEventId }).toArray();
 
         console.log("Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...");
-        const pageViews = await db.collection("Qware_A_Traffic_session_data").find({ '節目名稱': TARGET_NAME }).toArray();
+        const pageViews = await db.collection("Qware_A_Traffic_session_data").find({ '節目名稱': TARGET_NAME_GA }).toArray();
 
         // Map member nationality
         console.log("Fetching Member Data for Nationalities...");
@@ -70,6 +71,42 @@ async function generateReport() {
                 d['縣市別'] = memberCityMap[memberId];
             } else {
                 d['縣市別'] = '未知';
+            }
+            
+            // CONVERT $numberDecimal to actual numbers for frontend JS
+            if (d['售價'] && d['售價'].$numberDecimal) {
+                d['售價'] = parseFloat(d['售價'].$numberDecimal);
+            } else if (typeof d['售價'] === 'object' && d['售價'] !== null) {
+                // Handle complex objects if any
+                d['售價'] = parseFloat(d['售價'].toString());
+            } else if (d['售價']) {
+                d['售價'] = parseFloat(d['售價']);
+            } else {
+                d['售價'] = 0;
+            }
+
+            if (d['原價'] && d['原價'].$numberDecimal) {
+                d['原價'] = parseFloat(d['原價'].$numberDecimal);
+            } else if (d['原價']) {
+                d['原價'] = parseFloat(d['原價']);
+            } else {
+                d['原價'] = 0;
+            }
+
+            if (d['實退金額'] && d['實退金額'].$numberDecimal) {
+                d['實退金額'] = parseFloat(d['實退金額'].$numberDecimal);
+            } else if (d['實退金額']) {
+                d['實退金額'] = parseFloat(d['實退金額']);
+            } else {
+                d['實退金額'] = 0;
+            }
+
+            if (d['手續費'] && d['手續費'].$numberDecimal) {
+                d['手續費'] = parseFloat(d['手續費'].$numberDecimal);
+            } else if (d['手續費']) {
+                d['手續費'] = parseFloat(d['手續費']);
+            } else {
+                d['手續費'] = 0;
             }
         });
 
