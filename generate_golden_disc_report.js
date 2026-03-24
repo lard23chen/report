@@ -541,7 +541,8 @@ async function generateReport() {
                 let priceValue = 0;
                 // Get all numbers and pick the last one (usually the price)
                 const numbers = name.match(/\\d+/g);
-                priceValue = numbers ? parseInt(numbers[numbers.length - 1]) : 0;
+                // 使用名稱中最大的數字作為票價（避免誤抓場館區號）
+                priceValue = numbers ? Math.max(...numbers.map(Number)) : 0;
                 
                 // Use price as the ONLY identifier - Just the number
                 let priceLabel = priceValue > 0 ? priceValue.toString() : name;
@@ -559,11 +560,12 @@ async function generateReport() {
             const p = o['售價'] || 0;
             const seatInfo = o['座位資訊/票區'] || '';
             const numbers = seatInfo.match(/\\d+/g);
-            const ticketPriceTier = numbers ? numbers[numbers.length - 1] : null;
+            const maxInName = numbers ? Math.max(...numbers.map(Number)) : 0;
             
             let priceVal = p;
-            if (p === 0 && ticketPriceTier) {
-                priceVal = parseInt(ticketPriceTier);
+            // 如果售價為0且名稱中有較大數字，則視為該票價類型的邀請票
+            if (p === 0 && maxInName > 100) { 
+                priceVal = maxInName;
             }
 
             // Strictly use Price as label - Just the number
