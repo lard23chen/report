@@ -638,6 +638,7 @@ async function generateReport() {
         const sortedDates = Object.keys(trend).sort();
         new Chart(document.getElementById('trendChart'), {
             type: 'bar',
+            plugins: [ChartDataLabels],
             data: {
                 labels: sortedDates,
                 datasets: [{
@@ -650,7 +651,15 @@ async function generateReport() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: { 
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#94a3b8',
+                        anchor: 'end',
+                        align: 'top',
+                        font: { weight: 'bold', size: 10 }
+                    }
+                },
                 scales: {
                     y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
                     x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
