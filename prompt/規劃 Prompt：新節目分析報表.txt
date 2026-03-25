@@ -1,0 +1,105 @@
+規劃 Prompt：新節目分析報表
+
+  你是一位熟悉票務資料分析的前端工程師，請參考現有的 A_GoldenDisc_Report_2026-02-06.html 結構，
+  為新節目「[節目名稱]」建立一份同款式的 A 系統專案分析報表 HTML 檔案。
+
+  ## 新節目基本資訊
+  - 節目名稱：[節目名稱，例如：2026 演唱會]
+  - 節目代碼/專案代碼：[PROJ_CODE]
+  - 場次日期：[YYYY-MM-DD]
+  - 場地：[場地名稱]
+  - 資料來源：MongoDB (QwareAi / Qware_A_Ticket_data)
+  - 資料筆數：[N] 筆
+  - 報表產生時間：[YYYY/MM/DD HH:mm:ss]
+  - 輸出檔名：A_[節目代碼]_Report_[YYYY-MM-DD].html
+
+  ## 必須保留的設計規格（勿修改）
+  1. 深色主題：背景 #121212，卡片 #1e1e1e，主色調 accent #ffd700（金色）
+  2. 字型：Outfit + Noto Sans TC（Google Fonts）
+  3. 依賴套件（CDN）：
+     - Chart.js + chartjs-plugin-datalabels@2.0.0
+     - html2pdf.bundle.min.js（匯出 PDF）
+  4. 響應式 grid 排版 + 列印樣式（@media print，landscape）
+  5. Header 左右布局：左側節目標題 + Data Source icon，右側 Generated/Total Records
+
+  ## 必須包含的區塊與圖表
+  ### KPI 統計卡（stats-grid）
+  - 總營收 (Total Revenue)
+  - 銷售張數 (Tickets Sold)
+  - 客單價 (AOV)
+  - 淨營收 (Net Revenue) — 綠色
+  - 實銷張數 (Actual Sold) — 綠色
+  - 退票金額 (Refunds) — 紅色
+  - 退票張數 (Refunded Tickets) — 紅色
+  - 退票手續費 (Refund Fees) — 紅色
+
+  ### 客層分析（demo-content，2x2 grid）
+  - 年齡分佈 → Bar Chart（ageChart）
+  - 性別分佈 → Doughnut Chart（genderChart）
+  - 國籍分佈 Top 5 → Table（欄位：國籍、人數/張數、筆數、佔比）
+  - 縣市分佈 → Horizontal Bar Chart（cityChart）
+
+  ### 銷售趨勢（main-content，2:1 左右欄）
+  - 左欄上：每日瀏覽量趨勢 Line Chart（viewChart）— 藍色主題
+  - 左欄下：每日銷售趨勢 Line Chart（trendChart）— 金色主題，含 data labels
+  - 右欄：付款方式 Table（欄位：付款方式、筆數、金額、佔比）
+
+  ### 票價分析（chart-card，全寬）
+  - 票種/票價分組 Bar Chart（priceChart）
+  - 欄位：票種名稱、定價、銷售張數、小計金額
+
+  ## 資料填入方式
+  以下資料請用 JavaScript 變數區塊集中管理（放在 <script> 最上方），
+  方便日後修改，不要將數字散落在各處：
+
+  ```javascript
+  const REPORT_DATA = {
+    meta: {
+      title: "節目名稱",
+      subtitle: "副標題說明",
+      generated: "產生時間",
+      totalRecords: 0,
+    },
+    kpi: {
+      revenue: 0,
+      ticketsSold: 0,
+      netRevenue: 0,
+      netTickets: 0,
+      refundAmount: 0,
+      refundTickets: 0,
+      refundFees: 0,
+    },
+    ageData: { labels: [], values: [] },
+    genderData: { male: 0, female: 0, other: 0 },
+    nationalityData: [], // [{name, tickets, orders, pct}]
+    cityData: { labels: [], values: [] },
+    dailyViews: { labels: [], values: [] },
+    dailySales: { labels: [], values: [] },
+    paymentData: [], // [{method, orders, amount, pct}]
+    priceData: [], // [{name, price, qty, subtotal}]
+  };
+
+  輸出要求
+
+  - 單一 .html 檔案，所有 CSS/JS inline，不依賴外部本地資源
+  - 所有 CDN 連結保持不變
+  - id 命名規則與原檔一致（val-revenue, ageChart, trendChart...）
+  - 保留 PDF 匯出按鈕與返回報表首頁連結（report_index.html）
+  - 數字格式：金額加千分位逗號 + 前綴 $，張數加千分位逗號
+  - 圖表顏色主調沿用金色系，可視節目性質調整 accent color（需說明色碼）
+
+  與原始金唱片報表的差異點（請說明）
+
+  - accent color 是否需要更換（原為金色 #ffd700）
+  - 是否有額外的票種分析（例如：VIP 套票、早鳥票）
+  - 是否有多場次（單場 or 多場次合計）
+  - 是否需要新增區塊（例如：峰值購票時段、區域銷售座位圖）
+  - MongoDB 查詢條件（project_code / event_date 過濾條件）
+
+  ---
+
+  ## 使用方式
+
+  1. **複製上方 Prompt**，填入 `[節目名稱]`、`[PROJ_CODE]`、日期等實際資料
+  2. **提供給 Claude**（或直接在此對話繼續），並附上從 MongoDB 查出的原始數據
+  3. Claude 會生成與 `A_GoldenDisc_Report_2026-02-06.html` **相同架構、相同風格**，但資料替換為新節目的 HTML 檔

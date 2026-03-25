@@ -189,8 +189,10 @@ async function generateReport() {
 
 <script>
     const dbData = ${JSON.stringify(data)};
+    const sectionData = ${JSON.stringify(sectionData)};
     const gaSessions = ${JSON.stringify(gaSessions)};
     const gaReads = ${JSON.stringify(gaReads)};
+    const pageViews = ${JSON.stringify(pageViews)};
     
     function init() {
         const valid = dbData.filter(d => d['狀態'] === '正常');
