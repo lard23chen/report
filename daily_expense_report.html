@@ -134,7 +134,11 @@
             renderTable(f); renderChart(f);
         });
 
-        renderTable(rawData); renderChart(rawData);
+        const sel = document.getElementById('monthFilter');
+        const firstMonth = sel.options[1]?.value;
+        if (firstMonth) { sel.value = firstMonth; }
+        const initData = firstMonth ? rawData.filter(d => d.date.startsWith(firstMonth)) : rawData;
+        renderTable(initData); renderChart(initData);
     </script>
 </body>
 </html>
