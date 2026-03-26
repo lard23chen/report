@@ -353,6 +353,28 @@ async function generateReport() {
 
     <div class="main-content">
         <div class="chart-card full-width">
+            <h3>年度費用匯總 (Yearly Summary)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>年份 (Year)</th>
+                        <th>月份數</th>
+                        <th>A系統</th>
+                        <th>D系統</th>
+                        <th>E系統</th>
+                        <th>共用</th>
+                        <th>年度總費用 (Total)</th>
+                        <th>YoY 變化</th>
+                    </tr>
+                </thead>
+                <tbody id="yearlyTableBody"></tbody>
+                <tfoot id="yearlyTableFoot" style="border-top: 2px solid var(--accent-color);"></tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="chart-card full-width">
             <h3>每月費用趨勢 (Monthly Cost Trend)</h3>
             <div style="height: 400px; width: 100%;">
                 <canvas id="trendChart"></canvas>
@@ -593,8 +615,67 @@ async function generateReport() {
         }
     });
 
+    // Build yearly summary table
+    function buildYearlyTable() {
+        const yearMap = new Map();
+        allData.forEach(d => {
+            const year = d.YearMonth.slice(0, 4);
+            if (!yearMap.has(year)) yearMap.set(year, { months: 0, a: 0, d: 0, e: 0, other: 0, total: 0 });
+            const y = yearMap.get(year);
+            y.months += 1;
+            y.a += (d.SystemA_Cost || 0);
+            y.d += (d.SystemD_Cost || 0);
+            y.e += (d.SystemE_Cost || 0);
+            y.other += getOtherCost(d);
+            y.total += (d.QWARE_Ticket_TotalCost || 0);
+        });
+
+        const years = Array.from(yearMap.keys()).sort();
+        let grandA = 0, grandD = 0, grandE = 0, grandOther = 0, grandTotal = 0;
+
+        document.getElementById('yearlyTableBody').innerHTML = [...years].reverse().map(year => {
+            const cur = yearMap.get(year);
+            const prevYear = String(Number(year) - 1);
+            const prev = yearMap.get(prevYear);
+            grandA += cur.a; grandD += cur.d; grandE += cur.e; grandOther += cur.other; grandTotal += cur.total;
+
+            let yoyHtml = '';
+            if (prev) {
+                const diff = cur.total - prev.total;
+                const pct = ((diff / (prev.total || 1)) * 100).toFixed(1);
+                yoyHtml = diff >= 0
+                    ? \`<span style="color:#ef5350;font-weight:bold;">▲ \${pct}%</span>\`
+                    : \`<span style="color:#66BB6A;font-weight:bold;">▼ \${Math.abs(pct)}%</span>\`;
+            } else {
+                yoyHtml = '<span style="color:#888;">-</span>';
+            }
+
+            return \`<tr>
+                <td style="font-weight:bold;font-size:1.2em;color:var(--accent-secondary);">\${year}</td>
+                <td style="color:#888;">\${cur.months} 個月</td>
+                <td style="color:var(--color-a);font-weight:bold;">\${Math.round(cur.a).toLocaleString()}</td>
+                <td style="color:var(--color-d);font-weight:bold;">\${Math.round(cur.d).toLocaleString()}</td>
+                <td style="color:var(--color-e);font-weight:bold;">\${Math.round(cur.e).toLocaleString()}</td>
+                <td style="color:#AB47BC;font-weight:bold;">\${Math.round(cur.other).toLocaleString()}</td>
+                <td style="font-size:1.3em;font-weight:bold;color:var(--color-total);">\${Math.round(cur.total).toLocaleString()}</td>
+                <td>\${yoyHtml}</td>
+            </tr>\`;
+        }).join('');
+
+        document.getElementById('yearlyTableFoot').innerHTML = \`<tr style="background:rgba(255,255,255,0.05);">
+            <td style="font-weight:bold;color:var(--accent-color);font-size:1.1em;" colspan="2">全期總計</td>
+            <td style="font-weight:bold;color:#fff;font-size:1.2em;">\${Math.round(grandA).toLocaleString()}</td>
+            <td style="font-weight:bold;color:#fff;font-size:1.2em;">\${Math.round(grandD).toLocaleString()}</td>
+            <td style="font-weight:bold;color:#fff;font-size:1.2em;">\${Math.round(grandE).toLocaleString()}</td>
+            <td style="font-weight:bold;color:#fff;font-size:1.2em;">\${Math.round(grandOther).toLocaleString()}</td>
+            <td style="font-weight:bold;font-size:1.5em;color:var(--color-total);">\${Math.round(grandTotal).toLocaleString()}</td>
+            <td></td>
+        </tr>\`;
+    }
+
     initFilters();
     updateView();
+    buildYearlyTable();
 
 </script>
 
