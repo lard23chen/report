@@ -236,6 +236,7 @@ async function generateDailyReport() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ibon售票系統 ${dateTitle} - ${reportTime}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"><\/script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -406,11 +407,14 @@ function init() {
         +'<td class="text-right" style="color:#c62828;">'+(sRF>0?ntd(sRF):'-')+'</td>';
     dtb.appendChild(ttr);
 
+    // Register datalabels plugin
+    Chart.register(ChartDataLabels);
+
     // Trend Chart
     new Chart(document.getElementById('trendChart'), {
         type: 'line',
         data: { labels: D.trendDates, datasets: [{ label: '每日營收走勢', data: D.trendSales, borderColor: '#00acc1', backgroundColor: 'rgba(0,172,193,0.1)', fill: true, tension: 0.4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '營收趨勢圖 (Sales Trend)' }, tooltip: { mode: 'index', intersect: false } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '營收趨勢圖 (Sales Trend)' }, tooltip: { mode: 'index', intersect: false }, datalabels: { display: true, align: 'top', anchor: 'end', color: '#00acc1', font: { size: 11 }, formatter: v => v >= 1000 ? '$' + (v/1000).toFixed(0) + 'K' : '$' + v.toLocaleString() } } }
     });
 
     // Refund Chart
