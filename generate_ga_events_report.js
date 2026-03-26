@@ -187,7 +187,7 @@ async function main() {
                     }
                 });
 
-                if (maxSession > 2000) {
+                if (maxSession > 0) {
                     clientData.push({
                         activityId: eId,
                         name: eName,
