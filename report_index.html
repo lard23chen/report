@@ -422,7 +422,6 @@
         <!-- Tabs Navigation -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tab1')">本月/上月報表</button>
-            <button class="tab-btn" onclick="switchTab('tab2')">報表比較分析</button>
             <button class="tab-btn" onclick="switchTab('tab3')">歷史報表分析</button>
             <button class="tab-btn" onclick="switchTab('tab4')">各節目報表分析</button>
             <button class="tab-btn" onclick="switchTab('tab5')">會員資料分析</button>
@@ -458,22 +457,6 @@
             </div>
         </div>
 
-        <!-- Tab 2: Comparison -->
-        <div id="tab2" class="tab-content">
-            <div class="grid">
-                <div class="card">
-                    <div class="card-icon icon-analysis">💸</div>
-                    <div class="card-content">
-                        <h3>退款與銷售比較</h3>
-                        <p>針對退款數據與銷售額進行交叉比對分析 (2025-12 vs 2026-01)。</p>
-                    </div>
-                    <div class="card-meta">
-                        <span class="badge">Refunds</span>
-                        <a href="A_Qware_Sales_Refund_Comparison_2025-12_vs_2026-01.html" class="btn-link">查看報表</a>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Tab 3: History -->
         <div id="tab3" class="tab-content">
@@ -656,7 +639,6 @@
         function getTabName(id) {
             const names = {
                 'tab1': '本月/上月報表',
-                'tab2': '報表比較分析',
                 'tab3': '歷史報表分析',
                 'tab4': '各節目報表分析',
                 'tab5': '會員資料分析',
