@@ -415,6 +415,7 @@ function renderSummary(rows){
   keys.forEach(function(k){
     var m=map[k];
     var netShares=m.buyShares-m.sellShares;
+    if(netShares===0)return;
     var avgBuy=m.buyShares>0?(m.totalSpend/m.buyShares):0;
     var plEstimate=m.totalIncome-m.totalSpend;
     var plCls=plEstimate>=0?'summary-pos':'summary-neg';
