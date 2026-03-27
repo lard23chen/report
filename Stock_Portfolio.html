@@ -69,6 +69,12 @@ body.edit-on .act-btn{display:inline-block}
 .err{color:var(--sell);font-size:0.78rem;margin-top:4px}
 .summary-pos{color:var(--buy);font-weight:700}
 .summary-neg{color:var(--sell);font-weight:700}
+.person-tabs{display:flex;gap:8px;margin-bottom:16px}
+.ptab{padding:7px 20px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.15s}
+.ptab:hover{color:var(--text)}
+.ptab.active[data-p=""]{background:var(--surface2);color:var(--text);border-color:var(--accent)}
+.ptab.active[data-p="alex"]{background:rgba(56,189,248,0.15);color:var(--accent);border-color:var(--accent)}
+.ptab.active[data-p="mark"]{background:rgba(251,146,60,0.15);color:#fb923c;border-color:#fb923c}
 </style>
 </head>
 <body>
@@ -77,6 +83,11 @@ body.edit-on .act-btn{display:inline-block}
   <span id="hdr-sub">2018 – 2026</span>
 </header>
 <main>
+  <div class="person-tabs">
+    <button class="ptab active" data-p="" onclick="setPersonTab('')">👥 全部</button>
+    <button class="ptab" data-p="alex" onclick="setPersonTab('alex')">Alex</button>
+    <button class="ptab" data-p="mark" onclick="setPersonTab('mark')">Mark</button>
+  </div>
   <div class="stats" id="stats-grid"></div>
 
   <div class="section-title">持股摘要（依代號 × 人員）</div>
@@ -361,12 +372,22 @@ function dateSort(d){if(!d)return'0';var p=d.split('/');return p[0]+(p[1]||'0').
 
 // ─── State ────────────────────────────────────────────────────────────────────
 var sortCol='date', sortDir='desc', curPage=1, perPage=50, editOn=false;
+var activePerson='';
+
+// ─── Person Tab ───────────────────────────────────────────────────────────────
+window.setPersonTab=function(p){
+  activePerson=p;
+  document.querySelectorAll('.ptab').forEach(function(b){b.classList.toggle('active',b.dataset.p===p);});
+  document.getElementById('f-person').value=p;
+  curPage=1; render();
+};
 
 // ─── Render All ───────────────────────────────────────────────────────────────
 function render(){
   var all=buildRows();
-  renderStats(all);
-  renderSummary(all);
+  var topRows=activePerson?all.filter(function(r){return(r.person||'alex')===activePerson;}):all;
+  renderStats(topRows);
+  renderSummary(topRows);
   var filtered=applyFilters(all);
   document.getElementById('filter-count').textContent=filtered.length+'筆';
   filtered=doSort(filtered);
@@ -677,7 +698,12 @@ document.getElementById('tx-table').querySelector('thead').addEventListener('cli
 });
 
 // ─── Filter change ────────────────────────────────────────────────────────────
-['f-person','f-year','f-code','f-name','f-type'].forEach(function(id){
+document.getElementById('f-person').addEventListener('change',function(){
+  activePerson=this.value;
+  document.querySelectorAll('.ptab').forEach(function(b){b.classList.toggle('active',b.dataset.p===activePerson);});
+  curPage=1; render();
+});
+['f-year','f-code','f-name','f-type'].forEach(function(id){
   document.getElementById(id).addEventListener('change',function(){curPage=1;render();});
 });
 document.getElementById('f-search').addEventListener('input',function(){curPage=1;render();});
