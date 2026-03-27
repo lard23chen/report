@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>股票交易記錄 2018–2026</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#263348;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--buy:#22c55e;--sell:#f87171;--div:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{font-size:1.2rem;font-weight:700;color:var(--accent)}
+header span{color:var(--muted);font-size:0.82rem}
+main{padding:18px 24px;max-width:1700px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px}
+.stat-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:4px}
+.stat-value{font-size:1.15rem;font-weight:700;color:var(--text)}
+.pos{color:var(--buy)}.neg{color:var(--sell)}
+.section-title{font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:4px}
+table{width:100%;border-collapse:collapse}
+th{background:var(--surface2);padding:9px 11px;text-align:left;font-size:0.73rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+th.sort-asc::after{content:" ↑"}th.sort-desc::after{content:" ↓"}
+td{padding:7px 11px;font-size:0.82rem;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.03)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:700}
+.badge-buy{background:rgba(34,197,94,0.15);color:var(--buy);border:1px solid rgba(34,197,94,0.3)}
+.badge-sell{background:rgba(248,113,113,0.15);color:var(--sell);border:1px solid rgba(248,113,113,0.3)}
+.badge-div{background:rgba(192,132,252,0.15);color:var(--div);border:1px solid rgba(192,132,252,0.3)}
+.code{font-family:monospace;font-weight:700;font-size:0.78rem;color:var(--accent)}
+.num{text-align:right}.muted{color:var(--muted)}
+.person-mark{color:#fb923c;font-size:0.73rem;font-weight:700}
+.person-alex{color:var(--accent);font-size:0.73rem;font-weight:700}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+.filters select,.filters input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:0.8rem}
+.filters select:focus,.filters input:focus{outline:none;border-color:var(--accent)}
+.btn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:0.8rem;font-weight:600}
+.btn-primary{background:var(--accent);color:#0f172a}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:#ef4444;color:#fff}
+.pagination{display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:flex-end;flex-wrap:wrap}
+.page-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:0.78rem}
+.page-btn.active{background:var(--accent);color:#0f172a;border-color:var(--accent)}
+.page-info{font-size:0.78rem;color:var(--muted)}
+#edit-toolbar{position:fixed;bottom:22px;right:22px;z-index:1000;display:flex;gap:8px;align-items:center}
+#edit-toggle{padding:10px 18px;border-radius:25px;border:none;cursor:pointer;font-size:0.83rem;font-weight:700;background:#64748b;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.5);transition:background 0.2s}
+#edit-toolbar.on #edit-toggle{background:var(--accent);color:#0f172a}
+#add-btn{display:none;padding:10px 16px;border-radius:25px;border:none;cursor:pointer;font-size:0.83rem;font-weight:700;background:var(--buy);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.5)}
+#edit-toolbar.on #add-btn{display:inline-block}
+.act-btn{background:none;border:none;cursor:pointer;padding:3px 6px;border-radius:4px;font-size:0.72rem;display:none}
+body.edit-on .act-btn{display:inline-block}
+.act-edit{color:var(--accent)}.act-edit:hover{background:rgba(56,189,248,0.15)}
+.act-del{color:var(--sell)}.act-del:hover{background:rgba(248,113,113,0.15)}
+#crud-modal{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center}
+#crud-modal.open{display:flex}
+#crud-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.65)}
+#crud-dialog{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:560px;max-width:96vw;max-height:92vh;overflow-y:auto}
+#crud-dialog h3{font-size:1rem;font-weight:700;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:0.73rem;color:var(--muted);font-weight:600}
+.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:0.82rem}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.err{color:var(--sell);font-size:0.78rem;margin-top:4px}
+.summary-pos{color:var(--buy);font-weight:700}
+.summary-neg{color:var(--sell);font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <h1>📈 股票交易記錄</h1>
+  <span id="hdr-sub">2018 – 2026</span>
+</header>
+<main>
+  <div class="stats" id="stats-grid"></div>
+
+  <div class="section-title">持股摘要（依代號 × 人員）</div>
+  <div class="table-wrap">
+    <table id="summary-table">
+      <thead><tr>
+        <th>代號</th><th>股票名稱</th><th>人員</th>
+        <th class="num">買入均價</th><th class="num">現持股數</th>
+        <th class="num">總買入支出</th><th class="num">已回收收入</th>
+        <th class="num">損益估算</th>
+      </tr></thead>
+      <tbody id="summary-body"></tbody>
+    </table>
+  </div>
+
+  <div class="section-title">交易明細</div>
+  <div class="filters">
+    <select id="f-person"><option value="">全部人員</option><option value="alex">Alex</option><option value="mark">Mark</option></select>
+    <select id="f-year"><option value="">全部年份</option></select>
+    <select id="f-code"><option value="">全部股票</option></select>
+    <select id="f-type"><option value="">全部類型</option><option value="買">買入</option><option value="賣">賣出</option><option value="股利">股利</option></select>
+    <input type="text" id="f-search" placeholder="搜尋名稱/代號…" style="width:160px">
+    <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+    <span id="filter-count" style="color:var(--muted);font-size:0.78rem;margin-left:auto"></span>
+  </div>
+  <div class="table-wrap">
+    <table id="tx-table">
+      <thead><tr>
+        <th data-col="date">日期</th>
+        <th data-col="type">類型</th>
+        <th data-col="code">代號</th>
+        <th data-col="name">名稱</th>
+        <th data-col="shares" class="num">股數</th>
+        <th data-col="price" class="num">成交價</th>
+        <th data-col="amount" class="num">成交金額</th>
+        <th data-col="cost" class="num">交易成本</th>
+        <th data-col="spend" class="num">支出</th>
+        <th data-col="income" class="num">收入</th>
+        <th data-col="person">人員</th>
+        <th data-col="note">備註</th>
+        <th style="width:68px">操作</th>
+      </tr></thead>
+      <tbody id="tx-body"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="pagination"></div>
+</main>
+
+<div id="edit-toolbar">
+  <button id="edit-toggle" onclick="toggleEditMode()">✏️ 編輯</button>
+  <button id="add-btn" onclick="showAddModal()">＋ 新增</button>
+</div>
+
+<div id="crud-modal">
+  <div id="crud-backdrop"></div>
+  <div id="crud-dialog"></div>
+</div>
+
+<script>
+// ─── RAW DATA ────────────────────────────────────────────────────────────────
+// [date, type, code, name, buyShares, buyPrice, sellShares, sellPrice, fee, tax, amount, cost, spend, income, note, person]
+const RAW=[
+["2018/1/9","買","2353","宏碁",10000,25.70,0,0,220,0,257000,220,257220,0,"","alex"],
+["2021/5/3","買","6770","力積電",2000,68.00,0,0,116,0,136000,116,136116,0,"","alex"],
+["2021/7/9","買","2353","宏碁",2000,28.70,0,0,49,0,57400,49,57449,0,"","alex"],
+["2021/8/10","買","6770","力積電",1000,69.50,0,0,59,0,69500,59,69559,0,"","alex"],
+["2021/10/4","買","6770","力積電",2000,63.80,0,0,109,0,127600,109,127709,0,"","alex"],
+["2021/12/9","買","6770","力積電",1000,70.90,0,0,61,0,70900,61,70961,0,"","alex"],
+["2021/12/27","賣","2353","宏碁",0,0,1000,29.95,26,90,29950,115,0,29835,"","alex"],
+["2022/1/5","賣","2353","宏碁",0,0,1000,31.00,27,93,31000,120,0,30880,"","alex"],
+["2022/1/26","買","6770","力積電",1000,63.90,0,0,55,0,63900,55,63955,0,"","alex"],
+["2022/2/16","買","6770","力積電",1000,59.70,0,0,51,0,59700,51,59751,0,"","alex"],
+["2022/4/7","買","2353","宏碁",1000,28.90,0,0,25,0,28900,25,28925,0,"","alex"],
+["2022/4/26","買","2330","台積電",1000,544.00,0,0,465,0,544000,465,544465,0,"","alex"],
+["2022/6/16","買","2353","宏碁",1000,27.00,0,0,23,0,27000,23,27023,0,"","alex"],
+["2022/8/29","買","00885","富邦越南",10000,14.59,0,0,125,0,145900,125,146025,0,"","alex"],
+["2022/9/12","買","9907","統一實",2000,20.40,0,0,35,0,40800,35,40835,0,"","alex"],
+["2022/9/19","買","9907","統一實",2000,19.85,0,0,34,0,39700,34,39734,0,"","alex"],
+["2022/9/22","買","9907","統一實",1000,19.05,0,0,20,0,19050,20,19070,0,"","alex"],
+["2022/9/29","買","9907","統一實",1000,17.95,0,0,20,0,17950,20,17970,0,"","alex"],
+["2023/2/1","買","9907","統一實",1000,17.70,0,0,20,0,17700,20,17720,0,"","alex"],
+["2023/2/6","買","9907","統一實",1000,17.90,0,0,20,0,17900,20,17920,0,"","alex"],
+["2023/2/9","買","6770","力積電",1000,34.30,0,0,29,0,34300,29,34329,0,"","alex"],
+["2023/2/15","買","9907","統一實",1000,17.40,0,0,20,0,17400,20,17420,0,"","alex"],
+["2023/2/20","買","1519","華城",1000,58.00,0,0,50,0,58000,50,58050,0,"","alex"],
+["2023/2/21","賣","1519","華城",0,0,1000,60.20,51,181,60200,232,0,59968,"","alex"],
+["2023/2/21","賣","1519","華城",0,0,1000,64.20,55,193,64200,247,0,63953,"","alex"],
+["2023/2/21","賣","1519","華城",0,0,1000,64.40,55,193,64400,248,0,64152,"","alex"],
+["2023/2/21","買","9907","統一實",1000,17.50,0,0,20,0,17500,20,17520,0,"","alex"],
+["2023/3/6","買","9907","統一實",1000,18.70,0,0,20,0,18700,20,18720,0,"","alex"],
+["2023/3/9","買","9907","統一實",1000,19.15,0,0,20,0,19150,20,19170,0,"","alex"],
+["2023/3/10","買","2498","宏達電",1000,62.00,0,0,53,0,62000,53,62053,0,"","alex"],
+["2023/3/13","買","6770","力積電",1000,33.85,0,0,29,0,33850,29,33879,0,"","alex"],
+["2023/3/15","買","9907","統一實",1000,18.85,0,0,20,0,18850,20,18870,0,"","alex"],
+["2023/3/24","買","2498","宏達電",1000,63.80,0,0,55,0,63800,55,63855,0,"","alex"],
+["2023/3/28","買","2498","宏達電",1000,61.90,0,0,53,0,61900,53,61953,0,"","alex"],
+["2023/4/17","賣","9907","統一實",0,0,2000,20.60,35,124,41200,159,0,41041,"","alex"],
+["2023/4/20","買","2498","宏達電",1000,60.80,0,0,52,0,60800,52,60852,0,"","alex"],
+["2023/4/25","買","2498","宏達電",1000,56.10,0,0,48,0,56100,48,56148,0,"","alex"],
+["2023/5/18","賣","2498","宏達電",0,0,1000,59.50,51,179,59500,229,0,59271,"","alex"],
+["2023/5/19","賣","2353","宏碁",0,0,1000,30.60,26,92,30600,118,0,30482,"","alex"],
+["2023/5/23","買","2941","(未知)",1000,57.50,0,0,49,0,57500,49,57549,0,"","alex"],
+["2023/6/2","賣","2353","宏碁",0,0,1000,32.00,27,96,32000,123,0,31877,"","alex"],
+["2023/6/2","賣","2353","宏碁",0,0,1000,33.90,29,102,33900,131,0,33769,"","alex"],
+["2023/7/17","買","9907","統一實",1000,18.05,0,0,20,0,18050,20,18070,0,"","alex"],
+["2023/7/17","賣","2353","宏碁",0,0,1000,36.10,31,108,36100,139,0,35961,"","alex"],
+["2023/7/18","買","2498","宏達電",1000,57.50,0,0,49,0,57500,49,57549,0,"","alex"],
+["2023/8/2","買","2498","宏達電",2000,53.40,0,0,91,0,106800,91,106891,0,"","alex"],
+["2023/8/2","賣","2941","(未知)",0,0,1000,82.10,70,246,82100,316,0,81784,"","alex"],
+["2023/8/9","買","9907","統一實",1000,17.50,0,0,20,0,17500,20,17520,0,"","alex"],
+["2023/8/9","賣","2353","宏碁",0,0,1000,37.30,32,112,37300,144,0,37156,"","alex"],
+["2023/8/14","買","9907","統一實",1000,16.50,0,0,20,0,16500,20,16520,0,"","alex"],
+["2023/8/17","賣","2353","宏碁",0,0,1000,38.55,33,116,38550,149,0,38401,"","alex"],
+["2023/9/25","買","6798","(未知)",1000,69.60,0,0,60,0,69600,60,69660,0,"","alex"],
+["2023/9/25","買","6798","(未知)",2000,69.60,0,0,119,0,139200,119,139319,0,"","alex"],
+["2023/10/16","買","9907","統一實",1000,16.10,0,0,20,0,16100,20,16120,0,"","alex"],
+["2023/11/9","賣","2330","台積電",0,0,1000,555.00,475,1665,555000,2140,0,552860,"","alex"],
+["2023/11/15","買","9907","統一實",1000,15.80,0,0,20,0,15800,20,15820,0,"","alex"],
+["2023/11/21","買","6798","(未知)",1000,65.00,0,0,56,0,65000,56,65056,0,"","alex"],
+["2023/12/20","賣","2353","宏碁",0,0,1000,42.15,36,126,42150,162,0,41988,"","alex"],
+["2023/12/20","賣","2353","宏碁",0,0,1000,44.75,38,134,44750,173,0,44577,"","alex"],
+["2023/12/28","買","2023","燁輝",2000,17.85,0,0,31,0,35700,31,35731,0,"","alex"],
+["2023/12/28","賣","2353","宏碁",0,0,1000,55.00,47,165,55000,212,0,54788,"","alex"],
+["2024/1/4","買","2353","宏碁",2000,49.30,0,0,84,0,98600,84,98684,0,"","alex"],
+["2024/1/5","賣","2353","宏碁",0,0,5000,49.50,212,743,247500,954,0,246546,"","alex"],
+["2024/1/18","買","9907","統一實",1000,15.25,0,0,20,0,15250,20,15270,0,"","alex"],
+["2024/2/26","買","3691","碩禾",4000,109.50,0,0,374,0,438000,374,438374,0,"","alex"],
+["2024/3/15","買","3691","碩禾",1000,115.00,0,0,98,0,115000,98,115098,0,"","alex"],
+["2024/3/18","買","3691","碩禾",1000,112.00,0,0,96,0,112000,96,112096,0,"","alex"],
+["2024/3/19","買","1504","東元",5000,54.90,0,0,235,0,274500,235,274735,0,"","alex"],
+["2024/3/19","買","6798","(未知)",1000,56.80,0,0,49,0,56800,49,56849,0,"","alex"],
+["2024/3/26","賣","1504","東元",0,0,1000,57.20,49,172,57200,221,0,56979,"","alex"],
+["2024/3/26","賣","1504","東元",0,0,3000,55.50,142,500,166500,642,0,165858,"","alex"],
+["2024/3/26","賣","3691","碩禾",0,0,1000,121.00,103,363,121000,466,0,120534,"","alex"],
+["2024/3/28","賣","1504","東元",0,0,1000,57.50,49,173,57500,222,0,57278,"","alex"],
+["2024/4/3","買","1802","台玻",4000,17.65,0,0,60,0,70600,60,70660,0,"","alex"],
+["2024/4/9","賣","3691","碩禾",0,0,1000,125.00,107,375,125000,482,0,124518,"","alex"],
+["2024/4/11","賣","3691","碩禾",0,0,1000,143.00,122,429,143000,551,0,142449,"","alex"],
+["2024/4/16","買","1504","東元",2000,56.50,0,0,97,0,113000,97,113097,0,"","alex"],
+["2024/4/17","賣","1504","東元",0,0,2000,59.30,101,356,118600,457,0,118143,"","alex"],
+["2024/4/19","買","3691","碩禾",1000,146.50,0,0,125,0,146500,125,146625,0,"","alex"],
+["2024/4/22","賣","3691","碩禾",0,0,1000,149.50,128,449,149500,576,0,148924,"","alex"],
+["2024/4/23","買","3691","碩禾",1000,144.00,0,0,123,0,144000,123,144123,0,"","alex"],
+["2024/4/24","賣","3691","碩禾",0,0,1000,151.00,129,453,151000,582,0,150418,"","alex"],
+["2024/5/10","買","1504","東元",2000,55.00,0,0,94,0,110000,94,110094,0,"","alex"],
+["2024/5/13","買","3691","碩禾",1000,165.00,0,0,141,0,165000,141,165141,0,"","alex"],
+["2024/5/21","買","1504","東元",1000,53.90,0,0,46,0,53900,46,53946,0,"","alex"],
+["2024/5/31","賣","1504","東元",0,0,1000,55.90,48,168,55900,215,0,55685,"","alex"],
+["2024/6/3","賣","1802","台玻",0,0,2000,19.00,32,114,38000,146,0,37854,"","alex"],
+["2024/6/7","賣","1504","東元",0,0,2000,58.00,99,348,116000,447,0,115553,"","alex"],
+["2024/6/7","賣","1802","台玻",0,0,2000,19.60,34,118,39200,151,0,39049,"","alex"],
+["2024/6/12","買","3691","碩禾",1000,124.00,0,0,106,0,124000,106,124106,0,"","alex"],
+["2024/6/17","買","1504","東元",2000,57.40,0,0,98,0,114800,98,114898,0,"","alex"],
+["2024/6/18","買","1504","東元",2000,54.90,0,0,94,0,109800,94,109894,0,"","alex"],
+["2024/6/18","賣","3691","碩禾",0,0,1000,132.00,113,396,132000,509,0,131491,"","alex"],
+["2024/6/19","買","1504","東元",1000,53.30,0,0,46,0,53300,46,53346,0,"","alex"],
+["2024/6/20","買","2353","宏碁",2000,47.95,0,0,82,0,95900,82,95982,0,"","alex"],
+["2024/6/24","買","1504","東元",1000,53.00,0,0,45,0,53000,45,53045,0,"","alex"],
+["2024/7/11","買","1504","東元",1000,51.60,0,0,44,0,51600,44,51644,0,"","alex"],
+["2025/3/7","買","2317","鴻海",1000,173.00,0,0,148,0,173000,148,173148,0,"","alex"],
+["2025/3/11","買","1101","台泥",2000,34.35,0,0,59,0,68700,59,68759,0,"","alex"],
+["2025/3/14","買","1101","台泥",2000,33.35,0,0,57,0,66700,57,66757,0,"","alex"],
+["2025/3/24","買","1504","東元",1000,50.30,0,0,43,0,50300,43,50343,0,"","alex"],
+["2025/4/8","買","1101","台泥",2000,29.00,0,0,50,0,58000,50,58050,0,"","alex"],
+["2025/8/22","賣","1504","東元",0,0,1000,70.10,60,210,70100,270,0,69830,"","alex"],
+["2025/8/25","賣","1504","東元",0,0,1000,74.20,63,223,74200,286,0,73914,"","alex"],
+["2025/8/26","買","1504","東元",1000,70.10,0,0,60,0,70100,60,70160,0,"","alex"],
+["2025/8/27","賣","1504","東元",0,0,1000,71.40,61,214,71400,275,0,71125,"","alex"],
+["2025/8/28","買","1504","東元",1000,68.50,0,0,59,0,68500,59,68559,0,"","alex"],
+["2025/9/4","買","2498","宏達電",1000,72.00,0,0,62,0,72000,62,72062,0,"","alex"],
+["2025/9/4","賣","2498","宏達電",0,0,1000,74.60,64,224,74600,288,0,74312,"","alex"],
+["2025/9/8","賣","1504","東元",0,0,1000,71.50,61,215,71500,276,0,71224,"","alex"],
+["2025/9/9","買","1504","東元",1000,78.40,0,0,67,0,78400,67,78467,0,"","alex"],
+["2025/9/9","賣","1504","東元",0,0,1000,79.60,68,239,79600,307,0,79293,"","alex"],
+["2025/9/9","賣","1504","東元",0,0,1000,79.60,68,239,79600,307,0,79293,"","alex"],
+["2025/9/9","賣","1504","東元",0,0,1000,79.20,68,238,79200,305,0,78895,"","alex"],
+["2025/9/9","賣","2498","宏達電",0,0,1000,67.10,57,201,67100,259,0,66841,"","alex"],
+["2025/9/10","賣","1504","東元",0,0,1000,86.00,74,258,86000,332,0,85668,"","alex"],
+["2025/9/10","賣","1504","東元",0,0,1000,87.50,75,263,87500,337,0,87163,"","alex"],
+["2025/9/12","賣","1504","東元",0,0,2000,90.70,155,544,181400,699,0,180701,"","alex"],
+["2025/9/16","買","1504","東元",1000,86.00,0,0,74,0,86000,74,86074,0,"","alex"],
+["2025/9/17","賣","1504","東元",0,0,1000,86.40,74,259,86400,333,0,86067,"","alex"],
+["2025/9/24","賣","2498","宏達電",0,0,1000,63.60,54,191,63600,245,0,63355,"","alex"],
+["2025/9/26","賣","2498","宏達電",0,0,1000,60.80,52,182,60800,234,0,60566,"","alex"],
+["2025/9/26","買","1504","東元",1000,97.10,0,0,83,0,97100,83,97183,0,"","alex"],
+["2025/9/30","賣","00885","富邦越南",0,0,2000,16.30,28,98,32600,126,0,32474,"","alex"],
+["2025/10/1","賣","1504","東元",0,0,1000,104.50,89,314,104500,403,0,104097,"","alex"],
+["2025/10/14","賣","00885","富邦越南",0,0,2000,18.00,31,108,36000,139,0,35861,"","alex"],
+["2025/10/20","買","00679B","元大美債20年",2000,27.51,0,0,47,0,55020,47,55067,0,"","alex"],
+["2025/11/4","賣","9907","統一實",0,0,1000,18.60,20,56,18600,76,0,18524,"","alex"],
+["2025/11/5","賣","2317","鴻海",0,0,1000,238.50,204,716,238500,919,0,237581,"","alex"],
+["2025/11/14","買","1504","東元",1000,99.60,0,0,85,0,99600,85,99685,0,"","alex"],
+["2025/12/24","賣","00885","富邦越南",0,0,1000,18.20,20,55,18200,75,0,18125,"","alex"],
+["2025/12/31","賣","6770","力積電",0,0,2000,40.60,69,244,81200,313,0,80887,"","alex"],
+["2026/1/6","賣","00885","富邦越南",0,0,1000,18.30,20,55,18300,75,0,18225,"","alex"],
+["2026/1/7","買","8422","可寧衛",1000,32.70,0,0,28,0,32700,28,32728,0,"","alex"],
+["2026/1/7","賣","8422","可寧衛",0,0,1000,34.90,30,105,34900,135,0,34765,"","alex"],
+["2026/1/8","賣","00885","富邦越南",0,0,1000,18.90,20,57,18900,77,0,18823,"","alex"],
+["2026/1/8","買","2498","宏達電",1000,47.35,0,0,40,0,47350,40,47390,0,"","alex"],
+["2026/1/8","賣","9907","統一實",0,0,1000,18.70,20,56,18700,76,0,18624,"","alex"],
+["2026/1/12","買","2498","宏達電",1000,46.35,0,0,40,0,46350,40,46390,0,"","alex"],
+["2026/1/13","賣","00885","富邦越南",0,0,1000,19.10,20,57,19100,77,0,19023,"","alex"],
+["2026/1/13","買","2498","宏達電",1000,45.35,0,0,39,0,45350,39,45389,0,"","alex"],
+["2026/1/19","買","3491","昇達科",100,917.00,0,0,78,0,91700,78,91778,0,"","alex"],
+["2026/1/20","買","3491","昇達科",100,899.00,0,0,77,0,89900,77,89977,0,"","alex"],
+["2026/1/22","賣","2498","宏達電",0,0,1000,48.00,41,144,48000,185,0,47815,"","alex"],
+["2026/1/26","買","8422","可寧衛",2000,39.80,0,0,68,0,79600,68,79668,0,"","alex"],
+["2026/1/27","買","3491","昇達科",100,1090.00,0,0,93,0,109000,93,109093,0,"","alex"],
+["2026/1/27","買","3491","昇達科",100,1090.00,0,0,93,0,109000,93,109093,0,"","alex"],
+["2026/2/5","賣","6770","力積電",0,0,1000,64.20,55,193,64200,247,0,63953,"","alex"],
+["2026/2/5","賣","3491","昇達科",0,0,200,1355.00,232,813,271000,1045,0,269955,"","alex"],
+["2026/2/10","賣","00885","富邦越南",0,0,2000,17.60,30,106,35200,136,0,35064,"","alex"],
+["2026/2/10","賣","3491","昇達科",0,0,200,1300.00,222,780,260000,1002,0,258998,"","alex"],
+["2026/2/24","賣","6770","力積電",0,0,1000,73.70,63,221,73700,284,0,73416,"","alex"],
+["2026/3/4","買","3491","昇達科",100,1530.00,0,0,131,0,153000,131,153131,0,"","alex"],
+["2026/3/6","賣","3491","昇達科",0,0,100,1300.00,111,390,130000,501,0,129499,"","alex"],
+["2026/3/9","買","1504","東元",1000,68.10,0,0,58,0,68100,58,68158,0,"","alex"],
+["2026/3/9","買","2330","台積電",100,1800.00,0,0,154,0,180000,154,180154,0,"","alex"],
+["2026/3/9","買","3691","碩禾",1000,111.50,0,0,95,0,111500,95,111595,0,"","alex"],
+["2026/3/9","買","6770","力積電",1000,58.90,0,0,50,0,58900,50,58950,0,"","alex"],
+["2026/3/10","買","3491","昇達科",100,1260.00,0,0,108,0,126000,108,126108,0,"","alex"],
+["2026/3/10","賣","6770","力積電",0,0,1000,63.80,55,191,63800,246,0,63554,"","alex"],
+["2026/3/10","賣","1504","東元",0,0,1000,70.30,60,211,70300,271,0,70029,"","alex"],
+["2026/3/11","買","2891","中信金",2000,51.60,0,0,88,0,103200,88,103288,0,"","alex"],
+["2026/3/12","買","2317","鴻海",1000,216.50,0,0,185,0,216500,185,216685,0,"","alex"],
+["2026/3/12","賣","2330","台積電",0,0,100,1895.00,162,569,189500,731,0,188769,"","alex"],
+["2026/3/12","賣","3691","碩禾",0,0,1000,117.50,100,353,117500,453,0,117047,"","alex"],
+["2026/3/12","賣","3691","碩禾",0,0,1000,115.50,99,347,115500,445,0,115055,"","alex"],
+["2026/3/12","賣","6770","力積電",0,0,1000,64.80,55,194,64800,250,0,64550,"","alex"],
+["2026/3/13","買","6770","力積電",1000,63.90,0,0,55,0,63900,55,63955,0,"","alex"],
+["2026/3/17","買","2317","鴻海",1000,214.00,0,0,183,0,214000,183,214183,0,"","alex"],
+["2026/3/17","賣","3691","碩禾",0,0,1000,120.00,103,360,120000,463,0,119537,"","alex"],
+["2026/3/17","賣","2891","中信金",0,0,2000,53.20,91,319,106400,410,0,105990,"","alex"],
+["2026/3/19","買","2317","鴻海",1000,205.00,0,0,175,0,205000,175,205175,0,"","alex"],
+["2026/3/23","買","2317","鴻海",1000,196.00,0,0,168,0,196000,168,196168,0,"","alex"],
+["2026/3/24","買","8422","可寧衛",2000,29.15,0,0,50,0,58300,50,58350,0,"","alex"],
+["2021/5/3","買","6770","力積電",1000,68.10,0,0,58,0,68100,58,68158,0,"","mark"],
+["2021/10/4","買","6770","力積電",1000,64.00,0,0,55,0,64000,55,64055,0,"","mark"],
+["2022/2/18","買","6770","力積電",1000,59.00,0,0,50,0,59000,50,59050,0,"","mark"],
+["2022/2/22","買","6770","力積電",1000,57.50,0,0,49,0,57500,49,57549,0,"","mark"],
+["2022/2/24","賣","6770","力積電",0,0,1000,73.70,63,221,73700,284,0,73416,"","mark"],
+["2022/3/17","賣","6770","力積電",0,0,1000,71.70,61,215,71700,276,0,71424,"","mark"],
+["2023/3/28","買","2498","宏達電",1000,62.00,0,0,53,0,62000,53,62053,0,"","mark"],
+["2026/1/19","買","3491","昇達科",200,915.00,0,0,266,0,183000,266,183266,0,"","mark"],
+["2026/1/27","買","3491","昇達科",100,1090.00,0,0,93,0,109000,93,109093,0,"","mark"],
+["2026/3/4","賣","3491","昇達科",0,0,100,1895.00,162,569,189500,731,0,188769,"","mark"],
+["2026/3/4","買","3491","昇達科",100,1530.00,0,0,131,0,153000,131,153131,0,"","mark"],
+["2026/3/17","買","2317","鴻海",500,214.00,0,0,91,0,107000,91,107091,0,"","mark"]
+];
+
+// ─── CRUD Store ───────────────────────────────────────────────────────────────
+const SK='stock_crud_v1';
+function getStore(){try{return JSON.parse(localStorage.getItem(SK)||'{"del":{},"edit":{},"add":[]}')}catch(e){return{del:{},edit:{},add:[]}}}
+function saveStore(s){localStorage.setItem(SK,JSON.stringify(s))}
+
+// ─── Build rows with overrides ────────────────────────────────────────────────
+function buildRows(){
+  var s=getStore(), rows=[];
+  RAW.forEach(function(r,i){
+    if(s.del['r'+i]) return;
+    var row=s.edit['r'+i]||{
+      _id:'r'+i, _src:'raw',
+      date:r[0], type:r[1], code:r[2], name:r[3],
+      buyShares:r[4], buyPrice:r[5], sellShares:r[6], sellPrice:r[7],
+      fee:r[8], tax:r[9], amount:r[10], cost:r[11],
+      spend:r[12], income:r[13], note:r[14], person:r[15]
+    };
+    row._id='r'+i;
+    rows.push(row);
+  });
+  s.add.forEach(function(r){rows.push(r)});
+  return rows;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US')}
+function fmtP(n){if(!n&&n!==0)return'—';return Number(n).toFixed(2)}
+function shares(r){return r.type==='賣'?r.sellShares:r.buyShares}
+function price(r){return r.type==='賣'?r.sellPrice:r.buyPrice}
+function dateSort(d){return d?d.replace(/\//g,''):'0'}
+
+// ─── State ────────────────────────────────────────────────────────────────────
+var sortCol='date', sortDir='desc', curPage=1, perPage=50, editOn=false;
+
+// ─── Render All ───────────────────────────────────────────────────────────────
+function render(){
+  var all=buildRows();
+  renderStats(all);
+  renderSummary(all);
+  var filtered=applyFilters(all);
+  document.getElementById('filter-count').textContent=filtered.length+'筆';
+  filtered=doSort(filtered);
+  var total=filtered.length;
+  var pages=Math.max(1,Math.ceil(total/perPage));
+  if(curPage>pages)curPage=pages;
+  var start=(curPage-1)*perPage, end=Math.min(start+perPage,total);
+  renderTable(filtered.slice(start,end));
+  renderPagination(total,pages);
+}
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+function renderStats(rows){
+  var totalSpend=0,totalIncome=0,txCount=rows.length;
+  rows.forEach(function(r){totalSpend+=Number(r.spend)||0;totalIncome+=Number(r.income)||0;});
+  var net=totalIncome-totalSpend;
+  var buyCount=rows.filter(function(r){return r.type==='買'}).length;
+  var sellCount=rows.filter(function(r){return r.type==='賣'}).length;
+  var g=document.getElementById('stats-grid');
+  g.innerHTML=[
+    {label:'總筆數',val:txCount,cls:''},
+    {label:'買入次數',val:buyCount,cls:''},
+    {label:'賣出次數',val:sellCount,cls:''},
+    {label:'總買入支出',val:'$'+fmt(totalSpend),cls:'neg'},
+    {label:'總賣出收入',val:'$'+fmt(totalIncome),cls:'pos'},
+    {label:'淨現金流',val:(net>=0?'+':'')+fmt(net),cls:net>=0?'pos':'neg'}
+  ].map(function(c){
+    return '<div class="stat-card"><div class="stat-label">'+c.label+'</div><div class="stat-value '+c.cls+'">'+c.val+'</div></div>';
+  }).join('');
+}
+
+// ─── Summary ──────────────────────────────────────────────────────────────────
+function renderSummary(rows){
+  var map={};
+  rows.forEach(function(r){
+    var key=r.code+'|'+(r.person||'alex');
+    if(!map[key])map[key]={code:r.code,name:r.name,person:r.person||'alex',buyShares:0,sellShares:0,totalSpend:0,totalIncome:0,buyAmt:0};
+    var m=map[key];
+    if(r.type==='買'){m.buyShares+=Number(r.buyShares)||0;m.totalSpend+=Number(r.spend)||0;m.buyAmt+=Number(r.amount)||0;}
+    else if(r.type==='賣'){m.sellShares+=Number(r.sellShares)||0;m.totalIncome+=Number(r.income)||0;}
+  });
+  var keys=Object.keys(map).sort(function(a,b){
+    return map[a].code.localeCompare(map[b].code)||map[a].person.localeCompare(map[b].person);
+  });
+  var html='';
+  keys.forEach(function(k){
+    var m=map[k];
+    var netShares=m.buyShares-m.sellShares;
+    var avgBuy=m.buyShares>0?(m.totalSpend/m.buyShares):0;
+    var plEstimate=m.totalIncome-m.totalSpend;
+    var plCls=plEstimate>=0?'summary-pos':'summary-neg';
+    var personCls=m.person==='mark'?'person-mark':'person-alex';
+    html+='<tr>';
+    html+='<td class="code">'+m.code+'</td>';
+    html+='<td>'+m.name+'</td>';
+    html+='<td><span class="'+personCls+'">'+m.person.toUpperCase()+'</span></td>';
+    html+='<td class="num">'+fmtP(avgBuy)+'</td>';
+    html+='<td class="num"'+(netShares>0?' style="color:var(--buy)"':netShares===0?' style="color:var(--muted)"':' style="color:var(--sell)"')+'>'+fmt(netShares)+'</td>';
+    html+='<td class="num muted">'+fmt(m.totalSpend)+'</td>';
+    html+='<td class="num muted">'+fmt(m.totalIncome)+'</td>';
+    html+='<td class="num '+plCls+'">'+(plEstimate>=0?'+':'')+fmt(plEstimate)+'</td>';
+    html+='</tr>';
+  });
+  document.getElementById('summary-body').innerHTML=html;
+}
+
+// ─── Filters ─────────────────────────────────────────────────────────────────
+function populateFilters(rows){
+  var years=new Set(), codes=new Set();
+  rows.forEach(function(r){
+    if(r.date)years.add(r.date.split('/')[0]);
+    if(r.code)codes.add(r.code);
+  });
+  var ysel=document.getElementById('f-year');
+  var existing=Array.from(ysel.options).map(function(o){return o.value});
+  Array.from(years).sort().reverse().forEach(function(y){
+    if(!existing.includes(y)){var o=document.createElement('option');o.value=o.textContent=y;ysel.appendChild(o);}
+  });
+  var csel=document.getElementById('f-code');
+  var existingC=Array.from(csel.options).map(function(o){return o.value});
+  Array.from(codes).sort().forEach(function(c){
+    if(!existingC.includes(c)){var o=document.createElement('option');o.value=o.textContent=c;csel.appendChild(o);}
+  });
+}
+function applyFilters(rows){
+  var person=document.getElementById('f-person').value;
+  var year=document.getElementById('f-year').value;
+  var code=document.getElementById('f-code').value;
+  var type=document.getElementById('f-type').value;
+  var search=document.getElementById('f-search').value.trim().toLowerCase();
+  return rows.filter(function(r){
+    if(person&&(r.person||'alex')!==person)return false;
+    if(year&&(!r.date||r.date.split('/')[0]!==year))return false;
+    if(code&&r.code!==code)return false;
+    if(type&&r.type!==type)return false;
+    if(search&&!(r.code.toLowerCase().includes(search)||r.name.toLowerCase().includes(search)))return false;
+    return true;
+  });
+}
+function resetFilters(){
+  ['f-person','f-year','f-code','f-type'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('f-search').value='';
+  curPage=1; render();
+}
+
+// ─── Sort ─────────────────────────────────────────────────────────────────────
+function doSort(rows){
+  return rows.slice().sort(function(a,b){
+    var av,bv;
+    if(sortCol==='date'){av=dateSort(a.date);bv=dateSort(b.date);}
+    else if(sortCol==='amount'){av=Number(a.amount)||0;bv=Number(b.amount)||0;}
+    else if(sortCol==='spend'){av=Number(a.spend)||0;bv=Number(b.spend)||0;}
+    else if(sortCol==='income'){av=Number(a.income)||0;bv=Number(b.income)||0;}
+    else if(sortCol==='shares'){av=shares(a);bv=shares(b);}
+    else if(sortCol==='price'){av=price(a);bv=price(b);}
+    else if(sortCol==='cost'){av=Number(a.cost)||0;bv=Number(b.cost)||0;}
+    else{av=(a[sortCol]||'').toString();bv=(b[sortCol]||'').toString();}
+    if(av<bv)return sortDir==='asc'?-1:1;
+    if(av>bv)return sortDir==='asc'?1:-1;
+    return 0;
+  });
+}
+
+// ─── Table ────────────────────────────────────────────────────────────────────
+function renderTable(rows){
+  var ths=document.querySelectorAll('#tx-table th[data-col]');
+  ths.forEach(function(th){
+    th.classList.remove('sort-asc','sort-desc');
+    if(th.dataset.col===sortCol)th.classList.add('sort-'+sortDir);
+  });
+  var html='';
+  rows.forEach(function(r){
+    var badgeCls=r.type==='買'?'badge-buy':r.type==='賣'?'badge-sell':'badge-div';
+    var pCls=r.person==='mark'?'person-mark':'person-alex';
+    html+='<tr data-id="'+r._id+'">';
+    html+='<td class="muted">'+r.date+'</td>';
+    html+='<td><span class="badge '+badgeCls+'">'+r.type+'</span></td>';
+    html+='<td class="code">'+r.code+'</td>';
+    html+='<td>'+r.name+'</td>';
+    html+='<td class="num">'+fmt(shares(r))+'</td>';
+    html+='<td class="num">'+fmtP(price(r))+'</td>';
+    html+='<td class="num">'+fmt(r.amount)+'</td>';
+    html+='<td class="num muted">'+fmt(r.cost)+'</td>';
+    html+='<td class="num'+(Number(r.spend)>0?' neg':'')+'">'+(Number(r.spend)>0?fmt(r.spend):'—')+'</td>';
+    html+='<td class="num'+(Number(r.income)>0?' pos':'')+'">'+(Number(r.income)>0?fmt(r.income):'—')+'</td>';
+    html+='<td><span class="'+pCls+'">'+(r.person||'alex').toUpperCase()+'</span></td>';
+    html+='<td class="muted">'+( r.note||'' )+'</td>';
+    html+='<td><button class="act-btn act-edit" onclick="showEditModal(\''+r._id+'\')">編輯</button> <button class="act-btn act-del" onclick="confirmDel(\''+r._id+'\')">刪除</button></td>';
+    html+='</tr>';
+  });
+  document.getElementById('tx-body').innerHTML=html;
+}
+
+// ─── Pagination ───────────────────────────────────────────────────────────────
+function renderPagination(total,pages){
+  var html='<span class="page-info">共 '+total+' 筆，第 '+curPage+'/'+pages+' 頁</span> ';
+  if(curPage>1)html+='<button class="page-btn" onclick="goPage('+( curPage-1 )+')">‹</button>';
+  var lo=Math.max(1,curPage-2), hi=Math.min(pages,curPage+2);
+  for(var p=lo;p<=hi;p++){html+='<button class="page-btn'+(p===curPage?' active':'')+'" onclick="goPage('+p+')">'+p+'</button>';}
+  if(curPage<pages)html+='<button class="page-btn" onclick="goPage('+( curPage+1 )+')">›</button>';
+  document.getElementById('pagination').innerHTML=html;
+}
+function goPage(p){curPage=p;render();}
+
+// ─── Edit Mode ────────────────────────────────────────────────────────────────
+var editOn=false;
+window.toggleEditMode=function(){
+  if(editOn){exitEditMode();return;}
+  showPasswordModal(function(){enterEditMode();});
+};
+function enterEditMode(){
+  editOn=true;
+  document.body.classList.add('edit-on');
+  document.getElementById('edit-toolbar').classList.add('on');
+  document.getElementById('edit-toggle').textContent='✕ 退出編輯';
+}
+function exitEditMode(){
+  editOn=false;
+  document.body.classList.remove('edit-on');
+  document.getElementById('edit-toolbar').classList.remove('on');
+  document.getElementById('edit-toggle').textContent='✏️ 編輯';
+}
+
+// ─── Modal Helpers ────────────────────────────────────────────────────────────
+function showModal(html){
+  document.getElementById('crud-dialog').innerHTML=html;
+  document.getElementById('crud-modal').classList.add('open');
+}
+window.hideModal=function(){document.getElementById('crud-modal').classList.remove('open');};
+
+// ─── Password ─────────────────────────────────────────────────────────────────
+function showPasswordModal(onSuccess){
+  showModal('<h3>🔒 請輸入密碼</h3><div class="form-group"><label>密碼</label><input type="password" id="pw-inp" placeholder="輸入密碼…"></div><div id="pw-err" class="err"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-primary" id="pw-ok">確認</button></div>');
+  var inp=document.getElementById('pw-inp');
+  inp.focus();
+  function check(){
+    if(inp.value==='0918216001'){hideModal();onSuccess();}
+    else{document.getElementById('pw-err').textContent='密碼錯誤，請重試';inp.value='';inp.focus();}
+  }
+  document.getElementById('pw-ok').addEventListener('click',check);
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter')check();});
+}
+
+// ─── Confirm Delete ───────────────────────────────────────────────────────────
+window.confirmDel=function(id){
+  showModal('<h3>⚠️ 確認刪除</h3><p style="color:var(--muted);margin-bottom:16px">確定要刪除這筆交易記錄嗎？</p><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-danger" id="del-yes">確定刪除</button></div>');
+  document.getElementById('del-yes').addEventListener('click',function(){
+    var s=getStore();
+    if(id.startsWith('r')){s.del[id]=1;}
+    else{s.add=s.add.filter(function(r){return r._id!==id;});}
+    saveStore(s);hideModal();render();
+  });
+};
+
+// ─── Row Form HTML ────────────────────────────────────────────────────────────
+function rowFormHtml(r,title){
+  r=r||{type:'買',person:'alex'};
+  function v(f){return r[f]!==undefined&&r[f]!==null?r[f]:'';}
+  return '<h3>'+title+'</h3>'+
+  '<div class="form-grid">'+
+  '<div class="form-group"><label>日期</label><input id="f-date" value="'+v('date')+'" placeholder="2026/3/1"></div>'+
+  '<div class="form-group"><label>類型</label><select id="f-type-s"><option'+(v('type')==='買'?' selected':'')+'值>買</option><option'+(v('type')==='賣'?' selected':'')+'>賣</option><option'+(v('type')==='股利'?' selected':'')+'>股利</option></select></div>'+
+  '<div class="form-group"><label>代號</label><input id="f-code" value="'+v('code')+'" placeholder="1504"></div>'+
+  '<div class="form-group"><label>股票名稱</label><input id="f-name" value="'+v('name')+'" placeholder="東元"></div>'+
+  '<div class="form-group"><label>買入股數</label><input id="f-bs" type="number" value="'+v('buyShares')+'"></div>'+
+  '<div class="form-group"><label>買入價格</label><input id="f-bp" type="number" step="0.01" value="'+v('buyPrice')+'"></div>'+
+  '<div class="form-group"><label>賣出股數</label><input id="f-ss" type="number" value="'+v('sellShares')+'"></div>'+
+  '<div class="form-group"><label>賣出價格</label><input id="f-sp" type="number" step="0.01" value="'+v('sellPrice')+'"></div>'+
+  '<div class="form-group"><label>手續費</label><input id="f-fee" type="number" value="'+v('fee')+'"></div>'+
+  '<div class="form-group"><label>交易稅</label><input id="f-tax" type="number" value="'+v('tax')+'"></div>'+
+  '<div class="form-group"><label>成交金額</label><input id="f-amt" type="number" value="'+v('amount')+'"></div>'+
+  '<div class="form-group"><label>交易成本</label><input id="f-cost" type="number" value="'+v('cost')+'"></div>'+
+  '<div class="form-group"><label>支出</label><input id="f-spend" type="number" value="'+v('spend')+'"></div>'+
+  '<div class="form-group"><label>收入</label><input id="f-income" type="number" value="'+v('income')+'"></div>'+
+  '<div class="form-group"><label>人員</label><select id="f-person-s"><option'+(v('person')==='alex'?' selected':'')+'>alex</option><option'+(v('person')==='mark'?' selected':'')+'>mark</option></select></div>'+
+  '<div class="form-group"><label>備註</label><input id="f-note" value="'+v('note')+'"></div>'+
+  '</div>'+
+  '<div id="form-err" class="err"></div>'+
+  '<div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-primary" id="form-save">儲存</button></div>';
+}
+
+function collectForm(){
+  return{
+    date:document.getElementById('f-date').value.trim(),
+    type:document.getElementById('f-type-s').value,
+    code:document.getElementById('f-code').value.trim(),
+    name:document.getElementById('f-name').value.trim(),
+    buyShares:Number(document.getElementById('f-bs').value)||0,
+    buyPrice:Number(document.getElementById('f-bp').value)||0,
+    sellShares:Number(document.getElementById('f-ss').value)||0,
+    sellPrice:Number(document.getElementById('f-sp').value)||0,
+    fee:Number(document.getElementById('f-fee').value)||0,
+    tax:Number(document.getElementById('f-tax').value)||0,
+    amount:Number(document.getElementById('f-amt').value)||0,
+    cost:Number(document.getElementById('f-cost').value)||0,
+    spend:Number(document.getElementById('f-spend').value)||0,
+    income:Number(document.getElementById('f-income').value)||0,
+    person:document.getElementById('f-person-s').value,
+    note:document.getElementById('f-note').value.trim()
+  };
+}
+
+// ─── Add ─────────────────────────────────────────────────────────────────────
+window.showAddModal=function(){
+  showModal(rowFormHtml(null,'＋ 新增交易'));
+  document.getElementById('form-save').addEventListener('click',function(){
+    var d=collectForm();
+    if(!d.date||!d.code){document.getElementById('form-err').textContent='日期和代號為必填';return;}
+    var s=getStore();
+    d._id='a'+Date.now();d._src='added';
+    s.add.push(d);saveStore(s);hideModal();render();
+  });
+};
+
+// ─── Edit ─────────────────────────────────────────────────────────────────────
+window.showEditModal=function(id){
+  var all=buildRows();
+  var row=null;all.forEach(function(r){if(r._id===id)row=r;});
+  if(!row)return;
+  showModal(rowFormHtml(row,'✏️ 修改交易'));
+  document.getElementById('form-save').addEventListener('click',function(){
+    var d=collectForm();
+    if(!d.date||!d.code){document.getElementById('form-err').textContent='日期和代號為必填';return;}
+    d._id=id;d._src=row._src;
+    var s=getStore();
+    if(id.startsWith('r')){s.edit[id]=d;}
+    else{s.add=s.add.map(function(r){return r._id===id?d:r;});}
+    saveStore(s);hideModal();render();
+  });
+};
+
+// ─── Sort click ───────────────────────────────────────────────────────────────
+document.getElementById('tx-table').querySelector('thead').addEventListener('click',function(e){
+  var th=e.target.closest('th[data-col]');
+  if(!th)return;
+  var col=th.dataset.col;
+  if(sortCol===col){sortDir=sortDir==='asc'?'desc':'asc';}else{sortCol=col;sortDir='desc';}
+  curPage=1;render();
+});
+
+// ─── Filter change ────────────────────────────────────────────────────────────
+['f-person','f-year','f-code','f-type'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',function(){curPage=1;render();});
+});
+document.getElementById('f-search').addEventListener('input',function(){curPage=1;render();});
+
+// ─── Backdrop close ───────────────────────────────────────────────────────────
+document.getElementById('crud-backdrop').addEventListener('click',window.hideModal);
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+populateFilters(RAW.map(function(r,i){return{_id:'r'+i,date:r[0],type:r[1],code:r[2],name:r[3],person:r[15]};}));
+render();
+</script>
+</body>
+</html>
