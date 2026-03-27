@@ -93,7 +93,10 @@ body.edit-on .act-btn{display:inline-block}
   </div>
   <div class="stats" id="stats-grid"></div>
 
-  <div class="section-title">持股摘要（依代號 × 人員）</div>
+  <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
+    <span>持股摘要（依代號 × 人員）</span>
+    <button id="fetch-prices-btn" class="btn btn-secondary" style="font-size:0.78rem;padding:5px 12px" onclick="fetchPrices()">🔄 取得今日股價</button>
+  </div>
   <div class="table-wrap">
     <table id="summary-table">
       <thead><tr>
@@ -381,6 +384,61 @@ var sortCol='date', sortDir='desc', curPage=1, perPage=50, editOn=false;
 var PKEY='stock_prices';
 function getPrices(){try{return JSON.parse(localStorage.getItem(PKEY)||'{}')}catch(e){return{}}}
 window.savePrice=function(code,val){var p=getPrices();p[code]=parseFloat(val)||0;localStorage.setItem(PKEY,JSON.stringify(p));render();};
+
+// ─── Fetch Today Prices (TWSE API) ────────────────────────────────────────────
+window.fetchPrices=async function(){
+  var btn=document.getElementById('fetch-prices-btn');
+  var orig=btn.textContent;
+  btn.textContent='⏳ 查詢中…';btn.disabled=true;
+  try{
+    var codes=Array.from(new Set(buildRows().map(function(r){return r.code;})));
+    // Request both TSE (上市) and OTC (上櫃) variants; API ignores invalid ones
+    var parts=[];
+    codes.forEach(function(c){parts.push('tse_'+c+'.tw');parts.push('otc_'+c+'.tw');});
+    var url='https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch='+parts.join('|')+'&json=1&delay=0&_='+Date.now();
+    var resp=await fetch(url);
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var data=await resp.json();
+    var prices=getPrices();
+    var updated=0;
+    if(data.msgArray&&data.msgArray.length){
+      data.msgArray.forEach(function(item){
+        // z = current/last price, y = prev close fallback
+        var px=parseFloat((item.z&&item.z!=='-')?item.z:(item.y||item.pz||'0'));
+        if(item.c&&px>0){prices[item.c]=px;updated++;}
+      });
+    }
+    localStorage.setItem(PKEY,JSON.stringify(prices));
+    render();
+    var t=new Date();
+    btn.textContent='✓ '+updated+'支 ('+(t.getHours()+':'+(t.getMinutes()+'').padStart(2,'0'))+')';
+  }catch(e){
+    // Fallback: try via allorigins CORS proxy
+    try{
+      var codes2=Array.from(new Set(buildRows().map(function(r){return r.code;})));
+      var parts2=[];
+      codes2.forEach(function(c){parts2.push('tse_'+c+'.tw');parts2.push('otc_'+c+'.tw');});
+      var inner='https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch='+parts2.join('|')+'&json=1&delay=0&_='+Date.now();
+      var proxy='https://api.allorigins.win/get?url='+encodeURIComponent(inner);
+      var r2=await fetch(proxy);
+      var j2=await r2.json();
+      var data2=JSON.parse(j2.contents);
+      var prices2=getPrices();var updated2=0;
+      if(data2.msgArray){data2.msgArray.forEach(function(item){
+        var px=parseFloat((item.z&&item.z!=='-')?item.z:(item.y||'0'));
+        if(item.c&&px>0){prices2[item.c]=px;updated2++;}
+      });}
+      localStorage.setItem(PKEY,JSON.stringify(prices2));
+      render();
+      var t2=new Date();
+      btn.textContent='✓ '+updated2+'支 ('+(t2.getHours()+':'+(t2.getMinutes()+'').padStart(2,'0'))+')';
+    }catch(e2){
+      btn.textContent='❌ 無法取得';
+      console.error('fetchPrices failed:',e,e2);
+    }
+  }
+  setTimeout(function(){btn.textContent=orig;btn.disabled=false;},5000);
+};
 var activePerson='';
 
 // ─── Person Tab ───────────────────────────────────────────────────────────────
