@@ -1372,24 +1372,59 @@ function applyStore() {
 }
 
 /* ── Toggle edit mode ───────────────────────────────────────── */
-window.toggleEditMode = function() {
-    editOn = !editOn;
+function enterEditMode() {
+    editOn = true;
     var btn = document.getElementById('edit-toggle');
     var rst = document.getElementById('reset-btn');
+    document.body.classList.add('edit-mode');
+    btn.textContent = '✅ 完成編輯';
+    btn.classList.add('active');
+    rst.style.display = 'block';
+    addControls();
+}
+
+window.toggleEditMode = function() {
     if (editOn) {
-        document.body.classList.add('edit-mode');
-        btn.textContent = '✅ 完成編輯';
-        btn.classList.add('active');
-        rst.style.display = 'block';
-        addControls();
-    } else {
+        /* Exit edit mode — no password needed */
+        editOn = false;
+        var btn = document.getElementById('edit-toggle');
+        var rst = document.getElementById('reset-btn');
         document.body.classList.remove('edit-mode');
         btn.textContent = '✏️ 編輯';
         btn.classList.remove('active');
         rst.style.display = 'none';
         removeControls();
+        return;
     }
+    /* Enter edit mode — require password */
+    document.getElementById('crud-dialog').innerHTML =
+        '<h3 style="color:var(--accent);margin:0 0 18px">🔒 請輸入編輯密碼</h3>' +
+        '<div class="form-row"><label>密碼</label>' +
+        '<input type="password" id="pw-input" placeholder="••••••••••" autofocus></div>' +
+        '<div id="pw-err" style="color:#f87171;font-size:0.82rem;min-height:20px;margin-top:4px"></div>' +
+        '<div class="form-actions">' +
+        '<button class="btn-save" id="pw-ok">確認</button>' +
+        '<button class="btn-cancel" id="pw-cancel">取消</button></div>';
+    document.getElementById('crud-modal').classList.add('open');
+    var inp = document.getElementById('pw-input');
+    inp.focus();
+    inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') checkPw(); });
+    document.getElementById('pw-ok').addEventListener('click', checkPw);
+    document.getElementById('pw-cancel').addEventListener('click', window.hideModal);
 };
+
+function checkPw() {
+    var val = document.getElementById('pw-input').value;
+    if (val === '0918216001') {
+        window.hideModal();
+        enterEditMode();
+    } else {
+        var err = document.getElementById('pw-err');
+        err.textContent = '密碼錯誤，請再試一次';
+        document.getElementById('pw-input').value = '';
+        document.getElementById('pw-input').focus();
+    }
+}
 
 window.resetAllEdits = function() {
     if (!confirm('確定清除所有修改並還原原始資料？')) return;
