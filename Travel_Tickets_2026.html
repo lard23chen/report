@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 機票總覽</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1117;
+            --card-bg: #1a1d27;
+            --card-border: #2a2d3a;
+            --text: #e2e8f0;
+            --text-muted: #8892a4;
+            --accent: #38bdf8;
+            --accent2: #818cf8;
+            --go: #34d399;
+            --back: #f87171;
+            --gold: #fbbf24;
+            --shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; min-height: 100vh; }
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        /* Header */
+        header { text-align: center; margin-bottom: 40px; }
+        header h1 { font-size: 2.2rem; font-weight: 800; color: var(--accent); letter-spacing: 0.05em; }
+        header p { color: var(--text-muted); margin-top: 8px; font-size: 0.95rem; }
+
+        /* Summary cards */
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 40px; }
+        .sum-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px 20px; text-align: center; }
+        .sum-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+        .sum-card .label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* Trip section */
+        .trip { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; margin-bottom: 32px; overflow: hidden; box-shadow: var(--shadow); }
+        .trip-header { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--card-border); background: rgba(56,189,248,0.05); flex-wrap: wrap; }
+        .trip-num { background: var(--accent); color: #0f1117; font-weight: 800; font-size: 0.85rem; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+        .trip-dest { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+        .trip-dates { color: var(--text-muted); font-size: 0.9rem; }
+        .trip-tag { margin-left: auto; background: rgba(129,140,248,0.15); border: 1px solid rgba(129,140,248,0.4); color: var(--accent2); font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+
+        /* Passenger sub-section */
+        .passenger-section { padding: 16px 24px 0; }
+        .passenger-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; margin-top: 8px; }
+        .passenger-badge { background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); color: var(--accent); font-size: 0.78rem; font-weight: 600; padding: 2px 10px; border-radius: 20px; }
+        .mark-badge { background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.35); color: var(--gold); }
+
+        /* Flight table */
+        .table-wrap { overflow-x: auto; padding-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 700px; }
+        th { padding: 10px 12px; text-align: left; color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+
+        .badge-go { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: var(--go); white-space: nowrap; }
+        .badge-back { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.4); color: var(--back); white-space: nowrap; }
+
+        .flight-no { font-weight: 700; color: var(--accent); font-family: monospace; font-size: 0.9rem; }
+        .pnr { font-family: monospace; font-size: 0.85rem; color: var(--gold); letter-spacing: 0.08em; }
+        .price { font-weight: 700; color: #a3e635; white-space: nowrap; }
+        .price-pts { font-size: 0.8rem; color: #c084fc; white-space: nowrap; }
+        .aircraft { color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; }
+        .note { color: var(--text-muted); font-size: 0.78rem; line-height: 1.4; }
+        .time-cell { white-space: nowrap; }
+        .time-main { font-weight: 600; }
+        .time-arr { font-size: 0.8rem; color: var(--text-muted); }
+        .link-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: var(--accent); cursor: default; }
+        .dash { color: #444; }
+
+        /* Print */
+        @media print {
+            body { background: white; color: #222; }
+            .trip { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>✈ 2026 機票總覽</h1>
+        <p>ALEX &amp; MARK · 全年旅程機票記錄</p>
+    </header>
+
+    <!-- Summary -->
+    <div class="summary">
+        <div class="sum-card"><div class="num">5</div><div class="label">趟旅程</div></div>
+        <div class="sum-card"><div class="num">2</div><div class="label">旅遊目的地</div></div>
+        <div class="sum-card"><div class="num" style="font-size:1.4rem;">BKK × 4</div><div class="label">曼谷</div></div>
+        <div class="sum-card"><div class="num" style="font-size:1.4rem;">NRT/CTS × 1</div><div class="label">日本</div></div>
+        <div class="sum-card"><div class="num" style="color:var(--gold);">BR / CI / JL / CX</div><div class="label">搭乘航空</div></div>
+    </div>
+
+    <!-- ── Trip 1 ── -->
+    <div class="trip">
+        <div class="trip-header">
+            <span class="trip-num">Trip 1</span>
+            <div>
+                <div class="trip-dest">🇹🇭 Bangkok (BKK)</div>
+                <div class="trip-dates">2026/02/11 – 2026/02/22</div>
+            </div>
+            <span class="trip-tag">農曆新年</span>
+        </div>
+
+        <div class="passenger-section">
+            <div class="passenger-label"><span class="passenger-badge">ALEX</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th><th>接送備註</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/02/11 20:45</div></td>
+                    <td class="time-cell"><div class="time-arr">23:40</div></td>
+                    <td class="flight-no">BR205</td>
+                    <td class="pnr">68GQCZ</td>
+                    <td class="aircraft">Boeing 787-10</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">ALEX-國泰長榮信用卡-7922</td>
+                    <td class="price">NT$15,425</td>
+                    <td class="note">購買日期 3/4<br>去→中華 alex 17:00<br>格上租車訂單202512026082</td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/02/22 02:15</div></td>
+                    <td class="time-cell"><div class="time-arr">06:50</div></td>
+                    <td class="flight-no">BR206</td>
+                    <td class="dash">—</td>
+                    <td class="aircraft">Boeing 787-10</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="passenger-label"><span class="passenger-badge mark-badge">MARK</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th><th>備註</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/02/11 20:45</div></td>
+                    <td class="time-cell"><div class="time-arr">23:40</div></td>
+                    <td class="flight-no">BR205</td>
+                    <td class="pnr">68FVA7</td>
+                    <td class="aircraft">Boeing 787-10</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">匯豐旅人卡-mark pay<br>已預約 2/11 東方宇逸貴賓室<br>4/10 潑水節送機</td>
+                    <td class="price">NT$15,907</td>
+                    <td class="dash">—</td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/02/22 02:15</div></td>
+                    <td class="time-cell"><div class="time-arr">06:50</div></td>
+                    <td class="flight-no">BR206</td>
+                    <td class="dash">—</td>
+                    <td class="aircraft">Boeing 787-10</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Trip 2 ── -->
+    <div class="trip">
+        <div class="trip-header">
+            <span class="trip-num">Trip 2</span>
+            <div>
+                <div class="trip-dest">🇹🇭 Bangkok (BKK)</div>
+                <div class="trip-dates">2026/04/09 – 2026/04/19</div>
+            </div>
+            <span class="trip-tag">潑水節 Songkran</span>
+        </div>
+
+        <div class="passenger-section">
+            <div class="passenger-label"><span class="passenger-badge">ALEX</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th><th>備註</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/04/10 22:40</div></td>
+                    <td class="time-cell"><div class="time-arr">01:25 (+1)</div></td>
+                    <td class="flight-no">CI837</td>
+                    <td class="pnr">6YG9JD</td>
+                    <td class="aircraft">Airbus A321neo</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">ALEX-KGI信用卡-4701<br>已用ALEC華航聯名卡預約回程接機<br>訂單202602004616</td>
+                    <td class="price">NT$8,542</td>
+                    <td class="note">購買日期 4/25</td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/04/19 13:20</div></td>
+                    <td class="time-cell"><div class="time-arr">18:00</div></td>
+                    <td class="flight-no">CI832</td>
+                    <td class="dash">—</td>
+                    <td class="aircraft">Airbus A350-900</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="passenger-label"><span class="passenger-badge mark-badge">MARK</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th><th>備註</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/04/10 22:40</div></td>
+                    <td class="time-cell"><div class="time-arr">01:25 (+1)</div></td>
+                    <td class="flight-no">CI837</td>
+                    <td class="pnr">6YG4W4</td>
+                    <td class="aircraft">Airbus A321neo</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">匯豐旅人卡-mark pay<br>已預約匯富 4/10 送機<br>訂單DH20260206103005</td>
+                    <td class="price">NT$8,542</td>
+                    <td class="dash">—</td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/04/19 13:20</div></td>
+                    <td class="time-cell"><div class="time-arr">18:00</div></td>
+                    <td class="flight-no">CI832</td>
+                    <td class="dash">—</td>
+                    <td class="aircraft">Airbus A350-900</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Trip 3 ── -->
+    <div class="trip">
+        <div class="trip-header">
+            <span class="trip-num">Trip 3</span>
+            <div>
+                <div class="trip-dest">🇯🇵 Sapporo / Tokyo</div>
+                <div class="trip-dates">2026/06/11 – 2026/06/21</div>
+            </div>
+            <span class="trip-tag" style="color:#f9a8d4; border-color:rgba(249,168,212,0.4); background:rgba(249,168,212,0.1);">日本</span>
+        </div>
+
+        <div class="passenger-section">
+            <div class="passenger-label"><span class="passenger-badge">ALEX</span><span class="note" style="margin-left:6px;">Sapporo / Tokyo</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/06/13 06:55</div></td>
+                    <td class="time-cell"><div class="time-arr">11:55</div></td>
+                    <td class="flight-no">BR166</td>
+                    <td class="pnr">DESIFJ</td>
+                    <td class="aircraft">A321-200</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">ALEX-旅人玉錫卡</td>
+                    <td class="price-pts">長榮點數 25,000 + NT$1,671<br><span class="note">購買日期 6/26</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/06/21 18:20</div></td>
+                    <td class="time-cell"><div class="time-arr">20:40</div></td>
+                    <td class="flight-no">JL99</td>
+                    <td class="pnr">EPGXDF</td>
+                    <td class="aircraft">B787-8</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="dash">—</td>
+                    <td class="price-pts">亞洲萬里通 13,000里 + HKD646<br><span class="note">購買日期 7/3</span></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="passenger-label"><span class="passenger-badge mark-badge">MARK</span><span class="note" style="margin-left:6px;">Tokyo</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/06/13 06:55</div></td>
+                    <td class="time-cell"><div class="time-arr">11:55</div></td>
+                    <td class="flight-no">BR166</td>
+                    <td class="pnr">DEU2DP</td>
+                    <td class="aircraft">A321-200</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">匯豐旅人卡-mark pay</td>
+                    <td class="price-pts">長榮點數 17,500 + NT$1,671<br><span class="note">購買日期 7/3</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/06/21 15:45</div></td>
+                    <td class="time-cell"><div class="time-arr">18:25</div></td>
+                    <td class="flight-no">CX451</td>
+                    <td class="pnr">D8IDPX</td>
+                    <td class="aircraft">A330-300</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="dash">—</td>
+                    <td class="price-pts">亞洲萬里通 13,000里 + HKD664<br><span class="note">購買日期 7/14</span></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Trip 4 ── -->
+    <div class="trip">
+        <div class="trip-header">
+            <span class="trip-num">Trip 4</span>
+            <div>
+                <div class="trip-dest">🇹🇭 Bangkok (BKK)</div>
+                <div class="trip-dates">2026/09/18 – 2026/09/28</div>
+            </div>
+            <span class="trip-tag">秋季</span>
+        </div>
+
+        <div class="passenger-section">
+            <div class="passenger-label"><span class="passenger-badge">ALEX</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/09/18 22:40</div></td>
+                    <td class="time-cell"><div class="time-arr">01:25 (+1)</div></td>
+                    <td class="flight-no">CI837</td>
+                    <td class="pnr">FJVMLS</td>
+                    <td class="aircraft">Airbus A321neo</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">ALEX-華航信用卡-3500</td>
+                    <td class="price">NT$7,172<br><span class="note">購買日期 2025/10/17</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/09/28 02:40</div></td>
+                    <td class="time-cell"><div class="time-arr">07:25</div></td>
+                    <td class="flight-no">CI838</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="passenger-label"><span class="passenger-badge mark-badge">MARK</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/09/18 22:40</div></td>
+                    <td class="time-cell"><div class="time-arr">01:25 (+1)</div></td>
+                    <td class="flight-no">CI837</td>
+                    <td class="pnr">FJWUHR</td>
+                    <td class="aircraft">Airbus A321neo</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">匯豐旅人卡-mark pay</td>
+                    <td class="price">NT$7,172<br><span class="note">購買日期 10/23</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/09/28 02:40</div></td>
+                    <td class="time-cell"><div class="time-arr">07:25</div></td>
+                    <td class="flight-no">CI838</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Trip 5 ── -->
+    <div class="trip">
+        <div class="trip-header">
+            <span class="trip-num">Trip 5</span>
+            <div>
+                <div class="trip-dest">🇹🇭 Bangkok (BKK)</div>
+                <div class="trip-dates">2026/12/24 – 2027/01/03</div>
+            </div>
+            <span class="trip-tag" style="color:#86efac; border-color:rgba(134,239,172,0.4); background:rgba(134,239,172,0.1);">聖誕跨年</span>
+        </div>
+
+        <div class="passenger-section">
+            <div class="passenger-label"><span class="passenger-badge">ALEX</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/12/24 20:45</div></td>
+                    <td class="time-cell"><div class="time-arr">23:40</div></td>
+                    <td class="flight-no">BR205</td>
+                    <td class="pnr">FZNBP7</td>
+                    <td class="aircraft">Boeing 787-10</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">ALEX-華航信用卡-3500</td>
+                    <td class="price">NT$8,997<br><span class="note">購買日期 1/9</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2027/01/03 02:15</div></td>
+                    <td class="time-cell"><div class="time-arr">06:50</div></td>
+                    <td class="flight-no">BR206</td>
+                    <td class="dash">—</td>
+                    <td class="aircraft">Boeing 787-10</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="passenger-label"><span class="passenger-badge mark-badge">MARK</span></div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>方向</th><th>出發時間</th><th>抵達時間</th><th>班機</th><th>訂位代號</th><th>機型</th><th>票</th><th>支付方式</th><th>票價</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td><span class="badge-go">去程</span></td>
+                    <td class="time-cell"><div class="time-main">2026/12/24 20:45</div></td>
+                    <td class="time-cell"><div class="time-arr">23:40</div></td>
+                    <td class="flight-no">BR205</td>
+                    <td class="pnr">FZKPZ9</td>
+                    <td class="aircraft">Boeing 787-10</td>
+                    <td><span class="link-badge">LINK</span></td>
+                    <td class="note">MARK-華航信用卡</td>
+                    <td class="price">NT$8,997<br><span class="note">購買日期 1/9</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge-back">回程</span></td>
+                    <td class="time-cell"><div class="time-main">2027/01/03 02:15</div></td>
+                    <td class="time-cell"><div class="time-arr">06:50</div></td>
+                    <td class="flight-no">BR206</td>
+                    <td class="dash">—</td>
+                    <td class="aircraft">Boeing 787-10</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                    <td class="dash">—</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
