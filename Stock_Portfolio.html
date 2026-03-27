@@ -473,15 +473,35 @@ function renderStats(rows){
   var net=totalIncome-totalSpend;
   var buyCount=rows.filter(function(r){return r.type==='買'}).length;
   var sellCount=rows.filter(function(r){return r.type==='賣'}).length;
-  var g=document.getElementById('stats-grid');
-  g.innerHTML=[
+
+  // 估算市值 = sum of netShares × todayPrice per (code × person) in this filtered set
+  var prices=getPrices();
+  var posMap={};
+  rows.forEach(function(r){
+    var key=r.code+'|'+(r.person||'alex');
+    if(!posMap[key])posMap[key]={code:r.code,net:0};
+    if(r.type==='買')posMap[key].net+=Number(r.buyShares)||0;
+    else if(r.type==='賣')posMap[key].net-=Number(r.sellShares)||0;
+  });
+  var estMktVal=0,hasPx=false;
+  Object.values(posMap).forEach(function(p){
+    var px=prices[p.code];
+    if(px&&p.net>0){estMktVal+=p.net*px;hasPx=true;}
+  });
+  var netTotal=hasPx?(totalIncome+estMktVal-totalSpend):null;
+
+  var cards=[
     {label:'總筆數',val:txCount,cls:''},
     {label:'買入次數',val:buyCount,cls:''},
     {label:'賣出次數',val:sellCount,cls:''},
     {label:'總買入支出',val:'$'+fmt(totalSpend),cls:'neg'},
     {label:'總賣出收入',val:'$'+fmt(totalIncome),cls:'pos'},
-    {label:'淨現金流',val:(net>=0?'+':'')+fmt(net),cls:net>=0?'pos':'neg'}
-  ].map(function(c){
+    {label:'淨現金流(已平倉)',val:(net>=0?'+':'')+fmt(net),cls:net>=0?'pos':'neg'},
+    {label:'估算市值',val:hasPx?'$'+fmt(estMktVal):'—',cls:''},
+    {label:'含持股淨額',val:netTotal!==null?(netTotal>=0?'+':'')+fmt(netTotal):'—',cls:netTotal===null?'':netTotal>=0?'pos':'neg'}
+  ];
+  var g=document.getElementById('stats-grid');
+  g.innerHTML=cards.map(function(c){
     return '<div class="stat-card"><div class="stat-label">'+c.label+'</div><div class="stat-value '+c.cls+'">'+c.val+'</div></div>';
   }).join('');
 }
