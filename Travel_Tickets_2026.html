@@ -1119,9 +1119,10 @@ function checkPw() {
 }
 
 window.resetAllEdits = function() {
-    if (!confirm('確定清除所有修改並還原原始資料？')) return;
-    localStorage.removeItem(STORE_KEY);
-    location.reload();
+    confirmModal('確定清除所有修改並還原原始資料？', function() {
+        localStorage.removeItem(STORE_KEY);
+        location.reload();
+    });
 };
 
 /* ── Add/remove edit controls ───────────────────────────────── */
@@ -1170,19 +1171,34 @@ function removeControls() {
         .forEach(function(el) { el.remove(); });
 }
 
+/* ── Confirm modal (replaces browser confirm()) ─────────────── */
+function confirmModal(msg, onYes) {
+    document.getElementById('crud-dialog').innerHTML =
+        '<h3 style="color:#f87171;margin:0 0 14px">⚠️ 確認刪除</h3>' +
+        '<p style="color:var(--text);margin:0 0 22px;line-height:1.6">' + msg + '</p>' +
+        '<div class="form-actions">' +
+        '<button class="btn-save" id="cm-yes" style="background:rgba(248,113,113,0.15);border-color:rgba(248,113,113,0.4);color:#f87171">🗑 確定刪除</button>' +
+        '<button class="btn-cancel" id="cm-no">取消</button></div>';
+    document.getElementById('cm-yes').addEventListener('click', function() { hideModal(); onYes(); });
+    document.getElementById('cm-no').addEventListener('click', hideModal);
+    document.getElementById('crud-modal').classList.add('open');
+}
+
 /* ── Delete row / trip ──────────────────────────────────────── */
 function delRow(tr) {
-    if (!confirm('確定刪除這一行？')) return;
-    var s = getStore(); s.deleted = s.deleted || {};
-    s.deleted[tr.dataset.eid] = 1; saveStore(s);
-    tr.style.display = 'none';
+    confirmModal('確定刪除這一行資料？', function() {
+        var s = getStore(); s.deleted = s.deleted || {};
+        s.deleted[tr.dataset.eid] = 1; saveStore(s);
+        tr.style.display = 'none';
+    });
 }
 
 function delTrip(trip) {
-    if (!confirm('確定刪除整個旅程？')) return;
-    var s = getStore(); s.deleted = s.deleted || {};
-    s.deleted[trip.dataset.eid] = 1; saveStore(s);
-    trip.style.display = 'none';
+    confirmModal('確定刪除整個旅程？此操作無法在不還原全部的情況下復原。', function() {
+        var s = getStore(); s.deleted = s.deleted || {};
+        s.deleted[trip.dataset.eid] = 1; saveStore(s);
+        trip.style.display = 'none';
+    });
 }
 
 /* ── Edit trip header ───────────────────────────────────────── */
