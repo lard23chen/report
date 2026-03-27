@@ -540,7 +540,13 @@ async function main() {
         });
 
         // Update cards
-        document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
+        const sessionCard = document.getElementById('valSession').closest('.card');
+        if (d.maxSession > 2000) {
+            sessionCard.style.display = '';
+            document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
+        } else {
+            sessionCard.style.display = 'none';
+        }
         document.getElementById('valActiveDMin').innerText = d.maxActiveDMin.toLocaleString();
         document.getElementById('valActiveAMin').innerText = d.maxActiveAMin.toLocaleString();
         document.getElementById('valMaxOrders').innerText = maxOrders.toLocaleString();
@@ -555,9 +561,11 @@ async function main() {
         document.getElementById('valTime').innerText = d.start.slice(5) + " ~ " + d.end.slice(5);
         document.getElementById('valTimeSub').innerText = "總數據點數: " + d.data.length;
 
-        // Update Table
+        // Update Table — show from 10 rows before peak session onwards
         const tbody = document.querySelector('#dataTable tbody');
-        tbody.innerHTML = d.data.map(item => {
+        const peakIdx = d.data.findIndex(item => item.session === d.maxSession);
+        const displayData = peakIdx >= 0 ? d.data.slice(Math.max(0, peakIdx - 10)) : d.data;
+        tbody.innerHTML = displayData.map(item => {
             const isMax = item.session === d.maxSession && d.maxSession > 0;
             const bg = isMax ? ' style="background: rgba(59, 130, 246, 0.2);"' : '';
             return '<tr' + bg + '>' +
@@ -569,6 +577,7 @@ async function main() {
                 '<td style="color: #e91e63;">' + (item.tickets || 0).toLocaleString() + '</td>' +
                 '</tr>';
         }).join('');
+        document.getElementById('valTimeSub').innerText = "顯示 " + displayData.length + " / 總 " + d.data.length + " 筆";
 
         if (chartInstance) {
             chartInstance.destroy();
