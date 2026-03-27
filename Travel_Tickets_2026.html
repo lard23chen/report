@@ -1658,7 +1658,6 @@ document.addEventListener('DOMContentLoaded', function() {
     /* Modal shell */
     var m = document.createElement('div'); m.id = 'crud-modal';
     m.innerHTML = '<div id="crud-backdrop"></div><div id="crud-dialog"></div>';
-    document.getElementById('crud-backdrop', m).addEventListener('click', window.hideModal);
     document.body.appendChild(m);
     document.getElementById('crud-backdrop').addEventListener('click', window.hideModal);
 });
