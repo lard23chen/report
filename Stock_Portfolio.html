@@ -69,6 +69,9 @@ body.edit-on .act-btn{display:inline-block}
 .err{color:var(--sell);font-size:0.78rem;margin-top:4px}
 .summary-pos{color:var(--buy);font-weight:700}
 .summary-neg{color:var(--sell);font-weight:700}
+.price-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 7px;border-radius:5px;font-size:0.8rem;width:82px;text-align:right}
+.price-input:focus{outline:none;border-color:var(--accent)}
+.est-val{font-weight:700}
 .person-tabs{display:flex;gap:8px;margin-bottom:16px}
 .ptab{padding:7px 20px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.15s}
 .ptab:hover{color:var(--text)}
@@ -98,6 +101,7 @@ body.edit-on .act-btn{display:inline-block}
         <th class="num">買入均價</th><th class="num">現持股數</th>
         <th class="num">總買入支出</th><th class="num">已回收收入</th>
         <th class="num">損益估算</th>
+        <th class="num">今日股價</th><th class="num">估算市值</th>
       </tr></thead>
       <tbody id="summary-body"></tbody>
     </table>
@@ -129,7 +133,7 @@ body.edit-on .act-btn{display:inline-block}
         <th data-col="income" class="num">收入</th>
         <th data-col="person">人員</th>
         <th data-col="note">備註</th>
-        <th style="width:68px">操作</th>
+        <th class="num" style="min-width:90px">今日股價</th>
       </tr></thead>
       <tbody id="tx-body"></tbody>
     </table>
@@ -372,6 +376,11 @@ function dateSort(d){if(!d)return'0';var p=d.split('/');return p[0]+(p[1]||'0').
 
 // ─── State ────────────────────────────────────────────────────────────────────
 var sortCol='date', sortDir='desc', curPage=1, perPage=50, editOn=false;
+
+// ─── Price Store ──────────────────────────────────────────────────────────────
+var PKEY='stock_prices';
+function getPrices(){try{return JSON.parse(localStorage.getItem(PKEY)||'{}')}catch(e){return{}}}
+window.savePrice=function(code,val){var p=getPrices();p[code]=parseFloat(val)||0;localStorage.setItem(PKEY,JSON.stringify(p));render();};
 var activePerson='';
 
 // ─── Person Tab ───────────────────────────────────────────────────────────────
@@ -421,6 +430,7 @@ function renderStats(rows){
 
 // ─── Summary ──────────────────────────────────────────────────────────────────
 function renderSummary(rows){
+  var prices=getPrices();
   var map={};
   rows.forEach(function(r){
     var key=r.code+'|'+(r.person||'alex');
@@ -450,6 +460,10 @@ function renderSummary(rows){
     html+='<td class="num muted">'+fmt(m.totalSpend)+'</td>';
     html+='<td class="num muted">'+fmt(m.totalIncome)+'</td>';
     html+='<td class="num '+plCls+'">'+(plEstimate>=0?'+':'')+fmt(plEstimate)+'</td>';
+    var todayPx=prices[m.code]||0;
+    var estVal=netShares*todayPx;
+    html+='<td class="num"><input class="price-input" type="number" step="0.01" value="'+(todayPx||'')+'" placeholder="輸入" onchange="savePrice(\''+m.code+'\',this.value)"></td>';
+    html+='<td class="num est-val '+(estVal>0?'pos':estVal<0?'neg':'muted')+'">'+(todayPx?fmt(estVal):'—')+'</td>';
     html+='</tr>';
   });
   document.getElementById('summary-body').innerHTML=html;
@@ -522,6 +536,7 @@ function doSort(rows){
 
 // ─── Table ────────────────────────────────────────────────────────────────────
 function renderTable(rows){
+  var prices=getPrices();
   var ths=document.querySelectorAll('#tx-table th[data-col]');
   ths.forEach(function(th){
     th.classList.remove('sort-asc','sort-desc');
@@ -544,7 +559,8 @@ function renderTable(rows){
     html+='<td class="num'+(Number(r.income)>0?' pos':'')+'">'+(Number(r.income)>0?fmt(r.income):'—')+'</td>';
     html+='<td><span class="'+pCls+'">'+(r.person||'alex').toUpperCase()+'</span></td>';
     html+='<td class="muted">'+( r.note||'' )+'</td>';
-    html+='<td><button class="act-btn act-edit" onclick="showEditModal(\''+r._id+'\')">編輯</button> <button class="act-btn act-del" onclick="confirmDel(\''+r._id+'\')">刪除</button></td>';
+    var px=prices[r.code];
+    html+='<td class="num" style="white-space:nowrap">'+(px?fmtP(px):'<span class="muted">—</span>')+'<button class="act-btn act-edit" style="margin-left:6px" onclick="showEditModal(\''+r._id+'\')">編輯</button><button class="act-btn act-del" onclick="confirmDel(\''+r._id+'\')">刪除</button></td>';
     html+='</tr>';
   });
   document.getElementById('tx-body').innerHTML=html;
