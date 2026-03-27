@@ -109,6 +109,39 @@
             font-family: 'Outfit';
             white-space: nowrap;
         }
+
+        .run-info {
+            margin-top: 5px;
+        }
+
+        .run-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 5px;
+            white-space: nowrap;
+        }
+
+        .run-status.success {
+            background: rgba(76, 175, 80, 0.15);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .run-status.error {
+            background: rgba(244, 67, 54, 0.15);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+
+        .run-time {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-family: 'Outfit', monospace;
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -163,7 +196,12 @@
                 <td><a href="https://lard23chen.github.io/report/A_Qware_Revenue_Report_Daily.html" target="_blank">A_Qware_Revenue_Report_Daily.html</a></td>
                 <td>A 系統 每日營業快訊分析</td>
                 <td><span class="table-name">Qware_A_Ticket_data_Daily</span></td>
-                <td>每日 09:00</td>
+                <td>每日 08:00
+                    <div class="run-info">
+                        <span class="run-status success">✓ 成功</span>
+                        <span class="run-time">2026/03/27 08:04</span>
+                    </div>
+                </td>
             </tr>
             <tr>
                 <td>4</td>
@@ -254,7 +292,16 @@
                 <td><a href="https://lard23chen.github.io/report/A_GA_Traffic_Analysis_Report.html" target="_blank">A_GA_Traffic_Analysis_Report.html</a></td>
                 <td>GA 網站流量與閱讀留存分析</td>
                 <td><span class="table-name">QwareTrafficSession</span></td>
-                <td>手動</td>
+                <td>每日 08:00 / 15:00
+                    <div class="run-info">
+                        <span class="run-status success">✓ 成功</span>
+                        <span class="run-time">2026/03/27 08:04 (08:00 排)</span>
+                    </div>
+                    <div class="run-info">
+                        <span class="run-status success">✓ 成功</span>
+                        <span class="run-time">2026/03/26 15:37 (15:00 排)</span>
+                    </div>
+                </td>
             </tr>
             <tr>
                 <td>13</td>
@@ -295,7 +342,12 @@
                 <td><a href="https://lard23chen.github.io/report/daily_expense_report.html" target="_blank">daily_expense_report.html</a></td>
                 <td>每日經費與活動分析報表</td>
                 <td><span class="table-name">AzureMonthlyCost_Daily</span></td>
-                <td>手動</td>
+                <td>每日 08:00
+                    <div class="run-info">
+                        <span class="run-status success">✓ 成功</span>
+                        <span class="run-time">2026/03/27 08:04</span>
+                    </div>
+                </td>
             </tr>
         </tbody>
     </table>

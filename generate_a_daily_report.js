@@ -87,6 +87,22 @@ async function generateDailyReport() {
         const trendDates = Object.keys(salesByDate).sort();
         const trendSales = trendDates.map(d => salesByDate[d]);
 
+        // Daily top ticket event (by transaction date)
+        const dailyEventTicketMap = {};
+        validOrders.forEach(item => {
+            if (!item['交易時間']) return;
+            const date = item['交易時間'].split(' ')[0];
+            const name = item['節目/商品名稱'] || 'Unknown';
+            if (!dailyEventTicketMap[date]) dailyEventTicketMap[date] = {};
+            dailyEventTicketMap[date][name] = (dailyEventTicketMap[date][name] || 0) + 1;
+        });
+        const dailyTopTicketEvent = trendDates.map(date => {
+            const events = dailyEventTicketMap[date];
+            if (!events) return { name: '', tickets: 0 };
+            const top = Object.entries(events).sort((a, b) => b[1] - a[1])[0];
+            return { name: top[0], tickets: top[1] };
+        });
+
         // Refund trend
         const dailyRefundsMap = {};
         refundDocs.forEach(item => {
@@ -200,7 +216,7 @@ async function generateDailyReport() {
         const aggData = {
             totalRows, totalRevenue, totalTickets, totalOrders, aov, totalRefundedTickets, totalRefundFees,
             dailyStats,
-            trendDates, trendSales,
+            trendDates, trendSales, dailyTopTicketEvent,
             refundTrendDates, refundTrendAmounts,
             topByRevenue, topByTickets, topRefunds,
             paymentList, salesPointList
@@ -414,7 +430,7 @@ function init() {
     new Chart(document.getElementById('trendChart'), {
         type: 'line',
         data: { labels: D.trendDates, datasets: [{ label: '每日營收走勢', data: D.trendSales, borderColor: '#00acc1', backgroundColor: 'rgba(0,172,193,0.1)', fill: true, tension: 0.4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '營收趨勢圖 (Sales Trend)' }, tooltip: { mode: 'index', intersect: false }, datalabels: { display: true, align: 'top', anchor: 'end', color: '#00acc1', font: { size: 11 }, formatter: v => v >= 1000 ? '$' + (v/1000).toFixed(0) + 'K' : '$' + v.toLocaleString() } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '營收趨勢圖 (Sales Trend)' }, tooltip: { mode: 'index', intersect: false, callbacks: { afterBody: items => { const top = D.dailyTopTicketEvent && D.dailyTopTicketEvent[items[0].dataIndex]; if (top && top.name) { const n = top.name.length > 22 ? top.name.substring(0,22)+'...' : top.name; return ['🎟 最高張數: '+n+' ('+top.tickets+'張)']; } return []; } } }, datalabels: { display: true, align: 'top', anchor: 'end', color: '#00acc1', font: { size: 10 }, formatter: (v, ctx) => { const revLabel = v >= 1000 ? '$'+(v/1000).toFixed(0)+'K' : '$'+v.toLocaleString(); const top = D.dailyTopTicketEvent && D.dailyTopTicketEvent[ctx.dataIndex]; if (top && top.name) { const n = top.name.length > 10 ? top.name.substring(0,10)+'…' : top.name; return [revLabel, n]; } return revLabel; } } } }
     });
 
     // Refund Chart
