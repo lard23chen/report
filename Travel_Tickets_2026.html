@@ -25,12 +25,12 @@
 
         /* Header */
         header { text-align: center; margin-bottom: 32px; }
-        header h1 { font-size: 2.2rem; font-weight: 800; color: var(--accent); letter-spacing: 0.05em; }
-        header p { color: var(--text-muted); margin-top: 8px; font-size: 0.95rem; }
+        header h1 { font-size: 2.5rem; font-weight: 800; color: var(--accent); letter-spacing: 0.05em; }
+        header p { color: var(--text-muted); margin-top: 8px; font-size: 1.05rem; }
 
         /* Tab bar */
         .tab-bar { display: flex; gap: 8px; margin-bottom: 32px; border-bottom: 2px solid var(--card-border); }
-        .tab-btn { padding: 10px 24px; font-size: 0.95rem; font-weight: 600; font-family: inherit; background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; color: var(--text-muted); transition: all 0.2s; border-radius: 6px 6px 0 0; }
+        .tab-btn { padding: 10px 24px; font-size: 1.05rem; font-weight: 600; font-family: inherit; background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; color: var(--text-muted); transition: all 0.2s; border-radius: 6px 6px 0 0; }
         .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
         .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
         .tab-content { display: none; }
@@ -39,44 +39,44 @@
         /* Summary cards */
         .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 36px; }
         .sum-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px 18px; text-align: center; }
-        .sum-card .num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
-        .sum-card .label { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+        .sum-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+        .sum-card .label { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
 
         /* Trip section */
         .trip { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; margin-bottom: 28px; overflow: hidden; box-shadow: var(--shadow); }
         .trip-header { display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-bottom: 1px solid var(--card-border); background: rgba(56,189,248,0.05); flex-wrap: wrap; }
-        .trip-num { background: var(--accent); color: #0f1117; font-weight: 800; font-size: 0.82rem; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
-        .trip-dest { font-size: 1.3rem; font-weight: 700; }
-        .trip-dates { color: var(--text-muted); font-size: 0.88rem; }
-        .trip-tag { margin-left: auto; background: rgba(129,140,248,0.15); border: 1px solid rgba(129,140,248,0.4); color: var(--accent2); font-size: 0.78rem; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+        .trip-num { background: var(--accent); color: #0f1117; font-weight: 800; font-size: 0.93rem; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+        .trip-dest { font-size: 1.45rem; font-weight: 700; }
+        .trip-dates { color: var(--text-muted); font-size: 1rem; }
+        .trip-tag { margin-left: auto; background: rgba(129,140,248,0.15); border: 1px solid rgba(129,140,248,0.4); color: var(--accent2); font-size: 0.9rem; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
 
         /* Passenger sub-section */
         .passenger-section { padding: 14px 22px 0; }
         .passenger-label { display: flex; align-items: center; gap: 8px; margin: 10px 0 8px; flex-wrap: wrap; }
-        .p-badge { font-size: 0.76rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; white-space: nowrap; }
+        .p-badge { font-size: 1rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; white-space: nowrap; }
         .badge-alex { background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); color: var(--accent); }
         .badge-mark { background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.35); color: var(--gold); }
         .badge-frank { background: rgba(167,243,208,0.15); border: 1px solid rgba(167,243,208,0.35); color: #6ee7b7; }
 
         /* Flight table */
         .table-wrap { overflow-x: auto; padding-bottom: 18px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.83rem; min-width: 680px; }
-        th { padding: 9px 11px; text-align: left; color: var(--text-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.94rem; min-width: 680px; }
+        th { padding: 9px 11px; text-align: left; color: var(--text-muted); font-weight: 600; font-size: 0.87rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
         td { padding: 9px 11px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
         tr:last-child td { border-bottom: none; }
 
-        .badge-go { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.73rem; font-weight: 700; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: var(--go); white-space: nowrap; }
-        .badge-back { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.73rem; font-weight: 700; background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.4); color: var(--back); white-space: nowrap; }
+        .badge-go { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: var(--go); white-space: nowrap; }
+        .badge-back { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.4); color: var(--back); white-space: nowrap; }
 
-        .flight-no { font-weight: 700; color: var(--accent); font-family: monospace; font-size: 0.88rem; }
-        .pnr { font-family: monospace; font-size: 0.83rem; color: var(--gold); letter-spacing: 0.08em; }
+        .flight-no { font-weight: 700; color: var(--accent); font-family: monospace; font-size: 1rem; }
+        .pnr { font-family: monospace; font-size: 0.94rem; color: var(--gold); letter-spacing: 0.08em; }
         .price { font-weight: 700; color: #a3e635; white-space: nowrap; }
-        .price-pts { font-size: 0.79rem; color: #c084fc; }
-        .aircraft { color: var(--text-muted); font-size: 0.78rem; white-space: nowrap; }
-        .note { color: var(--text-muted); font-size: 0.76rem; line-height: 1.45; }
+        .price-pts { font-size: 0.91rem; color: #c084fc; }
+        .aircraft { color: var(--text-muted); font-size: 0.9rem; white-space: nowrap; }
+        .note { color: var(--text-muted); font-size: 1rem; line-height: 1.45; }
         .time-main { font-weight: 600; white-space: nowrap; }
-        .time-arr { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
-        .link-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: var(--accent); }
+        .time-arr { font-size: 0.9rem; color: var(--text-muted); white-space: nowrap; }
+        .link-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.82rem; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: var(--accent); }
         .dash { color: #3a3d4a; }
 
         /* History tab dim */
@@ -85,13 +85,13 @@
 
         /* Hotel section */
         .hotel-section { padding: 0 22px 18px; border-top: 1px solid var(--card-border); margin-top: 2px; }
-        .hotel-section-title { font-size: 0.76rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0 8px; display: flex; align-items: center; gap: 6px; }
+        .hotel-section-title { font-size: 1rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0 8px; display: flex; align-items: center; gap: 6px; }
         .hotel-table { overflow-x: auto; }
         .hotel-table table { width: 100%; min-width: 620px; }
-        .hotel-name { font-weight: 600; color: var(--text); font-size: 0.82rem; }
-        .hotel-system { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 0.7rem; background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.3); color: #a78bfa; white-space: nowrap; }
+        .hotel-name { font-weight: 600; color: var(--text); font-size: 0.93rem; }
+        .hotel-system { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 0.82rem; background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.3); color: #a78bfa; white-space: nowrap; }
         .hotel-pts { color: #c084fc; font-weight: 700; white-space: nowrap; }
-        .hotel-cancel { font-size: 0.7rem; color: var(--text-muted); }
+        .hotel-cancel { font-size: 0.82rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
