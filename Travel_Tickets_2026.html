@@ -92,6 +92,129 @@
         .hotel-system { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 0.82rem; background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.3); color: #a78bfa; white-space: nowrap; }
         .hotel-pts { color: #c084fc; font-weight: 700; white-space: nowrap; }
         .hotel-cancel { font-size: 0.82rem; color: var(--text-muted); }
+
+        /* ── Edit Toolbar ─────────────────────────────── */
+        #edit-toolbar {
+            position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+        }
+        #edit-toggle {
+            padding: 11px 20px; border-radius: 25px;
+            border: 1px solid rgba(56,189,248,0.4);
+            background: rgba(15,17,23,0.92); color: var(--accent);
+            font-weight: 700; font-size: 0.9rem; cursor: pointer;
+            font-family: inherit; transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+        }
+        #edit-toggle:hover { background: rgba(56,189,248,0.15); }
+        #edit-toggle.active {
+            background: rgba(74,222,128,0.12);
+            border-color: rgba(74,222,128,0.45); color: #4ade80;
+        }
+        #reset-btn {
+            padding: 7px 14px; border-radius: 20px;
+            border: 1px solid rgba(248,113,113,0.35);
+            background: rgba(15,17,23,0.92); color: #f87171;
+            font-size: 0.78rem; cursor: pointer; font-family: inherit;
+            display: none; transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        #reset-btn:hover { background: rgba(248,113,113,0.1); }
+
+        /* ── Edit Mode Row Controls ────────────────────── */
+        .th-actions { width: 58px !important; min-width: 58px; }
+        .row-actions { white-space: nowrap; text-align: right; padding: 4px 8px !important; }
+        .ea-btn {
+            background: none; border: none; cursor: pointer;
+            padding: 3px 5px; font-size: 0.82rem; border-radius: 5px;
+            opacity: 0.45; transition: opacity 0.15s, background 0.15s;
+            line-height: 1;
+        }
+        .ea-btn:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+        .ea-del:hover { background: rgba(248,113,113,0.15); }
+        .add-row-wrap { padding: 4px 0 4px; }
+        .add-row-btn {
+            width: 100%; padding: 7px 12px; background: rgba(56,189,248,0.05);
+            border: 1px dashed rgba(56,189,248,0.22); color: var(--accent);
+            border-radius: 7px; cursor: pointer; font-size: 0.82rem;
+            font-family: inherit; transition: all 0.15s; text-align: center;
+        }
+        .add-row-btn:hover { background: rgba(56,189,248,0.12); border-style: solid; }
+        .trip-del-btn {
+            margin-left: 10px; padding: 3px 10px; border-radius: 14px;
+            border: 1px solid rgba(248,113,113,0.3); background: rgba(248,113,113,0.08);
+            color: #f87171; font-size: 0.75rem; cursor: pointer; font-family: inherit;
+            transition: all 0.15s;
+        }
+        .trip-del-btn:hover { background: rgba(248,113,113,0.2); }
+        .add-trip-section {
+            margin-top: 8px; padding: 16px 22px;
+            border: 1px dashed rgba(56,189,248,0.2); border-radius: 12px;
+            text-align: center; display: none;
+        }
+        body.edit-mode .add-trip-section { display: block; }
+
+        /* ── Modal ─────────────────────────────────────── */
+        #crud-modal {
+            position: fixed; inset: 0; z-index: 9000;
+            display: none; align-items: center; justify-content: center;
+        }
+        #crud-modal.open { display: flex; }
+        #crud-backdrop {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+        }
+        #crud-dialog {
+            position: relative; background: #1a1d27;
+            border: 1px solid #2e3348; border-radius: 16px;
+            padding: 28px 30px; width: 92%; max-width: 560px;
+            max-height: 88vh; overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+            animation: slideUp 0.18s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        #crud-dialog h3 { margin: 0 0 18px; font-size: 1rem; }
+        .form-row { margin-bottom: 13px; }
+        .form-row label {
+            display: block; font-size: 0.73rem; color: var(--text-muted);
+            margin-bottom: 5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .form-row input, .form-row select {
+            width: 100%; padding: 9px 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+            color: var(--text); font-size: 0.9rem; font-family: inherit;
+            transition: border-color 0.15s;
+        }
+        .form-row input:focus, .form-row select:focus {
+            outline: none; border-color: var(--accent);
+            background: rgba(56,189,248,0.06);
+        }
+        .form-row select option { background: #1a1d27; }
+        .form-actions {
+            display: flex; gap: 10px; margin-top: 22px; justify-content: flex-end;
+        }
+        .btn-save {
+            padding: 9px 24px;
+            background: rgba(56,189,248,0.14); border: 1px solid rgba(56,189,248,0.4);
+            color: var(--accent); border-radius: 8px; cursor: pointer;
+            font-weight: 700; font-size: 0.9rem; font-family: inherit;
+            transition: all 0.15s;
+        }
+        .btn-save:hover { background: rgba(56,189,248,0.25); }
+        .btn-cancel {
+            padding: 9px 18px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);
+            border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+            font-family: inherit; transition: all 0.15s;
+        }
+        .btn-cancel:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
     </style>
 </head>
 <body>
@@ -1187,5 +1310,407 @@ function switchTab(year, btn) {
     btn.classList.add('active');
 }
 </script>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║              TRAVEL CRUD MODULE  v1.0                       ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function () {
+'use strict';
+
+const STORE_KEY = 'travel-crud-v1';
+function getStore() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } }
+function saveStore(s) { localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+
+let editModeOn = false;
+let _pendingTbody = null;   // for add-row context
+
+// ── ID Assignment ──────────────────────────────────────────────
+function assignIds() {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.querySelectorAll('.trip').forEach((trip, ti) => {
+            if (!trip.dataset.eid) trip.dataset.eid = tab.id + ':t' + ti;
+            trip.querySelectorAll('tbody').forEach((tb, bi) => {
+                if (!tb.dataset.eid) tb.dataset.eid = trip.dataset.eid + ':b' + bi;
+                tb.querySelectorAll('tr').forEach((tr, ri) => {
+                    if (!tr.dataset.eid) tr.dataset.eid = tb.dataset.eid + ':r' + ri;
+                });
+            });
+        });
+    });
+}
+
+// ── Apply Stored State ─────────────────────────────────────────
+function applyStore() {
+    const s = getStore();
+
+    // Deletions
+    Object.keys(s.deleted || {}).forEach(id => {
+        const el = document.querySelector('[data-eid="' + id + '"]');
+        if (el) el.style.display = 'none';
+    });
+
+    // Row edits: store each td's innerHTML array
+    Object.entries(s.rowEdits || {}).forEach(function([id, cells]) {
+        const tr = document.querySelector('[data-eid="' + id + '"]');
+        if (!tr) return;
+        const tds = tr.querySelectorAll('td:not(.row-actions)');
+        cells.forEach(function(html, i) { if (tds[i]) tds[i].outerHTML = html; });
+    });
+
+    // Additions
+    Object.entries(s.added || {}).forEach(function([tbId, rows]) {
+        const tbody = document.querySelector('[data-eid="' + tbId + '"]');
+        if (!tbody) return;
+        rows.forEach(function(rowHtml) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = rowHtml;
+            tr.dataset.eid = tbId + ':added' + Math.random().toString(36).slice(2);
+            tbody.appendChild(tr);
+        });
+    });
+
+    // Trip header edits
+    Object.entries(s.tripEdits || {}).forEach(function([id, data]) {
+        const trip = document.querySelector('[data-eid="' + id + '"]');
+        if (!trip) return;
+        if (data.dest) { const el = trip.querySelector('.trip-dest'); if (el) el.textContent = data.dest; }
+        if (data.dates) { const el = trip.querySelector('.trip-dates'); if (el) el.textContent = data.dates; }
+        if (data.tag) { const el = trip.querySelector('.trip-tag'); if (el) el.textContent = data.tag; }
+    });
+}
+
+// ── Toggle Edit Mode ───────────────────────────────────────────
+window.toggleEditMode = function() {
+    editModeOn = !editModeOn;
+    const btn = document.getElementById('edit-toggle');
+    const resetBtn = document.getElementById('reset-btn');
+    if (editModeOn) {
+        document.body.classList.add('edit-mode');
+        btn.textContent = '✅ 完成編輯';
+        btn.classList.add('active');
+        resetBtn.style.display = 'block';
+        addEditControls();
+    } else {
+        document.body.classList.remove('edit-mode');
+        btn.textContent = '✏️ 編輯';
+        btn.classList.remove('active');
+        resetBtn.style.display = 'none';
+        removeEditControls();
+    }
+};
+
+window.resetAllEdits = function() {
+    if (!confirm('確定清除所有修改？這將還原至原始資料。')) return;
+    localStorage.removeItem(STORE_KEY);
+    location.reload();
+};
+
+function addEditControls() {
+    // Add action column to each table
+    document.querySelectorAll('.tab-content table').forEach(function(table) {
+        var thead = table.querySelector('thead tr');
+        if (thead && !thead.querySelector('.th-actions')) {
+            var th = document.createElement('th');
+            th.className = 'th-actions';
+            thead.appendChild(th);
+        }
+        table.querySelectorAll('tbody tr').forEach(function(tr) {
+            if (!tr.querySelector('.row-actions')) {
+                var td = document.createElement('td');
+                td.className = 'row-actions';
+                td.innerHTML = '<button class="ea-btn" onclick="editRow(this)" title="編輯">✏️</button>'
+                             + '<button class="ea-btn ea-del" onclick="delRow(this)" title="刪除">🗑</button>';
+                tr.appendChild(td);
+            }
+        });
+        // Add Row button
+        if (!table.nextElementSibling || !table.nextElementSibling.classList.contains('add-row-wrap')) {
+            var wrap = document.createElement('div');
+            wrap.className = 'add-row-wrap';
+            var ab = document.createElement('button');
+            ab.className = 'add-row-btn';
+            ab.textContent = '＋ 新增一行';
+            (function(t){ ab.onclick = function(){ openAddModal(t.querySelector('tbody')); }; })(table);
+            wrap.appendChild(ab);
+            table.after(wrap);
+        }
+    });
+
+    // Add delete + edit buttons to trip headers
+    document.querySelectorAll('.tab-content .trip-header').forEach(function(hdr) {
+        if (hdr.querySelector('.trip-del-btn')) return;
+        var editBtn = document.createElement('button');
+        editBtn.className = 'trip-del-btn';
+        editBtn.style.background = 'rgba(56,189,248,0.08)';
+        editBtn.style.borderColor = 'rgba(56,189,248,0.3)';
+        editBtn.style.color = 'var(--accent)';
+        editBtn.textContent = '✏️ 編輯標題';
+        (function(h){ editBtn.onclick = function(){ editTripHeader(h); }; })(hdr);
+        var delBtn = document.createElement('button');
+        delBtn.className = 'trip-del-btn';
+        delBtn.textContent = '🗑 刪除旅程';
+        (function(h){ delBtn.onclick = function(){ delTrip(h.closest('.trip')); }; })(hdr);
+        hdr.appendChild(editBtn);
+        hdr.appendChild(delBtn);
+    });
+}
+
+function removeEditControls() {
+    document.querySelectorAll('.th-actions, .row-actions, .add-row-wrap, .trip-del-btn').forEach(function(el){ el.remove(); });
+}
+
+// ── Delete Row ─────────────────────────────────────────────────
+window.delRow = function(btn) {
+    var tr = btn.closest('tr');
+    if (!confirm('確定刪除這一行？')) return;
+    var s = getStore();
+    s.deleted = s.deleted || {};
+    s.deleted[tr.dataset.eid] = true;
+    saveStore(s);
+    tr.style.display = 'none';
+};
+
+// ── Delete Trip ────────────────────────────────────────────────
+function delTrip(trip) {
+    if (!confirm('確定刪除整個旅程？')) return;
+    var s = getStore();
+    s.deleted = s.deleted || {};
+    s.deleted[trip.dataset.eid] = true;
+    saveStore(s);
+    trip.style.display = 'none';
+}
+
+// ── Edit Trip Header ───────────────────────────────────────────
+function editTripHeader(hdr) {
+    var trip = hdr.closest('.trip');
+    var dest  = (hdr.querySelector('.trip-dest')  || {}).textContent || '';
+    var dates = (hdr.querySelector('.trip-dates') || {}).textContent || '';
+    var tag   = (hdr.querySelector('.trip-tag')   || {}).textContent || '';
+    showModal(
+        '<h3 style="color:var(--accent)">✏️ 編輯旅程標題</h3>' +
+        '<form id="trip-form" onsubmit="saveTripHeader(event,'' + trip.dataset.eid + '')">' +
+        '<div class="form-row"><label>目的地</label><input type="text" id="tf-dest" value="' + esc(dest) + '"></div>' +
+        '<div class="form-row"><label>日期</label><input type="text" id="tf-dates" value="' + esc(dates) + '" placeholder="2026/04/09 – 2026/04/19"></div>' +
+        '<div class="form-row"><label>標籤</label><input type="text" id="tf-tag" value="' + esc(tag) + '"></div>' +
+        '<div class="form-actions">' +
+        '<button type="submit" class="btn-save">💾 儲存</button>' +
+        '<button type="button" class="btn-cancel" onclick="hideModal()">取消</button>' +
+        '</div></form>'
+    );
+}
+
+window.saveTripHeader = function(ev, tripEid) {
+    ev.preventDefault();
+    var trip = document.querySelector('[data-eid="' + tripEid + '"]');
+    if (!trip) return hideModal();
+    var dest  = document.getElementById('tf-dest').value;
+    var dates = document.getElementById('tf-dates').value;
+    var tag   = document.getElementById('tf-tag').value;
+    if (dest)  { var el = trip.querySelector('.trip-dest');  if (el) el.textContent = dest; }
+    if (dates) { var el = trip.querySelector('.trip-dates'); if (el) el.textContent = dates; }
+    if (tag)   { var el = trip.querySelector('.trip-tag');   if (el) el.textContent = tag; }
+    var s = getStore(); s.tripEdits = s.tripEdits || {};
+    s.tripEdits[tripEid] = { dest, dates, tag };
+    saveStore(s); hideModal();
+};
+
+// ── Edit Row ───────────────────────────────────────────────────
+window.editRow = function(btn) {
+    var tr = btn.closest('tr');
+    var isHotel = !!tr.closest('.hotel-section');
+    var tds = Array.from(tr.querySelectorAll('td:not(.row-actions)'));
+    var ths = Array.from(tr.closest('table').querySelectorAll('thead th:not(.th-actions)'));
+
+    var fields = tds.map(function(td, i) {
+        var label = ths[i] ? ths[i].textContent.trim() : ('欄' + (i+1));
+        var val = td.textContent.trim().replace(/\s+/g,' ');
+        return '<div class="form-row"><label>' + label + '</label>' +
+               '<input type="text" data-idx="' + i + '" value="' + esc(val) + '"></div>';
+    }).join('');
+
+    showModal(
+        '<h3 style="color:var(--accent)">✏️ 編輯行</h3>' +
+        '<form id="edit-form" onsubmit="saveRowEdit(event,'' + tr.dataset.eid + '')">' +
+        fields +
+        '<div class="form-actions">' +
+        '<button type="submit" class="btn-save">💾 儲存</button>' +
+        '<button type="button" class="btn-cancel" onclick="hideModal()">取消</button>' +
+        '</div></form>'
+    );
+};
+
+window.saveRowEdit = function(ev, trEid) {
+    ev.preventDefault();
+    var tr = document.querySelector('[data-eid="' + trEid + '"]');
+    if (!tr) return hideModal();
+    var isHotel = !!tr.closest('.hotel-section');
+    var tds = Array.from(tr.querySelectorAll('td:not(.row-actions)'));
+    var inputs = document.querySelectorAll('#edit-form input[type="text"]');
+    var savedHtmls = [];
+
+    inputs.forEach(function(inp) {
+        var i = parseInt(inp.dataset.idx);
+        var td = tds[i]; if (!td) return;
+        var val = inp.value;
+        if (isHotel) {
+            if (i === 0)       { td.className = 'hotel-name';   td.textContent = val; }
+            else if (i === 1)  { td.className = ''; td.innerHTML = val && val !== '—' ? '<span class="hotel-system">' + val + '</span>' : '<span class="dash">—</span>'; }
+            else if (i===2||i===3) { td.className = 'hotel-dates'; td.textContent = val; }
+            else if (i === 4)  { td.className = 'note'; td.style.textAlign='center'; td.textContent = val; }
+            else if (i === 5)  { td.className = 'note'; td.textContent = val; }
+            else if (i === 6)  {
+                var isP = /[Pp]oint|積分|P$|哩|里/.test(val);
+                td.className = isP ? 'hotel-pts' : 'price'; td.textContent = val;
+            }
+            else { td.className = val && val !== '—' ? 'note' : 'dash'; td.textContent = val; }
+        } else {
+            // Flight row: preserve class, just update textContent for simple cells
+            td.textContent = val;
+        }
+        savedHtmls[i] = td.outerHTML;
+    });
+
+    var s = getStore(); s.rowEdits = s.rowEdits || {};
+    s.rowEdits[trEid] = savedHtmls;
+    saveStore(s); hideModal();
+};
+
+// ── Add Row ────────────────────────────────────────────────────
+window.openAddModal = function(tbody) {
+    _pendingTbody = tbody;
+    var isHotel = !!tbody.closest('.hotel-section');
+    var ths = Array.from(tbody.closest('table').querySelectorAll('thead th:not(.th-actions)'));
+
+    var fields;
+    if (isHotel) {
+        fields =
+            '<div class="form-row"><label>酒店名稱</label><input type="text" id="h0" placeholder="Hotel Name"></div>' +
+            '<div class="form-2col">' +
+            '<div class="form-row"><label>體系</label><input type="text" id="h1" placeholder="IHG / Marriott / 私享"></div>' +
+            '<div class="form-row"><label>支付</label><input type="text" id="h5" placeholder="大戶(4708)"></div>' +
+            '</div>' +
+            '<div class="form-2col">' +
+            '<div class="form-row"><label>入住</label><input type="text" id="h2" placeholder="4/12"></div>' +
+            '<div class="form-row"><label>退房</label><input type="text" id="h3" placeholder="4/17"></div>' +
+            '</div>' +
+            '<div class="form-2col">' +
+            '<div class="form-row"><label>晚數</label><input type="number" id="h4" min="1" placeholder="5"></div>' +
+            '<div class="form-row"><label>價錢</label><input type="text" id="h6" placeholder="THB 30,000 / 50,000P"></div>' +
+            '</div>' +
+            '<div class="form-row"><label>備註</label><input type="text" id="h7" placeholder="含早餐 · 可升等"></div>';
+    } else {
+        fields = ths.map(function(th, i) {
+            return '<div class="form-row"><label>' + th.textContent.trim() + '</label>' +
+                   '<input type="text" data-idx="' + i + '" placeholder="' + th.textContent.trim() + '"></div>';
+        }).join('');
+    }
+
+    showModal(
+        '<h3 style="color:var(--accent)">＋ 新增行</h3>' +
+        '<form id="add-form" onsubmit="saveNewRow(event)">' +
+        fields +
+        '<div class="form-actions">' +
+        '<button type="submit" class="btn-save">＋ 新增</button>' +
+        '<button type="button" class="btn-cancel" onclick="hideModal()">取消</button>' +
+        '</div></form>'
+    );
+};
+
+window.saveNewRow = function(ev) {
+    ev.preventDefault();
+    var tbody = _pendingTbody;
+    if (!tbody) return hideModal();
+    var isHotel = !!tbody.closest('.hotel-section');
+    var tds = '';
+
+    if (isHotel) {
+        var h0=v('h0'), h1=v('h1'), h2=v('h2'), h3=v('h3'), h4=v('h4'), h5=v('h5'), h6=v('h6'), h7=v('h7');
+        var nights = h4 || (h2 && h3 ? dateDiff(h2, h3) : '—');
+        var isP = /[Pp]oint|積分|P$|哩|里/.test(h6);
+        tds =
+            '<td class="hotel-name">' + (h0||'—') + '</td>' +
+            (h1 ? '<td><span class="hotel-system">' + h1 + '</span></td>' : '<td class="dash">—</td>') +
+            '<td class="hotel-dates">' + (h2||'—') + '</td>' +
+            '<td class="hotel-dates">' + (h3||'—') + '</td>' +
+            '<td class="note" style="text-align:center">' + nights + '</td>' +
+            '<td class="note">' + (h5||'—') + '</td>' +
+            '<td class="' + (isP ? 'hotel-pts' : 'price') + '">' + (h6||'—') + '</td>' +
+            (h7 ? '<td class="note">' + h7 + '</td>' : '<td class="dash">—</td>');
+    } else {
+        var ths = Array.from(tbody.closest('table').querySelectorAll('thead th:not(.th-actions)'));
+        var inputs = document.querySelectorAll('#add-form input[type="text"]');
+        inputs.forEach(function(inp, i) { tds += '<td>' + (inp.value||'—') + '</td>'; });
+    }
+
+    var tr = document.createElement('tr');
+    tr.innerHTML = tds;
+    var newId = tbody.dataset.eid + ':added' + Date.now();
+    tr.dataset.eid = newId;
+    if (editModeOn) {
+        var td = document.createElement('td');
+        td.className = 'row-actions';
+        td.innerHTML = '<button class="ea-btn" onclick="editRow(this)">✏️</button>'
+                     + '<button class="ea-btn ea-del" onclick="delRow(this)">🗑</button>';
+        tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+
+    var s = getStore(); s.added = s.added || {};
+    if (!s.added[tbody.dataset.eid]) s.added[tbody.dataset.eid] = [];
+    s.added[tbody.dataset.eid].push(tds);
+    saveStore(s); hideModal();
+};
+
+// ── Modal helpers ──────────────────────────────────────────────
+window.showModal = function(html) {
+    document.getElementById('crud-modal').classList.add('open');
+    document.getElementById('crud-dialog').innerHTML = html;
+};
+window.hideModal = function() {
+    document.getElementById('crud-modal').classList.remove('open');
+    _pendingTbody = null;
+};
+
+// ── Utilities ──────────────────────────────────────────────────
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function v(id)  { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function dateDiff(a, b) {
+    // Try to compute nights from "M/D" strings within same year
+    try {
+        var now = new Date();
+        var ya = new Date(now.getFullYear() + '/' + a);
+        var yb = new Date(now.getFullYear() + '/' + b);
+        if (yb < ya) yb.setFullYear(yb.getFullYear() + 1);
+        var d = Math.round((yb - ya) / 86400000);
+        return d > 0 ? d : '—';
+    } catch { return '—'; }
+}
+
+// ── Init ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    assignIds();
+    applyStore();
+
+    // Inject edit toolbar
+    var toolbar = document.createElement('div');
+    toolbar.id = 'edit-toolbar';
+    toolbar.innerHTML =
+        '<button id="edit-toggle" onclick="toggleEditMode()">✏️ 編輯</button>' +
+        '<button id="reset-btn" onclick="resetAllEdits()">🔄 還原全部</button>';
+    document.body.appendChild(toolbar);
+
+    // Inject modal
+    var modal = document.createElement('div');
+    modal.id = 'crud-modal';
+    modal.innerHTML =
+        '<div id="crud-backdrop" onclick="hideModal()"></div>' +
+        '<div id="crud-dialog"></div>';
+    document.body.appendChild(modal);
+});
+
+})();
+</script>
+
 </body>
 </html>
