@@ -96,7 +96,8 @@ body.edit-on .act-btn{display:inline-block}
   <div class="filters">
     <select id="f-person"><option value="">全部人員</option><option value="alex">Alex</option><option value="mark">Mark</option></select>
     <select id="f-year"><option value="">全部年份</option></select>
-    <select id="f-code"><option value="">全部股票</option></select>
+    <select id="f-code"><option value="">全部代號</option></select>
+    <select id="f-name"><option value="">全部名稱</option></select>
     <select id="f-type"><option value="">全部類型</option><option value="買">買入</option><option value="賣">賣出</option><option value="股利">股利</option></select>
     <input type="text" id="f-search" placeholder="搜尋名稱/代號…" style="width:160px">
     <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
@@ -356,7 +357,7 @@ function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US'
 function fmtP(n){if(!n&&n!==0)return'—';return Number(n).toFixed(2)}
 function shares(r){return r.type==='賣'?r.sellShares:r.buyShares}
 function price(r){return r.type==='賣'?r.sellPrice:r.buyPrice}
-function dateSort(d){return d?d.replace(/\//g,''):'0'}
+function dateSort(d){if(!d)return'0';var p=d.split('/');return p[0]+(p[1]||'0').padStart(2,'0')+(p[2]||'0').padStart(2,'0');}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 var sortCol='date', sortDir='desc', curPage=1, perPage=50, editOn=false;
@@ -434,10 +435,10 @@ function renderSummary(rows){
 
 // ─── Filters ─────────────────────────────────────────────────────────────────
 function populateFilters(rows){
-  var years=new Set(), codes=new Set();
+  var years=new Set(), codeNameMap={};
   rows.forEach(function(r){
     if(r.date)years.add(r.date.split('/')[0]);
-    if(r.code)codes.add(r.code);
+    if(r.code&&!codeNameMap[r.code])codeNameMap[r.code]=r.name||r.code;
   });
   var ysel=document.getElementById('f-year');
   var existing=Array.from(ysel.options).map(function(o){return o.value});
@@ -446,27 +447,35 @@ function populateFilters(rows){
   });
   var csel=document.getElementById('f-code');
   var existingC=Array.from(csel.options).map(function(o){return o.value});
-  Array.from(codes).sort().forEach(function(c){
-    if(!existingC.includes(c)){var o=document.createElement('option');o.value=o.textContent=c;csel.appendChild(o);}
+  Object.keys(codeNameMap).sort().forEach(function(c){
+    if(!existingC.includes(c)){var o=document.createElement('option');o.value=c;o.textContent=c+' '+codeNameMap[c];csel.appendChild(o);}
+  });
+  var nsel=document.getElementById('f-name');
+  var existingN=Array.from(nsel.options).map(function(o){return o.value});
+  var names=Array.from(new Set(Object.values(codeNameMap))).sort();
+  names.forEach(function(n){
+    if(!existingN.includes(n)){var o=document.createElement('option');o.value=o.textContent=n;nsel.appendChild(o);}
   });
 }
 function applyFilters(rows){
   var person=document.getElementById('f-person').value;
   var year=document.getElementById('f-year').value;
   var code=document.getElementById('f-code').value;
+  var name=document.getElementById('f-name').value;
   var type=document.getElementById('f-type').value;
   var search=document.getElementById('f-search').value.trim().toLowerCase();
   return rows.filter(function(r){
     if(person&&(r.person||'alex')!==person)return false;
     if(year&&(!r.date||r.date.split('/')[0]!==year))return false;
     if(code&&r.code!==code)return false;
+    if(name&&r.name!==name)return false;
     if(type&&r.type!==type)return false;
     if(search&&!(r.code.toLowerCase().includes(search)||r.name.toLowerCase().includes(search)))return false;
     return true;
   });
 }
 function resetFilters(){
-  ['f-person','f-year','f-code','f-type'].forEach(function(id){document.getElementById(id).value='';});
+  ['f-person','f-year','f-code','f-name','f-type'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('f-search').value='';
   curPage=1; render();
 }
@@ -667,7 +676,7 @@ document.getElementById('tx-table').querySelector('thead').addEventListener('cli
 });
 
 // ─── Filter change ────────────────────────────────────────────────────────────
-['f-person','f-year','f-code','f-type'].forEach(function(id){
+['f-person','f-year','f-code','f-name','f-type'].forEach(function(id){
   document.getElementById(id).addEventListener('change',function(){curPage=1;render();});
 });
 document.getElementById('f-search').addEventListener('input',function(){curPage=1;render();});
