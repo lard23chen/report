@@ -3,94 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>機票總覽 2025–2026</title>
+    <title>機票總覽 2025–2026 | Flight Overview</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f1117;
-            --card-bg: #1a1d27;
-            --card-border: #2a2d3a;
-            --text: #e2e8f0;
-            --text-muted: #8892a4;
-            --accent: #38bdf8;
-            --accent2: #818cf8;
-            --go: #34d399;
-            --back: #f87171;
-            --gold: #fbbf24;
-            --shadow: 0 4px 20px rgba(0,0,0,0.4);
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #0284c7;
+            --accent2: #4f46e5;
+            --go: #059669;
+            --back: #dc2626;
+            --gold: #b45309;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; min-height: 100vh; }
-        .container { max-width: 1100px; margin: 0 auto; }
+        body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; min-height: 100vh; overflow-x: hidden; }
+        .container { max-width: 1150px; margin: 0 auto; }
+
+        .en { display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 400; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.02em; }
+        header .en { font-size: 1.1rem; text-transform: none; margin-top: 4px; }
 
         /* Header */
         header { text-align: center; margin-bottom: 32px; }
-        header h1 { font-size: 2.5rem; font-weight: 800; color: var(--accent); letter-spacing: 0.05em; }
-        header p { color: var(--text-muted); margin-top: 8px; font-size: 1.05rem; }
+        header h1 { font-size: 2.5rem; font-weight: 800; color: var(--accent); letter-spacing: 0.05em; line-height: 1.1; }
+        header p { color: var(--text-muted); margin-top: 12px; font-size: 1.05rem; }
 
         /* Tab bar */
-        .tab-bar { display: flex; gap: 8px; margin-bottom: 32px; border-bottom: 2px solid var(--card-border); }
-        .tab-btn { padding: 10px 24px; font-size: 1.05rem; font-weight: 600; font-family: inherit; background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; color: var(--text-muted); transition: all 0.2s; border-radius: 6px 6px 0 0; }
-        .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+        .tab-bar { display: flex; gap: 8px; margin-bottom: 32px; border-bottom: 2px solid var(--card-border); overflow-x: auto; scrollbar-width: none; }
+        .tab-bar::-webkit-scrollbar { display: none; }
+        .tab-btn { padding: 8px 20px; font-size: 1rem; font-weight: 600; font-family: inherit; background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; color: var(--text-muted); transition: all 0.2s; border-radius: 6px 6px 0 0; text-align: center; line-height: 1.2; flex-shrink: 0; }
+        .tab-btn .en { font-size: 0.7rem; }
+        .tab-btn:hover { color: var(--text); background: rgba(0,0,0,0.04); }
         .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
         /* Summary cards */
-        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 36px; }
-        .sum-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px 18px; text-align: center; }
-        .sum-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
-        .sum-card .label { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 36px; }
+        .sum-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; text-align: center; box-shadow: var(--shadow); }
+        .sum-card .num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+        .sum-card .label { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; line-height: 1.2; }
 
         /* Trip section */
         .trip { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; margin-bottom: 28px; overflow: hidden; box-shadow: var(--shadow); }
-        .trip-header { display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-bottom: 1px solid var(--card-border); background: rgba(56,189,248,0.05); flex-wrap: wrap; }
-        .trip-num { background: var(--accent); color: #0f1117; font-weight: 800; font-size: 0.93rem; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
-        .trip-dest { font-size: 1.45rem; font-weight: 700; }
+        .trip-header { display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-bottom: 1px solid var(--card-border); background: #f1f5f9; flex-wrap: wrap; }
+        .trip-num { background: var(--accent); color: #ffffff; font-weight: 800; font-size: 0.93rem; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+        .trip-dest { font-size: 1.45rem; font-weight: 700; color: var(--text); }
         .trip-dates { color: var(--text-muted); font-size: 1rem; }
-        .trip-tag { margin-left: auto; background: rgba(129,140,248,0.15); border: 1px solid rgba(129,140,248,0.4); color: var(--accent2); font-size: 0.9rem; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+        .trip-tag { margin-left: auto; background: #e0e7ff; border: 1px solid #c7d2fe; color: var(--accent2); font-size: 0.9rem; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
 
         /* Passenger sub-section */
         .passenger-section { padding: 14px 22px 0; }
         .passenger-label { display: flex; align-items: center; gap: 8px; margin: 10px 0 8px; flex-wrap: wrap; }
         .p-badge { font-size: 1rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; white-space: nowrap; }
-        .badge-alex { background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); color: var(--accent); }
-        .badge-mark { background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.35); color: var(--gold); }
-        .badge-frank { background: rgba(167,243,208,0.15); border: 1px solid rgba(167,243,208,0.35); color: #6ee7b7; }
+        .badge-alex { background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; }
+        .badge-mark { background: #fef3c7; border: 1px solid #fde68a; color: #b45309; }
+        .badge-frank { background: #d1fae5; border: 1px solid #a7f3d0; color: #047857; }
 
         /* Flight table */
-        .table-wrap { overflow-x: auto; padding-bottom: 18px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.94rem; min-width: 680px; }
-        th { padding: 9px 11px; text-align: left; color: var(--text-muted); font-weight: 600; font-size: 0.87rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
-        td { padding: 9px 11px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+        .table-wrap { overflow-x: auto; padding-bottom: 18px; scrollbar-width: thin; scrollbar-color: var(--card-border) transparent; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 800px; table-layout: fixed; }
+        th { padding: 10px 8px; text-align: left; color: var(--text-muted); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.02em; border-bottom: 2px solid var(--card-border); vertical-align: bottom; line-height: 1.2; background: #fafafa; }
+        td { padding: 10px 8px; border-bottom: 1px solid var(--card-border); vertical-align: top; word-break: break-word; color: var(--text); }
         tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f8fafc; }
 
-        .badge-go { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: var(--go); white-space: nowrap; }
-        .badge-back { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.4); color: var(--back); white-space: nowrap; }
+        /* Column Widths */
+        th:nth-child(1), td:nth-child(1) { width: 90px; } /* Direction */
+        th:nth-child(2), td:nth-child(2) { width: 130px; } /* Dep */
+        th:nth-child(3), td:nth-child(3) { width: 90px; } /* Arr */
+        th:nth-child(4), td:nth-child(4) { width: 80px; } /* Flight */
+        th:nth-child(5), td:nth-child(5) { width: 100px; } /* PNR */
+        th:nth-child(6), td:nth-child(6) { width: 120px; } /* Aircraft */
+        th:nth-child(7), td:nth-child(7) { width: 60px; } /* Ticket */
+        th:nth-child(8), td:nth-child(8) { width: 150px; } /* Payment */
+        th:nth-child(9), td:nth-child(9) { width: 100px; } /* Fare */
 
-        .flight-no { font-weight: 700; color: var(--accent); font-family: monospace; font-size: 1rem; }
-        .pnr { font-family: monospace; font-size: 0.94rem; color: var(--gold); letter-spacing: 0.08em; }
-        .price { font-weight: 700; color: #a3e635; white-space: nowrap; }
-        .price-pts { font-size: 0.91rem; color: #c084fc; }
+        .badge-go, .badge-back { display: flex; flex-direction: column; align-items: center; padding: 4px 6px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; line-height: 1.1; text-align: center; }
+        .badge-go { background: #ecfdf5; border: 1px solid #a7f3d0; color: var(--go); }
+        .badge-back { background: #fef2f2; border: 1px solid #fecaca; color: var(--back); }
+        .badge-go .en, .badge-back .en { color: inherit; opacity: 0.8; font-size: 0.65rem; margin-top: 1px; }
+
+        .flight-no { font-weight: 700; color: var(--accent); font-family: 'Outfit', sans-serif; font-size: 1rem; }
+        .pnr { font-family: monospace; font-size: 0.94rem; color: var(--gold); letter-spacing: 0.08em; font-weight: 700; }
+        .price { font-weight: 700; color: #15803d; white-space: nowrap; }
+        .price-pts { font-size: 0.91rem; color: #7e22ce; font-weight: 600; }
         .aircraft { color: var(--text-muted); font-size: 0.9rem; white-space: nowrap; }
-        .note { color: var(--text-muted); font-size: 1rem; line-height: 1.45; }
-        .time-main { font-weight: 600; white-space: nowrap; }
+        .note { color: var(--text-muted); font-size: 0.95rem; line-height: 1.45; }
+        .time-main { font-weight: 700; white-space: nowrap; color: var(--text); }
         .time-arr { font-size: 0.9rem; color: var(--text-muted); white-space: nowrap; }
-        .link-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.82rem; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: var(--accent); }
-        .dash { color: #3a3d4a; }
+        .link-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.82rem; background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; }
+        .dash { color: #cbd5e1; }
 
         /* History tab dim */
-        #tab-2025 .trip-header { background: rgba(255,255,255,0.02); }
-        #tab-2025 .trip-num { background: #4b5563; color: #d1d5db; }
+        #tab-2025 .trip-header { background: #f8fafc; }
+        #tab-2025 .trip-num { background: #64748b; color: #ffffff; }
 
         /* Hotel section */
-        .hotel-section { padding: 0 22px 18px; border-top: 1px solid var(--card-border); margin-top: 2px; }
+        .hotel-section { padding: 0 22px 18px; border-top: 1px solid var(--card-border); margin-top: 2px; background: #fafafa; }
         .hotel-section-title { font-size: 1rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0 8px; display: flex; align-items: center; gap: 6px; }
         .hotel-table { overflow-x: auto; }
         .hotel-table table { width: 100%; min-width: 620px; }
-        .hotel-name { font-weight: 600; color: var(--text); font-size: 0.93rem; }
-        .hotel-system { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 0.82rem; background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.3); color: #a78bfa; white-space: nowrap; }
-        .hotel-pts { color: #c084fc; font-weight: 700; white-space: nowrap; }
+        .hotel-name { font-weight: 700; color: var(--text); font-size: 0.93rem; }
+        .hotel-system { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 0.82rem; background: #f3e8ff; border: 1px solid #e9d5ff; color: #7e22ce; white-space: nowrap; }
+        .hotel-pts { color: #7e22ce; font-weight: 700; white-space: nowrap; }
         .hotel-cancel { font-size: 0.82rem; color: var(--text-muted); }
         .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 
@@ -102,57 +121,57 @@
         .et-btn {
             padding: 11px 20px; border-radius: 25px; cursor: pointer;
             font-weight: 700; font-size: 0.9rem; font-family: inherit;
-            transition: all 0.2s; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             backdrop-filter: blur(8px); border: 1px solid;
         }
         #edit-toggle {
-            background: rgba(15,17,23,0.92); color: var(--accent);
-            border-color: rgba(56,189,248,0.4);
+            background: #ffffff; color: var(--accent);
+            border-color: #bae6fd;
         }
-        #edit-toggle:hover { background: rgba(56,189,248,0.15); }
+        #edit-toggle:hover { background: #f0f9ff; }
         #edit-toggle.active {
-            background: rgba(74,222,128,0.12);
-            border-color: rgba(74,222,128,0.45); color: #4ade80;
+            background: #f0fdf4;
+            border-color: #bbf7d0; color: #16a34a;
         }
         #reset-btn {
             padding: 7px 14px; border-radius: 20px; display: none;
-            background: rgba(15,17,23,0.92); color: #f87171;
-            border: 1px solid rgba(248,113,113,0.35); font-size: 0.78rem;
+            background: #ffffff; color: #dc2626;
+            border: 1px solid #fecaca; font-size: 0.78rem;
             cursor: pointer; font-family: inherit;
         }
-        #reset-btn:hover { background: rgba(248,113,113,0.1); }
+        #reset-btn:hover { background: #fef2f2; }
         /* Row action buttons */
         .th-actions  { width: 58px !important; min-width: 58px; }
         .row-actions { text-align: right; padding: 4px 8px !important; white-space: nowrap; }
         .ea-btn {
             background: none; border: none; cursor: pointer; padding: 3px 5px;
-            font-size: 0.82rem; border-radius: 5px; opacity: 0.4;
+            font-size: 0.82rem; border-radius: 5px; opacity: 0.6;
             transition: opacity 0.15s, background 0.15s; line-height: 1;
         }
-        .ea-btn:hover  { opacity: 1; background: rgba(255,255,255,0.08); }
-        .ea-del:hover  { background: rgba(248,113,113,0.18); }
+        .ea-btn:hover  { opacity: 1; background: rgba(0,0,0,0.05); }
+        .ea-del:hover  { background: rgba(220,38,38,0.1); }
         /* Add row button */
         .add-row-wrap { padding: 4px 0; }
         .add-row-btn  {
             width: 100%; padding: 7px 12px; text-align: center;
-            background: rgba(56,189,248,0.04); color: var(--accent);
-            border: 1px dashed rgba(56,189,248,0.22); border-radius: 7px;
+            background: #f0f9ff; color: var(--accent);
+            border: 1px dashed #bae6fd; border-radius: 7px;
             cursor: pointer; font-size: 0.82rem; font-family: inherit;
             transition: all 0.15s;
         }
-        .add-row-btn:hover { background: rgba(56,189,248,0.12); border-style: solid; }
+        .add-row-btn:hover { background: #e0f2fe; border-style: solid; }
         /* Trip header buttons */
         .trip-edit-btn, .trip-del-btn {
             padding: 3px 10px; border-radius: 14px; font-size: 0.75rem;
             cursor: pointer; font-family: inherit; transition: all 0.15s; margin-left: 6px;
         }
         .trip-edit-btn {
-            background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.3);
+            background: #f0f9ff; border: 1px solid #bae6fd;
             color: var(--accent);
         }
         .trip-del-btn  {
-            background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3);
-            color: #f87171;
+            background: #fef2f2; border: 1px solid #fecaca;
+            color: #dc2626;
         }
         /* Modal */
         #crud-modal {
@@ -162,21 +181,21 @@
         #crud-modal.open { display: flex; }
         #crud-backdrop  {
             position: absolute; inset: 0;
-            background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
         }
         #crud-dialog {
-            position: relative; background: #1a1d27;
-            border: 1px solid #2e3348; border-radius: 16px;
+            position: relative; background: #ffffff;
+            border: 1px solid #e2e8f0; border-radius: 16px;
             padding: 28px 30px; width: 92%; max-width: 540px;
             max-height: 88vh; overflow-y: auto;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             animation: crudUp 0.17s ease;
         }
         @keyframes crudUp {
             from { transform: translateY(18px); opacity: 0; }
             to   { transform: translateY(0);     opacity: 1; }
         }
-        #crud-dialog h3   { margin: 0 0 18px; font-size: 1rem; }
+        #crud-dialog h3   { margin: 0 0 18px; font-size: 1.1rem; color: var(--text); }
         .form-row         { margin-bottom: 12px; }
         .form-row label   {
             display: block; font-size: 0.72rem; color: var(--text-muted);
@@ -184,50 +203,50 @@
             letter-spacing: 0.05em;
         }
         .form-row input   {
-            width: 100%; padding: 9px 12px; color: var(--text);
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-            font-size: 0.9rem; font-family: inherit; transition: border-color 0.15s;
+            width: 100%; padding: 10px 12px; color: var(--text);
+            background: #ffffff;
+            border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 0.95rem; font-family: inherit; transition: border-color 0.15s;
         }
-        .form-row input:focus { outline: none; border-color: var(--accent); background: rgba(56,189,248,0.06); }
+        .form-row input:focus { outline: none; border-color: var(--accent); border-width: 2px; padding: 9px 11px; }
         .form-2col        { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
         .form-actions     { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
         .btn-save {
             padding: 9px 24px; border-radius: 8px; cursor: pointer;
-            background: rgba(56,189,248,0.14); border: 1px solid rgba(56,189,248,0.4);
-            color: var(--accent); font-weight: 700; font-size: 0.9rem; font-family: inherit;
+            background: var(--accent); border: 1px solid var(--accent);
+            color: #ffffff; font-weight: 700; font-size: 0.9rem; font-family: inherit;
         }
-        .btn-save:hover   { background: rgba(56,189,248,0.25); }
+        .btn-save:hover   { background: #0369a1; }
         .btn-cancel {
             padding: 9px 18px; border-radius: 8px; cursor: pointer;
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            background: #ffffff; border: 1px solid #cbd5e1;
             color: var(--text-muted); font-size: 0.9rem; font-family: inherit;
         }
-        .btn-cancel:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+        .btn-cancel:hover { color: var(--text); background: #f8fafc; }
     </style>
 </head>
 <body>
 <div class="container">
 
     <header>
-        <h1>✈ 機票總覽</h1>
-        <p>ALEX &amp; MARK · 旅程機票記錄</p>
+        <h1>✈ 機票總覽 <div class="en">Flight Overview</div></h1>
+        <p>ALEX &amp; MARK · 旅程機票記錄 <div class="en">Travel Records</div></p>
     </header>
 
     <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('2026', this)">2026 當前</button>
-        <button class="tab-btn" onclick="switchTab('2025', this)">2025 歷史</button>
-        <button class="tab-btn" onclick="switchTab('2024', this)">2022–2024 歷史</button>
+        <button class="tab-btn active" onclick="switchTab('2026', this)">2026 當前 <div class="en">Current</div></button>
+        <button class="tab-btn" onclick="switchTab('2025', this)">2025 歷史 <div class="en">History</div></button>
+        <button class="tab-btn" onclick="switchTab('2024', this)">2022–2024 歷史 <div class="en">History</div></button>
     </div>
 
     <!-- ══════════════════ 2026 TAB ══════════════════ -->
     <div id="tab-2026" class="tab-content active">
 
         <div class="summary">
-            <div class="sum-card"><div class="num">4</div><div class="label">趟旅程</div></div>
-            <div class="sum-card"><div class="num" style="font-size:1.3rem;">BKK × 3</div><div class="label">曼谷</div></div>
-            <div class="sum-card"><div class="num" style="font-size:1.3rem;">NRT/CTS × 1</div><div class="label">日本</div></div>
-            <div class="sum-card"><div class="num" style="color:var(--gold); font-size:1.1rem;">BR / CI / JL / CX</div><div class="label">搭乘航空</div></div>
+            <div class="sum-card"><div class="num">4</div><div class="label">趟旅程 <div class="en">Trips</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.3rem;">BKK × 3</div><div class="label">曼谷 <div class="en">Bangkok</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.3rem;">NRT/CTS × 1</div><div class="label">日本 <div class="en">Japan</div></div></div>
+            <div class="sum-card"><div class="num" style="color:var(--gold); font-size:1.1rem;">BR / CI / JL / CX</div><div class="label">搭乘航空 <div class="en">Airlines</div></div></div>
         </div>
 
         <!-- Trip 1 -->
@@ -240,25 +259,25 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/04/10 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6YG9JD</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">KGI信用卡-4701<br>華航聯名卡預約回程接機<br>訂單202602004616</td><td class="price">NT$8,542</td><td class="note">購買 4/25</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2026/04/19 13:20</div></td><td><div class="time-arr">18:00</div></td><td class="flight-no">CI832</td><td class="dash">—</td><td class="aircraft">Airbus A350-900</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/04/10 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6YG9JD</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">KGI信用卡-4701<br>華航聯名卡預約回程接機<br>訂單202602004616</td><td class="price">NT$8,542</td><td class="note">購買 4/25</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2026/04/19 13:20</div></td><td><div class="time-arr">18:00</div></td><td class="flight-no">CI832</td><td class="dash">—</td><td class="aircraft">Airbus A350-900</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/04/10 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6YG4W4</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">匯豐旅人卡-mark pay<br>匯富 4/10 送機<br>訂單DH20260206103005</td><td class="price">NT$8,542</td><td class="dash">—</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2026/04/19 13:20</div></td><td><div class="time-arr">18:00</div></td><td class="flight-no">CI832</td><td class="dash">—</td><td class="aircraft">Airbus A350-900</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/04/10 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6YG4W4</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">匯豐旅人卡-mark pay<br>匯富 4/10 送機<br>訂單DH20260206103005</td><td class="price">NT$8,542</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2026/04/19 13:20</div></td><td><div class="time-arr">18:00</div></td><td class="flight-no">CI832</td><td class="dash">—</td><td class="aircraft">Airbus A350-900</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
             <div class="hotel-section">
-                <div class="hotel-section-title">🏨 飯店</div>
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
                 <div class="hotel-table"><table>
-                    <thead><tr><th>酒店</th><th>體系</th><th>入住</th><th>退房</th><th>晚數</th><th>支付</th><th>價錢</th><th>備註</th></tr></thead>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td class="hotel-name">Holiday Inn Express Bangkok Siam</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">4/10</td><td class="hotel-dates">4/12</td><td class="note" style="text-align:center">2</td><td class="note">大戶(4708)</td><td class="price">Points 36,000</td><td class="note">ALEX · 2 Single Standard w/ Breakfast</td></tr>
                     <tr><td class="hotel-name">Holiday Inn Express Bangkok Siam</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">4/10</td><td class="hotel-dates">4/12</td><td class="note" style="text-align:center">2</td><td class="note">大戶(4708)</td><td class="price">Points 32,300</td><td class="note">MARK · 2 Single Standard w/ Breakfast</td></tr>
@@ -279,25 +298,25 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:6px;">Sapporo / Tokyo</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/06/13 06:55</div></td><td><div class="time-arr">11:55</div></td><td class="flight-no">BR166</td><td class="pnr">DESIFJ</td><td class="aircraft">A321-200</td><td><span class="link-badge">LINK</span></td><td class="note">ALEX-旅人玉錫卡</td><td class="price-pts">長榮點數 25,000 + NT$1,671<br><span class="note">購買 6/26</span></td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2026/06/21 18:20</div></td><td><div class="time-arr">20:40</div></td><td class="flight-no">JL99</td><td class="pnr">EPGXDF</td><td class="aircraft">B787-8</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price-pts">亞洲萬里通 13,000里 + HKD646<br><span class="note">購買 7/3</span></td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/06/13 06:55</div></td><td><div class="time-arr">11:55</div></td><td class="flight-no">BR166</td><td class="pnr">DESIFJ</td><td class="aircraft">A321-200</td><td><span class="link-badge">LINK</span></td><td class="note">ALEX-旅人玉錫卡</td><td class="price-pts">長榮點數 25,000 + NT$1,671<br><span class="note">購買 6/26</span></td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2026/06/21 18:20</div></td><td><div class="time-arr">20:40</div></td><td class="flight-no">JL99</td><td class="pnr">EPGXDF</td><td class="aircraft">B787-8</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price-pts">亞洲萬里通 13,000里 + HKD646<br><span class="note">購買 7/3</span></td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:6px;">Tokyo</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/06/13 06:55</div></td><td><div class="time-arr">11:55</div></td><td class="flight-no">BR166</td><td class="pnr">DEU2DP</td><td class="aircraft">A321-200</td><td><span class="link-badge">LINK</span></td><td class="note">匯豐旅人卡-mark pay</td><td class="price-pts">長榮點數 17,500 + NT$1,671<br><span class="note">購買 7/3</span></td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2026/06/21 15:45</div></td><td><div class="time-arr">18:25</div></td><td class="flight-no">CX451</td><td class="pnr">D8IDPX</td><td class="aircraft">A330-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price-pts">亞洲萬里通 13,000里 + HKD664<br><span class="note">購買 7/14</span></td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/06/13 06:55</div></td><td><div class="time-arr">11:55</div></td><td class="flight-no">BR166</td><td class="pnr">DEU2DP</td><td class="aircraft">A321-200</td><td><span class="link-badge">LINK</span></td><td class="note">匯豐旅人卡-mark pay</td><td class="price-pts">長榮點數 17,500 + NT$1,671<br><span class="note">購買 7/3</span></td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2026/06/21 15:45</div></td><td><div class="time-arr">18:25</div></td><td class="flight-no">CX451</td><td class="pnr">D8IDPX</td><td class="aircraft">A330-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price-pts">亞洲萬里通 13,000里 + HKD664<br><span class="note">購買 7/14</span></td></tr>
                     </tbody>
                 </table></div>
             </div>
             <div class="hotel-section">
-                <div class="hotel-section-title">🏨 飯店</div>
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
                 <div class="hotel-table"><table>
-                    <thead><tr><th>酒店</th><th>體系</th><th>入住</th><th>退房</th><th>晚數</th><th>支付</th><th>價錢</th><th>備註</th></tr></thead>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td class="hotel-name">APA Hotel Sapporo Odori Ekimae Minami</td><td class="dash">—</td><td class="hotel-dates">6/13</td><td class="hotel-dates">6/17</td><td class="note" style="text-align:center">4</td><td class="note">華航(4676)</td><td class="price">JPY 72,075</td><td class="note">ALEX</td></tr>
                     <tr><td class="hotel-name">JR INN Hakodate</td><td class="dash">—</td><td class="hotel-dates">6/17</td><td class="hotel-dates">6/18</td><td class="note" style="text-align:center">1</td><td class="note">華航(4676)</td><td class="price">JPY 12,979</td><td class="note">ALEX</td></tr>
@@ -319,25 +338,25 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/09/18 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">FJVMLS</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">華航信用卡-3500</td><td class="price">NT$7,172<br><span class="note">購買 2025/10/17</span></td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2026/09/28 02:40</div></td><td><div class="time-arr">07:25</div></td><td class="flight-no">CI838</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/09/18 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">FJVMLS</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">華航信用卡-3500</td><td class="price">NT$7,172<br><span class="note">購買 2025/10/17</span></td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2026/09/28 02:40</div></td><td><div class="time-arr">07:25</div></td><td class="flight-no">CI838</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/09/18 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">FJWUHR</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">匯豐旅人卡-mark pay</td><td class="price">NT$7,172<br><span class="note">購買 10/23</span></td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2026/09/28 02:40</div></td><td><div class="time-arr">07:25</div></td><td class="flight-no">CI838</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/09/18 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">FJWUHR</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">匯豐旅人卡-mark pay</td><td class="price">NT$7,172<br><span class="note">購買 10/23</span></td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2026/09/28 02:40</div></td><td><div class="time-arr">07:25</div></td><td class="flight-no">CI838</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
             <div class="hotel-section">
-                <div class="hotel-section-title">🏨 飯店</div>
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
                 <div class="hotel-table"><table>
-                    <thead><tr><th>酒店</th><th>體系</th><th>入住</th><th>退房</th><th>晚數</th><th>支付</th><th>價錢</th><th>備註</th></tr></thead>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td class="hotel-name">Holiday Inn Express Bangkok Siam</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">9/18</td><td class="hotel-dates">9/19</td><td class="note" style="text-align:center">1</td><td class="note">大戶(4708)</td><td class="price">Points 15,000</td><td class="note">2 Single Standard w/ Breakfast</td></tr>
                     <tr><td class="hotel-name">Holiday Inn Express Bangkok Siam</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">9/19</td><td class="hotel-dates">9/21</td><td class="note" style="text-align:center">2</td><td class="note">大戶(4708)</td><td class="price">Points 31,000</td><td class="note">2 Single Standard w/ Breakfast</td></tr>
@@ -358,18 +377,18 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/12/24 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">FZNBP7</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">華航信用卡-3500</td><td class="price">NT$8,997<br><span class="note">購買 1/9</span></td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2027/01/03 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/12/24 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">FZNBP7</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">華航信用卡-3500</td><td class="price">NT$8,997<br><span class="note">購買 1/9</span></td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2027/01/03 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/12/24 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">FZKPZ9</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">MARK-華航信用卡</td><td class="price">NT$8,997<br><span class="note">購買 1/9</span></td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2027/01/03 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/12/24 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">FZKPZ9</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">MARK-華航信用卡</td><td class="price">NT$8,997<br><span class="note">購買 1/9</span></td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2027/01/03 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -382,10 +401,10 @@
     <div id="tab-2025" class="tab-content">
 
         <div class="summary">
-            <div class="sum-card"><div class="num">5</div><div class="label">趟旅程</div></div>
-            <div class="sum-card"><div class="num" style="font-size:1.3rem;">BKK × 3</div><div class="label">曼谷</div></div>
-            <div class="sum-card"><div class="num" style="font-size:1.3rem;">KIX / NRT × 2</div><div class="label">日本</div></div>
-            <div class="sum-card"><div class="num" style="color:var(--gold); font-size:1.1rem;">BR / CI / CX / TG / NH</div><div class="label">搭乘航空</div></div>
+            <div class="sum-card"><div class="num">5</div><div class="label">趟旅程 <div class="en">Trips</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.3rem;">BKK × 3</div><div class="label">曼谷 <div class="en">Bangkok</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.3rem;">KIX / NRT × 2</div><div class="label">日本 <div class="en">Japan</div></div></div>
+            <div class="sum-card"><div class="num" style="color:var(--gold); font-size:1.1rem;">BR / CI / CX / TG / NH</div><div class="label">搭乘航空 <div class="en">Airlines</div></div></div>
         </div>
 
         <!-- Trip 1 -->
@@ -398,25 +417,25 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/02/11 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">68GQCZ</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-7922</td><td class="price">NT$15,425</td><td class="note">購買 3/4<br>去→中華 alex 17:00<br>格上租車 202512026082</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2026/02/22 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/02/11 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">68GQCZ</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-7922</td><td class="price">NT$15,425</td><td class="note">購買 3/4<br>去→中華 alex 17:00<br>格上租車 202512026082</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2026/02/22 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2026/02/11 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">68FVA7</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">匯豐旅人卡-mark pay<br>預約 2/11 東方宇逸貴賓室<br>4/10 潑水節送機</td><td class="price">NT$15,907</td><td class="dash">—</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2026/02/22 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2026/02/11 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">68FVA7</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">匯豐旅人卡-mark pay<br>預約 2/11 東方宇逸貴賓室<br>4/10 潑水節送機</td><td class="price">NT$15,907</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2026/02/22 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
             <div class="hotel-section">
-                <div class="hotel-section-title">🏨 飯店</div>
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
                 <div class="hotel-table"><table>
-                    <thead><tr><th>酒店</th><th>體系</th><th>入住</th><th>退房</th><th>晚數</th><th>支付</th><th>價錢</th><th>備註</th></tr></thead>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td class="hotel-name">Holiday Inn Express Bangkok Siam</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">2/11</td><td class="hotel-dates">2/12</td><td class="note" style="text-align:center">1</td><td class="note">大戶(4708)</td><td class="price">Points 17,000</td><td class="note">2 Single Standard w/ Breakfast</td></tr>
                     <tr><td class="hotel-name">洲至奢選曼谷新浩中央酒店</td><td><span class="hotel-system">IHG 私享</span></td><td class="hotel-dates">2/12</td><td class="hotel-dates">2/17</td><td class="note" style="text-align:center">5</td><td class="note">匯豐T1</td><td class="price">THB 25,446</td><td class="note">第5晚免費 · 含早餐 · $100抵用金</td></tr>
@@ -443,33 +462,33 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/12/28 06:30</div></td><td><div class="time-arr">09:55</div></td><td class="flight-no">BR178</td><td class="pnr">5WJSKL</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-7922</td><td class="price">NT$14,897</td><td class="note">機場接送 F13547054<br>驗證碼 8411</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/01/04 17:45</div></td><td><div class="time-arr">20:05</div></td><td class="flight-no">BR129</td><td class="dash">—</td><td class="aircraft">Boeing 787-9</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/12/28 06:30</div></td><td><div class="time-arr">09:55</div></td><td class="flight-no">BR178</td><td class="pnr">5WJSKL</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-7922</td><td class="price">NT$14,897</td><td class="note">機場接送 F13547054<br>驗證碼 8411</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/01/04 17:45</div></td><td><div class="time-arr">20:05</div></td><td class="flight-no">BR129</td><td class="dash">—</td><td class="aircraft">Boeing 787-9</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/12/28 06:30</div></td><td><div class="time-arr">09:55</div></td><td class="flight-no">BR178</td><td class="pnr">5WHWJB</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$14,897</td><td class="note">接送 202412000613</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/01/04 17:45</div></td><td><div class="time-arr">20:05</div></td><td class="flight-no">BR129</td><td class="dash">—</td><td class="aircraft">Boeing 787-9</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/12/28 06:30</div></td><td><div class="time-arr">09:55</div></td><td class="flight-no">BR178</td><td class="pnr">5WHWJB</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$14,897</td><td class="note">接送 202412000613</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/01/04 17:45</div></td><td><div class="time-arr">20:05</div></td><td class="flight-no">BR129</td><td class="dash">—</td><td class="aircraft">Boeing 787-9</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-frank">FRANK</span><span class="note" style="margin-left:6px;">BKK ↔ KIX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>支付</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/12/27 23:59</div></td><td><div class="time-arr">07:20</div></td><td class="flight-no">TG622</td><td class="dash">—</td><td class="note">Frank</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/01/03 17:25</div></td><td><div class="time-arr">22:00</div></td><td class="flight-no">TG673</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/12/27 23:59</div></td><td><div class="time-arr">07:20</div></td><td class="flight-no">TG622</td><td class="dash">—</td><td class="note">Frank</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/01/03 17:25</div></td><td><div class="time-arr">22:00</div></td><td class="flight-no">TG673</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
             <div class="hotel-section">
-                <div class="hotel-section-title">🏨 飯店</div>
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
                 <div class="hotel-table"><table>
-                    <thead><tr><th>酒店</th><th>體系</th><th>入住</th><th>退房</th><th>晚數</th><th>支付</th><th>價錢</th><th>備註</th></tr></thead>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td class="hotel-name">天滿橋京阪飯店</td><td><span class="hotel-system">Agoda</span></td><td class="hotel-dates">12/28</td><td class="hotel-dates">1/1</td><td class="note" style="text-align:center">4</td><td class="note">大戶卡</td><td class="price">NT$12,830</td><td class="note">3 persons room · can't cancel</td></tr>
                     <tr><td class="hotel-name">京阪天滿橋站前飯店</td><td><span class="hotel-system">Agoda</span></td><td class="hotel-dates">1/1</td><td class="hotel-dates">1/3</td><td class="note" style="text-align:center">2</td><td class="note">大戶卡</td><td class="price">JPY 52,816</td><td class="note">3 persons room</td></tr>
@@ -492,32 +511,32 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2025/01/23 22:40</div></td><td><div class="time-arr">01:35 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6M2SW2</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-7922</td><td class="price">NT$11,827</td><td class="note">預辦登機</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/02/02 02:35</div></td><td><div class="time-arr">07:15</div></td><td class="flight-no">CI838</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2025/01/23 22:40</div></td><td><div class="time-arr">01:35 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6M2SW2</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-7922</td><td class="price">NT$11,827</td><td class="note">預辦登機</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/02/02 02:35</div></td><td><div class="time-arr">07:15</div></td><td class="flight-no">CI838</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2025/01/23 22:40</div></td><td><div class="time-arr">01:35 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6M2ZJ4</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$11,827</td><td class="note">星展銀行機場接送<br>F14036407 驗證碼 1703</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/02/02 02:35</div></td><td><div class="time-arr">07:15</div></td><td class="flight-no">CI838</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2025/01/23 22:40</div></td><td><div class="time-arr">01:35 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6M2ZJ4</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$11,827</td><td class="note">星展銀行機場接送<br>F14036407 驗證碼 1703</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/02/02 02:35</div></td><td><div class="time-arr">07:15</div></td><td class="flight-no">CI838</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-frank">FRANK</span><span class="note" style="margin-left:6px;">URT → DMK</span></div>
                 <div class="table-wrap"><table>
                     <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2025/01/24 09:00</div></td><td><div class="time-arr">10:10</div></td><td class="flight-no">FD3236</td><td class="note">Frank</td><td class="price">700 ฿</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2025/01/24 09:00</div></td><td><div class="time-arr">10:10</div></td><td class="flight-no">FD3236</td><td class="note">Frank</td><td class="price">700 ฿</td></tr>
                     </tbody>
                 </table></div>
             </div>
             <div class="hotel-section">
-                <div class="hotel-section-title">🏨 飯店</div>
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
                 <div class="hotel-table"><table>
-                    <thead><tr><th>酒店</th><th>體系</th><th>入住</th><th>退房</th><th>晚數</th><th>支付</th><th>價錢</th><th>備註</th></tr></thead>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td class="hotel-name">Holiday Inn Express Bangkok Central Pier</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">1/23</td><td class="hotel-dates">1/28</td><td class="note" style="text-align:center">5</td><td class="note">Mark's HSBC</td><td class="price">TWD 15,370</td><td class="dash">—</td></tr>
                     <tr><td class="hotel-name">Holiday Inn Express Bangkok Central Pier</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">1/23</td><td class="hotel-dates">1/28</td><td class="note" style="text-align:center">5</td><td class="note">大戶卡 4708</td><td class="price">TWD 12,647</td><td class="dash">—</td></tr>
@@ -545,27 +564,27 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2025/04/02 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">6Q4W2T</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">AE卡</td><td class="price">NT$12,005</td><td class="note">星展接送 F14135668<br>驗證碼 4134</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/04/14 15:10</div></td><td><div class="time-arr">20:00</div></td><td class="flight-no">BR202</td><td class="dash">—</td><td class="aircraft">Boeing 777-300</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2025/04/02 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">6Q4W2T</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">AE卡</td><td class="price">NT$12,005</td><td class="note">星展接送 F14135668<br>驗證碼 4134</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/04/14 15:10</div></td><td><div class="time-arr">20:00</div></td><td class="flight-no">BR202</td><td class="dash">—</td><td class="aircraft">Boeing 777-300</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     <tr><td><span class="badge-go" style="background:rgba(167,243,208,0.15);border-color:rgba(167,243,208,0.4);color:#6ee7b7;">URT→DMK</span></td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="pnr">CDJ32U</td><td class="dash">—</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-0428</td><td class="price">NT$816</td><td class="dash">—</td></tr>
                     <tr><td><span class="badge-back" style="background:rgba(167,243,208,0.15);border-color:rgba(167,243,208,0.4);color:#6ee7b7;">DMK→URT</span></td><td><div class="time-main">2025/04/09 16:15</div></td><td><div class="time-arr">17:30</div></td><td class="flight-no">FD3232</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2025/04/03 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">6Q3WQR</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$11,767</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/04/14 15:10</div></td><td><div class="time-arr">20:00</div></td><td class="flight-no">BR202</td><td class="dash">—</td><td class="aircraft">Boeing 777-300</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2025/04/03 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">6Q3WQR</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$11,767</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/04/14 15:10</div></td><td><div class="time-arr">20:00</div></td><td class="flight-no">BR202</td><td class="dash">—</td><td class="aircraft">Boeing 777-300</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
             <div class="hotel-section">
-                <div class="hotel-section-title">🏨 飯店</div>
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
                 <div class="hotel-table"><table>
-                    <thead><tr><th>酒店</th><th>體系</th><th>入住</th><th>退房</th><th>晚數</th><th>支付</th><th>價錢</th><th>備註</th></tr></thead>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td class="hotel-name">Ibis Bangkok Sathorn</td><td><span class="hotel-system">Agoda</span></td><td class="hotel-dates">4/2</td><td class="hotel-dates">4/3</td><td class="note" style="text-align:center">1</td><td class="note">—</td><td class="price">THB 1,464</td><td class="dash">—</td></tr>
                     <tr><td class="hotel-name">Holiday Inn Express Bangkok Central Pier</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">4/3</td><td class="hotel-dates">4/4</td><td class="note" style="text-align:center">1</td><td class="note">—</td><td class="price">8,500 P</td><td class="dash">—</td></tr>
@@ -596,26 +615,26 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:6px;">Nagoya / Tokyo</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td><span class="badge-go">TPE→BKK</span></td><td><div class="time-main">2025/05/30 09:00</div></td><td><div class="time-arr">13:25</div></td><td class="flight-no">BR198</td><td class="pnr">63OS5V</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-0428</td><td class="price-pts">ANA 20,000哩 + NT$2,697</td><td class="note">星展接送 F14236717<br>驗證碼 6125</td></tr>
                     <tr><td><span class="badge-go">BKK→NGO</span></td><td><div class="time-main">2025/05/30 17:25</div></td><td><div class="time-arr">18:35</div></td><td class="flight-no">NH493</td><td class="dash">—</td><td class="aircraft">Boeing 737-800</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/06/07 13:35</div></td><td><div class="time-arr">16:05</div></td><td class="flight-no">BR183</td><td class="dash">—</td><td class="aircraft">Airbus A330-300</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/06/07 13:35</div></td><td><div class="time-arr">16:05</div></td><td class="flight-no">BR183</td><td class="dash">—</td><td class="aircraft">Airbus A330-300</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:6px;">BKK → Tokyo</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2025/05/30 11:40</div></td><td><div class="time-arr">15:30</div></td><td class="flight-no">CX530</td><td class="pnr">63EDBB</td><td class="aircraft">Airbus A330-700</td><td><span class="link-badge">LINK</span></td><td class="note">長榮聯名卡<br>亞洲萬里通 25,000哩</td><td class="price">NT$1,214</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/06/07 15:45</div></td><td><div class="time-arr">18:25</div></td><td class="flight-no">CX451</td><td class="pnr">63QHH4</td><td class="aircraft">Boeing 777-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price">NT$3,068</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2025/05/30 11:40</div></td><td><div class="time-arr">15:30</div></td><td class="flight-no">CX530</td><td class="pnr">63EDBB</td><td class="aircraft">Airbus A330-700</td><td><span class="link-badge">LINK</span></td><td class="note">長榮聯名卡<br>亞洲萬里通 25,000哩</td><td class="price">NT$1,214</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/06/07 15:45</div></td><td><div class="time-arr">18:25</div></td><td class="flight-no">CX451</td><td class="pnr">63QHH4</td><td class="aircraft">Boeing 777-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price">NT$3,068</td></tr>
                     </tbody>
                 </table></div>
             </div>
             <div class="hotel-section">
-                <div class="hotel-section-title">🏨 飯店</div>
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
                 <div class="hotel-table"><table>
-                    <thead><tr><th>酒店</th><th>體系</th><th>入住</th><th>退房</th><th>晚數</th><th>支付</th><th>價錢</th><th>備註</th></tr></thead>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td class="hotel-name">APA Hotel Nagoya Ekimae Kita</td><td><span class="hotel-system">Agoda</span></td><td class="hotel-dates">5/30</td><td class="hotel-dates">6/3</td><td class="note" style="text-align:center">4</td><td class="note">匯豐旅人卡</td><td class="price">JPY 49,000</td><td class="dash">—</td></tr>
                     <tr><td class="hotel-name">APA Hotel Asakusa Tawaramachi Ekimae</td><td><span class="hotel-system">Agoda</span></td><td class="hotel-dates">6/3</td><td class="hotel-dates">6/7</td><td class="note" style="text-align:center">4</td><td class="note">匯豐旅人卡</td><td class="price">JPY 53,040</td><td class="dash">—</td></tr>
@@ -634,25 +653,25 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2025/10/02 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">6JNJ4L</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-0428</td><td class="price">NT$1,916</td><td class="note">肯驛接送 F14462272<br>驗證碼 5904</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/10/13 01:35</div></td><td><div class="time-arr">06:20</div></td><td class="flight-no">BR206</td><td class="pnr">6ZQHJ6</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price">NT$2,545</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2025/10/02 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">6JNJ4L</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮信用卡-0428</td><td class="price">NT$1,916</td><td class="note">肯驛接送 F14462272<br>驗證碼 5904</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/10/13 01:35</div></td><td><div class="time-arr">06:20</div></td><td class="flight-no">BR206</td><td class="pnr">6ZQHJ6</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price">NT$2,545</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2025/10/02 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">6JOP7V</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">滙豐旅人卡-mark pay</td><td class="price">NT$1,916</td><td class="note">取消使用接送</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2025/10/13 01:35</div></td><td><div class="time-arr">06:20</div></td><td class="flight-no">BR206</td><td class="pnr">6ZSVPJ</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price">NT$2,545</td><td class="note">已使用接送 2726</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2025/10/02 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">6JOP7V</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">滙豐旅人卡-mark pay</td><td class="price">NT$1,916</td><td class="note">取消使用接送</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2025/10/13 01:35</div></td><td><div class="time-arr">06:20</div></td><td class="flight-no">BR206</td><td class="pnr">6ZSVPJ</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="price">NT$2,545</td><td class="note">已使用接送 2726</td></tr>
                     </tbody>
                 </table></div>
             </div>
             <div class="hotel-section">
-                <div class="hotel-section-title">🏨 飯店</div>
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
                 <div class="hotel-table"><table>
-                    <thead><tr><th>酒店</th><th>體系</th><th>入住</th><th>退房</th><th>晚數</th><th>支付</th><th>價錢</th><th>備註</th></tr></thead>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
                     <tbody>
                     <tr><td class="hotel-name">Holiday Inn Express 曼谷中央碼頭</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">10/2</td><td class="hotel-dates">10/3</td><td class="note" style="text-align:center">1</td><td class="note">—</td><td class="price">12,000 P</td><td class="dash">—</td></tr>
                     <tr><td class="hotel-name">Holiday Inn Express Bangkok Siam</td><td><span class="hotel-system">IHG</span></td><td class="hotel-dates">10/2</td><td class="hotel-dates">10/3</td><td class="note" style="text-align:center">1</td><td class="note">—</td><td class="price">11,050 P</td><td class="dash">—</td></tr>
@@ -678,10 +697,10 @@
     <div id="tab-2024" class="tab-content">
 
         <div class="summary">
-            <div class="sum-card"><div class="num">12</div><div class="label">趟旅程</div></div>
-            <div class="sum-card"><div class="num" style="font-size:1.1rem;">BKK × 7</div><div class="label">曼谷</div></div>
-            <div class="sum-card"><div class="num" style="font-size:1.1rem;">NRT/NGO × 2</div><div class="label">日本</div></div>
-            <div class="sum-card"><div class="num" style="color:var(--gold);font-size:0.9rem;">BR/CI/FD/JX/IT/PG/TG/TR</div><div class="label">搭乘航空</div></div>
+            <div class="sum-card"><div class="num">12</div><div class="label">趟旅程 <div class="en">Trips</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.1rem;">BKK × 7</div><div class="label">曼谷 <div class="en">Bangkok</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.1rem;">NRT/NGO × 2</div><div class="label">日本 <div class="en">Japan</div></div></div>
+            <div class="sum-card"><div class="num" style="color:var(--gold);font-size:0.9rem;">BR/CI/FD/JX/IT/PG/TG/TR</div><div class="label">搭乘航空 <div class="en">Airlines</div></div></div>
         </div>
 
         <!-- T1 -->
@@ -694,10 +713,10 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2022/12/29 11:00</div></td><td><div class="time-arr">15:00</div></td><td class="flight-no">JX804</td><td class="pnr">5AX8Z4</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通</td><td class="price">NT$29,828</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2023/01/04 16:00</div></td><td><div class="time-arr">19:05</div></td><td class="flight-no">JX805</td><td class="dash">—</td><td class="aircraft">Airbus A321neo</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2022/12/29 11:00</div></td><td><div class="time-arr">15:00</div></td><td class="flight-no">JX804</td><td class="pnr">5AX8Z4</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通</td><td class="price">NT$29,828</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/01/04 16:00</div></td><td><div class="time-arr">19:05</div></td><td class="flight-no">JX805</td><td class="dash">—</td><td class="aircraft">Airbus A321neo</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -713,10 +732,10 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2023/01/20 12:05</div></td><td><div class="time-arr">15:00</div></td><td class="flight-no">FD231</td><td class="pnr">R8FRRA</td><td class="aircraft">A321-200</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮</td><td class="price">NT$32,752</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2023/01/27 06:40</div></td><td><div class="time-arr">11:25</div></td><td class="flight-no">FD230</td><td class="dash">—</td><td class="aircraft">A321-200</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/01/20 12:05</div></td><td><div class="time-arr">15:00</div></td><td class="flight-no">FD231</td><td class="pnr">R8FRRA</td><td class="aircraft">A321-200</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮</td><td class="price">NT$32,752</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/01/27 06:40</div></td><td><div class="time-arr">11:25</div></td><td class="flight-no">FD230</td><td class="dash">—</td><td class="aircraft">A321-200</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -732,18 +751,18 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span><span class="note" style="margin-left:8px;">商務艙各 50,000哩，共 100,000哩</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>票價</th><th>備註</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>票價</th><th>備註</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2023/02/22 09:45</div></td><td><div class="time-arr">12:40</div></td><td class="flight-no">BR201</td><td class="pnr">5JQMPC</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="price-pts">NT$0<br><span class="note">尊寵 43,777 / 基本 31,847</span></td><td class="note">商務艙</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2023/03/05 12:10</div></td><td><div class="time-arr">16:45</div></td><td class="flight-no">BR212</td><td class="dash">—</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/02/22 09:45</div></td><td><div class="time-arr">12:40</div></td><td class="flight-no">BR201</td><td class="pnr">5JQMPC</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="price-pts">NT$0<br><span class="note">尊寵 43,777 / 基本 31,847</span></td><td class="note">商務艙</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/03/05 12:10</div></td><td><div class="time-arr">16:45</div></td><td class="flight-no">BR212</td><td class="dash">—</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
-                <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:8px;">UDON 子行程</span></div>
+                <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:8px;">UDON 子行程 Sub-trip</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2023/02/27 14:05</div></td><td><div class="time-arr">15:05</div></td><td class="flight-no">DD308</td><td class="pnr">5KQW6N</td><td class="note">mark pay 國泰亞萬</td><td class="price">NT$4,060</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2023/03/01 15:35</div></td><td><div class="time-arr">16:35</div></td><td class="flight-no">DD309</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/02/27 14:05</div></td><td><div class="time-arr">15:05</div></td><td class="flight-no">DD308</td><td class="pnr">5KQW6N</td><td class="note">mark pay 國泰亞萬</td><td class="price">NT$4,060</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/03/01 15:35</div></td><td><div class="time-arr">16:35</div></td><td class="flight-no">DD309</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -759,18 +778,18 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span><span class="note" style="margin-left:8px;">BKK 幹線</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
                     <tr><td><span class="badge-go">去程 (MARK)</span></td><td><div class="time-main">2023/06/16 07:10</div></td><td><div class="time-arr">09:45</div></td><td class="flight-no">CI833</td><td class="pnr">64V3V3</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通</td><td class="price">NT$22,160</td></tr>
                     <tr><td><span class="badge-back">回程 (ALEX)</span></td><td><div class="time-main">2023/06/24 17:35</div></td><td><div class="time-arr">22:10</div></td><td class="flight-no">CI836</td><td class="dash">—</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
-                <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:8px;">Phuket 子行程</span></div>
+                <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:8px;">Phuket 子行程 Sub-trip</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2023/06/16 14:55</div></td><td><div class="time-arr">16:25</div></td><td class="flight-no">TG2283</td><td class="pnr">5FU45N</td><td class="note">美國運通</td><td class="price">NT$5,073</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2023/06/19 11:40</div></td><td><div class="time-arr">13:15</div></td><td class="flight-no">TG2286</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/06/16 14:55</div></td><td><div class="time-arr">16:25</div></td><td class="flight-no">TG2283</td><td class="pnr">5FU45N</td><td class="note">美國運通</td><td class="price">NT$5,073</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/06/19 11:40</div></td><td><div class="time-arr">13:15</div></td><td class="flight-no">TG2286</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -786,18 +805,18 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span><span class="note" style="margin-left:8px;">BKK 幹線</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2023/09/23 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6FX8F6</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通 + 7,336哩</td><td class="price">NT$23,080</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2023/10/01 17:30</div></td><td><div class="time-arr">22:10</div></td><td class="flight-no">CI836</td><td class="dash">—</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/09/23 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6FX8F6</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通 + 7,336哩</td><td class="price">NT$23,080</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/10/01 17:30</div></td><td><div class="time-arr">22:10</div></td><td class="flight-no">CI836</td><td class="dash">—</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
-                <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:8px;">URT 子行程</span></div>
+                <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:8px;">URT 子行程 Sub-trip</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2023/09/27</div></td><td><div class="time-arr">17:30</div></td><td class="flight-no">FD3331</td><td class="pnr">A2PNKS</td><td class="note">富邦尊爵卡</td><td class="price">4,513 ฿ (NT$4,204)</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2023/09/30</div></td><td><div class="time-arr">17:25</div></td><td class="flight-no">FD3232</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/09/27</div></td><td><div class="time-arr">17:30</div></td><td class="flight-no">FD3331</td><td class="pnr">A2PNKS</td><td class="note">富邦尊爵卡</td><td class="price">4,513 ฿ (NT$4,204)</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/09/30</div></td><td><div class="time-arr">17:25</div></td><td class="flight-no">FD3232</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -813,26 +832,26 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:8px;">BKK 幹線</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/02/02 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">5HH8LT</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$13,496</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/02/11 17:10</div></td><td><div class="time-arr">21:45</div></td><td class="flight-no">BR68</td><td class="dash">—</td><td class="aircraft">B777-300ER</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/02/02 20:45</div></td><td><div class="time-arr">23:40</div></td><td class="flight-no">BR205</td><td class="pnr">5HH8LT</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$13,496</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/02/11 17:10</div></td><td><div class="time-arr">21:45</div></td><td class="flight-no">BR68</td><td class="dash">—</td><td class="aircraft">B777-300ER</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:8px;">BKK 幹線（哩程兌換）</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/02/02 07:45</div></td><td><div class="time-arr">10:30</div></td><td class="flight-no">BR211</td><td class="pnr">66H8A3</td><td class="aircraft">B777-300ER</td><td class="note">哩程兌換，機場接送 04:30</td><td class="price">NT$2,293</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/02/12 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/02/02 07:45</div></td><td><div class="time-arr">10:30</div></td><td class="flight-no">BR211</td><td class="pnr">66H8A3</td><td class="aircraft">B777-300ER</td><td class="note">哩程兌換，機場接送 04:30</td><td class="price">NT$2,293</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/02/12 02:15</div></td><td><div class="time-arr">06:50</div></td><td class="flight-no">BR206</td><td class="dash">—</td><td class="aircraft">Boeing 787-10</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
-                <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:8px;">Krabi 子行程</span></div>
+                <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:8px;">Krabi 子行程 Sub-trip</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/02/03 11:35</div></td><td><div class="time-arr">13:05</div></td><td class="flight-no">FD3217</td><td class="pnr">Q8NP2D</td><td class="note">國泰長榮-7922</td><td class="price">NT$5,953</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/02/06 17:35</div></td><td><div class="time-arr">19:00</div></td><td class="flight-no">FD3224</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/02/03 11:35</div></td><td><div class="time-arr">13:05</div></td><td class="flight-no">FD3217</td><td class="pnr">Q8NP2D</td><td class="note">國泰長榮-7922</td><td class="price">NT$5,953</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/02/06 17:35</div></td><td><div class="time-arr">19:00</div></td><td class="flight-no">FD3224</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -848,10 +867,10 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/04/02 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6KZCQJ</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$8,949</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/04/10 17:30</div></td><td><div class="time-arr">22:10</div></td><td class="flight-no">CI836</td><td class="dash">—</td><td class="aircraft">A330-300</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/04/02 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6KZCQJ</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮-mark pay</td><td class="price">NT$8,949</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/04/10 17:30</div></td><td><div class="time-arr">22:10</div></td><td class="flight-no">CI836</td><td class="dash">—</td><td class="aircraft">A330-300</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -867,26 +886,26 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/06/01 07:30</div></td><td><div class="time-arr">11:35</div></td><td class="flight-no">BR192</td><td class="pnr">5JZ05Q</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">ANA哩程 20,000 + USD83.5</td><td class="price">NT$13,496</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/06/09 12:40</div></td><td><div class="time-arr">15:05</div></td><td class="flight-no">BR191</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/06/01 07:30</div></td><td><div class="time-arr">11:35</div></td><td class="flight-no">BR192</td><td class="pnr">5JZ05Q</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">ANA哩程 20,000 + USD83.5</td><td class="price">NT$13,496</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/06/09 12:40</div></td><td><div class="time-arr">15:05</div></td><td class="flight-no">BR191</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/06/01 00:10</div></td><td><div class="time-arr">04:25</div></td><td class="flight-no">IT216</td><td class="pnr">V1GEMB</td><td class="aircraft">Airbus A320neo</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮聯名卡</td><td class="price">NT$10,509</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/06/09 19:40</div></td><td><div class="time-arr">22:35</div></td><td class="flight-no">IT203</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/06/01 00:10</div></td><td><div class="time-arr">04:25</div></td><td class="flight-no">IT216</td><td class="pnr">V1GEMB</td><td class="aircraft">Airbus A320neo</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮聯名卡</td><td class="price">NT$10,509</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/06/09 19:40</div></td><td><div class="time-arr">22:35</div></td><td class="flight-no">IT203</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-frank">FRANK</span><span class="note" style="margin-left:6px;">BKK ↔ HND</span></div>
                 <div class="table-wrap"><table>
                     <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/05/30 13:00</div></td><td><div class="time-arr">21:10</div></td><td class="flight-no">TG660</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/06/05 00:20</div></td><td><div class="time-arr">04:50</div></td><td class="flight-no">TG661</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/05/30 13:00</div></td><td><div class="time-arr">21:10</div></td><td class="flight-no">TG660</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/06/05 00:20</div></td><td><div class="time-arr">04:50</div></td><td class="flight-no">TG661</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -904,8 +923,8 @@
                 <div class="table-wrap"><table>
                     <thead><tr><th>方向</th><th>出發</th><th>抵達</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/07/19 23:55</div></td><td><div class="time-arr">2024/07/20 06:45</div></td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/08/01 12:30</div></td><td><div class="time-arr">2024/08/02 06:50</div></td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/07/19 23:55</div></td><td><div class="time-arr">2024/07/20 06:45</div></td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/08/01 12:30</div></td><td><div class="time-arr">2024/08/02 06:50</div></td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -923,8 +942,8 @@
                 <div class="table-wrap"><table>
                     <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/08/10 06:00</div></td><td><div class="time-arr">10:40</div></td><td class="flight-no">TR892</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/08/13 01:30</div></td><td><div class="time-arr">06:00</div></td><td class="flight-no">TR897</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/08/10 06:00</div></td><td><div class="time-arr">10:40</div></td><td class="flight-no">TR892</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/08/13 01:30</div></td><td><div class="time-arr">06:00</div></td><td class="flight-no">TR897</td></tr>
                     </tbody>
                 </table></div>
             </div>
@@ -940,7 +959,7 @@
             <div class="passenger-section">
                 <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:6px;">BKK 幹線 + Samui（哩程兌換）</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
                     <tr><td><span class="badge-go">BKK 去程</span></td><td><div class="time-main">2024/09/12 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">5RTM6P</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮哩程兌換</td><td class="price-pts">手續費 NT$2,842</td></tr>
                     <tr><td><span class="badge-go">BKK→Samui</span></td><td><div class="time-main">2024/09/13 12:40</div></td><td><div class="time-arr">13:45</div></td><td class="flight-no">PG135</td><td class="pnr">5RSMWD</td><td class="aircraft">曼谷航空 A319</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮聯名卡</td><td class="price">4,980+388 THB</td></tr>
@@ -950,7 +969,7 @@
                 </table></div>
                 <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:6px;">BKK 幹線 + URT（哩程兌換）</span></div>
                 <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR</th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
                     <tbody>
                     <tr><td><span class="badge-go">BKK 去程</span></td><td><div class="time-main">2024/09/12 20:45</div></td><td><div class="time-arr">23:30</div></td><td class="flight-no">BR205</td><td class="pnr">554BGW</td><td class="aircraft">Boeing 787-10</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮哩程兌換</td><td class="price-pts">手續費 NT$2,840<br><span class="note">票 NT$27,381</span></td></tr>
                     <tr><td><span class="badge-go">BKK→URT</span></td><td><div class="time-main">2024/09/13 12:40</div></td><td><div class="time-arr">13:45</div></td><td class="flight-no">PG135</td><td class="pnr">5RSMWD</td><td class="aircraft">曼谷航空 A319</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮聯名卡</td><td class="price">1,028 THB</td></tr>
@@ -973,8 +992,8 @@
                 <div class="table-wrap"><table>
                     <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>票價</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="badge-go">去程</span></td><td><div class="time-main">2024/10/24 11:30</div></td><td><div class="time-arr">16:30</div></td><td class="flight-no">TR896</td><td class="price">6,434 ฿</td></tr>
-                    <tr><td><span class="badge-back">回程</span></td><td><div class="time-main">2024/10/28 00:50</div></td><td><div class="time-arr">04:35</div></td><td class="flight-no">TR875</td><td class="dash">—</td></tr>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2024/10/24 11:30</div></td><td><div class="time-arr">16:30</div></td><td class="flight-no">TR896</td><td class="price">6,434 ฿</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2024/10/28 00:50</div></td><td><div class="time-arr">04:35</div></td><td class="flight-no">TR875</td><td class="dash">—</td></tr>
                     </tbody>
                 </table></div>
             </div>
