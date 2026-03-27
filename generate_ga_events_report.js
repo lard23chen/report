@@ -439,12 +439,12 @@ async function main() {
     <div class="sidebar">
         <div class="sidebar-header">選擇節目</div>
         <div class="event-list" id="eventList">
-            ${clientData.map((d, i) => `
+            ${clientData.map((d, i) => d.maxSession > 2000 ? `
                 <div class="event-item" id="event-item-${i}" onclick="updateDashboard(${i})">
                     <div class="date">[${d.start ? d.start.slice(0, 10) : '未知日期'}]</div>
                     <div class="name">${d.name}</div>
                 </div>
-            `).join('')}
+            ` : '').join('')}
         </div>
     </div>
     
@@ -540,13 +540,7 @@ async function main() {
         });
 
         // Update cards
-        const sessionCard = document.getElementById('valSession').closest('.card');
-        if (d.maxSession > 2000) {
-            sessionCard.style.display = '';
-            document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
-        } else {
-            sessionCard.style.display = 'none';
-        }
+        document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
         document.getElementById('valActiveDMin').innerText = d.maxActiveDMin.toLocaleString();
         document.getElementById('valActiveAMin').innerText = d.maxActiveAMin.toLocaleString();
         document.getElementById('valMaxOrders').innerText = maxOrders.toLocaleString();
@@ -648,7 +642,16 @@ async function main() {
 
     // Init
     window.onload = () => {
-        updateDashboard(0);
+        // Hide events with maxSession <= 2000
+        serverData.forEach((d, i) => {
+            if (d.maxSession <= 2000) {
+                const el = document.getElementById('event-item-' + i);
+                if (el) el.style.display = 'none';
+            }
+        });
+        // Find first visible event
+        const firstVisible = serverData.findIndex(d => d.maxSession > 2000);
+        updateDashboard(firstVisible >= 0 ? firstVisible : 0);
     };
 
 </script>

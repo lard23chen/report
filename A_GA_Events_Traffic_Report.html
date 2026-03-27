@@ -1469,13 +1469,7 @@
         });
 
         // Update cards
-        const sessionCard = document.getElementById('valSession').closest('.card');
-        if (d.maxSession > 2000) {
-            sessionCard.style.display = '';
-            document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
-        } else {
-            sessionCard.style.display = 'none';
-        }
+        document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
         document.getElementById('valActiveDMin').innerText = d.maxActiveDMin.toLocaleString();
         document.getElementById('valActiveAMin').innerText = d.maxActiveAMin.toLocaleString();
         document.getElementById('valMaxOrders').innerText = maxOrders.toLocaleString();
@@ -1577,7 +1571,16 @@
 
     // Init
     window.onload = () => {
-        updateDashboard(0);
+        // Hide events with maxSession <= 2000
+        serverData.forEach((d, i) => {
+            if (d.maxSession <= 2000) {
+                const el = document.getElementById('event-item-' + i);
+                if (el) el.style.display = 'none';
+            }
+        });
+        // Find first visible event
+        const firstVisible = serverData.findIndex(d => d.maxSession > 2000);
+        updateDashboard(firstVisible >= 0 ? firstVisible : 0);
     };
 
 </script>
