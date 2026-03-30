@@ -258,8 +258,9 @@ function clearError() {
 function checkPassword() {
     const val = document.getElementById('pwdInput').value;
     if (val === _p) {
+        const dest = _target;
         closeModal();
-        window.location.href = _target;
+        window.location.href = dest;
     } else {
         const input = document.getElementById('pwdInput');
         input.classList.add('error');
