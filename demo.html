@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>會議室預約系統</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #0f172a; height: 100vh; overflow: hidden; display: flex; }
+
+  /* ── Sidebar ── */
+  #sidebar { width: 256px; background: #0f172a; color: #fff; display: flex; flex-direction: column; height: 100vh; flex-shrink: 0; box-shadow: 4px 0 16px rgba(0,0,0,.3); }
+  #sidebar .logo { padding: 24px; border-bottom: 1px solid #1e293b; display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; }
+  #sidebar .logo svg { color: #60a5fa; }
+  #sidebar nav { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+  .nav-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; background: transparent; color: #94a3b8; transition: background .15s, color .15s; text-align: left; }
+  .nav-btn:hover { background: #1e293b; color: #e2e8f0; }
+  .nav-btn.active { background: #2563eb; color: #fff; }
+  #sidebar .user-info { padding: 16px; border-top: 1px solid #1e293b; font-size: 13px; color: #64748b; }
+
+  /* ── Main ── */
+  #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #header { background: rgba(255,255,255,.85); backdrop-filter: blur(8px); border-bottom: 1px solid #e2e8f0; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  #header .title-area .sub { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
+  #header h1 { font-size: 22px; font-weight: 900; color: #1e293b; }
+  #header .user-area { display: flex; align-items: center; gap: 16px; }
+  #header .user-name { font-size: 14px; font-weight: 700; text-align: right; }
+  #header .user-role { font-size: 10px; color: #94a3b8; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: #dbeafe; color: #2563eb; font-weight: 900; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+  /* ── Content ── */
+  #content { flex: 1; overflow-y: auto; padding: 32px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Cards / Panels ── */
+  .card { background: #fff; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 24px; }
+
+  /* ── Form ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+  @media(max-width:700px){ .form-grid { grid-template-columns: 1fr; } }
+  .form-section { display: flex; flex-direction: column; gap: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 4px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px;
+    font-size: 14px; outline: none; transition: box-shadow .15s, border-color .15s; font-family: inherit;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+  .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-actions { margin-top: 32px; display: flex; justify-content: flex-end; gap: 12px; }
+  .btn { padding: 9px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: background .15s, transform .1s; }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: #fff; color: #475569; border: 1px solid #cbd5e1; }
+  .btn-secondary:hover { background: #f8fafc; }
+  .form-title { font-size: 18px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+
+  /* ── Overview Table ── */
+  .overview-toolbar { background: #fff; border-radius: 12px; border: 1px solid #f1f5f9; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .overview-toolbar h2 { font-size: 16px; font-weight: 700; color: #1e293b; }
+  .date-nav { display: flex; align-items: center; gap: 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+  .date-nav button { background: #fff; border: none; padding: 8px 10px; cursor: pointer; color: #64748b; line-height: 1; }
+  .date-nav button:hover { background: #f1f5f9; }
+  .date-nav input[type=date] { border: none; padding: 6px 4px; font-size: 13px; font-weight: 600; outline: none; background: transparent; }
+  .legend { display: flex; gap: 16px; font-size: 12px; font-weight: 500; color: #64748b; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-dot.busy { background: #fee2e2; border: 1px solid #fca5a5; }
+  .legend-dot.free { background: #f8fafc; border: 1px solid #e2e8f0; }
+
+  .table-wrap { background: #fff; border-radius: 12px; border: 1px solid #f1f5f9; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  thead tr { background: #f8fafc; border-bottom: 1px solid #f1f5f9; }
+  th.room-col { padding: 14px 16px; width: 180px; font-size: 13px; font-weight: 600; color: #64748b; text-align: left; }
+  th.time-col { padding: 8px 4px; text-align: center; font-size: 11px; color: #94a3b8; font-weight: 500; border-left: 1px solid #f1f5f9; white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid #f1f5f9; }
+  tbody tr:last-child { border-bottom: none; }
+  td.room-info { padding: 14px 16px; }
+  td.room-info .room-name { font-weight: 700; color: #1e293b; font-size: 14px; }
+  td.room-info .room-cap { font-size: 11px; color: #94a3b8; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+  td.slot { border-left: 1px solid #f1f5f9; padding: 4px; position: relative; cursor: pointer; height: 52px; vertical-align: middle; transition: background .1s; }
+  td.slot.free:hover { background: #eff6ff; }
+  td.slot.busy { background: #fff1f2; }
+  .slot-block { position: absolute; inset: 3px; background: rgba(239,68,68,.15); border: 1px solid #f87171; border-radius: 4px; padding: 2px 4px; overflow: hidden; display: flex; align-items: center; }
+  .slot-block .slot-title { font-size: 10px; font-weight: 700; color: #b91c1c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slot-plus { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; color: #93c5fd; }
+  td.slot.free:hover .slot-plus { display: flex; }
+
+  /* Tooltip */
+  .tooltip { display: none; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; font-size: 11px; padding: 8px 10px; border-radius: 6px; z-index: 100; width: 180px; line-height: 1.5; pointer-events: none; white-space: normal; }
+  .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: #1e293b; }
+  td.slot:hover .tooltip { display: block; }
+
+  /* ── My Bookings ── */
+  .section-title { font-size: 16px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .section-title.muted { color: #64748b; }
+  .booking-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .booking-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; position: relative; overflow: hidden; transition: box-shadow .15s; }
+  .booking-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .booking-card-actions { position: absolute; top: 10px; right: 10px; display: none; gap: 6px; }
+  .booking-card:hover .booking-card-actions { display: flex; }
+  .icon-btn { width: 30px; height: 30px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; transition: background .15s, color .15s; }
+  .icon-btn.edit:hover { background: #dbeafe; color: #2563eb; }
+  .icon-btn.del:hover { background: #fee2e2; color: #dc2626; }
+  .booking-room { font-size: 11px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: .05em; display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .pulse { width: 8px; height: 8px; background: #2563eb; border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.2)} }
+  .booking-title { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 10px; }
+  .booking-meta { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .meta-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b; }
+  .booking-note { font-size: 11px; color: #94a3b8; background: #f8fafc; border-radius: 6px; padding: 8px 10px; display: flex; gap: 6px; }
+  .booking-note svg { flex-shrink: 0; margin-top: 1px; }
+  .empty-state { background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 12px; padding: 48px; text-align: center; color: #94a3b8; font-size: 14px; }
+  .canceled-list { display: flex; flex-direction: column; gap: 8px; }
+  .canceled-item { background: #f8fafc; border: 1px solid #f1f5f9; padding: 14px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; opacity: .65; }
+  .canceled-item .info { font-size: 14px; color: #475569; }
+  .canceled-item .info strong { font-weight: 700; }
+  .canceled-item .info .sep { color: #cbd5e1; margin: 0 8px; }
+  .canceled-item .badge { font-size: 11px; padding: 3px 8px; background: #e2e8f0; color: #64748b; border-radius: 4px; font-weight: 600; }
+
+  /* ── Notifications ── */
+  #notifications { position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .notif { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,.2); animation: slideIn .3s ease; }
+  .notif.success { background: #10b981; }
+  .notif.error { background: #ef4444; }
+  .notif.info { background: #475569; }
+  @keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { to { opacity: 0; transform: translateX(110%); } }
+  .notif.removing { animation: fadeOut .3s ease forwards; }
+
+  /* ── SVG Icons ── */
+  svg { display: inline-block; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <div class="logo">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    會議室系統
+  </div>
+  <nav>
+    <button class="nav-btn active" data-tab="overview">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      查看預約情形
+    </button>
+    <button class="nav-btn" data-tab="book">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      會議室預約
+    </button>
+    <button class="nav-btn" data-tab="my-bookings">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/></svg>
+      我的預約
+    </button>
+  </nav>
+  <div class="user-info">登入身分：王小明</div>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <div id="header">
+    <div class="title-area">
+      <div class="sub">Meeting System</div>
+      <h1 id="page-title">預約情形總覽</h1>
+    </div>
+    <div class="user-area">
+      <div>
+        <div class="user-name">王小明</div>
+        <div class="user-role">研發部 / 資深工程師</div>
+      </div>
+      <div class="avatar">王</div>
+    </div>
+  </div>
+
+  <div id="content">
+    <!-- Overview Page -->
+    <div class="page active" id="page-overview">
+      <div class="overview-toolbar">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <h2>預約總覽表</h2>
+          <div class="date-nav">
+            <button id="prev-day" title="前一天">&#8249;</button>
+            <input type="date" id="overview-date" />
+            <button id="next-day" title="後一天">&#8250;</button>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot busy"></div> 佔用</div>
+          <div class="legend-item"><div class="legend-dot free"></div> 空閒</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="overview-table">
+          <thead id="overview-thead"></thead>
+          <tbody id="overview-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Book Page -->
+    <div class="page" id="page-book">
+      <div class="card">
+        <div class="form-title" id="form-title">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          填寫預約申請表單
+        </div>
+        <input type="hidden" id="edit-id" value="" />
+        <div class="form-grid">
+          <div class="form-section">
+            <div class="form-group">
+              <label>選擇會議室</label>
+              <select id="f-room"></select>
+            </div>
+            <div class="form-group">
+              <label>日期</label>
+              <input type="date" id="f-date" />
+            </div>
+            <div class="time-row">
+              <div class="form-group">
+                <label>開始時間</label>
+                <input type="time" id="f-start" value="09:00" />
+              </div>
+              <div class="form-group">
+                <label>結束時間</label>
+                <input type="time" id="f-end" value="10:00" />
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="form-group">
+              <label>會議主題</label>
+              <input type="text" id="f-title" placeholder="請輸入會議名稱" />
+            </div>
+            <div class="form-group">
+              <label>預計參與人數</label>
+              <input type="number" id="f-attendees" min="1" value="1" />
+            </div>
+            <div class="form-group">
+              <label>備註 (選填)</label>
+              <textarea id="f-note" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="form-cancel" style="display:none">取消</button>
+          <button class="btn btn-primary" id="form-submit">送出預約申請</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Bookings Page -->
+    <div class="page" id="page-my-bookings">
+      <div style="margin-bottom:32px;">
+        <div class="section-title">
+          <svg width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          即將到來的預約
+        </div>
+        <div id="upcoming-grid" class="booking-grid"></div>
+      </div>
+      <div id="canceled-section" style="display:none;">
+        <div class="section-title muted">已取消的預約</div>
+        <div id="canceled-list" class="canceled-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications -->
+<div id="notifications"></div>
+
+<script>
+// ── Data ──
+const ROOMS = [
+  { id: 'R1', name: '集思會議室 (大)', capacity: 20 },
+  { id: 'R2', name: '創新研討室 (中)', capacity: 10 },
+  { id: 'R3', name: '靈感角落 (小)', capacity: 4 },
+  { id: 'R4', name: '雲端協作室', capacity: 8 },
+];
+const CURRENT_USER = { id: 'U001', name: '王小明' };
+const today = new Date().toISOString().split('T')[0];
+
+let bookings = [
+  { id: 'B001', roomId: 'R1', userId: 'U001', userName: '王小明', title: '季度業務檢討會', date: today, startTime: '10:00', endTime: '12:00', attendees: 15, note: '需要投影片與麥克風', status: '已確認' },
+  { id: 'B002', roomId: 'R2', userId: 'U002', userName: '李小華', title: '產品設計發想', date: today, startTime: '14:00', endTime: '15:30', attendees: 6, note: '', status: '已確認' },
+];
+
+let selectedDate = today;
+
+// ── Tab Navigation ──
+const PAGE_TITLES = { overview: '預約情形總覽', book: '建立預約申請', 'my-bookings': '我的預約紀錄' };
+
+function switchTab(tab) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + tab));
+  document.getElementById('page-title').textContent = PAGE_TITLES[tab];
+  if (tab === 'overview') renderOverview();
+  if (tab === 'my-bookings') renderMyBookings();
+  if (tab === 'book') {
+    clearForm();
+    setFormMode('create');
+  }
+}
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// ── Notifications ──
+function notify(message, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `notif ${type}`;
+  const icon = type === 'error'
+    ? '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+    : '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>';
+  el.innerHTML = icon + '<span>' + message + '</span>';
+  document.getElementById('notifications').appendChild(el);
+  setTimeout(() => { el.classList.add('removing'); setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+// ── Conflict Check ──
+function checkConflict(roomId, date, start, end, excludeId = null) {
+  return bookings.some(b =>
+    b.id !== excludeId &&
+    b.roomId === roomId &&
+    b.date === date &&
+    b.status !== '已取消' &&
+    ((start >= b.startTime && start < b.endTime) ||
+     (end > b.startTime && end <= b.endTime) ||
+     (start <= b.startTime && end >= b.endTime))
+  );
+}
+
+// ── Overview ──
+const TIME_SLOTS = Array.from({ length: 13 }, (_, i) => String(i + 8).padStart(2, '0') + ':00');
+
+function initOverviewDate() {
+  const input = document.getElementById('overview-date');
+  input.value = selectedDate;
+  input.addEventListener('change', e => { selectedDate = e.target.value; renderOverview(); });
+  document.getElementById('prev-day').addEventListener('click', () => {
+    const d = new Date(selectedDate); d.setDate(d.getDate() - 1);
+    selectedDate = d.toISOString().split('T')[0];
+    document.getElementById('overview-date').value = selectedDate;
+    renderOverview();
+  });
+  document.getElementById('next-day').addEventListener('click', () => {
+    const d = new Date(selectedDate); d.setDate(d.getDate() + 1);
+    selectedDate = d.toISOString().split('T')[0];
+    document.getElementById('overview-date').value = selectedDate;
+    renderOverview();
+  });
+}
+
+function renderOverview() {
+  const thead = document.getElementById('overview-thead');
+  const tbody = document.getElementById('overview-tbody');
+
+  // Header
+  thead.innerHTML = '<tr><th class="room-col">會議室 / 時間</th>' +
+    TIME_SLOTS.map(t => `<th class="time-col">${t}</th>`).join('') + '</tr>';
+
+  // Body
+  tbody.innerHTML = '';
+  ROOMS.forEach(room => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="room-info"><div class="room-name">${room.name}</div><div class="room-cap"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 容納 ${room.capacity} 人</div></td>`;
+
+    TIME_SLOTS.forEach(time => {
+      const hour = parseInt(time);
+      const booking = bookings.find(b =>
+        b.roomId === room.id &&
+        b.date === selectedDate &&
+        b.status !== '已取消' &&
+        hour >= parseInt(b.startTime) &&
+        hour < parseInt(b.endTime)
+      );
+      const td = document.createElement('td');
+      td.className = 'slot ' + (booking ? 'busy' : 'free');
+      if (booking) {
+        td.innerHTML = `<div class="slot-block"><span class="slot-title">${booking.title}</span></div>
+          <div class="tooltip"><strong>${booking.title}</strong><br>${booking.startTime} - ${booking.endTime}<br>預約人: ${booking.userName}</div>`;
+      } else {
+        td.innerHTML = `<div class="slot-plus"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>`;
+        td.addEventListener('click', () => { switchTab('book'); });
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Booking Form ──
+function initForm() {
+  const sel = document.getElementById('f-room');
+  ROOMS.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.id; opt.textContent = `${r.name} (容納: ${r.capacity}人)`;
+    sel.appendChild(opt);
+  });
+  document.getElementById('f-date').value = today;
+  document.getElementById('form-submit').addEventListener('click', submitForm);
+  document.getElementById('form-cancel').addEventListener('click', () => { switchTab('my-bookings'); });
+}
+
+function clearForm() {
+  document.getElementById('edit-id').value = '';
+  document.getElementById('f-room').value = ROOMS[0].id;
+  document.getElementById('f-date').value = selectedDate;
+  document.getElementById('f-start').value = '09:00';
+  document.getElementById('f-end').value = '10:00';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-attendees').value = '1';
+  document.getElementById('f-note').value = '';
+}
+
+function setFormMode(mode, booking = null) {
+  const isEdit = mode === 'edit';
+  document.getElementById('form-title').innerHTML = isEdit
+    ? '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 修改預約資訊'
+    : '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> 填寫預約申請表單';
+  document.getElementById('form-submit').textContent = isEdit ? '儲存修改' : '送出預約申請';
+  document.getElementById('form-cancel').style.display = isEdit ? 'inline-block' : 'none';
+  if (isEdit && booking) {
+    document.getElementById('edit-id').value = booking.id;
+    document.getElementById('f-room').value = booking.roomId;
+    document.getElementById('f-date').value = booking.date;
+    document.getElementById('f-start').value = booking.startTime;
+    document.getElementById('f-end').value = booking.endTime;
+    document.getElementById('f-title').value = booking.title;
+    document.getElementById('f-attendees').value = booking.attendees;
+    document.getElementById('f-note').value = booking.note;
+  }
+}
+
+function submitForm() {
+  const editId = document.getElementById('edit-id').value;
+  const data = {
+    roomId: document.getElementById('f-room').value,
+    date: document.getElementById('f-date').value,
+    startTime: document.getElementById('f-start').value,
+    endTime: document.getElementById('f-end').value,
+    title: document.getElementById('f-title').value.trim(),
+    attendees: parseInt(document.getElementById('f-attendees').value) || 1,
+    note: document.getElementById('f-note').value.trim(),
+  };
+  if (!data.title) { notify('請填寫會議主題', 'error'); return; }
+  if (!data.date) { notify('請選擇日期', 'error'); return; }
+  if (data.startTime >= data.endTime) { notify('結束時間必須晚於開始時間', 'error'); return; }
+
+  if (editId) {
+    if (checkConflict(data.roomId, data.date, data.startTime, data.endTime, editId)) {
+      notify('修改時段與現有預約衝突', 'error'); return;
+    }
+    bookings = bookings.map(b => b.id === editId ? { ...b, ...data } : b);
+    notify('預約資訊已更新');
+    switchTab('my-bookings');
+  } else {
+    if (checkConflict(data.roomId, data.date, data.startTime, data.endTime)) {
+      notify('預約時段衝突，請選擇其他時間或會議室', 'error'); return;
+    }
+    bookings.push({ ...data, id: 'B' + Date.now(), userId: CURRENT_USER.id, userName: CURRENT_USER.name, status: '已確認' });
+    notify('會議室預約成功！');
+    switchTab('my-bookings');
+  }
+}
+
+// ── My Bookings ──
+function renderMyBookings() {
+  const userBookings = bookings.filter(b => b.userId === CURRENT_USER.id);
+  const upcoming = userBookings.filter(b => b.status === '已確認').sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
+  const canceled = userBookings.filter(b => b.status === '已取消');
+
+  const grid = document.getElementById('upcoming-grid');
+  grid.innerHTML = '';
+  if (upcoming.length === 0) {
+    grid.innerHTML = '<div class="empty-state">目前沒有即將到來的預約紀錄</div>';
+  } else {
+    upcoming.forEach(booking => {
+      const room = ROOMS.find(r => r.id === booking.roomId);
+      const card = document.createElement('div');
+      card.className = 'booking-card';
+      card.innerHTML = `
+        <div class="booking-card-actions">
+          <button class="icon-btn edit" title="修改" data-id="${booking.id}">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="icon-btn del" title="取消預約" data-id="${booking.id}">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+        <div class="booking-room"><span class="pulse"></span>${room ? room.name : booking.roomId}</div>
+        <div class="booking-title">${booking.title}</div>
+        <div class="booking-meta">
+          <div class="meta-row">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            ${booking.date}
+          </div>
+          <div class="meta-row">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${booking.startTime} - ${booking.endTime}
+          </div>
+          <div class="meta-row">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            ${booking.attendees} 位參與者
+          </div>
+        </div>
+        ${booking.note ? `<div class="booking-note"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span>${booking.note}</span></div>` : ''}
+      `;
+      card.querySelector('.icon-btn.edit').addEventListener('click', () => {
+        const b = bookings.find(x => x.id === booking.id);
+        switchTab('book');
+        setFormMode('edit', b);
+      });
+      card.querySelector('.icon-btn.del').addEventListener('click', () => {
+        if (confirm('確定要取消此筆預約嗎？')) {
+          bookings = bookings.map(b => b.id === booking.id ? { ...b, status: '已取消' } : b);
+          notify('預約已成功取消', 'info');
+          renderMyBookings();
+        }
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  const canceledSection = document.getElementById('canceled-section');
+  const canceledList = document.getElementById('canceled-list');
+  if (canceled.length === 0) {
+    canceledSection.style.display = 'none';
+  } else {
+    canceledSection.style.display = 'block';
+    canceledList.innerHTML = canceled.map(b => `
+      <div class="canceled-item">
+        <div class="info"><strong>${b.title}</strong><span class="sep">|</span>${b.date} ${b.startTime}</div>
+        <span class="badge">已取消</span>
+      </div>
+    `).join('');
+  }
+}
+
+// ── Init ──
+initOverviewDate();
+initForm();
+renderOverview();
+</script>
+</body>
+</html>
