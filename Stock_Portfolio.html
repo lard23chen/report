@@ -484,7 +484,7 @@ function renderTable(rows){
     html+='<td><span class="'+pCls+'">'+(r.person||'alex').toUpperCase()+'</span></td>';
     html+='<td class="muted">'+( r.note||'' )+'</td>';
     var px=prices[r.code];
-    html+='<td class="num" style="white-space:nowrap">'+(px?fmtP(px):'<span class="muted">—</span>')+'<button class="act-btn act-edit" style="margin-left:6px" onclick="showEditModal(\''+r._id+'\')">編輯</button><button class="act-btn act-del" onclick="confirmDel(\''+r._id+'\')">刪除</button></td>';
+    html+='<td class="num" style="white-space:nowrap">'+(px?fmtP(px):'<span class="muted">—</span>')+'<button class="act-btn act-edit" style="margin-left:6px" onclick="showEditModal('+r._idx+')">編輯</button><button class="act-btn act-del" onclick="confirmDel('+r._idx+')">刪除</button></td>';
     html+='</tr>';
   });
   document.getElementById('tx-body').innerHTML=html;
@@ -541,13 +541,19 @@ function showPasswordModal(onSuccess){
 }
 
 // ─── Confirm Delete ───────────────────────────────────────────────────────────
-window.confirmDel=function(id){
-  showModal('<h3>⚠️ 確認刪除</h3><p style="color:var(--muted);margin-bottom:16px">確定要刪除這筆交易記錄嗎？</p><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-danger" id="del-yes">確定刪除</button></div>');
-  document.getElementById('del-yes').addEventListener('click',function(){
-    var s=getStore();
-    if(id.startsWith('r')){s.del[id]=1;}
-    else{s.add=s.add.filter(function(r){return r._id!==id;});}
-    saveStore(s);hideModal();render();
+window.confirmDel=function(idx){
+  showModal('<h3>⚠️ 確認刪除</h3><p style="color:var(--muted);margin-bottom:16px">確定要刪除這筆交易記錄嗎？此操作將同步刪除 Google Sheet 資料。</p><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-danger" id="del-yes">確定刪除</button></div>');
+  document.getElementById('del-yes').addEventListener('click',async function(){
+    var btn=document.getElementById('del-yes');
+    btn.disabled=true;btn.textContent='刪除中…';
+    try{
+      await apiPost({action:'delete',sheet:SHEET,index:idx});
+      hideModal();
+      showToast('已刪除，同步中…','success');
+      await delay(1200);
+      await fetchData();
+    }catch(e){showToast('刪除失敗，請重試','error');}
+    btn.disabled=false;btn.textContent='確定刪除';
   });
 };
 
@@ -602,29 +608,48 @@ function collectForm(){
 // ─── Add ─────────────────────────────────────────────────────────────────────
 window.showAddModal=function(){
   showModal(rowFormHtml(null,'＋ 新增交易'));
-  document.getElementById('form-save').addEventListener('click',function(){
+  document.getElementById('form-save').addEventListener('click',async function(){
     var d=collectForm();
     if(!d.date||!d.code){document.getElementById('form-err').textContent='日期和代號為必填';return;}
-    var s=getStore();
-    d._id='a'+Date.now();d._src='added';
-    s.add.push(d);saveStore(s);hideModal();render();
+    var btn=document.getElementById('form-save');
+    btn.disabled=true;btn.textContent='儲存中…';
+    try{
+      await apiPost({action:'add',sheet:SHEET,
+        date:d.date,type:d.type,code:d.code,name:d.name,
+        buyShares:d.buyShares,buyPrice:d.buyPrice,sellShares:d.sellShares,sellPrice:d.sellPrice,
+        fee:d.fee,tax:d.tax,amount:d.amount,cost:d.cost,spend:d.spend,income:d.income,
+        note:d.note,person:d.person});
+      hideModal();
+      showToast('已新增，同步中…','success');
+      await delay(1200);
+      await fetchData();
+    }catch(e){showToast('新增失敗，請重試','error');}
+    btn.disabled=false;btn.textContent='儲存';
   });
 };
 
 // ─── Edit ─────────────────────────────────────────────────────────────────────
-window.showEditModal=function(id){
-  var all=buildRows();
-  var row=null;all.forEach(function(r){if(r._id===id)row=r;});
+window.showEditModal=function(idx){
+  var row=data[idx];
   if(!row)return;
   showModal(rowFormHtml(row,'✏️ 修改交易'));
-  document.getElementById('form-save').addEventListener('click',function(){
+  document.getElementById('form-save').addEventListener('click',async function(){
     var d=collectForm();
     if(!d.date||!d.code){document.getElementById('form-err').textContent='日期和代號為必填';return;}
-    d._id=id;d._src=row._src;
-    var s=getStore();
-    if(id.startsWith('r')){s.edit[id]=d;}
-    else{s.add=s.add.map(function(r){return r._id===id?d:r;});}
-    saveStore(s);hideModal();render();
+    var btn=document.getElementById('form-save');
+    btn.disabled=true;btn.textContent='儲存中…';
+    try{
+      await apiPost({action:'update',sheet:SHEET,index:idx,
+        date:d.date,type:d.type,code:d.code,name:d.name,
+        buyShares:d.buyShares,buyPrice:d.buyPrice,sellShares:d.sellShares,sellPrice:d.sellPrice,
+        fee:d.fee,tax:d.tax,amount:d.amount,cost:d.cost,spend:d.spend,income:d.income,
+        note:d.note,person:d.person});
+      hideModal();
+      showToast('已儲存，同步中…','success');
+      await delay(1200);
+      await fetchData();
+    }catch(e){showToast('儲存失敗，請重試','error');}
+    btn.disabled=false;btn.textContent='儲存';
   });
 };
 
