@@ -14,28 +14,28 @@
             --accent-color: #3182ce;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        body { 
-            font-family: 'Inter', 'Microsoft JhengHei', sans-serif; 
-            background-color: var(--bg-color); 
-            color: var(--text-primary); 
-            margin: 0; 
+        body {
+            font-family: 'Inter', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
             padding: 40px 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
-        .container { 
-            max-width: 900px; 
+        .container {
+            max-width: 900px;
             width: 100%;
         }
-        header { 
+        header {
             text-align: center;
-            margin-bottom: 50px; 
+            margin-bottom: 50px;
         }
-        h1 { 
-            margin: 0; 
-            font-weight: 600; 
+        h1 {
+            margin: 0;
+            font-weight: 600;
             color: var(--text-primary);
             font-size: 2.5rem;
             letter-spacing: -0.025em;
@@ -46,16 +46,16 @@
             font-size: 1.1rem;
             opacity: 0.8;
         }
-        .category-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 30px; 
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
         }
-        .card { 
-            background: var(--card-bg); 
-            border-radius: 20px; 
-            padding: 30px; 
-            box-shadow: var(--shadow); 
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
             text-decoration: none;
             color: inherit;
             transition: all 0.3s ease;
@@ -64,6 +64,7 @@
             align-items: center;
             text-align: center;
             border: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
         }
         .card:hover {
             transform: translateY(-10px);
@@ -74,15 +75,15 @@
             font-size: 3rem;
             margin-bottom: 20px;
         }
-        .card h2 { 
-            margin: 0 0 15px 0; 
-            font-size: 1.5rem; 
-            color: var(--accent-color); 
+        .card h2 {
+            margin: 0 0 15px 0;
+            font-size: 1.5rem;
+            color: var(--accent-color);
         }
-        .card p { 
+        .card p {
             margin: 0;
-            font-size: 1rem; 
-            color: var(--text-secondary); 
+            font-size: 1rem;
+            color: var(--text-secondary);
             line-height: 1.6;
         }
         .footer {
@@ -91,6 +92,94 @@
             font-size: 0.9rem;
             color: #718096;
         }
+
+        /* Modal overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: #fff;
+            border-radius: 20px;
+            padding: 36px 32px 28px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .modal .lock-icon { font-size: 2.8rem; margin-bottom: 12px; }
+        .modal h2 {
+            margin: 0 0 6px;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+        .modal .hint {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-bottom: 22px;
+        }
+        .modal input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            letter-spacing: 0.2em;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+            color: var(--text-primary);
+        }
+        .modal input[type="password"]:focus { border-color: var(--accent-color); }
+        .modal input[type="password"].error { border-color: #e53e3e; animation: shake 0.3s; }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .error-msg {
+            color: #e53e3e;
+            font-size: 0.82rem;
+            margin-top: 8px;
+            min-height: 18px;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-cancel {
+            flex: 1;
+            padding: 11px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f7fafc;
+            color: #718096;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-cancel:hover { background: #edf2f7; }
+        .btn-enter {
+            flex: 2;
+            padding: 11px;
+            border-radius: 10px;
+            border: none;
+            background: var(--accent-color);
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-enter:hover { background: #2b6cb0; }
     </style>
 </head>
 <body>
@@ -101,28 +190,97 @@
     </header>
 
     <div class="category-grid">
-        <a href="Stock_Portfolio.html" class="card">
+        <div class="card" onclick="promptPassword('Stock_Portfolio.html')">
             <div class="icon">📈</div>
             <h2>股票投資組合</h2>
             <p>即時追蹤市場表現、資產配置分析與獲利統計報表。</p>
-        </a>
+        </div>
 
-        <a href="Travel_Tickets_2026.html" class="card">
+        <div class="card" onclick="promptPassword('Travel_Tickets_2026.html')">
             <div class="icon">🎫</div>
             <h2>2026 旅遊票券統計</h2>
             <p>詳細記錄 2026 年旅遊活動之票券銷售、營收與退票分析。</p>
-        </a>
+        </div>
 
-        <a href="Team_Resources.html" class="card">
+        <div class="card" onclick="promptPassword('Team_Resources.html')">
             <div class="icon">📋</div>
             <h2>團隊資源索引</h2>
             <p>數位應用開發 Team 常用連結管理，支援新增、修改、刪除。</p>
-        </a>
+        </div>
     </div>
 
     <div class="footer">
         最後更新時間: 2026/3/27 | 自動產出系統
     </div>
 </div>
+
+<!-- Password Modal -->
+<div class="modal-overlay" id="pwdOverlay">
+    <div class="modal">
+        <div class="lock-icon">🔒</div>
+        <h2>請輸入密碼</h2>
+        <div class="hint">輸入密碼以進入此分類</div>
+        <input type="password" id="pwdInput" placeholder="••••••••••" maxlength="20"
+               oninput="clearError()" onkeydown="if(event.key==='Enter') checkPassword()">
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeModal()">取消</button>
+            <button class="btn-enter" onclick="checkPassword()">進入</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const _h = '9bbd66ee0944aa1bc44051536224df90a6987abd6ff45ec29465c21077564acd';
+let _target = '';
+
+async function _digest(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function promptPassword(url) {
+    _target = url;
+    const overlay = document.getElementById('pwdOverlay');
+    const input = document.getElementById('pwdInput');
+    input.value = '';
+    document.getElementById('errorMsg').textContent = '';
+    input.classList.remove('error');
+    overlay.classList.add('open');
+    setTimeout(() => input.focus(), 80);
+}
+
+function closeModal() {
+    document.getElementById('pwdOverlay').classList.remove('open');
+    _target = '';
+}
+
+function clearError() {
+    document.getElementById('pwdInput').classList.remove('error');
+    document.getElementById('errorMsg').textContent = '';
+}
+
+async function checkPassword() {
+    const val = document.getElementById('pwdInput').value;
+    const hash = await _digest(val);
+    if (hash === _h) {
+        closeModal();
+        window.location.href = _target;
+    } else {
+        const input = document.getElementById('pwdInput');
+        input.classList.add('error');
+        document.getElementById('errorMsg').textContent = '密碼錯誤，請再試一次';
+        input.value = '';
+        setTimeout(() => input.classList.remove('error'), 400);
+    }
+}
+
+document.getElementById('pwdOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('pwdOverlay')) closeModal();
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+});
+</script>
 </body>
 </html>
