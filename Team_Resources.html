@@ -15,7 +15,6 @@
             --accent-hover: #2563eb;
             --success: #22c55e;
             --danger: #ef4444;
-            --warning: #f59e0b;
             --text: #f1f5f9;
             --text-muted: #94a3b8;
             --text-dim: #64748b;
@@ -88,31 +87,26 @@
             font-weight: 500;
             transition: all 0.2s;
             white-space: nowrap;
+            text-decoration: none;
         }
         .btn-primary { background: var(--accent); color: #fff; }
         .btn-primary:hover { background: var(--accent-hover); }
-        .btn-success { background: var(--success); color: #fff; }
-        .btn-success:hover { background: #16a34a; }
-        .btn-danger { background: var(--danger); color: #fff; }
-        .btn-danger:hover { background: #dc2626; }
         .btn-ghost {
             background: transparent;
             color: var(--text-muted);
             border: 1px solid var(--border);
         }
         .btn-ghost:hover { background: var(--surface2); color: var(--text); }
-        .btn-icon {
-            padding: 5px 9px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
+
+        .count-badge {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 20px;
             font-size: 0.8rem;
-            transition: all 0.2s;
+            white-space: nowrap;
         }
-        .btn-edit { background: rgba(59,130,246,0.15); color: #60a5fa; }
-        .btn-edit:hover { background: rgba(59,130,246,0.3); }
-        .btn-del { background: rgba(239,68,68,0.15); color: #f87171; }
-        .btn-del:hover { background: rgba(239,68,68,0.3); }
 
         .table-wrap {
             background: var(--surface);
@@ -134,10 +128,9 @@
             white-space: nowrap;
         }
         th.col-num { width: 48px; text-align: center; }
-        th.col-item { width: 22%; }
-        th.col-url { width: 38%; }
+        th.col-item { width: 25%; }
+        th.col-url { }
         th.col-note { width: 22%; }
-        th.col-ops { width: 90px; text-align: center; }
 
         tbody tr {
             border-bottom: 1px solid var(--border);
@@ -145,7 +138,6 @@
         }
         tbody tr:last-child { border-bottom: none; }
         tbody tr:hover { background: var(--surface2); }
-        tbody tr.highlight { background: rgba(59,130,246,0.07); }
 
         td {
             padding: 10px 14px;
@@ -164,7 +156,7 @@
             text-decoration: none;
             font-size: 0.82rem;
             display: block;
-            max-width: 380px;
+            max-width: 420px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -173,103 +165,40 @@
         td.col-url .no-url { color: var(--text-dim); font-size: 0.8rem; font-style: italic; }
         td.col-url .raw-text { color: #f59e0b; font-size: 0.8rem; }
         td.col-note { color: var(--text-muted); font-size: 0.82rem; }
-        td.col-ops { text-align: center; white-space: nowrap; }
-        td.col-ops .btn-icon + .btn-icon { margin-left: 4px; }
 
-        .count-badge {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.65);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-overlay.open { display: flex; }
-        .modal {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px;
-            width: 100%;
-            max-width: 540px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-        .modal h2 { font-size: 1.1rem; margin-bottom: 20px; color: var(--text); }
-        .form-group { margin-bottom: 16px; }
-        .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-        .form-group input, .form-group textarea {
-            width: 100%;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 9px 12px;
-            color: var(--text);
-            font-size: 0.875rem;
-            outline: none;
-            transition: border-color 0.2s;
-            font-family: inherit;
-        }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
-        .form-group textarea { resize: vertical; min-height: 70px; }
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        /* Confirm dialog */
-        .confirm-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.65);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        .confirm-overlay.open { display: flex; }
-        .confirm-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 24px;
-            max-width: 360px;
-            width: 100%;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        /* Loading / Error */
+        .status-row td {
             text-align: center;
-        }
-        .confirm-box .icon { font-size: 2rem; margin-bottom: 12px; }
-        .confirm-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
-        .confirm-box strong { color: var(--text); }
-        .confirm-footer { display: flex; justify-content: center; gap: 10px; }
-
-        .footer {
-            margin-top: 24px;
-            text-align: center;
-            font-size: 0.8rem;
+            padding: 40px;
             color: var(--text-dim);
         }
+        .spinner {
+            display: inline-block;
+            width: 20px; height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .sync-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); display: inline-block; }
+        .dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+        .dot.error { background: var(--danger); }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        .footer { margin-top: 24px; text-align: center; font-size: 0.8rem; color: var(--text-dim); }
 
         @media (max-width: 700px) {
-            th.col-url, td.col-url { display: none; }
             th.col-note, td.col-note { display: none; }
         }
     </style>
@@ -284,16 +213,20 @@
             <div class="subtitle">數位應用開發 Team — 常用連結管理</div>
         </div>
     </div>
+    <div class="sync-info">
+        <span class="dot loading" id="syncDot"></span>
+        <span id="syncText">載入中…</span>
+    </div>
 </div>
 
 <div class="toolbar">
-    <input type="text" class="search-box" id="searchBox" placeholder="搜尋項目、網址、備註…" oninput="renderTable()">
-    <span class="count-badge" id="countBadge"></span>
-    <button class="btn btn-primary" onclick="openAddModal()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-        新增項目
-    </button>
-    <button class="btn btn-ghost" onclick="resetData()" title="還原為原始資料">↺ 還原</button>
+    <input type="text" class="search-box" id="searchBox" placeholder="搜尋項目、網址、備註…" oninput="renderTable()" disabled>
+    <span class="count-badge" id="countBadge">—</span>
+    <a href="https://docs.google.com/spreadsheets/d/1HbHSaa1EL4zv6JHFOFDTr8pdBJA_QA7Q2E_pQTbWl_0/edit" target="_blank" class="btn btn-primary">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        在 Google Sheet 編輯
+    </a>
+    <button class="btn btn-ghost" onclick="fetchData()" id="reloadBtn">↺ 重新整理</button>
 </div>
 
 <div class="table-wrap">
@@ -304,228 +237,126 @@
                 <th class="col-item">項目</th>
                 <th class="col-url">網址</th>
                 <th class="col-note">備註</th>
-                <th class="col-ops">操作</th>
             </tr>
         </thead>
-        <tbody id="tableBody"></tbody>
+        <tbody id="tableBody">
+            <tr class="status-row"><td colspan="4"><span class="spinner"></span>從 Google Sheet 載入資料中…</td></tr>
+        </tbody>
     </table>
 </div>
 
 <div class="footer" id="footerText"></div>
 
-<!-- Add/Edit Modal -->
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <h2 id="modalTitle">新增項目</h2>
-        <div class="form-group">
-            <label>項目名稱 <span style="color:var(--danger)">*</span></label>
-            <input type="text" id="fItem" placeholder="輸入項目名稱">
-        </div>
-        <div class="form-group">
-            <label>網址</label>
-            <input type="text" id="fUrl" placeholder="https://…">
-        </div>
-        <div class="form-group">
-            <label>備註</label>
-            <textarea id="fNote" placeholder="選填備註說明"></textarea>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-ghost" onclick="closeModal()">取消</button>
-            <button class="btn btn-primary" onclick="saveModal()">儲存</button>
-        </div>
-    </div>
-</div>
-
-<!-- Confirm Delete Dialog -->
-<div class="confirm-overlay" id="confirmOverlay">
-    <div class="confirm-box">
-        <div class="icon">🗑️</div>
-        <p>確定要刪除 <strong id="confirmItemName"></strong>？</p>
-        <div class="confirm-footer">
-            <button class="btn btn-ghost" onclick="closeConfirm()">取消</button>
-            <button class="btn btn-danger" onclick="confirmDelete()">刪除</button>
-        </div>
-    </div>
-</div>
-
 <script>
-const STORAGE_KEY = 'team_resources_v1';
-
-const initialData = [
-    { item: "數位應用開發team 每週人力工時表", url: "https://docs.google.com/spreadsheets/d/17ayOPi1cnl8RJ7ihIIlfhSNPhOnbtFNsCYhwmNl7qjY/edit#gid=703958782", note: "" },
-    { item: "數位應用開發team 居家工作表", url: "https://docs.google.com/spreadsheets/d/1CxovuBKF7xTQev7VO_nXTjJDUemeYYluwTjX6VGwpxQ/edit#gid=278956854", note: "" },
-    { item: "數位應用開發team 合約總表 / Azure每月費用表", url: "https://docs.google.com/spreadsheets/d/1mLYgg-2c3zgPzXljojVaWYw8p5EnDiHz/edit#gid=1026055056", note: "合約/信用卡/年度維護/專利檢索" },
-    { item: "A系統總表", url: "https://docs.google.com/spreadsheets/d/1U1WRLL6J5P0hFS4BJIuglsJdPReKGMSNJEKFJsdRo54/edit#gid=0", note: "" },
-    { item: "E系統總表", url: "https://docs.google.com/spreadsheets/d/1w2HO-7k-00Gbo79yFaV_xdPoBHCdREdkRT4YthFaNc0/edit#gid=0", note: "" },
-    { item: "工作總表", url: "https://docs.google.com/spreadsheets/d/1N1A-r2181wj-qJuRxNum3MnmLRtmqiu3QLShQIt6la4/edit#gid=1383035783", note: "" },
-    { item: "數位應用開發Team 專案進度回報", url: "https://docs.google.com/spreadsheets/d/1Zsjcs8ON_5I5fUvyncaeolI-nz_uvIlZQd3ultKf-KY/edit#gid=1290082518", note: "舊時紀錄" },
-    { item: "圖形化統計", url: "圖形化統計", note: "" },
-    { item: "員工考核", url: "https://docs.google.com/spreadsheets/d/1CdGPYKQAYvq-KV9RGUmE7ggTa_jygQRMouakfY0rVds/edit#gid=0", note: "" },
-    { item: "票務總表", url: "https://docs.google.com/spreadsheets/d/1JTxi2c6UWnktvCvknj6OzqPRl06JzWGAldGLFNh-Vrc/edit#gid=1240553568", note: "" },
-    { item: "Azure架構問題列表", url: "https://docs.google.com/spreadsheets/d/10PGjgtsk35lYOBQGJ7iC5nGOCVGFA8RDrz9ONe5tNek/edit?pli=1#gid=0", note: "" },
-    { item: "會員社群平台", url: "https://docs.google.com/spreadsheets/d/13f9yVUD3kVon1J1hE0zjA6lsG8I_w5ibQrh_51xg-wQ/edit?usp=sharing", note: "" },
-    { item: "線上簽名", url: "https://acrobat.adobe.com/link/acrobat/fillsign?x_api_client_id=adobe_com&x_api_client_location=fillsign", note: "" },
-    { item: "A系統需求管理", url: "https://docs.google.com/spreadsheets/d/1PXpKxQ-mfojDlxWshC2ncje7RSSSjCSYLRZCykWBGwU/edit#gid=0", note: "" },
-    { item: "年度技術需求單", url: "https://docs.google.com/spreadsheets/d/1nd4Pw_jO_wjw-Y5jCgCgkGBLN-HTPSu8O2gBqc2-Bo4/edit#gid=2026294153", note: "" },
-    { item: "每月統計資料", url: "每月統計資料 - Google 試算表", note: "" },
-    { item: "GA4流量統計表", url: "流量統計表 - Google 試算表", note: "" },
-    { item: "每月監控項目 搶票", url: "搶票監控表 - Google 試算表", note: "" },
-    { item: "各大系統比較", url: "各售票系統比較 - Google 試算表", note: "" },
-    { item: "年度計畫", url: "https://docs.google.com/spreadsheets/d/1mLYgg-2c3zgPzXljojVaWYw8p5EnDiHz/edit?gid=1670730646#gid=1670730646", note: "" },
-    { item: "匯報單進度表", url: "進度追朔表 - Google 試算表", note: "" },
-    { item: "資料維護計畫表", url: "數位應用開發team_資料維護計畫 - Google 試算表", note: "" },
-    { item: "週報", url: "https://docs.google.com/spreadsheets/d/17ayOPi1cnl8RJ7ihIIlfhSNPhOnbtFNsCYhwmNl7qjY/edit#gid=1140229310", note: "" },
-    { item: "雲端總表", url: "數位應用開發TEAM雲端總表 - Google 試算表", note: "" },
-    { item: "搶票監控", url: "https://docs.google.com/spreadsheets/d/1PXpKxQ-mfojDlxWshC2ncje7RSSSjCSYLRZCykWBGwU/edit?gid=1883089838#gid=1883089838", note: "" },
-    { item: "業務回覆項目", url: "https://docs.google.com/spreadsheets/d/1dBGSUPKCzAkN6bzy1p6VwOGjDon_L8hyap_jdaP06vU/edit#gid=0", note: "" },
-    { item: "A系統SQL", url: "SQL清單 - Google 試算表", note: "" },
-    { item: "IT/PM需求", url: "https://docs.google.com/spreadsheets/d/1PXpKxQ-mfojDlxWshC2ncje7RSSSjCSYLRZCykWBGwU/edit?gid=0#gid=0", note: "" },
-    { item: "每日障礙", url: "https://docs.google.com/spreadsheets/d/1yoB9MQOV4272AHdxxjyEZm9kYHOUryccU2al_SuX4Yw/edit?gid=351538055#gid=351538055", note: "" },
-    { item: "一帆障礙", url: "https://docs.google.com/spreadsheets/d/1D4h5dwQ58PPOCySrUPWG87CZesRy-Bfi34VywEJcs_I/edit?gid=0#gid=0", note: "" },
-    { item: "反爬蟲", url: "https://docs.google.com/spreadsheets/d/1jOejDsrYZ7GhcqQWk4FItM4d5nBJfgNidZWUJUZvMY4/edit?hl=zh-tw&gid=558042012#gid=558042012", note: "" },
-    { item: "主管列表", url: "https://docs.google.com/spreadsheets/d/15M_dcqhidBvWwPHKIb5dx9h5pwH2H1CG6m3KxX1wiP0/edit?gid=0#gid=0", note: "" },
-    { item: "A系統壓力測試", url: "https://docs.google.com/spreadsheets/d/1IyWrbU0UB0CsQ79sKO-FNYAtHA2aQWQxfIOyA8cOrh0/edit?gid=86918631#gid=86918631", note: "" },
-    { item: "教育訓練", url: "https://docs.google.com/spreadsheets/d/17ayOPi1cnl8RJ7ihIIlfhSNPhOnbtFNsCYhwmNl7qjY/edit?gid=717052423#gid=717052423", note: "" },
-    { item: "居家上班", url: "https://docs.google.com/spreadsheets/d/1CxovuBKF7xTQev7VO_nXTjJDUemeYYluwTjX6VGwpxQ/edit?gid=309715445#gid=309715445", note: "" },
-    { item: "CHATGPT", url: "https://docs.google.com/spreadsheets/d/1EFz8srB8cCcWDAkjsr4OcKYngyKxF7VeA9HrZ3SfxG0/edit?gid=0#gid=0", note: "" },
-    { item: "每月雲端成本", url: "https://docs.google.com/presentation/d/1gse1Zjb-RpCaLzOtLTBlgwa354wgKNvXWQtwDWr1x_8/edit?slide=id.g3bb5b6d94a9_2_105", note: "" },
-    { item: "cloudflare", url: "https://docs.google.com/spreadsheets/d/1qcga2w1pWhezCeGQ47JSXRVGnz-Yb7UyOB9-s1e1b_c/edit?gid=0#gid=0", note: "" },
-    { item: "CF簡報", url: "https://docs.google.com/presentation/d/1UOIPe--oACXl-zWczYK08qQLcrSW2Q_AkSGzSugC0zs/edit?slide=id.g3c4ceb50076_0_0", note: "" },
-];
-
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1HbHSaa1EL4zv6JHFOFDTr8pdBJA_QA7Q2E_pQTbWl_0/export?format=csv&gid=0';
 let data = [];
-let editIdx = null;
-let deleteIdx = null;
 
-function load() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    data = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(initialData));
-}
-function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-function resetData() {
-    if (!confirm('確定要還原為原始資料？所有修改將會遺失。')) return;
-    localStorage.removeItem(STORAGE_KEY);
-    load();
-    renderTable();
+function parseCSV(text) {
+    const rows = [];
+    let i = 0;
+    while (i < text.length) {
+        const row = [];
+        while (i < text.length && text[i] !== '\n') {
+            if (text[i] === '"') {
+                i++;
+                let cell = '';
+                while (i < text.length) {
+                    if (text[i] === '"' && text[i+1] === '"') { cell += '"'; i += 2; }
+                    else if (text[i] === '"') { i++; break; }
+                    else { cell += text[i++]; }
+                }
+                row.push(cell.replace(/\r/g, '').trim());
+                if (text[i] === ',') i++;
+            } else {
+                let cell = '';
+                while (i < text.length && text[i] !== ',' && text[i] !== '\n') cell += text[i++];
+                row.push(cell.replace(/\r/g, '').trim());
+                if (text[i] === ',') i++;
+            }
+        }
+        if (text[i] === '\n') i++;
+        if (row.length > 0 && row.some(c => c)) rows.push(row);
+    }
+    return rows;
 }
 
-function esc(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function isUrl(s) {
-    return /^https?:\/\//i.test((s || '').trim());
-}
+function isUrl(s) { return /^https?:\/\//i.test((s || '').trim()); }
 function shortUrl(s) {
     try {
         const u = new URL(s);
-        return (u.hostname + u.pathname).replace(/\/$/, '').substring(0, 55) + (s.length > 60 ? '…' : '');
-    } catch { return s.substring(0, 55) + (s.length > 60 ? '…' : ''); }
+        const p = (u.hostname + u.pathname).replace(/\/$/, '');
+        return p.length > 55 ? p.substring(0, 55) + '…' : p;
+    } catch { return s.length > 55 ? s.substring(0, 55) + '…' : s; }
+}
+function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function fetchData() {
+    setSyncState('loading', '載入中…');
+    document.getElementById('reloadBtn').disabled = true;
+    document.getElementById('searchBox').disabled = true;
+    document.getElementById('tableBody').innerHTML =
+        '<tr class="status-row"><td colspan="4"><span class="spinner"></span>從 Google Sheet 載入資料中…</td></tr>';
+
+    try {
+        const res = await fetch(SHEET_CSV + '&t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        const rows = parseCSV(text);
+        if (rows.length < 2) throw new Error('資料格式錯誤');
+        // Skip header row
+        data = rows.slice(1).map(r => ({
+            item: r[0] || '',
+            url:  r[1] || '',
+            note: r[2] || ''
+        })).filter(r => r.item);
+
+        setSyncState('ok', `同步自 Google Sheet・${new Date().toLocaleTimeString('zh-TW', {hour12:false})}`);
+        document.getElementById('searchBox').disabled = false;
+        renderTable();
+    } catch (e) {
+        setSyncState('error', '載入失敗：' + e.message);
+        document.getElementById('tableBody').innerHTML =
+            '<tr class="status-row"><td colspan="4" style="color:var(--danger)">⚠ 無法載入資料，請確認 Google Sheet 已公開，或按重新整理再試。</td></tr>';
+    }
+    document.getElementById('reloadBtn').disabled = false;
+}
+
+function setSyncState(state, text) {
+    const dot = document.getElementById('syncDot');
+    dot.className = 'dot' + (state === 'loading' ? ' loading' : state === 'error' ? ' error' : '');
+    document.getElementById('syncText').textContent = text;
 }
 
 function renderTable() {
     const q = (document.getElementById('searchBox').value || '').toLowerCase();
     const body = document.getElementById('tableBody');
-    let rows = '';
-    let shown = 0;
+    let rows = '', shown = 0;
 
     data.forEach((row, i) => {
-        const matchItem = row.item.toLowerCase().includes(q);
-        const matchUrl  = (row.url || '').toLowerCase().includes(q);
-        const matchNote = (row.note || '').toLowerCase().includes(q);
-        if (q && !matchItem && !matchUrl && !matchNote) return;
+        if (q && !row.item.toLowerCase().includes(q) &&
+                 !row.url.toLowerCase().includes(q) &&
+                 !(row.note||'').toLowerCase().includes(q)) return;
         shown++;
         const urlCell = isUrl(row.url)
             ? `<a href="${esc(row.url)}" target="_blank" title="${esc(row.url)}">${esc(shortUrl(row.url))}</a>`
-            : (row.url ? `<span class="raw-text" title="非網址格式，請點編輯補上正確連結">⚠ ${esc(row.url)}</span>` : `<span class="no-url">—</span>`);
+            : (row.url ? `<span class="raw-text" title="${esc(row.url)}">⚠ ${esc(row.url.substring(0,50))}</span>`
+                       : `<span class="no-url">—</span>`);
         rows += `<tr>
             <td class="col-num">${i + 1}</td>
             <td class="col-item">${esc(row.item)}</td>
             <td class="col-url">${urlCell}</td>
-            <td class="col-note">${esc(row.note) || ''}</td>
-            <td class="col-ops">
-                <button class="btn-icon btn-edit" onclick="openEditModal(${i})" title="編輯">✏️</button>
-                <button class="btn-icon btn-del" onclick="openConfirm(${i})" title="刪除">🗑️</button>
-            </td>
+            <td class="col-note">${esc(row.note)}</td>
         </tr>`;
     });
 
-    body.innerHTML = rows || `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-dim);">找不到符合的項目</td></tr>`;
+    body.innerHTML = rows || '<tr class="status-row"><td colspan="4">找不到符合的項目</td></tr>';
     document.getElementById('countBadge').textContent = q ? `${shown} / ${data.length} 筆` : `共 ${data.length} 筆`;
-    document.getElementById('footerText').textContent = `最後更新：${new Date().toLocaleString('zh-TW', {hour12:false})}`;
+    document.getElementById('footerText').textContent = `資料來源：Google Sheet（每次開啟自動同步）`;
 }
 
-// Modal
-function openAddModal() {
-    editIdx = null;
-    document.getElementById('modalTitle').textContent = '新增項目';
-    document.getElementById('fItem').value = '';
-    document.getElementById('fUrl').value = '';
-    document.getElementById('fNote').value = '';
-    document.getElementById('modalOverlay').classList.add('open');
-    setTimeout(() => document.getElementById('fItem').focus(), 50);
-}
-function openEditModal(i) {
-    editIdx = i;
-    const row = data[i];
-    document.getElementById('modalTitle').textContent = '編輯項目';
-    document.getElementById('fItem').value = row.item;
-    document.getElementById('fUrl').value = row.url || '';
-    document.getElementById('fNote').value = row.note || '';
-    document.getElementById('modalOverlay').classList.add('open');
-    setTimeout(() => document.getElementById('fItem').focus(), 50);
-}
-function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('open');
-}
-function saveModal() {
-    const item = document.getElementById('fItem').value.trim();
-    if (!item) { document.getElementById('fItem').focus(); return; }
-    const url  = document.getElementById('fUrl').value.trim();
-    const note = document.getElementById('fNote').value.trim();
-    if (editIdx === null) {
-        data.push({ item, url, note });
-    } else {
-        data[editIdx] = { item, url, note };
-    }
-    save();
-    closeModal();
-    renderTable();
-}
-
-// Confirm delete
-function openConfirm(i) {
-    deleteIdx = i;
-    document.getElementById('confirmItemName').textContent = data[i].item;
-    document.getElementById('confirmOverlay').classList.add('open');
-}
-function closeConfirm() {
-    document.getElementById('confirmOverlay').classList.remove('open');
-    deleteIdx = null;
-}
-function confirmDelete() {
-    if (deleteIdx !== null) {
-        data.splice(deleteIdx, 1);
-        save();
-        renderTable();
-    }
-    closeConfirm();
-}
-
-// Keyboard
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeModal(); closeConfirm(); }
-    if (e.key === 'Enter' && document.getElementById('modalOverlay').classList.contains('open')) {
-        if (document.activeElement.tagName !== 'TEXTAREA') saveModal();
-    }
-});
-document.getElementById('modalOverlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('modalOverlay')) closeModal();
-});
-
-load();
-renderTable();
+fetchData();
 </script>
 </body>
 </html>
