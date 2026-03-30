@@ -20,187 +20,96 @@
             --text-dim: #64748b;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 30px 20px;
-        }
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
+        body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 30px 20px; }
+
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
         .page-header-left { display: flex; align-items: center; gap: 16px; }
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--surface);
-            color: var(--text-muted);
-            text-decoration: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            border: 1px solid var(--border);
-            transition: all 0.2s;
-        }
+        .back-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); color: var(--text-muted); text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border); transition: all 0.2s; }
         .back-btn:hover { background: var(--surface2); color: var(--text); }
-        h1 { font-size: 1.6rem; font-weight: 600; color: var(--text); }
+        h1 { font-size: 1.6rem; font-weight: 600; }
         .subtitle { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
 
-        .toolbar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-        .search-box {
-            flex: 1;
-            min-width: 200px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 14px;
-            color: var(--text);
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
+        .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text); font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
         .search-box:focus { border-color: var(--accent); }
         .search-box::placeholder { color: var(--text-dim); }
+        .search-box:disabled { opacity: 0.5; }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s;
-            white-space: nowrap;
-            text-decoration: none;
-        }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; white-space: nowrap; text-decoration: none; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-primary { background: var(--accent); color: #fff; }
-        .btn-primary:hover { background: var(--accent-hover); }
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-        }
-        .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-ghost:hover:not(:disabled) { background: var(--surface2); color: var(--text); }
+        .btn-icon { padding: 5px 9px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
+        .btn-edit { background: rgba(59,130,246,0.15); color: #60a5fa; }
+        .btn-edit:hover { background: rgba(59,130,246,0.3); }
+        .btn-del { background: rgba(239,68,68,0.15); color: #f87171; }
+        .btn-del:hover { background: rgba(239,68,68,0.3); }
 
-        .count-badge {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
+        .count-badge { background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; white-space: nowrap; }
 
-        .table-wrap {
-            background: var(--surface);
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
+        .table-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         thead { background: var(--surface2); }
-        th {
-            padding: 12px 14px;
-            text-align: left;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-        }
+        th { padding: 12px 14px; text-align: left; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); white-space: nowrap; }
         th.col-num { width: 48px; text-align: center; }
-        th.col-item { width: 25%; }
-        th.col-url { }
-        th.col-note { width: 22%; }
-
-        tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        th.col-item { width: 22%; }
+        th.col-note { width: 18%; }
+        th.col-ops { width: 80px; text-align: center; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
         tbody tr:last-child { border-bottom: none; }
         tbody tr:hover { background: var(--surface2); }
-
-        td {
-            padding: 10px 14px;
-            font-size: 0.875rem;
-            vertical-align: middle;
-        }
-        td.col-num {
-            text-align: center;
-            color: var(--text-dim);
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        td.col-item { font-weight: 500; color: var(--text); }
-        td.col-url a {
-            color: var(--accent);
-            text-decoration: none;
-            font-size: 0.82rem;
-            display: block;
-            max-width: 420px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+        td { padding: 10px 14px; font-size: 0.875rem; vertical-align: middle; }
+        td.col-num { text-align: center; color: var(--text-dim); font-size: 0.8rem; font-weight: 600; }
+        td.col-item { font-weight: 500; }
+        td.col-url a { color: var(--accent); text-decoration: none; font-size: 0.82rem; display: block; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         td.col-url a:hover { text-decoration: underline; }
         td.col-url .no-url { color: var(--text-dim); font-size: 0.8rem; font-style: italic; }
         td.col-url .raw-text { color: #f59e0b; font-size: 0.8rem; }
         td.col-note { color: var(--text-muted); font-size: 0.82rem; }
+        td.col-ops { text-align: center; }
+        td.col-ops .btn-icon + .btn-icon { margin-left: 4px; }
+        .status-row td { text-align: center; padding: 40px; color: var(--text-dim); }
 
-        /* Loading / Error */
-        .status-row td {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-dim);
-        }
-        .spinner {
-            display: inline-block;
-            width: 20px; height: 20px;
-            border: 2px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
+        .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .sync-info {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.78rem;
-            color: var(--text-dim);
-        }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); display: inline-block; }
+        .sync-info { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-dim); }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); display: inline-block; flex-shrink: 0; }
         .dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
         .dot.error { background: var(--danger); }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        .modal h2 { font-size: 1.1rem; margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+        .form-group input, .form-group textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--text); font-size: 0.875rem; outline: none; transition: border-color 0.2s; font-family: inherit; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+        /* Confirm */
+        .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 2000; align-items: center; justify-content: center; }
+        .confirm-overlay.open { display: flex; }
+        .confirm-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; max-width: 340px; width: 100%; text-align: center; }
+        .confirm-box .icon { font-size: 2rem; margin-bottom: 12px; }
+        .confirm-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+        .confirm-footer { display: flex; justify-content: center; gap: 10px; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; font-size: 0.85rem; transition: transform 0.3s; z-index: 3000; white-space: nowrap; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: var(--success); color: var(--success); }
+        .toast.error { border-color: var(--danger); color: var(--danger); }
 
         .footer { margin-top: 24px; text-align: center; font-size: 0.8rem; color: var(--text-dim); }
 
-        @media (max-width: 700px) {
-            th.col-note, td.col-note { display: none; }
-        }
+        @media (max-width: 700px) { th.col-note, td.col-note { display: none; } }
     </style>
 </head>
 <body>
@@ -222,10 +131,10 @@
 <div class="toolbar">
     <input type="text" class="search-box" id="searchBox" placeholder="搜尋項目、網址、備註…" oninput="renderTable()" disabled>
     <span class="count-badge" id="countBadge">—</span>
-    <a href="https://docs.google.com/spreadsheets/d/1HbHSaa1EL4zv6JHFOFDTr8pdBJA_QA7Q2E_pQTbWl_0/edit" target="_blank" class="btn btn-primary">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        在 Google Sheet 編輯
-    </a>
+    <button class="btn btn-primary" onclick="openAddModal()" id="addBtn" disabled>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        新增
+    </button>
     <button class="btn btn-ghost" onclick="fetchData()" id="reloadBtn">↺ 重新整理</button>
 </div>
 
@@ -237,124 +146,232 @@
                 <th class="col-item">項目</th>
                 <th class="col-url">網址</th>
                 <th class="col-note">備註</th>
+                <th class="col-ops">操作</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            <tr class="status-row"><td colspan="4"><span class="spinner"></span>從 Google Sheet 載入資料中…</td></tr>
+            <tr class="status-row"><td colspan="5"><span class="spinner"></span>從 Google Sheet 載入中…</td></tr>
         </tbody>
     </table>
 </div>
 
-<div class="footer" id="footerText"></div>
+<div class="footer">
+    資料來源：<a href="https://docs.google.com/spreadsheets/d/1HbHSaa1EL4zv6JHFOFDTr8pdBJA_QA7Q2E_pQTbWl_0/edit" target="_blank" style="color:var(--accent)">Google Sheet</a>（每次開啟自動同步）
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <h2 id="modalTitle">新增項目</h2>
+        <div class="form-group">
+            <label>項目名稱 <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="fItem" placeholder="輸入項目名稱">
+        </div>
+        <div class="form-group">
+            <label>網址</label>
+            <input type="text" id="fUrl" placeholder="https://…">
+        </div>
+        <div class="form-group">
+            <label>備註</label>
+            <textarea id="fNote" placeholder="選填備註說明"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" id="saveBtn" onclick="saveModal()">儲存</button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Delete -->
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <div class="icon">🗑️</div>
+        <p>確定要刪除 <strong id="confirmName"></strong>？<br><small>此操作將同步刪除 Google Sheet 資料</small></p>
+        <div class="confirm-footer">
+            <button class="btn btn-ghost" onclick="closeConfirm()">取消</button>
+            <button class="btn" style="background:var(--danger);color:#fff" id="confirmBtn" onclick="confirmDelete()">刪除</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1HbHSaa1EL4zv6JHFOFDTr8pdBJA_QA7Q2E_pQTbWl_0/export?format=csv&gid=0';
+const API = 'https://script.google.com/macros/s/AKfycbxoXM_4QgCCEzxgy7Oa0dSjUStpovdgyGnhrAP0TQBdkdXp3OgSomfQO92wf2sn5Q-k/exec';
 let data = [];
+let editIdx = null;
+let deleteIdx = null;
 
-function parseCSV(text) {
-    const rows = [];
-    let i = 0;
-    while (i < text.length) {
-        const row = [];
-        while (i < text.length && text[i] !== '\n') {
-            if (text[i] === '"') {
-                i++;
-                let cell = '';
-                while (i < text.length) {
-                    if (text[i] === '"' && text[i+1] === '"') { cell += '"'; i += 2; }
-                    else if (text[i] === '"') { i++; break; }
-                    else { cell += text[i++]; }
-                }
-                row.push(cell.replace(/\r/g, '').trim());
-                if (text[i] === ',') i++;
-            } else {
-                let cell = '';
-                while (i < text.length && text[i] !== ',' && text[i] !== '\n') cell += text[i++];
-                row.push(cell.replace(/\r/g, '').trim());
-                if (text[i] === ',') i++;
-            }
-        }
-        if (text[i] === '\n') i++;
-        if (row.length > 0 && row.some(c => c)) rows.push(row);
+// ── Fetch ──────────────────────────────────────────
+async function fetchData() {
+    setSyncState('loading', '載入中…');
+    setUiEnabled(false);
+    document.getElementById('tableBody').innerHTML =
+        '<tr class="status-row"><td colspan="5"><span class="spinner"></span>從 Google Sheet 載入中…</td></tr>';
+    try {
+        const res = await fetch(API + '?t=' + Date.now());
+        const json = await res.json();
+        if (!json.ok) throw new Error('API 錯誤');
+        data = json.data.filter(r => r.item);
+        setSyncState('ok', '同步完成・' + new Date().toLocaleTimeString('zh-TW', {hour12:false}));
+        setUiEnabled(true);
+        renderTable();
+    } catch (e) {
+        setSyncState('error', '載入失敗');
+        document.getElementById('tableBody').innerHTML =
+            '<tr class="status-row"><td colspan="5" style="color:var(--danger)">⚠ 無法載入資料，請按「↺ 重新整理」再試。</td></tr>';
+        document.getElementById('reloadBtn').disabled = false;
     }
-    return rows;
 }
 
-function isUrl(s) { return /^https?:\/\//i.test((s || '').trim()); }
+async function apiPost(body) {
+    await fetch(API, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(body)
+    });
+}
+
+// ── Render ─────────────────────────────────────────
+function isUrl(s) { return /^https?:\/\//i.test((s||'').trim()); }
 function shortUrl(s) {
     try {
         const u = new URL(s);
         const p = (u.hostname + u.pathname).replace(/\/$/, '');
-        return p.length > 55 ? p.substring(0, 55) + '…' : p;
-    } catch { return s.length > 55 ? s.substring(0, 55) + '…' : s; }
+        return p.length > 50 ? p.substring(0, 50) + '…' : p;
+    } catch { return s.length > 50 ? s.substring(0,50)+'…' : s; }
 }
-function esc(s) {
-    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-async function fetchData() {
-    setSyncState('loading', '載入中…');
-    document.getElementById('reloadBtn').disabled = true;
-    document.getElementById('searchBox').disabled = true;
-    document.getElementById('tableBody').innerHTML =
-        '<tr class="status-row"><td colspan="4"><span class="spinner"></span>從 Google Sheet 載入資料中…</td></tr>';
-
-    try {
-        const res = await fetch(SHEET_CSV + '&t=' + Date.now());
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const text = await res.text();
-        const rows = parseCSV(text);
-        if (rows.length < 2) throw new Error('資料格式錯誤');
-        // Skip header row
-        data = rows.slice(1).map(r => ({
-            item: r[0] || '',
-            url:  r[1] || '',
-            note: r[2] || ''
-        })).filter(r => r.item);
-
-        setSyncState('ok', `同步自 Google Sheet・${new Date().toLocaleTimeString('zh-TW', {hour12:false})}`);
-        document.getElementById('searchBox').disabled = false;
-        renderTable();
-    } catch (e) {
-        setSyncState('error', '載入失敗：' + e.message);
-        document.getElementById('tableBody').innerHTML =
-            '<tr class="status-row"><td colspan="4" style="color:var(--danger)">⚠ 無法載入資料，請確認 Google Sheet 已公開，或按重新整理再試。</td></tr>';
-    }
-    document.getElementById('reloadBtn').disabled = false;
-}
-
-function setSyncState(state, text) {
-    const dot = document.getElementById('syncDot');
-    dot.className = 'dot' + (state === 'loading' ? ' loading' : state === 'error' ? ' error' : '');
-    document.getElementById('syncText').textContent = text;
-}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function renderTable() {
-    const q = (document.getElementById('searchBox').value || '').toLowerCase();
-    const body = document.getElementById('tableBody');
+    const q = (document.getElementById('searchBox').value||'').toLowerCase();
     let rows = '', shown = 0;
-
     data.forEach((row, i) => {
-        if (q && !row.item.toLowerCase().includes(q) &&
-                 !row.url.toLowerCase().includes(q) &&
-                 !(row.note||'').toLowerCase().includes(q)) return;
+        if (q && !row.item.toLowerCase().includes(q) && !(row.url||'').toLowerCase().includes(q) && !(row.note||'').toLowerCase().includes(q)) return;
         shown++;
         const urlCell = isUrl(row.url)
             ? `<a href="${esc(row.url)}" target="_blank" title="${esc(row.url)}">${esc(shortUrl(row.url))}</a>`
-            : (row.url ? `<span class="raw-text" title="${esc(row.url)}">⚠ ${esc(row.url.substring(0,50))}</span>`
-                       : `<span class="no-url">—</span>`);
+            : (row.url ? `<span class="raw-text" title="${esc(row.url)}">⚠ ${esc((row.url||'').substring(0,45))}</span>` : `<span class="no-url">—</span>`);
         rows += `<tr>
-            <td class="col-num">${i + 1}</td>
+            <td class="col-num">${i+1}</td>
             <td class="col-item">${esc(row.item)}</td>
             <td class="col-url">${urlCell}</td>
             <td class="col-note">${esc(row.note)}</td>
+            <td class="col-ops">
+                <button class="btn-icon btn-edit" onclick="openEditModal(${i})" title="編輯">✏️</button>
+                <button class="btn-icon btn-del" onclick="openConfirm(${i})" title="刪除">🗑️</button>
+            </td>
         </tr>`;
     });
-
-    body.innerHTML = rows || '<tr class="status-row"><td colspan="4">找不到符合的項目</td></tr>';
+    document.getElementById('tableBody').innerHTML = rows ||
+        '<tr class="status-row"><td colspan="5">找不到符合的項目</td></tr>';
     document.getElementById('countBadge').textContent = q ? `${shown} / ${data.length} 筆` : `共 ${data.length} 筆`;
-    document.getElementById('footerText').innerHTML = `資料來源：<a href="https://docs.google.com/spreadsheets/d/1HbHSaa1EL4zv6JHFOFDTr8pdBJA_QA7Q2E_pQTbWl_0/edit" target="_blank" style="color:var(--accent)">Google Sheet</a>（每次開啟自動同步）`;
 }
+
+// ── Modal ──────────────────────────────────────────
+function openAddModal() {
+    editIdx = null;
+    document.getElementById('modalTitle').textContent = '新增項目';
+    document.getElementById('fItem').value = '';
+    document.getElementById('fUrl').value = '';
+    document.getElementById('fNote').value = '';
+    document.getElementById('modalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('fItem').focus(), 50);
+}
+function openEditModal(i) {
+    editIdx = i;
+    const r = data[i];
+    document.getElementById('modalTitle').textContent = '編輯項目';
+    document.getElementById('fItem').value = r.item;
+    document.getElementById('fUrl').value = r.url||'';
+    document.getElementById('fNote').value = r.note||'';
+    document.getElementById('modalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('fItem').focus(), 50);
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+async function saveModal() {
+    const item = document.getElementById('fItem').value.trim();
+    if (!item) { document.getElementById('fItem').focus(); return; }
+    const url  = document.getElementById('fUrl').value.trim();
+    const note = document.getElementById('fNote').value.trim();
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中…';
+    try {
+        if (editIdx === null) {
+            await apiPost({ action: 'add', item, url, note });
+        } else {
+            await apiPost({ action: 'update', index: editIdx, item, url, note });
+        }
+        closeModal();
+        showToast('已儲存，同步中…', 'success');
+        await delay(1200);
+        await fetchData();
+    } catch(e) {
+        showToast('儲存失敗，請重試', 'error');
+    }
+    saveBtn.disabled = false;
+    saveBtn.textContent = '儲存';
+}
+
+// ── Delete ─────────────────────────────────────────
+function openConfirm(i) {
+    deleteIdx = i;
+    document.getElementById('confirmName').textContent = data[i].item;
+    document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); deleteIdx = null; }
+
+async function confirmDelete() {
+    const btn = document.getElementById('confirmBtn');
+    btn.disabled = true;
+    btn.textContent = '刪除中…';
+    try {
+        await apiPost({ action: 'delete', index: deleteIdx });
+        closeConfirm();
+        showToast('已刪除，同步中…', 'success');
+        await delay(1200);
+        await fetchData();
+    } catch(e) {
+        showToast('刪除失敗，請重試', 'error');
+    }
+    btn.disabled = false;
+    btn.textContent = '刪除';
+}
+
+// ── Helpers ────────────────────────────────────────
+function setSyncState(state, text) {
+    const dot = document.getElementById('syncDot');
+    dot.className = 'dot' + (state==='loading'?' loading':state==='error'?' error':'');
+    document.getElementById('syncText').textContent = text;
+}
+function setUiEnabled(on) {
+    document.getElementById('searchBox').disabled = !on;
+    document.getElementById('addBtn').disabled = !on;
+    document.getElementById('reloadBtn').disabled = !on;
+}
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+let toastTimer;
+function showToast(msg, type='') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show' + (type ? ' '+type : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); closeConfirm(); }
+    if (e.key === 'Enter' && document.getElementById('modalOverlay').classList.contains('open')) {
+        if (document.activeElement.tagName !== 'TEXTAREA') saveModal();
+    }
+});
+document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
 
 fetchData();
 </script>
