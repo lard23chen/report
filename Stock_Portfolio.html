@@ -240,11 +240,11 @@ window.fetchPrices=async function(){
     var url='https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch='+parts.join('|')+'&json=1&delay=0&_='+Date.now();
     var resp=await fetch(url);
     if(!resp.ok)throw new Error('HTTP '+resp.status);
-    var data=await resp.json();
+    var twseData=await resp.json();
     var prices=getPrices();
     var updated=0;
-    if(data.msgArray&&data.msgArray.length){
-      data.msgArray.forEach(function(item){
+    if(twseData.msgArray&&twseData.msgArray.length){
+      twseData.msgArray.forEach(function(item){
         // z = current/last price, y = prev close fallback
         var px=parseFloat((item.z&&item.z!=='-')?item.z:(item.y||item.pz||'0'));
         if(item.c&&px>0){prices[item.c]=px;updated++;}
