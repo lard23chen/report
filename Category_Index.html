@@ -231,12 +231,15 @@
 </div>
 
 <script>
-const _h = '9bbd66ee0944aa1bc44051536224df90a6987abd6ff45ec29465c21077564acd';
+const _k = [48,57,49,56,50,49,54,48,48,49];
 let _target = '';
 
-async function _digest(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+function _check(s) {
+    if (s.length !== _k.length) return false;
+    for (let i = 0; i < _k.length; i++) {
+        if (s.charCodeAt(i) !== _k[i]) return false;
+    }
+    return true;
 }
 
 function promptPassword(url) {
@@ -260,10 +263,9 @@ function clearError() {
     document.getElementById('errorMsg').textContent = '';
 }
 
-async function checkPassword() {
+function checkPassword() {
     const val = document.getElementById('pwdInput').value;
-    const hash = await _digest(val);
-    if (hash === _h) {
+    if (_check(val)) {
         closeModal();
         window.location.href = _target;
     } else {
