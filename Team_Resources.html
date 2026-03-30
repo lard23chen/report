@@ -171,6 +171,7 @@
         }
         td.col-url a:hover { text-decoration: underline; }
         td.col-url .no-url { color: var(--text-dim); font-size: 0.8rem; font-style: italic; }
+        td.col-url .raw-text { color: #f59e0b; font-size: 0.8rem; }
         td.col-note { color: var(--text-muted); font-size: 0.82rem; }
         td.col-ops { text-align: center; white-space: nowrap; }
         td.col-ops .btn-icon + .btn-icon { margin-left: 4px; }
@@ -358,7 +359,7 @@ const initialData = [
     { item: "E系統總表", url: "https://docs.google.com/spreadsheets/d/1w2HO-7k-00Gbo79yFaV_xdPoBHCdREdkRT4YthFaNc0/edit#gid=0", note: "" },
     { item: "工作總表", url: "https://docs.google.com/spreadsheets/d/1N1A-r2181wj-qJuRxNum3MnmLRtmqiu3QLShQIt6la4/edit#gid=1383035783", note: "" },
     { item: "數位應用開發Team 專案進度回報", url: "https://docs.google.com/spreadsheets/d/1Zsjcs8ON_5I5fUvyncaeolI-nz_uvIlZQd3ultKf-KY/edit#gid=1290082518", note: "舊時紀錄" },
-    { item: "圖形化統計", url: "", note: "" },
+    { item: "圖形化統計", url: "圖形化統計", note: "" },
     { item: "員工考核", url: "https://docs.google.com/spreadsheets/d/1CdGPYKQAYvq-KV9RGUmE7ggTa_jygQRMouakfY0rVds/edit#gid=0", note: "" },
     { item: "票務總表", url: "https://docs.google.com/spreadsheets/d/1JTxi2c6UWnktvCvknj6OzqPRl06JzWGAldGLFNh-Vrc/edit#gid=1240553568", note: "" },
     { item: "Azure架構問題列表", url: "https://docs.google.com/spreadsheets/d/10PGjgtsk35lYOBQGJ7iC5nGOCVGFA8RDrz9ONe5tNek/edit?pli=1#gid=0", note: "" },
@@ -366,18 +367,18 @@ const initialData = [
     { item: "線上簽名", url: "https://acrobat.adobe.com/link/acrobat/fillsign?x_api_client_id=adobe_com&x_api_client_location=fillsign", note: "" },
     { item: "A系統需求管理", url: "https://docs.google.com/spreadsheets/d/1PXpKxQ-mfojDlxWshC2ncje7RSSSjCSYLRZCykWBGwU/edit#gid=0", note: "" },
     { item: "年度技術需求單", url: "https://docs.google.com/spreadsheets/d/1nd4Pw_jO_wjw-Y5jCgCgkGBLN-HTPSu8O2gBqc2-Bo4/edit#gid=2026294153", note: "" },
-    { item: "每月統計資料", url: "", note: "" },
-    { item: "GA4流量統計表", url: "", note: "" },
-    { item: "每月監控項目 搶票", url: "", note: "" },
-    { item: "各大系統比較", url: "", note: "" },
+    { item: "每月統計資料", url: "每月統計資料 - Google 試算表", note: "" },
+    { item: "GA4流量統計表", url: "流量統計表 - Google 試算表", note: "" },
+    { item: "每月監控項目 搶票", url: "搶票監控表 - Google 試算表", note: "" },
+    { item: "各大系統比較", url: "各售票系統比較 - Google 試算表", note: "" },
     { item: "年度計畫", url: "https://docs.google.com/spreadsheets/d/1mLYgg-2c3zgPzXljojVaWYw8p5EnDiHz/edit?gid=1670730646#gid=1670730646", note: "" },
-    { item: "匯報單進度表", url: "", note: "" },
-    { item: "資料維護計畫表", url: "", note: "" },
+    { item: "匯報單進度表", url: "進度追朔表 - Google 試算表", note: "" },
+    { item: "資料維護計畫表", url: "數位應用開發team_資料維護計畫 - Google 試算表", note: "" },
     { item: "週報", url: "https://docs.google.com/spreadsheets/d/17ayOPi1cnl8RJ7ihIIlfhSNPhOnbtFNsCYhwmNl7qjY/edit#gid=1140229310", note: "" },
-    { item: "雲端總表", url: "", note: "" },
+    { item: "雲端總表", url: "數位應用開發TEAM雲端總表 - Google 試算表", note: "" },
     { item: "搶票監控", url: "https://docs.google.com/spreadsheets/d/1PXpKxQ-mfojDlxWshC2ncje7RSSSjCSYLRZCykWBGwU/edit?gid=1883089838#gid=1883089838", note: "" },
     { item: "業務回覆項目", url: "https://docs.google.com/spreadsheets/d/1dBGSUPKCzAkN6bzy1p6VwOGjDon_L8hyap_jdaP06vU/edit#gid=0", note: "" },
-    { item: "A系統SQL", url: "", note: "" },
+    { item: "A系統SQL", url: "SQL清單 - Google 試算表", note: "" },
     { item: "IT/PM需求", url: "https://docs.google.com/spreadsheets/d/1PXpKxQ-mfojDlxWshC2ncje7RSSSjCSYLRZCykWBGwU/edit?gid=0#gid=0", note: "" },
     { item: "每日障礙", url: "https://docs.google.com/spreadsheets/d/1yoB9MQOV4272AHdxxjyEZm9kYHOUryccU2al_SuX4Yw/edit?gid=351538055#gid=351538055", note: "" },
     { item: "一帆障礙", url: "https://docs.google.com/spreadsheets/d/1D4h5dwQ58PPOCySrUPWG87CZesRy-Bfi34VywEJcs_I/edit?gid=0#gid=0", note: "" },
@@ -437,7 +438,7 @@ function renderTable() {
         shown++;
         const urlCell = isUrl(row.url)
             ? `<a href="${esc(row.url)}" target="_blank" title="${esc(row.url)}">${esc(shortUrl(row.url))}</a>`
-            : (row.url ? `<span class="no-url">${esc(row.url)}</span>` : `<span class="no-url">—</span>`);
+            : (row.url ? `<span class="raw-text" title="非網址格式，請點編輯補上正確連結">⚠ ${esc(row.url)}</span>` : `<span class="no-url">—</span>`);
         rows += `<tr>
             <td class="col-num">${i + 1}</td>
             <td class="col-item">${esc(row.item)}</td>
