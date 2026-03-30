@@ -1,7 +1,7 @@
 function doGet(e) {
   var sheetName = (e && e.parameter && e.parameter.sheet)
     ? e.parameter.sheet
-    : 'Team_Resources';
+    : 'workitem';
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) return jsonResponse({ ok: false, error: 'Sheet not found: ' + sheetName });
@@ -11,7 +11,7 @@ function doGet(e) {
   var dataRows = rows.slice(1);
   var data;
 
-  if (sheetName === 'Team_Resources') {
+  if (sheetName === 'workitem') {
     data = dataRows
       .map(function(r) { return { item: r[0], url: r[1], note: r[2] }; })
       .filter(function(r) { return r.item; });
@@ -49,12 +49,12 @@ function doGet(e) {
 
 function doPost(e) {
   var body = JSON.parse(e.postData.contents);
-  var sheetName = body.sheet || 'Team_Resources';
+  var sheetName = body.sheet || 'workitem';
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) return jsonResponse({ ok: false, error: 'Sheet not found: ' + sheetName });
 
-  if (sheetName === 'Team_Resources') {
+  if (sheetName === 'workitem') {
     handleTeamResources(sheet, body);
   } else if (sheetName === 'Stock_Portfolio') {
     handleStockPortfolio(sheet, body);
