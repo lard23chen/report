@@ -231,16 +231,8 @@
 </div>
 
 <script>
-const _k = [48,57,49,56,50,49,54,48,48,49];
+const _p = atob('MDkxODIxNjAwMQ==');
 let _target = '';
-
-function _check(s) {
-    if (s.length !== _k.length) return false;
-    for (let i = 0; i < _k.length; i++) {
-        if (s.charCodeAt(i) !== _k[i]) return false;
-    }
-    return true;
-}
 
 function promptPassword(url) {
     _target = url;
@@ -265,7 +257,7 @@ function clearError() {
 
 function checkPassword() {
     const val = document.getElementById('pwdInput').value;
-    if (_check(val)) {
+    if (val === _p) {
         closeModal();
         window.location.href = _target;
     } else {
