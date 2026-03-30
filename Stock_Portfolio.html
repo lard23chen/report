@@ -103,8 +103,8 @@ body.edit-on .act-btn{display:inline-block}
         <th>代號</th><th>股票名稱</th><th>人員</th>
         <th class="num">買入均價</th><th class="num">現持股數</th>
         <th class="num">總買入支出</th><th class="num">已回收收入</th>
-        <th class="num">損益估算</th>
         <th class="num">今日股價</th><th class="num">估算市值</th>
+        <th class="num">損益估算</th><th class="num">實際損益</th>
       </tr></thead>
       <tbody id="summary-body"></tbody>
     </table>
@@ -705,11 +705,14 @@ function renderSummary(rows){
     html+='<td class="num"'+(netShares>0?' style="color:var(--buy)"':netShares===0?' style="color:var(--muted)"':' style="color:var(--sell)"')+'>'+fmt(netShares)+'</td>';
     html+='<td class="num muted">'+fmt(m.totalSpend)+'</td>';
     html+='<td class="num muted">'+fmt(m.totalIncome)+'</td>';
-    html+='<td class="num '+plCls+'">'+(plEstimate>=0?'+':'')+fmt(plEstimate)+'</td>';
     var todayPx=prices[m.code]||0;
     var estVal=netShares*todayPx;
     html+='<td class="num"><input class="price-input" type="number" step="0.01" value="'+(todayPx||'')+'" placeholder="輸入" onchange="savePrice(\''+m.code+'\',this.value)"></td>';
     html+='<td class="num est-val '+(estVal>0?'pos':estVal<0?'neg':'muted')+'">'+(todayPx?fmt(estVal):'—')+'</td>';
+    html+='<td class="num '+plCls+'">'+(plEstimate>=0?'+':'')+fmt(plEstimate)+'</td>';
+    var realPL=todayPx?(estVal+plEstimate):null;
+    var realCls=realPL===null?'muted':realPL>=0?'summary-pos':'summary-neg';
+    html+='<td class="num '+realCls+'">'+(realPL===null?'—':(realPL>=0?'+':'')+fmt(realPL))+'</td>';
     html+='</tr>';
   });
   document.getElementById('summary-body').innerHTML=html;
