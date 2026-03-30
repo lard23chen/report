@@ -233,7 +233,7 @@ window.fetchPrices=async function(){
   var orig=btn.textContent;
   btn.textContent='⏳ 查詢中…';btn.disabled=true;
   try{
-    var codes=Array.from(new Set(buildRows().map(function(r){return r.code;})));
+    var codes=Array.from(new Set(data.map(function(r){return r.code;})));
     // Request both TSE (上市) and OTC (上櫃) variants; API ignores invalid ones
     var parts=[];
     codes.forEach(function(c){parts.push('tse_'+c+'.tw');parts.push('otc_'+c+'.tw');});
@@ -257,7 +257,7 @@ window.fetchPrices=async function(){
   }catch(e){
     // Fallback: try via allorigins CORS proxy
     try{
-      var codes2=Array.from(new Set(buildRows().map(function(r){return r.code;})));
+      var codes2=Array.from(new Set(data.map(function(r){return r.code;})));
       var parts2=[];
       codes2.forEach(function(c){parts2.push('tse_'+c+'.tw');parts2.push('otc_'+c+'.tw');});
       var inner='https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch='+parts2.join('|')+'&json=1&delay=0&_='+Date.now();
@@ -293,7 +293,7 @@ window.setPersonTab=function(p){
 
 // ─── Render All ───────────────────────────────────────────────────────────────
 function render(){
-  var all=buildRows();
+  var all=data;
   var topRows=activePerson?all.filter(function(r){return(r.person||'alex')===activePerson;}):all;
   renderStats(topRows);
   renderSummary(topRows);
@@ -677,8 +677,7 @@ document.getElementById('f-search').addEventListener('input',function(){curPage=
 document.getElementById('crud-backdrop').addEventListener('click',window.hideModal);
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-populateFilters(RAW.map(function(r,i){return{_id:'r'+i,date:r[0],type:r[1],code:r[2],name:r[3],person:r[15]};}));
-render();
+fetchData();
 </script>
 </body>
 </html>
