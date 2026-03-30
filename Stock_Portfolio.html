@@ -78,12 +78,17 @@ body.edit-on .act-btn{display:inline-block}
 .ptab.active[data-p=""]{background:var(--surface2);color:var(--text);border-color:var(--accent)}
 .ptab.active[data-p="alex"]{background:rgba(56,189,248,0.15);color:var(--accent);border-color:var(--accent)}
 .ptab.active[data-p="mark"]{background:rgba(251,146,60,0.15);color:#fb923c;border-color:#fb923c}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 </style>
 </head>
 <body>
 <header>
   <h1>📈 股票交易記錄</h1>
   <span id="hdr-sub">2018 – 2026</span>
+  <span id="sync-info" style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#64748b">
+    <span id="sync-dot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block;animation:pulse 1s infinite;flex-shrink:0"></span>
+    <span id="sync-text">載入中…</span>
+  </span>
 </header>
 <main>
   <div class="person-tabs">
@@ -160,8 +165,37 @@ const API='https://script.google.com/macros/s/AKfycbxoXM_4QgCCEzxgy7Oa0dSjUStpov
 const SHEET='Stock_Portfolio';
 var data=[];
 
-
-
+// ─── Fetch ────────────────────────────────────────────────────────────────────
+async function fetchData(){
+  setSyncState('loading','載入中…');
+  try{
+    var res=await fetch(API+'?sheet='+SHEET+'&t='+Date.now());
+    var json=await res.json();
+    if(!json.ok)throw new Error('API error');
+    data=json.data.map(function(r,i){r._idx=i;return r;});
+    setSyncState('ok','同步完成・'+new Date().toLocaleTimeString('zh-TW',{hour12:false}));
+    populateFilters(data);
+    render();
+  }catch(e){
+    setSyncState('error','載入失敗');
+    document.getElementById('hdr-sub').textContent='載入失敗，請重新整理頁面';
+  }
+}
+async function apiPost(body){
+  await fetch(API,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify(body)
+  });
+}
+function setSyncState(state,text){
+  var dot=document.getElementById('sync-dot');
+  if(state==='loading'){dot.style.background='#f59e0b';dot.style.animation='pulse 1s infinite';}
+  else if(state==='ok'){dot.style.background='#22c55e';dot.style.animation='none';}
+  else{dot.style.background='#ef4444';dot.style.animation='none';}
+  document.getElementById('sync-text').textContent=text;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US')}
@@ -172,6 +206,21 @@ function dateSort(d){if(!d)return'0';var p=d.split('/');return p[0]+(p[1]||'0').
 
 // ─── State ────────────────────────────────────────────────────────────────────
 var sortCol='date', sortDir='desc', curPage=1, perPage=50, editOn=false;
+var toastEl=null, toastTimer;
+function showToast(msg,type){
+  if(!toastEl){
+    toastEl=document.createElement('div');
+    toastEl.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:10px 20px;border-radius:10px;font-size:0.85rem;transition:transform 0.3s;z-index:9999;white-space:nowrap';
+    document.body.appendChild(toastEl);
+  }
+  toastEl.textContent=msg;
+  toastEl.style.borderColor=type==='error'?'#ef4444':type==='success'?'#22c55e':'#334155';
+  toastEl.style.color=type==='error'?'#ef4444':type==='success'?'#22c55e':'#e2e8f0';
+  toastEl.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){toastEl.style.transform='translateX(-50%) translateY(80px)';},3000);
+}
+function delay(ms){return new Promise(function(r){setTimeout(r,ms);});}
 
 // ─── Price Store ──────────────────────────────────────────────────────────────
 var PKEY='stock_prices';
