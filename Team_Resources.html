@@ -353,7 +353,7 @@ function renderTable() {
 
     body.innerHTML = rows || '<tr class="status-row"><td colspan="4">找不到符合的項目</td></tr>';
     document.getElementById('countBadge').textContent = q ? `${shown} / ${data.length} 筆` : `共 ${data.length} 筆`;
-    document.getElementById('footerText').textContent = `資料來源：Google Sheet（每次開啟自動同步）`;
+    document.getElementById('footerText').innerHTML = `資料來源：<a href="https://docs.google.com/spreadsheets/d/1HbHSaa1EL4zv6JHFOFDTr8pdBJA_QA7Q2E_pQTbWl_0/edit" target="_blank" style="color:var(--accent)">Google Sheet</a>（每次開啟自動同步）`;
 }
 
 fetchData();
