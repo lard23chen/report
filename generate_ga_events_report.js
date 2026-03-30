@@ -438,6 +438,7 @@ async function main() {
 <div class="layout">
     <div class="sidebar">
         <div class="sidebar-header">選擇節目</div>
+        <div style="padding: 6px 12px 4px; font-size: 0.75rem; color: #6b7280;">最近更新：${new Date().toLocaleString('zh-TW', {timeZone: 'Asia/Taipei', hour12: false})}</div>
         <div class="event-list" id="eventList">
             ${clientData.map((d, i) => d.maxSession > 2000 ? `
                 <div class="event-item" id="event-item-${i}" onclick="updateDashboard(${i})">
