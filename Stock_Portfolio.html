@@ -472,7 +472,7 @@ function renderTable(rows){
     var badgeCls=r.type==='買'?'badge-buy':r.type==='賣'?'badge-sell':'badge-div';
     var pCls=r.person==='mark'?'person-mark':'person-alex';
     html+='<tr>';
-    html+='<td class="muted">'+r.date+'</td>';
+    html+='<td class="muted">'+(r.date ? r.date.split(' ')[0] : '')+'</td>';
     html+='<td><span class="badge '+badgeCls+'">'+r.type+'</span></td>';
     html+='<td class="code">'+r.code+'</td>';
     html+='<td>'+r.name+'</td>';
