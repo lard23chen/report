@@ -7,6 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const DB_NAME = 'AlexLIFE';
 const COLLECTION_NAME = 'Stock_Portfolio';
 
 // Global connection cache
@@ -15,9 +16,9 @@ let cachedDb = null;
 
 async function getDb() {
     if (cachedDb) return cachedDb;
-    console.log('=> connecting to database');
+    console.log('=> connecting to database: ' + DB_NAME);
     const client = await MongoClient.connect(MONGO_URI);
-    const db = client.db();
+    const db = client.db(DB_NAME);
     cachedClient = client;
     cachedDb = db;
     return db;
