@@ -16,10 +16,7 @@ let cachedDb = null;
 async function getDb() {
     if (cachedDb) return cachedDb;
     console.log('=> connecting to database');
-    const client = await MongoClient.connect(MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
+    const client = await MongoClient.connect(MONGO_URI);
     const db = client.db();
     cachedClient = client;
     cachedDb = db;
