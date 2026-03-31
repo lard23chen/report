@@ -165,9 +165,16 @@ function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US'
 function fmtP(n){if(!n&&n!==0)return'—';return Number(n).toFixed(2)}
 function formatDate(d){
     if(!d) return '—';
-    // Handle ISO string or "YYYY/MM/DD HH:mm:ss"
-    var datePart = d.toString().split(' ')[0].split('T')[0];
-    return datePart.replace(/-/g, '/');
+    try {
+        // Handle "YYYY/M/D", "YYYY-MM-DD", or ISO strings
+        var s = d.toString().split(' ')[0].split('T')[0].replace(/-/g, '/');
+        var parts = s.split('/');
+        if (parts.length < 3) return s;
+        var y = parts[0];
+        var m = parts[1].padStart(2, '0');
+        var d = parts[2].padStart(2, '0');
+        return y + '/' + m + '/' + d;
+    } catch(e) { return d; }
 }
 
 async function fetchData(){
