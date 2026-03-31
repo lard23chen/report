@@ -17,18 +17,19 @@ const PORT = 3001;
 
 const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
 const DB_NAME   = 'travel';
-const COL_NAME  = 'travel';
-const DOC_ID    = 'store';           // single document that holds all CRUD state
+const COL_STORE = 'travel';          // stores CRUD edit state
+const COL_TRIPS = 'trips';           // stores structured trip data
+const DOC_ID    = 'store';
 
 /* ── MongoDB connection ─────────────────────────────────────── */
 const client = new MongoClient(MONGO_URI);
-let col = null;
+let db = null;
 
 async function connectDB() {
     try {
         await client.connect();
-        col = client.db(DB_NAME).collection(COL_NAME);
-        console.log('✅ Connected to MongoDB  db=' + DB_NAME + '  col=' + COL_NAME);
+        db = client.db(DB_NAME);
+        console.log('✅ Connected to MongoDB  db=' + DB_NAME);
     } catch (err) {
         console.error('❌ MongoDB connection failed:', err.message);
     }
@@ -52,45 +53,90 @@ app.use(express.static(path.join(__dirname)));
 
 /* ── API: status ────────────────────────────────────────────── */
 app.get('/api/travel/status', function (req, res) {
-    res.json({ connected: col !== null, db: DB_NAME, collection: COL_NAME });
+    res.json({ connected: db !== null, db: DB_NAME });
 });
 
-/* ── API: GET store ─────────────────────────────────────────── */
-app.get('/api/travel/store', async function (req, res) {
-    if (!col) return res.status(503).json({ error: 'DB not ready' });
+/* ── API: GET all trips (optionally filtered by tab) ────────── */
+app.get('/api/travel/trips', async function (req, res) {
+    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
-        const doc = await col.findOne({ _id: DOC_ID });
-        res.json(doc ? doc.data : {});
+        const filter = req.query.tab ? { tab: req.query.tab } : {};
+        const trips  = await db.collection(COL_TRIPS).find(filter)
+            .sort({ _id: 1 }).toArray();
+        res.json(trips);
     } catch (err) {
-        console.error('GET /store error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
 
-/* ── API: PUT store (upsert) ────────────────────────────────── */
-app.put('/api/travel/store', async function (req, res) {
-    if (!col) return res.status(503).json({ error: 'DB not ready' });
+/* ── API: GET single trip ───────────────────────────────────── */
+app.get('/api/travel/trips/:id', async function (req, res) {
+    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
-        await col.replaceOne(
+        const trip = await db.collection(COL_TRIPS).findOne({ _id: req.params.id });
+        if (!trip) return res.status(404).json({ error: 'Not found' });
+        res.json(trip);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* ── API: PUT single trip (upsert) ─────────────────────────── */
+app.put('/api/travel/trips/:id', async function (req, res) {
+    if (!db) return res.status(503).json({ error: 'DB not ready' });
+    try {
+        const doc = Object.assign({}, req.body, { _id: req.params.id, updatedAt: new Date() });
+        await db.collection(COL_TRIPS).replaceOne({ _id: req.params.id }, doc, { upsert: true });
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* ── API: DELETE single trip ────────────────────────────────── */
+app.delete('/api/travel/trips/:id', async function (req, res) {
+    if (!db) return res.status(503).json({ error: 'DB not ready' });
+    try {
+        await db.collection(COL_TRIPS).deleteOne({ _id: req.params.id });
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* ── API: GET edit-store (UI overrides) ─────────────────────── */
+app.get('/api/travel/store', async function (req, res) {
+    if (!db) return res.status(503).json({ error: 'DB not ready' });
+    try {
+        const doc = await db.collection(COL_STORE).findOne({ _id: DOC_ID });
+        res.json(doc ? doc.data : {});
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* ── API: PUT edit-store ────────────────────────────────────── */
+app.put('/api/travel/store', async function (req, res) {
+    if (!db) return res.status(503).json({ error: 'DB not ready' });
+    try {
+        await db.collection(COL_STORE).replaceOne(
             { _id: DOC_ID },
             { _id: DOC_ID, data: req.body, updatedAt: new Date() },
             { upsert: true }
         );
         res.json({ ok: true });
     } catch (err) {
-        console.error('PUT /store error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
 
-/* ── API: DELETE store (reset all edits) ───────────────────── */
+/* ── API: DELETE edit-store (reset all UI edits) ────────────── */
 app.delete('/api/travel/store', async function (req, res) {
-    if (!col) return res.status(503).json({ error: 'DB not ready' });
+    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
-        await col.deleteOne({ _id: DOC_ID });
+        await db.collection(COL_STORE).deleteOne({ _id: DOC_ID });
         res.json({ ok: true });
     } catch (err) {
-        console.error('DELETE /store error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
