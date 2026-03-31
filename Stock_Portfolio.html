@@ -182,6 +182,11 @@ async function fetchData(){
     render();
   }catch(e){
     setSyncState('error','載入失敗');
+    var isGitHub = window.location.hostname.includes('github.io');
+    var errorMsg = isGitHub 
+      ? '⚠️ GitHub 版無法直接連線至本機 MongoDB。請開啟本機檔案: D:\\2025\\AI\\MongoDB\\Stock_Portfolio.html'
+      : '❌ 載入失敗！請確認已在終端機執行: node stock_api.js';
+    document.getElementById('hdr-sub').innerHTML = '<span style="color:#f87171;font-weight:bold">' + errorMsg + '</span>';
     console.error(e);
   }
 }
