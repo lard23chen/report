@@ -161,15 +161,14 @@ body.edit-on .act-btn{display:inline-block}
 
 <script>
 // ─── API ─────────────────────────────────────────────────────────────────────
-const API='https://script.google.com/macros/s/AKfycbxoXM_4QgCCEzxgy7Oa0dSjUStpovdgyGnhrAP0TQBdkdXp3OgSomfQO92wf2sn5Q-k/exec';
-const SHEET='Stock_Portfolio';
+const API='http://localhost:3001/api/stock';
 var data=[];
 
 // ─── Fetch ────────────────────────────────────────────────────────────────────
 async function fetchData(){
   setSyncState('loading','載入中…');
   try{
-    var res=await fetch(API+'?sheet='+SHEET+'&t='+Date.now());
+    var res=await fetch(API+'?t='+Date.now());
     var json=await res.json();
     if(!json.ok)throw new Error('API error');
     data=json.data.map(function(r,i){r._idx=i;return r;});
@@ -181,14 +180,16 @@ async function fetchData(){
     document.getElementById('hdr-sub').textContent='載入失敗，請重新整理頁面';
   }
 }
-async function apiPost(body){
-  await fetch(API,{
+async function apiPost(endpoint, body){
+  await fetch(API + endpoint,{
     method:'POST',
-    mode:'no-cors',
-    headers:{'Content-Type':'text/plain'},
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify(body)
   });
 }
+
+// ... rest of code unchanged, but need to update calls to apiPost ...
+// I will provide the updated CRUD functions below.
 function setSyncState(state,text){
   var dot=document.getElementById('sync-dot');
   if(state==='loading'){dot.style.background='#f59e0b';dot.style.animation='pulse 1s infinite';}
@@ -542,12 +543,14 @@ function showPasswordModal(onSuccess){
 
 // ─── Confirm Delete ───────────────────────────────────────────────────────────
 window.confirmDel=function(idx){
-  showModal('<h3>⚠️ 確認刪除</h3><p style="color:var(--muted);margin-bottom:16px">確定要刪除這筆交易記錄嗎？此操作將同步刪除 Google Sheet 資料。</p><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-danger" id="del-yes">確定刪除</button></div>');
+  var row=data[idx];
+  if(!row)return;
+  showModal('<h3>⚠️ 確認刪除</h3><p style="color:var(--muted);margin-bottom:16px">確定要刪除這筆交易記錄嗎？此操作將同步刪除 MongoDB 資料。</p><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-danger" id="del-yes">確定刪除</button></div>');
   document.getElementById('del-yes').addEventListener('click',async function(){
     var btn=document.getElementById('del-yes');
     btn.disabled=true;btn.textContent='刪除中…';
     try{
-      await apiPost({action:'delete',sheet:SHEET,index:idx});
+      await apiPost('/delete',{_id:row._id});
       hideModal();
       showToast('已刪除，同步中…','success');
       await delay(1200);
@@ -564,7 +567,7 @@ function rowFormHtml(r,title){
   return '<h3>'+title+'</h3>'+
   '<div class="form-grid">'+
   '<div class="form-group"><label>日期</label><input id="f-date" value="'+v('date')+'" placeholder="2026/3/1"></div>'+
-  '<div class="form-group"><label>類型</label><select id="f-type-s"><option'+(v('type')==='買'?' selected':'')+'值>買</option><option'+(v('type')==='賣'?' selected':'')+'>賣</option><option'+(v('type')==='股利'?' selected':'')+'>股利</option></select></div>'+
+  '<div class="form-group"><label>類型</label><select id="f-type-s"><option'+(v('type')==='買'?' selected':'')+'>買</option><option'+(v('type')==='賣'?' selected':'')+'>賣</option><option'+(v('type')==='股利'?' selected':'')+'>股利</option></select></div>'+
   '<div class="form-group"><label>代號</label><input id="f-code" value="'+v('code')+'" placeholder="1504"></div>'+
   '<div class="form-group"><label>股票名稱</label><input id="f-name" value="'+v('name')+'" placeholder="東元"></div>'+
   '<div class="form-group"><label>買入股數</label><input id="f-bs" type="number" value="'+v('buyShares')+'"></div>'+
@@ -614,11 +617,7 @@ window.showAddModal=function(){
     var btn=document.getElementById('form-save');
     btn.disabled=true;btn.textContent='儲存中…';
     try{
-      await apiPost({action:'add',sheet:SHEET,
-        date:d.date,type:d.type,code:d.code,name:d.name,
-        buyShares:d.buyShares,buyPrice:d.buyPrice,sellShares:d.sellShares,sellPrice:d.sellPrice,
-        fee:d.fee,tax:d.tax,amount:d.amount,cost:d.cost,spend:d.spend,income:d.income,
-        note:d.note,person:d.person});
+      await apiPost('/add', d);
       hideModal();
       showToast('已新增，同步中…','success');
       await delay(1200);
@@ -639,11 +638,7 @@ window.showEditModal=function(idx){
     var btn=document.getElementById('form-save');
     btn.disabled=true;btn.textContent='儲存中…';
     try{
-      await apiPost({action:'update',sheet:SHEET,index:idx,
-        date:d.date,type:d.type,code:d.code,name:d.name,
-        buyShares:d.buyShares,buyPrice:d.buyPrice,sellShares:d.sellShares,sellPrice:d.sellPrice,
-        fee:d.fee,tax:d.tax,amount:d.amount,cost:d.cost,spend:d.spend,income:d.income,
-        note:d.note,person:d.person});
+      await apiPost('/update', { ...d, _id: row._id });
       hideModal();
       showToast('已儲存，同步中…','success');
       await delay(1200);
