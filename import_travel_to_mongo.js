@@ -12,8 +12,8 @@ const cheerio     = require('cheerio');
 const { MongoClient } = require('mongodb');
 
 const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
-const DB_NAME   = 'travel';
-const COL_NAME  = 'trips';
+const DB_NAME   = 'AlexLIFE';
+const COL_NAME  = 'Travel';
 
 /* ── helpers ──────────────────────────────────────────────── */
 function clean(s) { return (s || '').replace(/\s+/g, ' ').trim(); }
