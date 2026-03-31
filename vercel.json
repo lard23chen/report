@@ -8,7 +8,11 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/api/stock/(.*)",
+      "dest": "stock_api.js"
+    },
+    {
+      "src": "/api/stock",
       "dest": "stock_api.js"
     }
   ]
