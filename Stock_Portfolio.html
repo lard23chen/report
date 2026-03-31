@@ -163,18 +163,30 @@ var data=[];
 
 function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US')}
 function fmtP(n){if(!n&&n!==0)return'—';return Number(n).toFixed(2)}
-function formatDate(d){
-    if(!d) return '—';
+
+function formatDate(val){
+    if(!val) return '—';
     try {
-        // Handle "YYYY/M/D", "YYYY-MM-DD", or ISO strings
-        var s = d.toString().split(' ')[0].split('T')[0].replace(/-/g, '/');
-        var parts = s.split('/');
-        if (parts.length < 3) return s;
-        var y = parts[0];
-        var m = parts[1].padStart(2, '0');
-        var d = parts[2].padStart(2, '0');
-        return y + '/' + m + '/' + d;
-    } catch(e) { return d; }
+        var s = val.toString();
+        // If it's a full Date string (like Wed Mar 31...), extract the date parts
+        if (s.includes(' ')) {
+            // Try to parse it
+            var d = new Date(val);
+            if (!isNaN(d.getTime())) {
+                var y = d.getFullYear();
+                var m = (d.getMonth() + 1).toString().padStart(2, '0');
+                var day = d.getDate().toString().padStart(2, '0');
+                return y + '/' + m + '/' + day;
+            }
+        }
+        // Handle ISO or YYYY-MM-DD or YYYY/MM/DD
+        var datePart = s.split('T')[0].split(' ')[0].replace(/-/g, '/');
+        var parts = datePart.split('/');
+        if (parts.length >= 3) {
+            return parts[0] + '/' + parts[1].padStart(2, '0') + '/' + parts[2].padStart(2, '0');
+        }
+        return datePart;
+    } catch(e) { return val; }
 }
 
 async function fetchData(){
@@ -323,13 +335,17 @@ function renderSummary(rows){
 function populateFilters(rows){
   var years=new Set(), codes=new Set(), names=new Set();
   rows.forEach(r => {
-    if(r.date) years.add(formatDate(r.date).split('/')[0]);
+    if(r.date) {
+        var f = formatDate(r.date);
+        if(f && f !== '—') years.add(f.split('/')[0]);
+    }
     if(r.code) codes.add(r.code);
     if(r.name) names.add(r.name);
   });
   const fill = (id, set) => {
     var el=document.getElementById(id);
-    Array.from(set).sort().forEach(v => { var o=document.createElement('option'); o.value=o.textContent=v; el.appendChild(o); });
+    el.innerHTML = '<option value="">' + el.options[0].text + '</option>';
+    Array.from(set).sort((a,b)=>b-a).forEach(v => { var o=document.createElement('option'); o.value=o.textContent=v; el.appendChild(o); });
   };
   fill('f-year', years); fill('f-code', codes); fill('f-name', names);
 }
@@ -358,7 +374,8 @@ function doSort(rows){
   return rows.slice().sort((a,b) => {
     var av, bv;
     if(sortCol==='date'){ av=formatDate(a.date); bv=formatDate(b.date); }
-    else { av=a[sortCol]||''; bv=b[sortCol]||''; }
+    else { av=(a[sortCol]||'').toString(); bv=(b[sortCol]||'').toString(); }
+    if (av === bv) return 0;
     return sortDir==='asc' ? (av>bv?1:-1) : (av<bv?1:-1);
   });
 }
@@ -408,7 +425,7 @@ window.confirmDel=async function(id){
   showModal('<h3>⚠️ 確認刪除</h3><p>確定要刪除此筆記錄嗎？</p><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-danger" id="del-yes">確定</button></div>');
   document.getElementById('del-yes').onclick=async ()=>{
     var res=await apiPost('/delete', {_id:id});
-    if(json.ok){ hideModal(); fetchData(); }
+    if(res.ok){ hideModal(); fetchData(); }
   };
 };
 
