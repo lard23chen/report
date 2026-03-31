@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>股票交易記錄 2018–2026</title>
+<title>股票交易記錄 (MongoDB)</title>
 <style>
 :root{--bg:#0f172a;--surface:#1e293b;--surface2:#263348;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--buy:#22c55e;--sell:#f87171;--div:#c084fc;}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -75,16 +75,14 @@ body.edit-on .act-btn{display:inline-block}
 .person-tabs{display:flex;gap:8px;margin-bottom:16px}
 .ptab{padding:7px 20px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.15s}
 .ptab:hover{color:var(--text)}
-.ptab.active[data-p=""]{background:var(--surface2);color:var(--text);border-color:var(--accent)}
-.ptab.active[data-p="alex"]{background:rgba(56,189,248,0.15);color:var(--accent);border-color:var(--accent)}
-.ptab.active[data-p="mark"]{background:rgba(251,146,60,0.15);color:#fb923c;border-color:#fb923c}
+.ptab.active{background:var(--surface2);color:var(--text);border-color:var(--accent)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 </style>
 </head>
 <body>
 <header>
   <h1>📈 股票交易記錄</h1>
-  <span id="hdr-sub">2018 – 2026</span>
+  <span id="hdr-sub">2018 – 2026 (MongoDB)</span>
   <span id="sync-info" style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#64748b">
     <span id="sync-dot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block;animation:pulse 1s infinite;flex-shrink:0"></span>
     <span id="sync-text">載入中…</span>
@@ -160,58 +158,43 @@ body.edit-on .act-btn{display:inline-block}
 </div>
 
 <script>
-// ─── API ─────────────────────────────────────────────────────────────────────
-const API_LOCAL = 'http://localhost:3001/api/stock';
-const API_REMOTE = 'https://script.google.com/macros/s/AKfycbxoXM_4QgCCEzxgy7Oa0dSjUStpovdgyGnhrAP0TQBdkdXp3OgSomfQO92wf2sn5Q-k/exec';
-const SHEET = 'Stock_Portfolio';
-
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-const API = isLocal ? API_LOCAL : API_REMOTE;
+const API_BASE = 'http://localhost:3001/api/stock';
 var data=[];
 
-// ─── Fetch ────────────────────────────────────────────────────────────────────
+function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US')}
+function fmtP(n){if(!n&&n!==0)return'—';return Number(n).toFixed(2)}
+function formatDate(d){
+    if(!d) return '—';
+    // Handle ISO string or "YYYY/MM/DD HH:mm:ss"
+    var datePart = d.toString().split(' ')[0].split('T')[0];
+    return datePart.replace(/-/g, '/');
+}
+
 async function fetchData(){
   setSyncState('loading','載入中…');
   try{
-    var url = isLocal ? API + '?t=' + Date.now() : API + '?sheet=' + SHEET + '&t=' + Date.now();
-    var res=await fetch(url);
+    var res=await fetch(API_BASE + '?t=' + Date.now());
     var json=await res.json();
     if(!json.ok)throw new Error('API error');
-    data=json.data.map(function(r,i){r._idx=i;return r;});
-    var syncMode = isLocal ? ' (Mongo)' : ' (Sheets)';
-    setSyncState('ok','同步完成' + syncMode + '・'+new Date().toLocaleTimeString('zh-TW',{hour12:false}));
+    data = json.data;
+    setSyncState('ok','同步完成 (MongoDB)・'+new Date().toLocaleTimeString('zh-TW',{hour12:false}));
     populateFilters(data);
     render();
   }catch(e){
     setSyncState('error','載入失敗');
-    document.getElementById('hdr-sub').textContent='載入失敗，請確認 API 是否啟動 (本機需運行 node stock_api.js)';
-  }
-}
-async function apiPost(endpoint, body){
-  if (isLocal) {
-    // Local MongoDB API
-    await fetch(API + endpoint,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
-  } else {
-    // Remote Google Apps Script API
-    var gasBody = Object.assign({ action: endpoint.replace('/', ''), sheet: SHEET }, body);
-    if (endpoint === '/update' || endpoint === '/delete') {
-      gasBody.index = body._idx; // GAS uses index
-    }
-    await fetch(API,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify(gasBody)
-    });
+    console.error(e);
   }
 }
 
-// ... rest of code unchanged, but need to update calls to apiPost ...
-// I will provide the updated CRUD functions below.
+async function apiPost(endpoint, body){
+    const res = await fetch(API_BASE + endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    return await res.json();
+}
+
 function setSyncState(state,text){
   var dot=document.getElementById('sync-dot');
   if(state==='loading'){dot.style.background='#f59e0b';dot.style.animation='pulse 1s infinite';}
@@ -220,480 +203,262 @@ function setSyncState(state,text){
   document.getElementById('sync-text').textContent=text;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US')}
-function fmtP(n){if(!n&&n!==0)return'—';return Number(n).toFixed(2)}
-function shares(r){return r.type==='賣'?r.sellShares:r.buyShares}
-function price(r){return r.type==='賣'?r.sellPrice:r.buyPrice}
-function dateSort(d){if(!d)return'0';var p=d.split('/');return p[0]+(p[1]||'0').padStart(2,'0')+(p[2]||'0').padStart(2,'0');}
-
-// ─── State ────────────────────────────────────────────────────────────────────
-var sortCol='date', sortDir='desc', curPage=1, perPage=50, editOn=false;
-var toastEl=null, toastTimer;
-function showToast(msg,type){
-  if(!toastEl){
-    toastEl=document.createElement('div');
-    toastEl.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:10px 20px;border-radius:10px;font-size:0.85rem;transition:transform 0.3s;z-index:9999;white-space:nowrap';
-    document.body.appendChild(toastEl);
-  }
-  toastEl.textContent=msg;
-  toastEl.style.borderColor=type==='error'?'#ef4444':type==='success'?'#22c55e':'#334155';
-  toastEl.style.color=type==='error'?'#ef4444':type==='success'?'#22c55e':'#e2e8f0';
-  toastEl.style.transform='translateX(-50%) translateY(0)';
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(function(){toastEl.style.transform='translateX(-50%) translateY(80px)';},3000);
-}
-function delay(ms){return new Promise(function(r){setTimeout(r,ms);});}
-
-// ─── Price Store ──────────────────────────────────────────────────────────────
-var PKEY='stock_prices';
+var sortCol='date', sortDir='desc', curPage=1, perPage=50, editOn=false, activePerson='';
+const PKEY='stock_prices';
 function getPrices(){try{return JSON.parse(localStorage.getItem(PKEY)||'{}')}catch(e){return{}}}
 window.savePrice=function(code,val){var p=getPrices();p[code]=parseFloat(val)||0;localStorage.setItem(PKEY,JSON.stringify(p));render();};
 
-// ─── Fetch Today Prices (TWSE API) ────────────────────────────────────────────
 window.fetchPrices=async function(){
-  var btn=document.getElementById('fetch-prices-btn');
-  var orig=btn.textContent;
-  btn.textContent='⏳ 查詢中…';btn.disabled=true;
-  try{
-    var codes=Array.from(new Set(data.map(function(r){return r.code;})));
-    // Request both TSE (上市) and OTC (上櫃) variants; API ignores invalid ones
-    var parts=[];
-    codes.forEach(function(c){parts.push('tse_'+c+'.tw');parts.push('otc_'+c+'.tw');});
-    var url='https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch='+parts.join('|')+'&json=1&delay=0&_='+Date.now();
-    var resp=await fetch(url);
-    if(!resp.ok)throw new Error('HTTP '+resp.status);
-    var twseData=await resp.json();
-    var prices=getPrices();
-    var updated=0;
-    if(twseData.msgArray&&twseData.msgArray.length){
-      twseData.msgArray.forEach(function(item){
-        // z = current/last price, y = prev close fallback
-        var px=parseFloat((item.z&&item.z!=='-')?item.z:(item.y||item.pz||'0'));
-        if(item.c&&px>0){prices[item.c]=px;updated++;}
-      });
+    var btn=document.getElementById('fetch-prices-btn');
+    var orig=btn.textContent;
+    btn.textContent='⏳ 查詢中…'; btn.disabled=true;
+    try {
+        var codes = Array.from(new Set(data.map(r => r.code))).filter(c => c);
+        var url = `${API_BASE}/prices?codes=${codes.join(',')}`;
+        var res = await fetch(url);
+        var json = await res.json();
+        if(json.ok){
+            var prices = getPrices();
+            Object.assign(prices, json.prices);
+            localStorage.setItem(PKEY, JSON.stringify(prices));
+            render();
+            btn.textContent = '✓ 已更新';
+        } else throw new Error('Price API error');
+    } catch(e) {
+        btn.textContent = '❌ 失敗';
+        console.error(e);
     }
-    localStorage.setItem(PKEY,JSON.stringify(prices));
-    render();
-    var t=new Date();
-    btn.textContent='✓ '+updated+'支 ('+(t.getHours()+':'+(t.getMinutes()+'').padStart(2,'0'))+')';
-  }catch(e){
-    // Fallback: try via allorigins CORS proxy
-    try{
-      var codes2=Array.from(new Set(data.map(function(r){return r.code;})));
-      var parts2=[];
-      codes2.forEach(function(c){parts2.push('tse_'+c+'.tw');parts2.push('otc_'+c+'.tw');});
-      var inner='https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch='+parts2.join('|')+'&json=1&delay=0&_='+Date.now();
-      var proxy='https://api.allorigins.win/get?url='+encodeURIComponent(inner);
-      var r2=await fetch(proxy);
-      var j2=await r2.json();
-      var data2=JSON.parse(j2.contents);
-      var prices2=getPrices();var updated2=0;
-      if(data2.msgArray){data2.msgArray.forEach(function(item){
-        var px=parseFloat((item.z&&item.z!=='-')?item.z:(item.y||'0'));
-        if(item.c&&px>0){prices2[item.c]=px;updated2++;}
-      });}
-      localStorage.setItem(PKEY,JSON.stringify(prices2));
-      render();
-      var t2=new Date();
-      btn.textContent='✓ '+updated2+'支 ('+(t2.getHours()+':'+(t2.getMinutes()+'').padStart(2,'0'))+')';
-    }catch(e2){
-      btn.textContent='❌ 無法取得';
-      console.error('fetchPrices failed:',e,e2);
-    }
-  }
-  setTimeout(function(){btn.textContent=orig;btn.disabled=false;},5000);
+    setTimeout(() => { btn.textContent=orig; btn.disabled=false; }, 3000);
 };
-var activePerson='';
 
-// ─── Person Tab ───────────────────────────────────────────────────────────────
 window.setPersonTab=function(p){
   activePerson=p;
-  document.querySelectorAll('.ptab').forEach(function(b){b.classList.toggle('active',b.dataset.p===p);});
+  document.querySelectorAll('.ptab').forEach(b => b.classList.toggle('active', b.dataset.p===p));
   document.getElementById('f-person').value=p;
   curPage=1; render();
 };
 
-// ─── Render All ───────────────────────────────────────────────────────────────
 function render(){
-  var all=data;
-  var topRows=activePerson?all.filter(function(r){return(r.person||'alex')===activePerson;}):all;
+  var topRows=activePerson ? data.filter(r => (r.person||'alex')===activePerson) : data;
   renderStats(topRows);
   renderSummary(topRows);
-  var filtered=applyFilters(all);
+  var filtered=applyFilters(data);
   document.getElementById('filter-count').textContent=filtered.length+'筆';
   filtered=doSort(filtered);
   var total=filtered.length;
-  var pages=Math.max(1,Math.ceil(total/perPage));
+  var pages=Math.max(1, Math.ceil(total/perPage));
   if(curPage>pages)curPage=pages;
-  var start=(curPage-1)*perPage, end=Math.min(start+perPage,total);
-  renderTable(filtered.slice(start,end));
+  renderTable(filtered.slice((curPage-1)*perPage, curPage*perPage));
   renderPagination(total,pages);
 }
 
-// ─── Stats ────────────────────────────────────────────────────────────────────
 function renderStats(rows){
-  var totalSpend=0,totalIncome=0,txCount=rows.length;
-  rows.forEach(function(r){totalSpend+=Number(r.spend)||0;totalIncome+=Number(r.income)||0;});
-  var net=totalIncome-totalSpend;
-  var buyCount=rows.filter(function(r){return r.type==='買'}).length;
-  var sellCount=rows.filter(function(r){return r.type==='賣'}).length;
-
-  // 估算市值 = sum of netShares × todayPrice per (code × person) in this filtered set
-  var prices=getPrices();
+  var totalSpend=0,totalIncome=0, prices=getPrices();
+  rows.forEach(r => { totalSpend+=Number(r.spend)||0; totalIncome+=Number(r.income)||0; });
+  
   var posMap={};
-  rows.forEach(function(r){
+  rows.forEach(r => {
     var key=r.code+'|'+(r.person||'alex');
     if(!posMap[key])posMap[key]={code:r.code,net:0};
     if(r.type==='買')posMap[key].net+=Number(r.buyShares)||0;
     else if(r.type==='賣')posMap[key].net-=Number(r.sellShares)||0;
   });
   var estMktVal=0,hasPx=false;
-  Object.values(posMap).forEach(function(p){
+  Object.values(posMap).forEach(p => {
     var px=prices[p.code];
     if(px&&p.net>0){estMktVal+=p.net*px;hasPx=true;}
   });
-  var netTotal=hasPx?(totalIncome+estMktVal-totalSpend):null;
+  
+  var net = totalIncome-totalSpend;
+  var netTotal = hasPx ? (net + estMktVal) : null;
 
   var cards=[
-    {label:'總筆數',val:txCount,cls:''},
-    {label:'買入次數',val:buyCount,cls:''},
-    {label:'賣出次數',val:sellCount,cls:''},
+    {label:'總筆數',val:rows.length,cls:''},
     {label:'總買入支出',val:'$'+fmt(totalSpend),cls:'neg'},
     {label:'總賣出收入',val:'$'+fmt(totalIncome),cls:'pos'},
-    {label:'淨現金流(已平倉)',val:(net>=0?'+':'')+fmt(net),cls:net>=0?'pos':'neg'},
+    {label:'淨現金流',val:fmt(net),cls:net>=0?'pos':'neg'},
     {label:'估算市值',val:hasPx?'$'+fmt(estMktVal):'—',cls:''},
-    {label:'含持股淨額',val:netTotal!==null?(netTotal>=0?'+':'')+fmt(netTotal):'—',cls:netTotal===null?'':netTotal>=0?'pos':'neg'}
+    {label:'含持股損益',val:netTotal!==null?fmt(netTotal):'—',cls:netTotal>=0?'pos':'neg'}
   ];
-  var g=document.getElementById('stats-grid');
-  g.innerHTML=cards.map(function(c){
-    return '<div class="stat-card"><div class="stat-label">'+c.label+'</div><div class="stat-value '+c.cls+'">'+c.val+'</div></div>';
-  }).join('');
+  document.getElementById('stats-grid').innerHTML=cards.map(c => `<div class="stat-card"><div class="stat-label">${c.label}</div><div class="stat-value ${c.cls}">${c.val}</div></div>`).join('');
 }
 
-// ─── Summary ──────────────────────────────────────────────────────────────────
 function renderSummary(rows){
-  var prices=getPrices();
-  var map={};
-  rows.forEach(function(r){
+  var prices=getPrices(), map={};
+  rows.forEach(r => {
     var key=r.code+'|'+(r.person||'alex');
-    if(!map[key])map[key]={code:r.code,name:r.name,person:r.person||'alex',buyShares:0,sellShares:0,totalSpend:0,totalIncome:0,buyAmt:0};
+    if(!map[key])map[key]={code:r.code,name:r.name,person:r.person||'alex',buyShares:0,sellShares:0,totalSpend:0,totalIncome:0};
     var m=map[key];
-    if(r.type==='買'){m.buyShares+=Number(r.buyShares)||0;m.totalSpend+=Number(r.spend)||0;m.buyAmt+=Number(r.amount)||0;}
-    else if(r.type==='賣'){m.sellShares+=Number(r.sellShares)||0;m.totalIncome+=Number(r.income)||0;}
-  });
-  var keys=Object.keys(map).sort(function(a,b){
-    return map[a].code.localeCompare(map[b].code)||map[a].person.localeCompare(map[b].person);
+    if(r.type==='買'){ m.buyShares+=Number(r.buyShares)||0; m.totalSpend+=Number(r.spend)||0; }
+    else if(r.type==='賣'){ m.sellShares+=Number(r.sellShares)||0; m.totalIncome+=Number(r.income)||0; }
   });
   var html='';
-  keys.forEach(function(k){
-    var m=map[k];
+  Object.values(map).sort((a,b)=>a.code.localeCompare(b.code)).forEach(m => {
     var netShares=m.buyShares-m.sellShares;
-    if(netShares===0)return;
-    if(['2888','2888A','2888B','2845'].indexOf(m.code)!==-1)return;
-    var avgBuy=m.buyShares>0?(m.totalSpend/m.buyShares):0;
-    var plEstimate=m.totalIncome-m.totalSpend;
-    var plCls=plEstimate>=0?'summary-pos':'summary-neg';
-    var personCls=m.person==='mark'?'person-mark':'person-alex';
-    html+='<tr>';
-    html+='<td class="code">'+m.code+'</td>';
-    html+='<td>'+m.name+'</td>';
-    html+='<td><span class="'+personCls+'">'+m.person.toUpperCase()+'</span></td>';
-    html+='<td class="num">'+fmtP(avgBuy)+'</td>';
-    html+='<td class="num"'+(netShares>0?' style="color:var(--buy)"':netShares===0?' style="color:var(--muted)"':' style="color:var(--sell)"')+'>'+fmt(netShares)+'</td>';
-    html+='<td class="num muted">'+fmt(m.totalSpend)+'</td>';
-    html+='<td class="num muted">'+fmt(m.totalIncome)+'</td>';
+    if(netShares<=0)return;
+    var avgBuy=m.totalSpend/m.buyShares;
     var todayPx=prices[m.code]||0;
     var estVal=netShares*todayPx;
-    html+='<td class="num"><input class="price-input" type="number" step="0.01" value="'+(todayPx||'')+'" placeholder="輸入" onchange="savePrice(\''+m.code+'\',this.value)"></td>';
-    html+='<td class="num est-val '+(estVal>0?'pos':estVal<0?'neg':'muted')+'">'+(todayPx?fmt(estVal):'—')+'</td>';
-    html+='<td class="num '+plCls+'">'+(plEstimate>=0?'+':'')+fmt(plEstimate)+'</td>';
-    var realPL=todayPx?(estVal+plEstimate):null;
-    var realCls=realPL===null?'muted':realPL>=0?'summary-pos':'summary-neg';
-    html+='<td class="num '+realCls+'">'+(realPL===null?'—':(realPL>=0?'+':'')+fmt(realPL))+'</td>';
-    html+='</tr>';
+    var plEstimate=m.totalIncome-m.totalSpend;
+    var realPL=todayPx ? (estVal+plEstimate) : null;
+    html+=`<tr>
+      <td class="code">${m.code}</td><td>${m.name}</td><td><span class="${m.person==='mark'?'person-mark':'person-alex'}">${m.person.toUpperCase()}</span></td>
+      <td class="num">${fmtP(avgBuy)}</td><td class="num pos">${fmt(netShares)}</td><td class="num muted">${fmt(m.totalSpend)}</td><td class="num muted">${fmt(m.totalIncome)}</td>
+      <td class="num"><input class="price-input" type="number" step="0.01" value="${todayPx||''}" onchange="savePrice('${m.code}',this.value)"></td>
+      <td class="num est-val">${todayPx?fmt(estVal):'—'}</td><td class="num ${plEstimate>=0?'pos':'neg'}">${fmt(plEstimate)}</td>
+      <td class="num ${realPL>=0?'pos':'neg'}">${realPL!==null?fmt(realPL):'—'}</td>
+    </tr>`;
   });
   document.getElementById('summary-body').innerHTML=html;
 }
 
-// ─── Filters ─────────────────────────────────────────────────────────────────
 function populateFilters(rows){
-  var years=new Set(), codeNameMap={};
-  rows.forEach(function(r){
-    if(r.date)years.add(r.date.split('/')[0]);
-    if(r.code&&!codeNameMap[r.code])codeNameMap[r.code]=r.name||r.code;
+  var years=new Set(), codes=new Set(), names=new Set();
+  rows.forEach(r => {
+    if(r.date) years.add(formatDate(r.date).split('/')[0]);
+    if(r.code) codes.add(r.code);
+    if(r.name) names.add(r.name);
   });
-  var ysel=document.getElementById('f-year');
-  var existing=Array.from(ysel.options).map(function(o){return o.value});
-  Array.from(years).sort().reverse().forEach(function(y){
-    if(!existing.includes(y)){var o=document.createElement('option');o.value=o.textContent=y;ysel.appendChild(o);}
-  });
-  var csel=document.getElementById('f-code');
-  var existingC=Array.from(csel.options).map(function(o){return o.value});
-  Object.keys(codeNameMap).sort().forEach(function(c){
-    if(!existingC.includes(c)){var o=document.createElement('option');o.value=c;o.textContent=c+' '+codeNameMap[c];csel.appendChild(o);}
-  });
-  var nsel=document.getElementById('f-name');
-  var existingN=Array.from(nsel.options).map(function(o){return o.value});
-  var names=Array.from(new Set(Object.values(codeNameMap))).sort();
-  names.forEach(function(n){
-    if(!existingN.includes(n)){var o=document.createElement('option');o.value=o.textContent=n;nsel.appendChild(o);}
-  });
+  const fill = (id, set) => {
+    var el=document.getElementById(id);
+    Array.from(set).sort().forEach(v => { var o=document.createElement('option'); o.value=o.textContent=v; el.appendChild(o); });
+  };
+  fill('f-year', years); fill('f-code', codes); fill('f-name', names);
 }
+
 function applyFilters(rows){
-  var person=document.getElementById('f-person').value;
-  var year=document.getElementById('f-year').value;
-  var code=document.getElementById('f-code').value;
-  var name=document.getElementById('f-name').value;
-  var type=document.getElementById('f-type').value;
-  var search=document.getElementById('f-search').value.trim().toLowerCase();
-  return rows.filter(function(r){
-    if(person&&(r.person||'alex')!==person)return false;
-    if(year&&(!r.date||r.date.split('/')[0]!==year))return false;
-    if(code&&r.code!==code)return false;
-    if(name&&r.name!==name)return false;
-    if(type&&r.type!==type)return false;
-    if(search&&!(r.code.toLowerCase().includes(search)||r.name.toLowerCase().includes(search)))return false;
+  var p=document.getElementById('f-person').value, y=document.getElementById('f-year').value, 
+      c=document.getElementById('f-code').value, n=document.getElementById('f-name').value,
+      t=document.getElementById('f-type').value, s=document.getElementById('f-search').value.toLowerCase();
+  return rows.filter(r => {
+    if(p && (r.person||'alex')!==p) return false;
+    if(y && formatDate(r.date).split('/')[0]!==y) return false;
+    if(c && r.code!==c) return false;
+    if(n && r.name!==n) return false;
+    if(t && r.type!==t) return false;
+    if(s && !(r.code.toLowerCase().includes(s)||r.name.toLowerCase().includes(s))) return false;
     return true;
   });
 }
+
 function resetFilters(){
-  ['f-person','f-year','f-code','f-name','f-type'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('f-search').value='';
-  curPage=1; render();
+  ['f-person','f-year','f-code','f-name','f-type'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('f-search').value=''; curPage=1; render();
 }
 
-// ─── Sort ─────────────────────────────────────────────────────────────────────
 function doSort(rows){
-  return rows.slice().sort(function(a,b){
-    var av,bv;
-    if(sortCol==='date'){av=dateSort(a.date);bv=dateSort(b.date);}
-    else if(sortCol==='amount'){av=Number(a.amount)||0;bv=Number(b.amount)||0;}
-    else if(sortCol==='spend'){av=Number(a.spend)||0;bv=Number(b.spend)||0;}
-    else if(sortCol==='income'){av=Number(a.income)||0;bv=Number(b.income)||0;}
-    else if(sortCol==='shares'){av=shares(a);bv=shares(b);}
-    else if(sortCol==='price'){av=price(a);bv=price(b);}
-    else if(sortCol==='cost'){av=Number(a.cost)||0;bv=Number(b.cost)||0;}
-    else{av=(a[sortCol]||'').toString();bv=(b[sortCol]||'').toString();}
-    if(av<bv)return sortDir==='asc'?-1:1;
-    if(av>bv)return sortDir==='asc'?1:-1;
-    return 0;
+  return rows.slice().sort((a,b) => {
+    var av, bv;
+    if(sortCol==='date'){ av=formatDate(a.date); bv=formatDate(b.date); }
+    else { av=a[sortCol]||''; bv=b[sortCol]||''; }
+    return sortDir==='asc' ? (av>bv?1:-1) : (av<bv?1:-1);
   });
 }
 
-// ─── Table ────────────────────────────────────────────────────────────────────
 function renderTable(rows){
-  var prices=getPrices();
-  var ths=document.querySelectorAll('#tx-table th[data-col]');
-  ths.forEach(function(th){
-    th.classList.remove('sort-asc','sort-desc');
-    if(th.dataset.col===sortCol)th.classList.add('sort-'+sortDir);
-  });
-  var html='';
-  rows.forEach(function(r){
-    var badgeCls=r.type==='買'?'badge-buy':r.type==='賣'?'badge-sell':'badge-div';
-    var pCls=r.person==='mark'?'person-mark':'person-alex';
-    html+='<tr>';
-    html+='<td class="muted">'+(r.date ? r.date.split(' ')[0] : '')+'</td>';
-    html+='<td><span class="badge '+badgeCls+'">'+r.type+'</span></td>';
-    html+='<td class="code">'+r.code+'</td>';
-    html+='<td>'+r.name+'</td>';
-    html+='<td class="num">'+fmt(shares(r))+'</td>';
-    html+='<td class="num">'+fmtP(price(r))+'</td>';
-    html+='<td class="num">'+fmt(r.amount)+'</td>';
-    html+='<td class="num muted">'+fmt(r.cost)+'</td>';
-    html+='<td class="num'+(Number(r.spend)>0?' neg':'')+'">'+(Number(r.spend)>0?fmt(r.spend):'—')+'</td>';
-    html+='<td class="num'+(Number(r.income)>0?' pos':'')+'">'+(Number(r.income)>0?fmt(r.income):'—')+'</td>';
-    html+='<td><span class="'+pCls+'">'+(r.person||'alex').toUpperCase()+'</span></td>';
-    html+='<td class="muted">'+( r.note||'' )+'</td>';
+  var prices=getPrices(), html='';
+  rows.forEach(r => {
     var px=prices[r.code];
-    html+='<td class="num" style="white-space:nowrap">'+(px?fmtP(px):'<span class="muted">—</span>')+'<button class="act-btn act-edit" style="margin-left:6px" onclick="showEditModal('+r._idx+')">編輯</button><button class="act-btn act-del" onclick="confirmDel('+r._idx+')">刪除</button></td>';
-    html+='</tr>';
+    html+=`<tr>
+      <td class="muted">${formatDate(r.date)}</td><td><span class="badge ${r.type==='買'?'badge-buy':r.type==='賣'?'badge-sell':'badge-div'}">${r.type}</span></td>
+      <td class="code">${r.code}</td><td>${r.name}</td><td class="num">${fmt(r.type==='賣'?r.sellShares:r.buyShares)}</td>
+      <td class="num">${fmtP(r.type==='賣'?r.sellPrice:r.buyPrice)}</td><td class="num">${fmt(r.amount)}</td><td class="num muted">${fmt(r.cost)}</td>
+      <td class="num neg">${r.spend?fmt(r.spend):'—'}</td><td class="num pos">${r.income?fmt(r.income):'—'}</td>
+      <td><span class="${r.person==='mark'?'person-mark':'person-alex'}">${(r.person||'alex').toUpperCase()}</span></td>
+      <td class="muted">${r.note||''}</td>
+      <td class="num">${px?fmtP(px):'—'}<button class="act-btn act-edit" onclick="showEditModal('${r._id}')">編輯</button><button class="act-btn act-del" onclick="confirmDel('${r._id}')">刪除</button></td>
+    </tr>`;
   });
   document.getElementById('tx-body').innerHTML=html;
 }
 
-// ─── Pagination ───────────────────────────────────────────────────────────────
 function renderPagination(total,pages){
-  var html='<span class="page-info">共 '+total+' 筆，第 '+curPage+'/'+pages+' 頁</span> ';
-  if(curPage>1)html+='<button class="page-btn" onclick="goPage('+( curPage-1 )+')">‹</button>';
-  var lo=Math.max(1,curPage-2), hi=Math.min(pages,curPage+2);
-  for(var p=lo;p<=hi;p++){html+='<button class="page-btn'+(p===curPage?' active':'')+'" onclick="goPage('+p+')">'+p+'</button>';}
-  if(curPage<pages)html+='<button class="page-btn" onclick="goPage('+( curPage+1 )+')">›</button>';
+  var html=`<span class="page-info">共 ${total} 筆，第 ${curPage}/${pages} 頁</span> `;
+  if(curPage>1) html+=`<button class="page-btn" onclick="goPage(${curPage-1})">‹</button>`;
+  for(var p=Math.max(1,curPage-2); p<=Math.min(pages,curPage+2); p++) 
+    html+=`<button class="page-btn ${p===curPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  if(curPage<pages) html+=`<button class="page-btn" onclick="goPage(${curPage+1})">›</button>`;
   document.getElementById('pagination').innerHTML=html;
 }
-function goPage(p){curPage=p;render();}
+function goPage(p){ curPage=p; render(); }
 
-// ─── Edit Mode ────────────────────────────────────────────────────────────────
-var editOn=false;
 window.toggleEditMode=function(){
-  if(editOn){exitEditMode();return;}
-  showPasswordModal(function(){enterEditMode();});
+  if(editOn){ editOn=false; document.body.classList.remove('edit-on'); document.getElementById('edit-toolbar').classList.remove('on'); document.getElementById('edit-toggle').textContent='✏️ 編輯'; }
+  else showPasswordModal(() => { editOn=true; document.body.classList.add('edit-on'); document.getElementById('edit-toolbar').classList.add('on'); document.getElementById('edit-toggle').textContent='✕ 退出編輯'; });
 };
-function enterEditMode(){
-  editOn=true;
-  document.body.classList.add('edit-on');
-  document.getElementById('edit-toolbar').classList.add('on');
-  document.getElementById('edit-toggle').textContent='✕ 退出編輯';
-}
-function exitEditMode(){
-  editOn=false;
-  document.body.classList.remove('edit-on');
-  document.getElementById('edit-toolbar').classList.remove('on');
-  document.getElementById('edit-toggle').textContent='✏️ 編輯';
-}
 
-// ─── Modal Helpers ────────────────────────────────────────────────────────────
-function showModal(html){
-  document.getElementById('crud-dialog').innerHTML=html;
-  document.getElementById('crud-modal').classList.add('open');
-}
-window.hideModal=function(){document.getElementById('crud-modal').classList.remove('open');};
+function showModal(html){ document.getElementById('crud-dialog').innerHTML=html; document.getElementById('crud-modal').classList.add('open'); }
+window.hideModal=function(){ document.getElementById('crud-modal').classList.remove('open'); };
 
-// ─── Password ─────────────────────────────────────────────────────────────────
 function showPasswordModal(onSuccess){
-  showModal('<h3>🔒 請輸入密碼</h3><div class="form-group"><label>密碼</label><input type="password" id="pw-inp" placeholder="輸入密碼…"></div><div id="pw-err" class="err"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-primary" id="pw-ok">確認</button></div>');
-  var inp=document.getElementById('pw-inp');
-  inp.focus();
-  function check(){
-    if(inp.value==='0918216001'){hideModal();onSuccess();}
-    else{document.getElementById('pw-err').textContent='密碼錯誤，請重試';inp.value='';inp.focus();}
-  }
-  document.getElementById('pw-ok').addEventListener('click',check);
-  inp.addEventListener('keydown',function(e){if(e.key==='Enter')check();});
+  showModal('<h3>🔒 請輸入密碼</h3><input type="password" id="pw-inp" style="width:100%;padding:8px;margin:10px 0"><div id="pw-err" class="err"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-primary" id="pw-ok">確認</button></div>');
+  const check=()=>{ if(document.getElementById('pw-inp').value==='0918216001'){hideModal();onSuccess();} else document.getElementById('pw-err').textContent='密碼錯誤'; };
+  document.getElementById('pw-ok').onclick=check;
 }
 
-// ─── Confirm Delete ───────────────────────────────────────────────────────────
-window.confirmDel=function(idx){
-  var row=data[idx];
-  if(!row)return;
-  showModal('<h3>⚠️ 確認刪除</h3><p style="color:var(--muted);margin-bottom:16px">確定要刪除這筆交易記錄嗎？此操作將同步刪除 MongoDB 資料。</p><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-danger" id="del-yes">確定刪除</button></div>');
-  document.getElementById('del-yes').addEventListener('click',async function(){
-    var btn=document.getElementById('del-yes');
-    btn.disabled=true;btn.textContent='刪除中…';
-    try{
-      await apiPost('/delete',{_id:row._id});
-      hideModal();
-      showToast('已刪除，同步中…','success');
-      await delay(1200);
-      await fetchData();
-    }catch(e){showToast('刪除失敗，請重試','error');}
-    btn.disabled=false;btn.textContent='確定刪除';
-  });
+window.confirmDel=async function(id){
+  showModal('<h3>⚠️ 確認刪除</h3><p>確定要刪除此筆記錄嗎？</p><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-danger" id="del-yes">確定</button></div>');
+  document.getElementById('del-yes').onclick=async ()=>{
+    var res=await apiPost('/delete', {_id:id});
+    if(json.ok){ hideModal(); fetchData(); }
+  };
 };
 
-// ─── Row Form HTML ────────────────────────────────────────────────────────────
 function rowFormHtml(r,title){
-  r=r||{type:'買',person:'alex'};
-  function v(f){return r[f]!==undefined&&r[f]!==null?r[f]:'';}
-  return '<h3>'+title+'</h3>'+
-  '<div class="form-grid">'+
-  '<div class="form-group"><label>日期</label><input id="f-date" value="'+v('date')+'" placeholder="2026/3/1"></div>'+
-  '<div class="form-group"><label>類型</label><select id="f-type-s"><option'+(v('type')==='買'?' selected':'')+'>買</option><option'+(v('type')==='賣'?' selected':'')+'>賣</option><option'+(v('type')==='股利'?' selected':'')+'>股利</option></select></div>'+
-  '<div class="form-group"><label>代號</label><input id="f-code" value="'+v('code')+'" placeholder="1504"></div>'+
-  '<div class="form-group"><label>股票名稱</label><input id="f-name" value="'+v('name')+'" placeholder="東元"></div>'+
-  '<div class="form-group"><label>買入股數</label><input id="f-bs" type="number" value="'+v('buyShares')+'"></div>'+
-  '<div class="form-group"><label>買入價格</label><input id="f-bp" type="number" step="0.01" value="'+v('buyPrice')+'"></div>'+
-  '<div class="form-group"><label>賣出股數</label><input id="f-ss" type="number" value="'+v('sellShares')+'"></div>'+
-  '<div class="form-group"><label>賣出價格</label><input id="f-sp" type="number" step="0.01" value="'+v('sellPrice')+'"></div>'+
-  '<div class="form-group"><label>手續費</label><input id="f-fee" type="number" value="'+v('fee')+'"></div>'+
-  '<div class="form-group"><label>交易稅</label><input id="f-tax" type="number" value="'+v('tax')+'"></div>'+
-  '<div class="form-group"><label>成交金額</label><input id="f-amt" type="number" value="'+v('amount')+'"></div>'+
-  '<div class="form-group"><label>交易成本</label><input id="f-cost" type="number" value="'+v('cost')+'"></div>'+
-  '<div class="form-group"><label>支出</label><input id="f-spend" type="number" value="'+v('spend')+'"></div>'+
-  '<div class="form-group"><label>收入</label><input id="f-income" type="number" value="'+v('income')+'"></div>'+
-  '<div class="form-group"><label>人員</label><select id="f-person-s"><option'+(v('person')==='alex'?' selected':'')+'>alex</option><option'+(v('person')==='mark'?' selected':'')+'>mark</option></select></div>'+
-  '<div class="form-group"><label>備註</label><input id="f-note" value="'+v('note')+'"></div>'+
-  '</div>'+
-  '<div id="form-err" class="err"></div>'+
-  '<div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-primary" id="form-save">儲存</button></div>';
+  r=r||{type:'買',person:'alex',date:new Date().toISOString().split('T')[0]};
+  const v = f => r[f]!==undefined?r[f]:'';
+  return `<h3>${title}</h3><div class="form-grid">
+    <div class="form-group"><label>日期</label><input id="f-date" value="${formatDate(v('date'))}"></div>
+    <div class="form-group"><label>類型</label><select id="f-type-s"><option ${v('type')==='買'?'selected':''}>買</option><option ${v('type')==='賣'?'selected':''}>賣</option></select></div>
+    <div class="form-group"><label>代號</label><input id="f-code-i" value="${v('code')}"></div>
+    <div class="form-group"><label>名稱</label><input id="f-name-i" value="${v('name')}"></div>
+    <div class="form-group"><label>買入股數</label><input id="f-bs" type="number" value="${v('buyShares')}"></div>
+    <div class="form-group"><label>買入價格</label><input id="f-bp" type="number" step="0.01" value="${v('buyPrice')}"></div>
+    <div class="form-group"><label>賣出股數</label><input id="f-ss" type="number" value="${v('sellShares')}"></div>
+    <div class="form-group"><label>賣出價格</label><input id="f-sp" type="number" step="0.01" value="${v('sellPrice')}"></div>
+    <div class="form-group"><label>成交金額</label><input id="f-amt" type="number" value="${v('amount')}"></div>
+    <div class="form-group"><label>支出</label><input id="f-spend" type="number" value="${v('spend')}"></div>
+    <div class="form-group"><label>收入</label><input id="f-income" type="number" value="${v('income')}"></div>
+    <div class="form-group"><label>人員</label><select id="f-person-s"><option ${v('person')==='alex'?'selected':''}>alex</option><option ${v('person')==='mark'?'selected':''}>mark</option></select></div>
+  </div><div class="modal-actions"><button class="btn btn-secondary" onclick="hideModal()">取消</button><button class="btn btn-primary" id="form-save">儲存</button></div>`;
 }
 
-function collectForm(){
-  return{
-    date:document.getElementById('f-date').value.trim(),
-    type:document.getElementById('f-type-s').value,
-    code:document.getElementById('f-code').value.trim(),
-    name:document.getElementById('f-name').value.trim(),
-    buyShares:Number(document.getElementById('f-bs').value)||0,
-    buyPrice:Number(document.getElementById('f-bp').value)||0,
-    sellShares:Number(document.getElementById('f-ss').value)||0,
-    sellPrice:Number(document.getElementById('f-sp').value)||0,
-    fee:Number(document.getElementById('f-fee').value)||0,
-    tax:Number(document.getElementById('f-tax').value)||0,
-    amount:Number(document.getElementById('f-amt').value)||0,
-    cost:Number(document.getElementById('f-cost').value)||0,
-    spend:Number(document.getElementById('f-spend').value)||0,
-    income:Number(document.getElementById('f-income').value)||0,
-    person:document.getElementById('f-person-s').value,
-    note:document.getElementById('f-note').value.trim()
-  };
-}
-
-// ─── Add ─────────────────────────────────────────────────────────────────────
 window.showAddModal=function(){
   showModal(rowFormHtml(null,'＋ 新增交易'));
-  document.getElementById('form-save').addEventListener('click',async function(){
-    var d=collectForm();
-    if(!d.date||!d.code){document.getElementById('form-err').textContent='日期和代號為必填';return;}
-    var btn=document.getElementById('form-save');
-    btn.disabled=true;btn.textContent='儲存中…';
-    try{
-      await apiPost('/add', d);
-      hideModal();
-      showToast('已新增，同步中…','success');
-      await delay(1200);
-      await fetchData();
-    }catch(e){showToast('新增失敗，請重試','error');}
-    btn.disabled=false;btn.textContent='儲存';
-  });
+  document.getElementById('form-save').onclick=async ()=>{
+    var d={
+      date:document.getElementById('f-date').value, type:document.getElementById('f-type-s').value,
+      code:document.getElementById('f-code-i').value, name:document.getElementById('f-name-i').value,
+      buyShares:Number(document.getElementById('f-bs').value), buyPrice:Number(document.getElementById('f-bp').value),
+      sellShares:Number(document.getElementById('f-ss').value), sellPrice:Number(document.getElementById('f-sp').value),
+      amount:Number(document.getElementById('f-amt').value), spend:Number(document.getElementById('f-spend').value),
+      income:Number(document.getElementById('f-income').value), person:document.getElementById('f-person-s').value
+    };
+    var res=await apiPost('/add', d);
+    if(res.ok){ hideModal(); fetchData(); }
+  };
 };
 
-// ─── Edit ─────────────────────────────────────────────────────────────────────
-window.showEditModal=function(idx){
-  var row=data[idx];
-  if(!row)return;
-  showModal(rowFormHtml(row,'✏️ 修改交易'));
-  document.getElementById('form-save').addEventListener('click',async function(){
-    var d=collectForm();
-    if(!d.date||!d.code){document.getElementById('form-err').textContent='日期和代號為必填';return;}
-    var btn=document.getElementById('form-save');
-    btn.disabled=true;btn.textContent='儲存中…';
-    try{
-      await apiPost('/update', { ...d, _id: row._id });
-      hideModal();
-      showToast('已儲存，同步中…','success');
-      await delay(1200);
-      await fetchData();
-    }catch(e){showToast('儲存失敗，請重試','error');}
-    btn.disabled=false;btn.textContent='儲存';
-  });
+window.showEditModal=function(id){
+  var r=data.find(x => x._id===id);
+  showModal(rowFormHtml(r,'✏️ 修改交易'));
+  document.getElementById('form-save').onclick=async ()=>{
+    var d={
+      _id:id, date:document.getElementById('f-date').value, type:document.getElementById('f-type-s').value,
+      code:document.getElementById('f-code-i').value, name:document.getElementById('f-name-i').value,
+      buyShares:Number(document.getElementById('f-bs').value), buyPrice:Number(document.getElementById('f-bp').value),
+      sellShares:Number(document.getElementById('f-ss').value), sellPrice:Number(document.getElementById('f-sp').value),
+      amount:Number(document.getElementById('f-amt').value), spend:Number(document.getElementById('f-spend').value),
+      income:Number(document.getElementById('f-income').value), person:document.getElementById('f-person-s').value
+    };
+    var res=await apiPost('/update', d);
+    if(res.ok){ hideModal(); fetchData(); }
+  };
 };
 
-// ─── Sort click ───────────────────────────────────────────────────────────────
-document.getElementById('tx-table').querySelector('thead').addEventListener('click',function(e){
-  var th=e.target.closest('th[data-col]');
-  if(!th)return;
-  var col=th.dataset.col;
-  if(sortCol===col){sortDir=sortDir==='asc'?'desc':'asc';}else{sortCol=col;sortDir='desc';}
-  curPage=1;render();
-});
-
-// ─── Filter change ────────────────────────────────────────────────────────────
-document.getElementById('f-person').addEventListener('change',function(){
-  activePerson=this.value;
-  document.querySelectorAll('.ptab').forEach(function(b){b.classList.toggle('active',b.dataset.p===activePerson);});
-  curPage=1; render();
-});
-['f-year','f-code','f-name','f-type'].forEach(function(id){
-  document.getElementById(id).addEventListener('change',function(){curPage=1;render();});
-});
-document.getElementById('f-search').addEventListener('input',function(){curPage=1;render();});
-
-// ─── Backdrop close ───────────────────────────────────────────────────────────
-document.getElementById('crud-backdrop').addEventListener('click',window.hideModal);
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
+document.getElementById('f-person').onchange=function(){ activePerson=this.value; curPage=1; render(); };
+['f-year','f-code','f-name','f-type'].forEach(id => document.getElementById(id).onchange=()=> {curPage=1; render();});
+document.getElementById('f-search').oninput=()=>{curPage=1; render();};
 fetchData();
 </script>
 </body>
