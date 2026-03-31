@@ -1024,8 +1024,62 @@ var STORE_KEY = 'travel-crud-v2';
 var editOn = false;
 var _ctx = {};   // current editing context (avoids inline-handler quote issues)
 
+/* ── MongoDB sync config ────────────────────────────────────── */
+var MONGO_API = 'http://localhost:3001/api/travel';
+
 function getStore() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e) { return {}; } }
-function saveStore(s) { localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+function saveStore(s) {
+    localStorage.setItem(STORE_KEY, JSON.stringify(s));
+    syncToMongo(s);
+}
+
+/* ── MongoDB sync helpers ───────────────────────────────────── */
+function setSyncStatus(state) {
+    var el = document.getElementById('mongo-status');
+    if (!el) return;
+    var map = {
+        loading: { text: '⟳ 載入中…',    bg: '#f0f9ff', border: '#bae6fd', color: '#0369a1' },
+        saving:  { text: '↑ 同步中…',    bg: '#fefce8', border: '#fde68a', color: '#b45309' },
+        saved:   { text: '✓ MongoDB 已同步', bg: '#f0fdf4', border: '#bbf7d0', color: '#15803d' },
+        error:   { text: '⚠ 同步失敗',   bg: '#fef2f2', border: '#fecaca', color: '#dc2626' },
+        offline: { text: '○ 離線模式',    bg: '#f8fafc', border: '#e2e8f0', color: '#64748b' }
+    };
+    var s = map[state] || map.offline;
+    el.textContent  = s.text;
+    el.style.background   = s.bg;
+    el.style.borderColor  = s.border;
+    el.style.color        = s.color;
+}
+
+function syncToMongo(data) {
+    setSyncStatus('saving');
+    fetch(MONGO_API + '/store', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }).then(function(r) {
+        setSyncStatus(r.ok ? 'saved' : 'error');
+    }).catch(function() {
+        setSyncStatus('offline');
+    });
+}
+
+function loadFromMongo(callback) {
+    setSyncStatus('loading');
+    fetch(MONGO_API + '/store')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data && Object.keys(data).length > 0) {
+                localStorage.setItem(STORE_KEY, JSON.stringify(data));
+            }
+            setSyncStatus('saved');
+            callback();
+        })
+        .catch(function() {
+            setSyncStatus('offline');
+            callback();
+        });
+}
 
 /* ── ID assignment ──────────────────────────────────────────── */
 function assignIds() {
@@ -1139,6 +1193,8 @@ function checkPw() {
 window.resetAllEdits = function() {
     confirmModal('確定清除所有修改並還原原始資料？', function() {
         localStorage.removeItem(STORE_KEY);
+        /* Also clear MongoDB store */
+        fetch(MONGO_API + '/store', { method: 'DELETE' }).catch(function() {});
         location.reload();
     });
 };
@@ -1408,7 +1464,14 @@ function dateDiff(a, b) {
 /* ── Init ───────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
     assignIds();
-    applyStore();
+
+    /* MongoDB status badge */
+    var badge = document.createElement('div');
+    badge.id = 'mongo-status';
+    badge.style.cssText = 'position:fixed;bottom:24px;left:24px;z-index:999;font-size:0.75rem;'
+        + 'padding:5px 13px;border-radius:20px;background:#f8fafc;border:1px solid #e2e8f0;'
+        + 'color:#64748b;box-shadow:0 2px 8px rgba(0,0,0,0.07);transition:all 0.25s;';
+    document.body.appendChild(badge);
 
     /* Toolbar */
     var bar = document.createElement('div'); bar.id = 'edit-toolbar';
@@ -1421,6 +1484,11 @@ document.addEventListener('DOMContentLoaded', function() {
     m.innerHTML = '<div id="crud-backdrop"></div><div id="crud-dialog"></div>';
     document.body.appendChild(m);
     document.getElementById('crud-backdrop').addEventListener('click', window.hideModal);
+
+    /* Load store from MongoDB first, fallback to localStorage */
+    loadFromMongo(function() {
+        applyStore();
+    });
 });
 
 })();
