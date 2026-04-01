@@ -28,6 +28,15 @@ async function generateReport() {
         
         console.log(`Successfully fetched ${data.length} records.`);
 
+        // 轉換 Decimal128 格式為純數值，否則前端 JS 會運算錯誤 (出現 [object Object] 或 NaN)
+        const mappedData = data.map(item => {
+            const newItem = { ...item };
+            if (item['售價'] && item['售價']['$numberDecimal']) newItem['售價'] = parseFloat(item['售價']['$numberDecimal']);
+            if (item['實退金額'] && item['實退金額']['$numberDecimal']) newItem['實退金額'] = parseFloat(item['實退金額']['$numberDecimal']);
+            if (item['手續費'] && item['手續費']['$numberDecimal']) newItem['手續費'] = parseFloat(item['手續費']['$numberDecimal']);
+            return newItem;
+        });
+
         const dateTitle = "2026年03月 分析報表 (A系統)";
         const reportTime = new Date().toLocaleString('zh-TW');
 
@@ -44,7 +53,7 @@ async function generateReport() {
         const filePath = path.join(__dirname, fileName);
 
         // 處理數據中的 script 標籤避免 HTML 破裂
-        const safeData = JSON.stringify(data).replace(/<\/script>/g, '<\\/script>');
+        const safeData = JSON.stringify(mappedData).replace(/<\/script>/g, '<\\/script>');
         
         let finalHtml = htmlTemplate
             .replace(/\${dateTitle}/g, dateTitle)
