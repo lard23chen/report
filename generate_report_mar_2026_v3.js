@@ -66,7 +66,7 @@ async function generateReport() {
             if (!eventSummaryMap[name]) {
                 eventSummaryMap[name] = { 
                     revenue: 0, tickets: 0, orders: new Set(), refunds: 0, refundTickets: 0,
-                    priceStats: {}, pointStats: {}, refundReasons: {}
+                    priceStats: {}, pointStats: {}, refundReasons: {}, refundOrders: new Set()
                 };
             }
             const s = eventSummaryMap[name];
@@ -82,6 +82,7 @@ async function generateReport() {
             } else if (item['狀態'] === '已退票' || item['狀態'] === '退票' || f > 0) {
                 s.refunds += f;
                 s.refundTickets += 1;
+                if(item['訂單編號']) s.refundOrders.add(item['訂單編號'].split('_')[0]);
                 const reason = item['退票因素'] || '未知';
                 if(!s.refundReasons[reason]) s.refundReasons[reason] = { count: 0, fee: 0 };
                 s.refundReasons[reason].count += 1;
@@ -89,15 +90,22 @@ async function generateReport() {
             }
         });
 
+        const eventList = [];
         for (let name in eventSummaryMap) {
-            eventSummaryMap[name].orderCount = eventSummaryMap[name].orders.size;
-            delete eventSummaryMap[name].orders;
+            const s = eventSummaryMap[name];
+            s.orderCount = s.orders.size;
+            s.refundOrderCount = s.refundOrders.size;
+            delete s.orders;
+            delete s.refundOrders;
+            eventList.push({ name, ...s });
         }
 
-        const eventList = Object.entries(eventSummaryMap).map(([name, s]) => ({ name, ...s }));
+        // --- 4. Rankings (Top 5 as per SPEC) ---
         const topByRevenue = [...eventList].sort((a,b) => b.revenue - a.revenue).slice(0, 5);
         const topByTickets = [...eventList].sort((a,b) => b.tickets - a.tickets).slice(0, 5);
+        const topByRefunds = [...eventList].sort((a,b) => b.refunds - a.refunds).slice(0, 5);
 
+        // --- 5. Payment & Points ---
         const payMap = {};
         validOrders.forEach(item => { payMap[item['付款方式'] || '未知'] = (payMap[item['付款方式'] || '未知'] || 0) + getVal(item['售價']); });
         const paymentList = Object.entries(payMap).map(([name, rev]) => ({ name, revenue: rev, share: (rev/totalRevenue*100).toFixed(1) })).sort((a,b) => b.revenue - a.revenue);
@@ -110,16 +118,13 @@ async function generateReport() {
         const summaryData = {
             totalRevenue, totalTickets, orderCount, aov, totalRefundTickets: totalRefundedTickets, totalRefundedValue, totalRefundFees,
             trendDates, trendSales, refundDates, refundAmounts,
-            topByRevenue, topByTickets, paymentList, spList,
+            topByRevenue, topByTickets, topByRefunds, paymentList, spList,
             eventSummaryMap,
             meta: { totalRows: rawData.length, reportTime }
         };
 
-        // --- 6. Build HTML by patching the template properly ---
+        // --- 6. Build HTML ---
         const templateHtml = fs.readFileSync('A_Qware_Revenue_Report_2026年02月_分析報表.html', 'utf8');
-        
-        // 抓取整個 HTML 結構，直到第一個出現 const dbData 的 <script>
-        // 2月報表裡面的數據是 const dbData = [...];
         const uiPart = templateHtml.split('const dbData = [')[0];
         
         let finalHtml = uiPart + `const summaryData = ${JSON.stringify(summaryData)};
@@ -149,8 +154,10 @@ async function generateReport() {
             list.forEach((item, i) => tbody.innerHTML += templateFn(item, i));
         };
 
-        renderTable('#topEventsTable', s.topByRevenue, (item, i) => \`<tr><td>\${i+1}</td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>\`);
-        renderTable('#topTicketsEventsTable', s.topByTickets, (item, i) => \`<tr><td>\${i+1}</td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td></tr>\`);
+        renderTable('#topEventsTable', s.topByRevenue, (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right" style="color:#888;">\${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>\`);
+        renderTable('#topTicketsEventsTable', s.topByTickets, (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td></tr>\`);
+        renderTable('#topRefundTable', s.topByRefunds, (item, i) => \`<tr><td><span style="background:#c62828; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.refundOrderCount.toLocaleString()}</td><td class="text-right">\${item.refundTickets.toLocaleString()}</td><td class="text-right" style="color: #c62828; font-weight:bold;">NT$ \${item.refunds.toLocaleString()}</td></tr>\`);
+        
         renderTable('#paymentTable', s.paymentList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">--</td><td class="text-right">--</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
         renderTable('#salesPointTable', s.spList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">--</td><td class="text-right">--</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
 
@@ -218,7 +225,7 @@ async function generateReport() {
 
         const fileName = `A_Qware_Revenue_Report_2026年03月_分析報表.html`;
         fs.writeFileSync(path.join(__dirname, fileName), '\ufeff' + finalHtml);
-        console.log(`CORRECTLY STRUCTURED report generated: ${fileName}`);
+        console.log(`FIXED Refund Table report generated: ${fileName}`);
 
     } catch (e) {
         console.error("Error:", e);
