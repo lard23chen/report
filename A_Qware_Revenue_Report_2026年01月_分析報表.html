@@ -1,533 +1,150 @@
-﻿﻿﻿
+﻿
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ibon售票系統 2026年02月 分析報表 (A系統) - 2026/3/6 上午9:08:01</title>
-    <!-- Chart.js and Annotation Plugin -->
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ibon售票系統 2026年01月 分析報表 (A系統)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #fce4ec;
-            --card-bg: #ffffff;
-            --text-primary: #880e4f;
-            --text-secondary: #ad1457;
-            --accent-color: #d81b60;
-            --shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        header {
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-        }
-
+        :root { --bg-color: #fce4ec; --card-bg: #ffffff; --text-primary: #880e4f; --text-secondary: #ad1457; --accent-color: #d81b60; --shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 16px; box-shadow: var(--shadow); }
         h1 { margin: 0; font-weight: 600; color: var(--accent-color); }
-        .meta { color: var(--text-secondary); font-size: 0.9em; }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            border-left: 5px solid var(--accent-color);
-        }
-
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); border-left: 5px solid var(--accent-color); }
         .card h3 { margin: 0 0 10px 0; font-size: 0.85em; color: var(--text-secondary); opacity: 0.8; }
         .card .value { font-size: 1.8em; font-weight: 700; color: var(--accent-color); }
-        .card .sub { font-size: 0.8em; color: #888; margin-top: 5px; }
-
-        .charts-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .chart-container {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            flex: 1;
-            min-width: 400px;
-            min-height: 400px;
-        }
-
-        .table-container {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            overflow-x: auto;
-            margin-bottom: 30px;
-        }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .chart-container { background: white; padding: 20px; border-radius: 16px; box-shadow: var(--shadow); margin-bottom: 30px; height: 400px; }
+        .table-container { background: white; padding: 20px; border-radius: 16px; box-shadow: var(--shadow); margin-bottom: 30px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f8bbd0; }
-        th { color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
-        td { white-space: nowrap; }
-        tr:hover { background-color: #fff0f5; }
-        
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-        }
-        .status-ok { background: #e8f5e9; color: #2e7d32; }
-        .status-void { background: #ffebee; color: #c62828; }
-
+        th { color: var(--text-secondary); font-weight: 600; }
         .text-right { text-align: right; }
-        .font-bold { font-weight: bold; }
-
-        @media print {
-            body { background: white; }
-            .card, .chart-container, .table-container { box-shadow: none; border: 1px solid #ddd; }
-        }
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background: #fff;
-            width: 95%;
-            max-width: 1100px;
-            height: 90vh;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .modal-header {
-            padding: 20px;
-            background: var(--text-primary);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-body {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #fcfcfc;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        .analysis-link {
-            color: var(--accent-color);
-            cursor: pointer;
-            text-decoration: underline;
-            font-weight: bold;
-        }
-        .analysis-link:hover {
-            color: #880e4f;
-        }
-
-        .chart-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        /* Print Styles */
-        @media print {
-            @page { size: landscape; margin: 5mm; }
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
-            .container { width: 100%; max-width: none; margin: 0; padding: 0; }
-            .card, .chart-container, .table-container { 
-                break-inside: avoid; 
-                page-break-inside: avoid; 
-                box-shadow: none; 
-                border: 1px solid #ddd;
-                margin-bottom: 20px;
-            }
-            header { box-shadow: none; border-bottom: 2px solid var(--accent-color); }
-            /* Hide Buttons */
-            button, a[href*="report_index.html"], .close-btn { display: none !important; }
-        }
+        .analysis-link { color: var(--accent-color); cursor: pointer; text-decoration: underline; font-weight: bold; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; width: 90%; max-width: 1000px; height: 85vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 15px 20px; background: var(--text-primary); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { flex: 1; padding: 20px; overflow-y: auto; }
+        .btn-home { position: fixed; bottom: 30px; right: 30px; background: #d81b60; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; z-index: 100; }
+        .btn-pdf { position: fixed; bottom: 30px; right: 160px; background: #ad1457; color: white; padding: 12px 24px; border-radius: 50px; cursor: pointer; border: none; font-weight: 600; z-index: 100; }
     </style>
 </head>
 <body>
-        <script>
-            window.onerror = function(msg, url, line, col, error) {
-                alert("Report Error: " + msg + "\nLine: " + line);
-                console.error("Report Error:", msg, error);
-                return false;
-            };
-        </script>
-        
-
 <div class="container">
     <header>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARwAAAA8CAYAAAC0LwViAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6N0RBQTM3MDc0ODg3MTFFNDhFODY4MDY0RDRDOEE5QTYiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6N0RBQTM3MDg0ODg3MTFFNDhFODY4MDY0RDRDOEE5QTYiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3REFBMzcwNTQ4ODcxMUU0OEU4NjgwNjRENEM4QTlBNiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3REFBMzcwNjQ4ODcxMUU0OEU4NjgwNjRENEM4QTlBNiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PoomQLgAABLFSURBVHja7F1bkFTF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" alt="ibon Logo" style="height: 45px;">
-            <div>
-                <h1>ibon售票系統 2026年02月 分析報表 (A系統)</h1>
-<!-- Data Source Header -->
-<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
-    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
-    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data)</div>
-                
-            </div>
-        </div>
-        <div class="meta">
-            產出時間: 2026/3/6 上午9:08:01<br>
-            總資料筆數 (Total Rows): <span id="meta-total-rows">--</span><br>
-            製表者: 陳俊良
-        </div>
+        <div><h1>ibon售票系統 2026年01月 分析報表 (A系統)</h1><div style="color:#888; font-size:0.85em;">Data Source: MongoDB Backend Aggregated</div></div>
+        <div style="text-align:right; font-size:0.9em; color:var(--text-secondary);">產出時間: ${summaryData.meta.reportTime}<br>製表者: 陳俊良</div>
     </header>
 
     <div class="stats-grid">
-        <div class="card">
-            <h3>總營收 (Total Revenue)</h3>
-            <div class="value" id="val-revenue">--</div>
-            <div class="sub">含正常交易</div>
-        </div>
-        <div class="card">
-            <h3>客單價 (AOV)</h3>
-            <div class="value" id="val-aov">--</div>
-            <div class="sub">營收 / 訂單筆數</div>
-        </div>
-        <div class="card">
-            <h3>總交易張數 (Total Tickets)</h3>
-            <div class="value" id="val-tickets">--</div>
-            <div class="sub">總售出票券數量</div>
-        </div>
-        <div class="card">
-            <h3>總訂單筆數 (Distinct Orders)</h3>
-            <div class="value" id="val-orders">--</div>
-            <div class="sub">不重複訂單編號</div>
-        </div>
-        <div class="card">
-            <h3>總退票張數 (Total Refunded Tickets)</h3>
-            <div class="value" id="val-refund-tickets">--</div>
-            <div class="sub" style="color: #c62828;">已退票/退票狀態</div>
-        </div>
-        <div class="card">
-            <h3>總退票金額 (Refunded Amt)</h3>
-            <div class="value" id="val-refunded-amount">--</div>
-            <div class="sub">退票票券原總價</div>
-        </div>
-        <div class="card">
-            <h3>退票手續費 (Refund Fees)</h3>
-            <div class="value" id="val-refund-fees">--</div>
-            <div class="sub">退票產生之營收</div>
-        </div>
+        <div class="card"><h3>總營收</h3><div class="value">NT$ ${summaryData.totalRevenue.toLocaleString()}</div></div>
+        <div class="card"><h3>客單價 (AOV)</h3><div class="value">NT$ ${summaryData.aov.toLocaleString()}</div></div>
+        <div class="card"><h3>總交易張數</h3><div class="value">${summaryData.totalTickets.toLocaleString()}</div></div>
+        <div class="card"><h3>總訂單筆數</h3><div class="value">${summaryData.orderCount.toLocaleString()}</div></div>
+        <div class="card"><h3>退票張數</h3><div class="value" style="color:#c62828;">${summaryData.totalRefundTickets.toLocaleString()}</div></div>
+        <div class="card"><h3>退票手續費</h3><div class="value">NT$ ${summaryData.totalRefundFees.toLocaleString()}</div></div>
     </div>
 
-    <div class="charts-row">
-        <div class="chart-container" style="flex:100%;">
-            <canvas id="trendChart"></canvas>
-        </div>
-    </div>
+    <div class="chart-container"><canvas id="trendChart"></canvas></div>
 
-    <!-- Refund Trend Chart -->
-    <div class="charts-row">
-        <div class="chart-container" style="flex:100%;">
-            <canvas id="refundTrendChart"></canvas>
-        </div>
-    </div>
-    
-    <!-- Top 5 Events Table -->
     <div class="table-container">
-        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🏆 銷售排行 Top 5 (By Revenue)</h3>
+        <h3>🏆 銷售排行 Top 5 (By Revenue)</h3>
         <table id="topEventsTable">
-            <thead>
-                <tr>
-                    <th style="width: 50px;">Rank</th>
-                    <th>節目名稱</th>
-                    <th class="text-right">筆數 (Orders)</th>
-                    <th class="text-right">張數 (Tickets)</th>
-                    <th class="text-right">金額 (Revenue)</th>
-                    <th class="text-right">佔比 (Share)</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Rank</th><th>節目名稱</th><th class="text-right">訂單筆數</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">佔比</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
 
-    <!-- Top 5 Events Table (By Tickets) -->
     <div class="table-container">
-        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🎟️ 銷售排行 Top 5 (By Tickets)</h3>
-        <table id="topTicketsEventsTable">
-            <thead>
-                <tr>
-                    <th style="width: 50px;">Rank</th>
-                    <th>節目名稱</th>
-                    <th class="text-right">筆數 (Orders)</th>
-                    <th class="text-right">張數 (Tickets)</th>
-                    <th class="text-right">金額 (Revenue)</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <!-- Top 5 Refund Events Table -->
-    <div class="table-container">
-        <h3 style="color: #c62828; border-bottom: 2px solid #c62828; padding-bottom: 10px;">📉 退票排行 Top 5 (By Refund Amount)</h3>
+        <h3>📉 退票排行 Top 5 (By Refund Fees)</h3>
         <table id="topRefundTable">
-            <thead>
-                <tr>
-                    <th style="width: 50px;">Rank</th>
-                    <th>節目名稱</th>
-                    <th class="text-right">筆數 (Orders)</th>
-                    <th class="text-right">張數 (Tickets)</th>
-                    <th class="text-right">金額 (Amount)</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Rank</th><th>節目名稱</th><th class="text-right">退票筆數</th><th class="text-right">退票張數</th><th class="text-right">手續費金額</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
 
-    <!-- Payment Methods Table -->
-    <div class="table-container">
-        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">💳 付款方式分析 (Payment Methods)</h3>
-        <table id="paymentTable">
-            <thead>
-                <tr>
-                    <th>付款方式</th>
-                    <th class="text-right">筆數 (Orders)</th>
-                    <th class="text-right">張數 (Tickets)</th>
-                    <th class="text-right">金額 (Revenue)</th>
-                    <th class="text-right">佔比 (Share)</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+        <div class="table-container">
+            <h3>💳 付款方式分析</h3>
+            <table id="paymentTable"><thead><tr><th>方式</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">佔比</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="table-container">
+            <h3>🏪 銷售點分析</h3>
+            <table id="salesPointTable"><thead><tr><th>銷售點</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">佔比</th></tr></thead><tbody></tbody></table>
+        </div>
     </div>
-
-    <!-- Sales Point Analysis Table -->
-    <div class="table-container">
-        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🏪 銷售點分析 (Sales Points)</h3>
-        <table id="salesPointTable">
-            <thead>
-                <tr>
-                    <th>銷售點 (Sales Point)</th>
-                    <th class="text-right">筆數 (Orders)</th>
-                    <th class="text-right">張數 (Tickets)</th>
-                    <th class="text-right">金額 (Revenue)</th>
-                    <th class="text-right">佔比 (Share)</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
 </div>
 
-<!-- Analysis Modal -->
 <div id="analysisModal" class="modal-overlay">
     <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="modalTitle" style="margin:0; font-size:1.2em;">Event Analysis</h2>
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-        </div>
+        <div class="modal-header"><h2 id="modalTitle">項目分析</h2><button onclick="closeModal()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button></div>
         <div class="modal-body">
             <div class="stats-grid">
-                <div class="card">
-                    <h3>總營收</h3>
-                    <div class="value" id="m-val-revenue">--</div>
-                </div>
-                <div class="card">
-                    <h3>銷售張數</h3>
-                    <div class="value" id="m-val-tickets">--</div>
-                </div>
-                <div class="card">
-                    <h3>客單價 (AOV)</h3>
-                    <div class="value" id="m-val-aov">--</div>
-                </div>
-                <div class="card">
-                    <h3>退票金額 (Refunds)</h3>
-                    <div class="value" id="m-val-refunds" style="color: #c62828;">--</div>
-                </div>
+                <div class="card"><h3>該項營收</h3><div id="m-val-revenue" class="value">-</div></div>
+                <div class="card"><h3>成交張數</h3><div id="m-val-tickets" class="value">-</div></div>
+                <div class="card"><h3>退票手續費</h3><div id="m-val-refunds" class="value">-</div></div>
             </div>
-            
-            <div class="chart-grid">
-                 <div class="chart-container" style="height:300px;">
-                    <canvas id="modalPriceChart"></canvas>
-                </div>
-                <div class="chart-container" style="height:300px;">
-                    <canvas id="modalTrendChart"></canvas>
-                </div>
-            </div>
-
-            <div class="table-container" style="margin-top:20px;">
-                <h3>銷售點分析 (Sales Points)</h3>
-                <table id="modalSalesPointTable">
-                    <thead>
-                        <tr><th>銷售點</th><th>張數 (Tickets)</th><th>營收 (Revenue)</th><th class="text-right">佔比 (Share)</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-
-            <div class="table-container" style="margin-top:20px;">
-                <h3>票價銷售詳情</h3>
-                <table id="modalPriceTable">
-                    <thead>
-                        <tr><th>票價</th><th>張數</th><th>營收</th><th class="text-right">佔比</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-
-            <div class="table-container" style="margin-top:20px;">
-                <h3 style="color:#c62828;">退票分析 (Refund Analysis)</h3>
-                <table id="modalRefundTable">
-                    <thead>
-                        <tr><th>退票因素 (Reason)</th><th>張數 (Tickets)</th><th>手續費 (Fee)</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <div class="chart-container"><canvas id="modalTrendChart"></canvas></div>
+            <div class="table-container"><h3>票價分佈</h3><table id="modalPriceTable"><thead><tr><th>票價</th><th>張數</th><th>營收</th><th class="text-right">佔比</th></tr></thead><tbody></tbody></table></div>
         </div>
     </div>
 </div>
 
+<button class="btn-pdf" onclick="exportPDF()">下載 PDF</button>
+<a href="report_index.html" class="btn-home">回首頁</a>
+
 <script>
-    const summaryData = {"totalRevenue":50711620,"totalTickets":32441,"orderCount":14418,"aov":3517,"totalRefundTickets":3258,"totalRefundedValue":10422802,"totalRefundFees":571333,"trendDates":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"trendSales":[224386,628569,682627,274126,818609,490191,2181040,536220,1866672,3524550,1025553,899453,668644,1552590,349108,491657,548681,519434,697498,364655,542885,531139,466579,4432223,12516854,5474382,788349,620267,627025,537394,5830260],"peakAnnotations":[{"date":"2026-01-25","value":12516854,"label":"2026 tripleS Co"}],"refundDates":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31","2026-02-01","2026-02-02","2026-02-03","2026-02-04","2026-02-05","2026-02-06","2026-02-07","2026-02-08","2026-02-09","2026-02-10","2026-02-11","2026-02-12","2026-02-13","2026-02-14","2026-02-15","2026-02-16","2026-02-17","2026-02-18","2026-02-19","2026-02-20","2026-02-21","2026-02-22","2026-02-23","2026-02-24","2026-02-25","2026-02-26","2026-02-27","2026-03-02","2026-03-04","2026-03-05","2026-03-07","2026-03-18","2026-03-20","2026-03-21","2026-03-23","2026-03-27","2026-03-28","2026-03-29","2026-03-30"],"refundAmounts":[13294,45451,82898,27354,124219,58323,139888,92844,105165,252887,89868,35170,32523,50687,13990,31483,25820,27027,31536,12196,9157,17875,6695,1582214,3338401,1220039,1151146,442130,47226,32852,533556,179465,267387,99331,51985,1440,7362,3177,2637,2385,9102,4887,900,3402,1215,315,2790,2835,1575,1512,2520,3780,5607,7749,4977,6930,855,7560,1710,1530,2160,720,450,2880,630,1350,2880,3690,3600,5760],"topByRevenue":[{"name":"2026 tripleS Concert ＜My Secret New Zone＞ in Taipei","revenue":13157800,"tickets":2316,"refunds":268140,"refundTickets":979,"priceStats":{"3000":15,"3200":72,"3800":62,"4800":296,"6000":1871},"pointStats":{"網站手機":12190400,"ibon":967400},"refundReasons":{"因事退票":{"count":979,"fee":268140}},"orderCount":1948,"refundOrderCount":837,"trendData":{"labels":["2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[11941400,383000,296600,212600,116000,109000,99200]}},{"name":"2026真愛秀．藍寶石大歌廳","revenue":7896701,"tickets":3406,"refunds":23074,"refundTickets":178,"priceStats":{"490":2,"840":60,"931":74,"1040":52,"1140":18,"1340":32,"1440":36,"1596":99,"1680":658,"1694":109,"1976":18,"2080":394,"2166":60,"2280":319,"2294":122,"2546":57,"2680":297,"2736":35,"2880":217,"3219":153,"3388":594},"pointStats":{"網站手機":6919989,"ibon":974632,"主辦售票(H)":2080},"refundReasons":{"因事退票":{"count":178,"fee":23074}},"orderCount":1538,"refundOrderCount":81,"trendData":{"labels":["2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[1172871,2900644,516496,393218,335182,269244,156806,175776,206180,246768,226336,181620,132888,164124,141444,116572,169480,57712,72728,41016,51700,101372,66524]}},{"name":"2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL","revenue":7883021,"tickets":3495,"refunds":42288,"refundTickets":416,"priceStats":{"0":2,"750":1,"999":176,"1000":768,"1999":48,"2000":595,"2499":117,"2500":897,"3499":888,"3500":3},"pointStats":{"網站手機":4273538,"ibon":298957,"主辦售票(H)":3310526},"refundReasons":{"因事退票":{"count":416,"fee":42288}},"orderCount":1756,"refundOrderCount":314,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[151986,506469,317727,44996,357989,251991,181487,229490,159991,171996,85977,146985,121492,73496,101492,153491,137991,109991,97497,98995,90997,134498,83500,81494,118494,3416025,110991,113999,91499,54500,85495]}},{"name":"GinnyJayna 1st Fan Meeting ｛THE TEMPTING VENOM｝ in Taipei","revenue":3963400,"tickets":586,"refunds":27490,"refundTickets":89,"priceStats":{"3000":3,"4800":71,"6200":146,"7400":366},"pointStats":{"網站手機":3630200,"ibon":333200},"refundReasons":{"因事退票":{"count":89,"fee":27490}},"orderCount":500,"refundOrderCount":82,"trendData":{"labels":["2026-01-31"],"values":[3963400]}},{"name":"TPBL例行賽　福爾摩沙夢想家主場","revenue":3617770,"tickets":5834,"refunds":17655,"refundTickets":200,"priceStats":{"10":1442,"50":40,"250":1,"275":13,"300":19,"330":4,"350":7,"425":12,"450":49,"495":40,"500":125,"550":859,"600":647,"630":1,"650":86,"700":1127,"800":51,"850":703,"950":55,"1000":329,"1250":4,"1750":2,"1875":5,"2000":1,"2400":1,"2500":19,"2750":28,"3000":17,"3500":31,"3700":2,"3750":87,"4000":17,"4500":10},"pointStats":{"網站手機":2744575,"ibon":368600,"主辦售票(I)":504595},"refundReasons":{"因事退票":{"count":200,"fee":17655}},"orderCount":2086,"refundOrderCount":116,"trendData":{"labels":["2026-01-02","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[1200,293600,27700,1772075,76500,102720,49150,38400,172790,42420,13300,38360,69615,70370,103275,51525,41280,21700,39590,39400,30700,29000,58695,49050,50350,63980,168300,102725]}}],"topByTickets":[{"name":"TPBL例行賽　福爾摩沙夢想家主場","revenue":3617770,"tickets":5834,"refunds":17655,"refundTickets":200,"priceStats":{"10":1442,"50":40,"250":1,"275":13,"300":19,"330":4,"350":7,"425":12,"450":49,"495":40,"500":125,"550":859,"600":647,"630":1,"650":86,"700":1127,"800":51,"850":703,"950":55,"1000":329,"1250":4,"1750":2,"1875":5,"2000":1,"2400":1,"2500":19,"2750":28,"3000":17,"3500":31,"3700":2,"3750":87,"4000":17,"4500":10},"pointStats":{"網站手機":2744575,"ibon":368600,"主辦售票(I)":504595},"refundReasons":{"因事退票":{"count":200,"fee":17655}},"orderCount":2086,"refundOrderCount":116,"trendData":{"labels":["2026-01-02","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[1200,293600,27700,1772075,76500,102720,49150,38400,172790,42420,13300,38360,69615,70370,103275,51525,41280,21700,39590,39400,30700,29000,58695,49050,50350,63980,168300,102725]}},{"name":"114年 企業二十一年甲級男女排球聯賽","revenue":1843000,"tickets":5625,"refunds":2810,"refundTickets":55,"priceStats":{"150":65,"200":3288,"350":1199,"500":634,"1000":439},"pointStats":{"網站手機":733600,"ibon":346250,"主辦售票(I)":763150},"refundReasons":{"因事退票":{"count":55,"fee":2810}},"orderCount":1474,"refundOrderCount":34,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[39500,36500,44150,48550,38250,27300,26100,28950,40350,39300,49850,28600,15350,160750,39150,46100,85750,31650,27500,25700,258350,150000,66950,45200,48550,72900,17400,18050,217750,28950,39550]}},{"name":"2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL","revenue":7883021,"tickets":3495,"refunds":42288,"refundTickets":416,"priceStats":{"0":2,"750":1,"999":176,"1000":768,"1999":48,"2000":595,"2499":117,"2500":897,"3499":888,"3500":3},"pointStats":{"網站手機":4273538,"ibon":298957,"主辦售票(H)":3310526},"refundReasons":{"因事退票":{"count":416,"fee":42288}},"orderCount":1756,"refundOrderCount":314,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[151986,506469,317727,44996,357989,251991,181487,229490,159991,171996,85977,146985,121492,73496,101492,153491,137991,109991,97497,98995,90997,134498,83500,81494,118494,3416025,110991,113999,91499,54500,85495]}},{"name":"2026真愛秀．藍寶石大歌廳","revenue":7896701,"tickets":3406,"refunds":23074,"refundTickets":178,"priceStats":{"490":2,"840":60,"931":74,"1040":52,"1140":18,"1340":32,"1440":36,"1596":99,"1680":658,"1694":109,"1976":18,"2080":394,"2166":60,"2280":319,"2294":122,"2546":57,"2680":297,"2736":35,"2880":217,"3219":153,"3388":594},"pointStats":{"網站手機":6919989,"ibon":974632,"主辦售票(H)":2080},"refundReasons":{"因事退票":{"count":178,"fee":23074}},"orderCount":1538,"refundOrderCount":81,"trendData":{"labels":["2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[1172871,2900644,516496,393218,335182,269244,156806,175776,206180,246768,226336,181620,132888,164124,141444,116572,169480,57712,72728,41016,51700,101372,66524]}},{"name":"2025－2026  桃園璞園領航猿主場","revenue":2234110,"tickets":3395,"refunds":5635,"refundTickets":54,"priceStats":{"0":775,"150":2,"240":3,"250":24,"270":24,"300":216,"400":16,"450":45,"480":4,"500":582,"540":8,"600":201,"650":30,"720":20,"800":485,"1000":251,"1040":2,"1170":2,"1300":594,"1500":19,"2000":31,"2100":13,"3000":48},"pointStats":{"網站手機":1706700,"ibon":242100,"主辦售票(I)":285310},"refundReasons":{"因事退票":{"count":54,"fee":5635}},"orderCount":1578,"refundOrderCount":45,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13"],"values":[18300,64100,300700,160800,110880,161200,146500,181450,179800,342710,312130,112500,143040]}}],"topByRefunds":[{"name":"2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL","revenue":7883021,"tickets":3495,"refunds":42288,"refundTickets":416,"priceStats":{"0":2,"750":1,"999":176,"1000":768,"1999":48,"2000":595,"2499":117,"2500":897,"3499":888,"3500":3},"pointStats":{"網站手機":4273538,"ibon":298957,"主辦售票(H)":3310526},"refundReasons":{"因事退票":{"count":416,"fee":42288}},"orderCount":1756,"refundOrderCount":314,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[151986,506469,317727,44996,357989,251991,181487,229490,159991,171996,85977,146985,121492,73496,101492,153491,137991,109991,97497,98995,90997,134498,83500,81494,118494,3416025,110991,113999,91499,54500,85495]}},{"name":"2025－2026  桃園璞園領航猿主場","revenue":2234110,"tickets":3395,"refunds":5635,"refundTickets":54,"priceStats":{"0":775,"150":2,"240":3,"250":24,"270":24,"300":216,"400":16,"450":45,"480":4,"500":582,"540":8,"600":201,"650":30,"720":20,"800":485,"1000":251,"1040":2,"1170":2,"1300":594,"1500":19,"2000":31,"2100":13,"3000":48},"pointStats":{"網站手機":1706700,"ibon":242100,"主辦售票(I)":285310},"refundReasons":{"因事退票":{"count":54,"fee":5635}},"orderCount":1578,"refundOrderCount":45,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13"],"values":[18300,64100,300700,160800,110880,161200,146500,181450,179800,342710,312130,112500,143040]}},{"name":"114年 企業二十一年甲級男女排球聯賽","revenue":1843000,"tickets":5625,"refunds":2810,"refundTickets":55,"priceStats":{"150":65,"200":3288,"350":1199,"500":634,"1000":439},"pointStats":{"網站手機":733600,"ibon":346250,"主辦售票(I)":763150},"refundReasons":{"因事退票":{"count":55,"fee":2810}},"orderCount":1474,"refundOrderCount":34,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[39500,36500,44150,48550,38250,27300,26100,28950,40350,39300,49850,28600,15350,160750,39150,46100,85750,31650,27500,25700,258350,150000,66950,45200,48550,72900,17400,18050,217750,28950,39550]}},{"name":"TPBL例行賽　福爾摩沙夢想家主場","revenue":3617770,"tickets":5834,"refunds":17655,"refundTickets":200,"priceStats":{"10":1442,"50":40,"250":1,"275":13,"300":19,"330":4,"350":7,"425":12,"450":49,"495":40,"500":125,"550":859,"600":647,"630":1,"650":86,"700":1127,"800":51,"850":703,"950":55,"1000":329,"1250":4,"1750":2,"1875":5,"2000":1,"2400":1,"2500":19,"2750":28,"3000":17,"3500":31,"3700":2,"3750":87,"4000":17,"4500":10},"pointStats":{"網站手機":2744575,"ibon":368600,"主辦售票(I)":504595},"refundReasons":{"因事退票":{"count":200,"fee":17655}},"orderCount":2086,"refundOrderCount":116,"trendData":{"labels":["2026-01-02","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[1200,293600,27700,1772075,76500,102720,49150,38400,172790,42420,13300,38360,69615,70370,103275,51525,41280,21700,39590,39400,30700,29000,58695,49050,50350,63980,168300,102725]}},{"name":"洋基工程25－26賽季主場賽事","revenue":910505,"tickets":3130,"refunds":9982,"refundTickets":179,"priceStats":{"0":734,"8":5,"10":1047,"50":1,"150":1,"225":8,"240":4,"250":35,"300":25,"325":1,"360":39,"375":2,"400":108,"450":133,"480":98,"500":249,"550":41,"600":103,"640":32,"650":98,"700":141,"750":43,"800":72,"950":1,"1050":1,"1150":3,"1250":1,"1840":15,"1900":6,"2000":22,"2100":10,"2300":21,"2500":30},"pointStats":{"網站手機":683345,"ibon":88760,"主辦售票(I)":138400},"refundReasons":{"因事退票":{"count":179,"fee":9982}},"orderCount":818,"refundOrderCount":115,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[14600,20300,20050,19780,17890,5200,54878,19830,25520,20750,22700,45360,11160,4600,13300,40675,9190,13350,59240,12260,32510,21327,110285,32520,20650,49260,41500,48220,46260,26555,30785]}}],"paymentList":[{"name":"信用卡","revenue":38941212,"tickets":18214,"orderCount":11229,"share":"76.8"},{"name":"現金","revenue":10748810,"tickets":13159,"orderCount":2599,"share":"21.2"},{"name":"LINE Pay","revenue":505848,"tickets":890,"orderCount":467,"share":"1.0"},{"name":"ATM虛擬帳號","revenue":504814,"tickets":174,"orderCount":121,"share":"1.0"},{"name":"行動支付","revenue":10936,"tickets":4,"orderCount":2,"share":"0.0"}],"spList":[{"name":"網站手機","revenue":40017195,"tickets":19342,"orderCount":11877,"share":"78.9"},{"name":"主辦售票(H)","revenue":4751626,"tickets":1723,"orderCount":31,"share":"9.4"},{"name":"ibon","revenue":4251344,"tickets":3037,"orderCount":1938,"share":"8.4"},{"name":"主辦售票(I)","revenue":1691455,"tickets":8339,"orderCount":572,"share":"3.3"}],"eventSummaryMap":{"2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL":{"name":"2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL","revenue":7883021,"tickets":3495,"refunds":42288,"refundTickets":416,"priceStats":{"0":2,"750":1,"999":176,"1000":768,"1999":48,"2000":595,"2499":117,"2500":897,"3499":888,"3500":3},"pointStats":{"網站手機":4273538,"ibon":298957,"主辦售票(H)":3310526},"refundReasons":{"因事退票":{"count":416,"fee":42288}},"orderCount":1756,"refundOrderCount":314,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[151986,506469,317727,44996,357989,251991,181487,229490,159991,171996,85977,146985,121492,73496,101492,153491,137991,109991,97497,98995,90997,134498,83500,81494,118494,3416025,110991,113999,91499,54500,85495]}},"2025－2026  桃園璞園領航猿主場":{"name":"2025－2026  桃園璞園領航猿主場","revenue":2234110,"tickets":3395,"refunds":5635,"refundTickets":54,"priceStats":{"0":775,"150":2,"240":3,"250":24,"270":24,"300":216,"400":16,"450":45,"480":4,"500":582,"540":8,"600":201,"650":30,"720":20,"800":485,"1000":251,"1040":2,"1170":2,"1300":594,"1500":19,"2000":31,"2100":13,"3000":48},"pointStats":{"網站手機":1706700,"ibon":242100,"主辦售票(I)":285310},"refundReasons":{"因事退票":{"count":54,"fee":5635}},"orderCount":1578,"refundOrderCount":45,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13"],"values":[18300,64100,300700,160800,110880,161200,146500,181450,179800,342710,312130,112500,143040]}},"114年 企業二十一年甲級男女排球聯賽":{"name":"114年 企業二十一年甲級男女排球聯賽","revenue":1843000,"tickets":5625,"refunds":2810,"refundTickets":55,"priceStats":{"150":65,"200":3288,"350":1199,"500":634,"1000":439},"pointStats":{"網站手機":733600,"ibon":346250,"主辦售票(I)":763150},"refundReasons":{"因事退票":{"count":55,"fee":2810}},"orderCount":1474,"refundOrderCount":34,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[39500,36500,44150,48550,38250,27300,26100,28950,40350,39300,49850,28600,15350,160750,39150,46100,85750,31650,27500,25700,258350,150000,66950,45200,48550,72900,17400,18050,217750,28950,39550]}},"TPBL例行賽　福爾摩沙夢想家主場":{"name":"TPBL例行賽　福爾摩沙夢想家主場","revenue":3617770,"tickets":5834,"refunds":17655,"refundTickets":200,"priceStats":{"10":1442,"50":40,"250":1,"275":13,"300":19,"330":4,"350":7,"425":12,"450":49,"495":40,"500":125,"550":859,"600":647,"630":1,"650":86,"700":1127,"800":51,"850":703,"950":55,"1000":329,"1250":4,"1750":2,"1875":5,"2000":1,"2400":1,"2500":19,"2750":28,"3000":17,"3500":31,"3700":2,"3750":87,"4000":17,"4500":10},"pointStats":{"網站手機":2744575,"ibon":368600,"主辦售票(I)":504595},"refundReasons":{"因事退票":{"count":200,"fee":17655}},"orderCount":2086,"refundOrderCount":116,"trendData":{"labels":["2026-01-02","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[1200,293600,27700,1772075,76500,102720,49150,38400,172790,42420,13300,38360,69615,70370,103275,51525,41280,21700,39590,39400,30700,29000,58695,49050,50350,63980,168300,102725]}},"洋基工程25－26賽季主場賽事":{"name":"洋基工程25－26賽季主場賽事","revenue":910505,"tickets":3130,"refunds":9982,"refundTickets":179,"priceStats":{"0":734,"8":5,"10":1047,"50":1,"150":1,"225":8,"240":4,"250":35,"300":25,"325":1,"360":39,"375":2,"400":108,"450":133,"480":98,"500":249,"550":41,"600":103,"640":32,"650":98,"700":141,"750":43,"800":72,"950":1,"1050":1,"1150":3,"1250":1,"1840":15,"1900":6,"2000":22,"2100":10,"2300":21,"2500":30},"pointStats":{"網站手機":683345,"ibon":88760,"主辦售票(I)":138400},"refundReasons":{"因事退票":{"count":179,"fee":9982}},"orderCount":818,"refundOrderCount":115,"trendData":{"labels":["2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[14600,20300,20050,19780,17890,5200,54878,19830,25520,20750,22700,45360,11160,4600,13300,40675,9190,13350,59240,12260,32510,21327,110285,32520,20650,49260,41500,48220,46260,26555,30785]}},"2026真愛秀．藍寶石大歌廳":{"name":"2026真愛秀．藍寶石大歌廳","revenue":7896701,"tickets":3406,"refunds":23074,"refundTickets":178,"priceStats":{"490":2,"840":60,"931":74,"1040":52,"1140":18,"1340":32,"1440":36,"1596":99,"1680":658,"1694":109,"1976":18,"2080":394,"2166":60,"2280":319,"2294":122,"2546":57,"2680":297,"2736":35,"2880":217,"3219":153,"3388":594},"pointStats":{"網站手機":6919989,"ibon":974632,"主辦售票(H)":2080},"refundReasons":{"因事退票":{"count":178,"fee":23074}},"orderCount":1538,"refundOrderCount":81,"trendData":{"labels":["2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[1172871,2900644,516496,393218,335182,269244,156806,175776,206180,246768,226336,181620,132888,164124,141444,116572,169480,57712,72728,41016,51700,101372,66524]}},"ibon DEMO LIVE SHOW":{"name":"ibon DEMO LIVE SHOW","revenue":185420,"tickets":58,"refunds":0,"refundTickets":0,"priceStats":{"2990":34,"3490":24},"pointStats":{"主辦售票(H)":185420},"refundReasons":{},"orderCount":12,"refundOrderCount":0,"trendData":{"labels":["2026-01-09"],"values":[185420]}},"QWER 1ST WORLD TOUR ＜ROCKATION＞ in TAIPEI":{"name":"QWER 1ST WORLD TOUR ＜ROCKATION＞ in TAIPEI","revenue":295200,"tickets":53,"refunds":0,"refundTickets":0,"priceStats":{"5200":4,"5600":49},"pointStats":{"ibon":72800,"主辦售票(H)":222400},"refundReasons":{},"orderCount":8,"refundOrderCount":0,"trendData":{"labels":["2026-01-06","2026-01-17","2026-01-19","2026-01-23"],"values":[16800,39200,222400,16800]}},"Hello，Taiwan！Just for You！～越南之星演唱會！":{"name":"Hello，Taiwan！Just for You！～越南之星演唱會！","revenue":1130900,"tickets":701,"refunds":480,"refundTickets":6,"priceStats":{"1200":284,"1700":301,"2400":116},"pointStats":{"網站手機":76400,"主辦售票(H)":1031200,"ibon":23300},"refundReasons":{"因事退票":{"count":6,"fee":480}},"orderCount":27,"refundOrderCount":5,"trendData":{"labels":["2026-01-14","2026-01-16","2026-01-18","2026-01-19","2026-01-20","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-28","2026-01-30"],"values":[1031200,6000,14400,13000,4800,21600,8200,8900,7200,6000,7200,2400]}},"【測試】核銷測試":{"name":"【測試】核銷測試","revenue":6440,"tickets":7,"refunds":0,"refundTickets":0,"priceStats":{"350":4,"1680":3},"pointStats":{"ibon":6440},"refundReasons":{},"orderCount":7,"refundOrderCount":0,"trendData":{"labels":["2026-01-21"],"values":[6440]}},"2026 Jang Wooyoung Concert ＜half half＞ in Taipei":{"name":"2026 Jang Wooyoung Concert ＜half half＞ in Taipei","revenue":2776693,"tickets":580,"refunds":81107,"refundTickets":357,"priceStats":{"2141":2,"3280":4,"3281":71,"4280":2,"4281":128,"5280":1,"5281":372},"pointStats":{"網站手機":2560048,"ibon":216645},"refundReasons":{"因事退票":{"count":357,"fee":81107}},"orderCount":497,"refundOrderCount":302,"trendData":{"labels":["2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[2242537,98180,141430,137430,91182,26686,33967,5281]}},"炎亞綸《Ikigai》巡迴演唱會－高雄站":{"name":"炎亞綸《Ikigai》巡迴演唱會－高雄站","revenue":2127000,"tickets":680,"refunds":55915,"refundTickets":351,"priceStats":{"1400":10,"1500":55,"2300":63,"2800":127,"3600":425},"pointStats":{"ibon":118300,"網站手機":2008700},"refundReasons":{"因事退票":{"count":351,"fee":55915}},"orderCount":468,"refundOrderCount":244,"trendData":{"labels":["2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[1874300,83900,90400,23100,25400,7200,9900,12800]}},"2026 tripleS Concert ＜My Secret New Zone＞ in Taipei":{"name":"2026 tripleS Concert ＜My Secret New Zone＞ in Taipei","revenue":13157800,"tickets":2316,"refunds":268140,"refundTickets":979,"priceStats":{"3000":15,"3200":72,"3800":62,"4800":296,"6000":1871},"pointStats":{"網站手機":12190400,"ibon":967400},"refundReasons":{"因事退票":{"count":979,"fee":268140}},"orderCount":1948,"refundOrderCount":837,"trendData":{"labels":["2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[11941400,383000,296600,212600,116000,109000,99200]}},"2026「萊！萊坐」有你真好同樂會":{"name":"2026「萊！萊坐」有你真好同樂會","revenue":1263010,"tickets":2138,"refunds":10087,"refundTickets":216,"priceStats":{"350":1751,"1680":387},"pointStats":{"ibon":88060,"網站手機":1174950},"refundReasons":{"因事退票":{"count":216,"fee":10087}},"orderCount":1323,"refundOrderCount":130,"trendData":{"labels":["2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31"],"values":[1198960,39550,12250,5950,2450,3850]}},"GinnyJayna 1st Fan Meeting ｛THE TEMPTING VENOM｝ in Taipei":{"name":"GinnyJayna 1st Fan Meeting ｛THE TEMPTING VENOM｝ in Taipei","revenue":3963400,"tickets":586,"refunds":27490,"refundTickets":89,"priceStats":{"3000":3,"4800":71,"6200":146,"7400":366},"pointStats":{"網站手機":3630200,"ibon":333200},"refundReasons":{"因事退票":{"count":89,"fee":27490}},"orderCount":500,"refundOrderCount":82,"trendData":{"labels":["2026-01-31"],"values":[3963400]}},"2026 idntt 1st FANMEETING in TAIPEI ＜FIRST ACTION＞":{"name":"2026 idntt 1st FANMEETING in TAIPEI ＜FIRST ACTION＞","revenue":1420650,"tickets":437,"refunds":26670,"refundTickets":190,"priceStats":{"1150":1,"1900":16,"2300":7,"2800":52,"3400":361},"pointStats":{"網站手機":1314750,"ibon":105900},"refundReasons":{"因事退票":{"count":178,"fee":26670},"因雨退票":{"count":12,"fee":0}},"orderCount":378,"refundOrderCount":167,"trendData":{"labels":["2026-01-31"],"values":[1420650]}}},"meta":{"totalRows":35713,"reportTime":"2026/4/1 下午2:34:33"}};
-    const dbData = [];
+    const summaryData = ${JSON.stringify(summaryData)};
     let modalChart = null;
 
-    window.addEventListener('load', function() {
+    window.onload = function() {
         const s = summaryData;
-        document.title = "ibon售票系統 2026年01月 分析報表 (A系統)";
-        const h1 = document.querySelector('h1');
-        if(h1) h1.innerText = "ibon售票系統 2026年01月 分析報表 (A系統)";
-        
-        document.getElementById('val-revenue').innerText = 'NT$ ' + s.totalRevenue.toLocaleString();
-        document.getElementById('val-tickets').innerText = s.totalTickets.toLocaleString();
-        document.getElementById('val-orders').innerText = s.orderCount.toLocaleString();
-        document.getElementById('val-aov').innerText = 'NT$ ' + s.aov.toLocaleString();
-        document.getElementById('val-refunded-amount').innerText = 'NT$ ' + s.totalRefundedValue.toLocaleString();
-        document.getElementById('val-refund-fees').innerText = 'NT$ ' + s.totalRefundFees.toLocaleString();
-        document.getElementById('val-refund-tickets').innerText = s.totalRefundTickets.toLocaleString();
-
-        const renderTable = (selector, list, templateFn) => {
-            const tbody = document.querySelector(selector + ' tbody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            list.forEach((item, i) => tbody.innerHTML += templateFn(item, i));
+        const renderTable = (sel, list, fn) => { 
+            const b = document.querySelector(sel + ' tbody'); 
+            if(b) { b.innerHTML = ''; list.forEach((item, i) => b.innerHTML += fn(item, i)); }
         };
 
-        renderTable('#topEventsTable', s.topByRevenue, (item, i) => `<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right" style="color:#888;">${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>`);
-        renderTable('#topTicketsEventsTable', s.topByTickets, (item, i) => `<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td></tr>`);
-        renderTable('#topRefundTable', s.topByRefunds, (item, i) => `<tr><td><span style="background:#c62828; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.refundOrderCount.toLocaleString()}</td><td class="text-right">${item.refundTickets.toLocaleString()}</td><td class="text-right" style="color: #c62828; font-weight:bold;">NT$ ${item.refunds.toLocaleString()}</td></tr>`);
-        renderTable('#paymentTable', s.paymentList, (item) => `<tr><td class="font-bold">${item.name}</td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right">${item.share}%</td></tr>`);
-        renderTable('#salesPointTable', s.spList, (item) => `<tr><td class="font-bold">${item.name}</td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right">${item.share}%</td></tr>`);
+        renderTable('#topEventsTable', s.topByRevenue, (item, i) => `<tr><td>${i+1}</td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right">${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>`);
+        renderTable('#topRefundTable', s.topByRefunds, (item, i) => `<tr><td>${i+1}</td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.refundOrderCount.toLocaleString()}</td><td class="text-right">${item.refundTickets.toLocaleString()}</td><td class="text-right">NT$ ${item.refunds.toLocaleString()}</td></tr>`);
+        renderTable('#paymentTable', s.paymentList, (item) => `<tr><td>${item.name}</td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right">${item.share}%</td></tr>`);
+        renderTable('#salesPointTable', s.spList, (item) => `<tr><td>${item.name}</td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right">${item.share}%</td></tr>`);
 
-        const chartAnnotations = {};
-        s.peakAnnotations.forEach((ann, idx) => {
-            chartAnnotations['label' + idx] = { type: 'label', xValue: ann.date, yValue: ann.value, backgroundColor: 'rgba(255, 243, 224, 0.9)', borderColor: '#ff9800', borderWidth: 1, borderRadius: 4, content: [ann.label], font: { size: 11, weight: 'bold' }, padding: 6, position: 'center', yAdjust: -20 };
-        });
+        const ann = {};
+        s.peakAnnotations.forEach((a, i) => { ann['l'+i] = { type:'label', xValue:a.date, yValue:a.value, content:[a.label], backgroundColor:'rgba(255,243,224,0.8)', font:{size:10}, position:'center', yAdjust:-20 }; });
 
         new Chart(document.getElementById('trendChart'), {
             type: 'line',
-            data: { labels: s.trendDates, datasets: [{ label: '每日營收', data: s.trendSales, borderColor: '#d81b60', backgroundColor: 'rgba(216, 27, 96, 0.1)', fill: true, tension: 0.4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { annotation: { annotations: chartAnnotations } } }
+            data: { labels: s.trendDates, datasets: [{ label: '每日營收', data: s.trendSales, borderColor: '#d81b60', fill: true, backgroundColor: 'rgba(216,27,96,0.05)', tension: 0.4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { annotation: { annotations: ann } } }
         });
+    };
 
-        new Chart(document.getElementById('refundTrendChart'), {
-            type: 'line',
-            data: { labels: s.refundDates, datasets: [{ label: '每日退票金額', data: s.refundAmounts, borderColor: '#757575', fill: false }] },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-    });
-
-    function analyzeEvent(eventName) {
-        const s = summaryData.eventSummaryMap[eventName];
-        if(!s) return;
-        document.body.style.overflow = 'hidden';
+    function analyzeEvent(name) {
+        const s = summaryData.eventSummaryMap[name]; if(!s) return;
         document.getElementById('analysisModal').style.display = 'flex';
-        document.getElementById('modalTitle').innerText = eventName;
+        document.getElementById('modalTitle').innerText = name;
         document.getElementById('m-val-revenue').innerText = 'NT$ ' + s.revenue.toLocaleString();
         document.getElementById('m-val-tickets').innerText = s.tickets.toLocaleString();
-        document.getElementById('m-val-aov').innerText = 'NT$ ' + (s.orderCount ? Math.round(s.revenue/s.orderCount).toLocaleString() : '0');
         document.getElementById('m-val-refunds').innerText = 'NT$ ' + s.refunds.toLocaleString();
 
-        const pTbody = document.querySelector('#modalPriceTable tbody');
-        if(pTbody) {
-            pTbody.innerHTML = '';
-            Object.entries(s.priceStats).sort((a,b) => b[0]-a[0]).forEach(([price, count]) => {
-                pTbody.innerHTML += `<tr><td>$${Number(price).toLocaleString()}</td><td>${count.toLocaleString()}</td><td>$${(price*count).toLocaleString()}</td><td class="text-right">${(price*count/s.revenue*100).toFixed(1)}%</td></tr>`;
-            });
-        }
-
-        const spTbody = document.querySelector('#modalSalesPointTable tbody');
-        if(spTbody) {
-            spTbody.innerHTML = '';
-            Object.entries(s.pointStats).sort((a,b) => b[1]-a[1]).forEach(([name, rev]) => {
-                spTbody.innerHTML += `<tr><td>${name}</td><td>--</td><td>$${rev.toLocaleString()}</td><td class="text-right">${(rev/s.revenue*100).toFixed(1)}%</td></tr>`;
-            });
-        }
-
-        const rfTbody = document.querySelector('#modalRefundTable tbody');
-        if(rfTbody) {
-            rfTbody.innerHTML = '';
-            Object.entries(s.refundReasons).forEach(([reason, data]) => {
-                rfTbody.innerHTML += `<tr><td>${reason}</td><td>${data.count}</td><td>NT$ ${data.fee.toLocaleString()}</td></tr>`;
-            });
-        }
+        const pt = document.querySelector('#modalPriceTable tbody'); pt.innerHTML = '';
+        Object.entries(s.priceStats).sort((a,b) => b[0]-a[0]).forEach(([p, c]) => {
+            pt.innerHTML += `<tr><td>$${Number(p).toLocaleString()}</td><td>${c.toLocaleString()}</td><td>$${(p*c).toLocaleString()}</td><td class="text-right">${(p*c/s.revenue*100).toFixed(1)}%</td></tr>`;
+        });
 
         if(modalChart) modalChart.destroy();
-        const ctx = document.getElementById('modalTrendChart').getContext('2d');
-        modalChart = new Chart(ctx, {
+        modalChart = new Chart(document.getElementById('modalTrendChart'), {
             type: 'line',
-            data: { labels: s.trendData.labels, datasets: [{ label: '每日營收', data: s.trendData.values, borderColor: '#d81b60', tension: 0.3, fill: true, backgroundColor: 'rgba(216, 27, 96, 0.05)' }] },
+            data: { labels: s.trendData.labels, datasets: [{ label: '每日營收', data: s.trendData.values, borderColor: '#d81b60', fill: true, tension: 0.3 }] },
             options: { responsive: true, maintainAspectRatio: false }
         });
     }
 
-    function closeModal() {
-        document.getElementById('analysisModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-    
-    function exportPDF() {undefined
+    function closeModal() { document.getElementById('analysisModal').style.display = 'none'; }
+    function exportPDF() { html2pdf().from(document.querySelector('.container')).set({ margin:10, filename:document.title+'.pdf', jsPDF:{orientation:'landscape'} }).save(); }
+</script>
+</body></html>
