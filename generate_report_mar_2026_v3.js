@@ -39,14 +39,39 @@ async function generateReport() {
         const orderCount = uniqueOrdersSet.size;
         const aov = orderCount ? Math.round(totalRevenue / orderCount) : 0;
 
-        // --- 2. Trends ---
+        // --- 2. Trends & Daily Top Events (For Annotations) ---
         const salesByDate = {};
+        const dailyEventSales = {}; // { date: { eventName: revenue } }
+
         validOrders.forEach(item => {
             const date = item['交易時間'].split(' ')[0];
-            salesByDate[date] = (salesByDate[date] || 0) + getVal(item['售價']);
+            const p = getVal(item['售價']);
+            const eventName = item['節目/商品名稱'] || 'Unknown';
+
+            salesByDate[date] = (salesByDate[date] || 0) + p;
+
+            if (!dailyEventSales[date]) dailyEventSales[date] = {};
+            dailyEventSales[date][eventName] = (dailyEventSales[date][eventName] || 0) + p;
         });
+
         const trendDates = Object.keys(salesByDate).sort();
         const trendSales = trendDates.map(d => salesByDate[d]);
+
+        // Generate annotations for peaks (> 6M)
+        const peakAnnotations = [];
+        trendDates.forEach(date => {
+            const total = salesByDate[date];
+            if (total > 6000000) {
+                // Find top event for this day
+                const events = dailyEventSales[date];
+                const topEventName = Object.entries(events).sort((a,b) => b[1] - a[1])[0][0];
+                peakAnnotations.push({
+                    date: date,
+                    value: total,
+                    label: topEventName.substring(0, 15) + (topEventName.length > 15 ? '...' : '')
+                });
+            }
+        });
 
         const refundsByDate = {};
         rawData.filter(d => getVal(d['手續費']) > 0).forEach(item => {
@@ -65,8 +90,6 @@ async function generateReport() {
         validOrders.forEach(item => {
             const p = getVal(item['售價']);
             const baseOrder = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'Unknown';
-            
-            // Event
             const name = item['節目/商品名稱'] || 'Unknown';
             if (!eventSummaryMap[name]) eventSummaryMap[name] = { revenue: 0, tickets: 0, orders: new Set(), refunds: 0, refundTickets: 0, priceStats: {}, pointStats: {}, refundReasons: {}, refundOrders: new Set() };
             eventSummaryMap[name].revenue += p;
@@ -75,14 +98,12 @@ async function generateReport() {
             eventSummaryMap[name].priceStats[p] = (eventSummaryMap[name].priceStats[p] || 0) + 1;
             eventSummaryMap[name].pointStats[item['銷售點'] || '未知'] = (eventSummaryMap[name].pointStats[item['銷售點'] || '未知'] || 0) + p;
 
-            // Payment
             const payMode = item['付款方式'] || '未知';
             if (!payMap[payMode]) payMap[payMode] = { revenue: 0, tickets: 0, orders: new Set() };
             payMap[payMode].revenue += p;
             payMap[payMode].tickets += 1;
             payMap[payMode].orders.add(baseOrder);
 
-            // Point
             const ptName = item['銷售點'] || '未知';
             if (!pointMap[ptName]) pointMap[ptName] = { revenue: 0, tickets: 0, orders: new Set() };
             pointMap[ptName].revenue += p;
@@ -90,7 +111,6 @@ async function generateReport() {
             pointMap[ptName].orders.add(baseOrder);
         });
 
-        // Add Refund info to eventSummary
         rawData.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票' || getVal(d['手續費']) > 0).forEach(item => {
             const name = item['節目/商品名稱'] || 'Unknown';
             if (!eventSummaryMap[name]) return;
@@ -113,14 +133,14 @@ async function generateReport() {
 
         const topByRevenue = [...eventList].sort((a,b) => b.revenue - a.revenue).slice(0, 5);
         const topByTickets = [...eventList].sort((a,b) => b.tickets - a.tickets).slice(0, 5);
-        const topByRefunds = [...eventList].sort((a,b) => b.refunds - a.refunds).slice(0, 5);
+        const topByRefunds = [...eventList].sort((a,b) => b.refunds - b.refunds).slice(0, 5);
 
         const paymentList = Object.entries(payMap).map(([name, s]) => ({ name, revenue: s.revenue, tickets: s.tickets, orderCount: s.orders.size, share: (s.revenue/totalRevenue*100).toFixed(1) })).sort((a,b) => b.revenue - a.revenue);
         const spList = Object.entries(pointMap).map(([name, s]) => ({ name, revenue: s.revenue, tickets: s.tickets, orderCount: s.orders.size, share: (s.revenue/totalRevenue*100).toFixed(1) })).sort((a,b) => b.revenue - a.revenue);
 
         const summaryData = {
             totalRevenue, totalTickets, orderCount, aov, totalRefundTickets: totalRefundedTickets, totalRefundedValue, totalRefundFees,
-            trendDates, trendSales, refundDates, refundAmounts,
+            trendDates, trendSales, peakAnnotations, refundDates, refundAmounts,
             topByRevenue, topByTickets, topByRefunds, paymentList, spList,
             eventSummaryMap,
             meta: { totalRows: rawData.length, reportTime: new Date().toLocaleString('zh-TW') }
@@ -160,13 +180,38 @@ async function generateReport() {
         renderTable('#paymentTable', s.paymentList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
         renderTable('#salesPointTable', s.spList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
 
+        // Generate Chart Annotations
+        const chartAnnotations = {};
+        s.peakAnnotations.forEach((ann, idx) => {
+            chartAnnotations['label' + idx] = {
+                type: 'label',
+                xValue: ann.date,
+                yValue: ann.value,
+                backgroundColor: 'rgba(255, 243, 224, 0.9)',
+                borderColor: '#ff9800',
+                borderWidth: 1,
+                borderRadius: 4,
+                content: [ann.label],
+                font: { size: 11, weight: 'bold' },
+                padding: 6,
+                position: 'center',
+                yAdjust: -20
+            };
+        });
+
         new Chart(document.getElementById('trendChart'), {
             type: 'line',
             data: {
                 labels: s.trendDates,
                 datasets: [{ label: '每日營收', data: s.trendSales, borderColor: '#d81b60', backgroundColor: 'rgba(216, 27, 96, 0.1)', fill: true, tension: 0.4 }]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: {
+                    annotation: { annotations: chartAnnotations }
+                }
+            }
         });
 
         new Chart(document.getElementById('refundTrendChart'), {
@@ -224,7 +269,7 @@ async function generateReport() {
 
         const fileName = `A_Qware_Revenue_Report_2026年03月_分析報表.html`;
         fs.writeFileSync(path.join(__dirname, fileName), '\ufeff' + finalHtml);
-        console.log(`FIXED Payment & Point Stats report generated: ${fileName}`);
+        console.log(`ANNOTATED report generated: ${fileName}`);
 
     } catch (e) {
         console.error("Error:", e);
