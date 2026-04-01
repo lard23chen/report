@@ -75,5 +75,92 @@
 - **錯誤處理**: 必須包含 `window.onerror` 攔截。
 
 ---
+
+## 7. 已知問題紀錄與修正方式 (Known Issues & Fixes)
+
+### 問題一：報表資料空白（HTML 模板佔位符未替換）
+
+**發生時間**: 2026/04/01（1月、2月、3月報表同時出現）
+
+**症狀**:
+- 開啟 HTML 後所有數字欄位顯示為 `--` 或空白
+- 瀏覽器 Console 出現 `summaryData is not defined` 錯誤
+- 原始 HTML 第 101 行可見未替換的佔位符：`const summaryData = ${JSON.stringify(summaryData)};`
+
+**根本原因**:
+報表 HTML 以 Node.js 模板字串（backtick template literal）結構撰寫，預期在執行時由 Node.js 將 `${JSON.stringify(summaryData)}` 替換為真實 JSON。但實際執行的生成腳本採用另一套方式（`__DB_DATA_PLACEHOLDER__` 字串替換），兩者架構不同，導致 HTML 以未替換的原始模板狀態直接輸出。
+
+**修正方式**:
+使用 `generate_report_XXX_2026_v3.js` 系列腳本（v3 版本）重新產出報表。v3 版本採用**伺服器端預聚合**，在 Node.js 層完成所有運算後，將精簡的 `summaryData` JSON 注入正確的 HTML 結構。
+
+---
+
+### 問題二：數值計算全部顯示為 0 或 NaN（`$numberDecimal` 未轉型）
+
+**症狀**:
+- 總營收、退票手續費等所有金額欄位顯示為 `0` 或 `NaN`
+- 圖表無資料點
+
+**根本原因**:
+MongoDB 的 `Decimal128` 型態欄位（如 `售價`、`手續費`、`實退金額`）在 `find()` 查詢結果中以物件格式輸出：`{ "$numberDecimal": "600.0000" }`。舊版腳本直接做 `cur['售價'] || 0`，由於物件永遠為 truthy，加法運算結果為 `NaN`。
+
+**修正方式**:
+在 Node.js 聚合階段統一使用 `getVal()` 輔助函數進行轉型：
+```javascript
+const getVal = (v) => (v && v['$numberDecimal'] ? parseFloat(v['$numberDecimal']) : (Number(v) || 0));
+```
+此函數已納入所有 v3 版本生成腳本。前端（瀏覽器端）**不應**再存取原始 `dbData` 進行金額運算。
+
+---
+
+### 問題三：HTML 檔案過大導致瀏覽器無法載入（原始資料直接注入）
+
+**症狀**:
+- 報表 HTML 檔案高達 **267 MB**（3月份 307,089 筆資料）
+- 瀏覽器開啟後停頓、當機或無回應
+
+**根本原因**:
+舊版腳本（`generate_report_mar_2026.js`）將完整的原始查詢結果以 `const dbData = ${JSON.stringify(data)}` 直接嵌入 HTML，由瀏覽器端 JavaScript 進行聚合運算，造成檔案過大。
+
+**修正方式**:
+改為後端預聚合（v3 版本），僅將結果摘要注入 HTML。修正後檔案大小：
+
+| 月份 | 原始筆數 | 修正前檔案大小 | 修正後檔案大小 |
+|------|---------|--------------|--------------|
+| 2026年01月 | 35,713 筆 | ~30 MB | 61 KB |
+| 2026年02月 | 90,194 筆 | ~80 MB | 64 KB |
+| 2026年03月 | 307,089 筆 | 267 MB | 85 KB |
+
+---
+
+### 問題四：HTML 模板提取邏輯因 CRLF 行尾失敗
+
+**症狀**:
+- v3 腳本執行後，HTML 檔案開頭出現 Node.js 程式碼（如 `const { MongoClient...`）而非 `<!DOCTYPE html>`
+
+**根本原因**:
+v3 腳本使用 `fs.readFileSync` 讀取 `generate_report_feb_2026.js` 後，以 `indexOf('const htmlContent = \`\n')` 搜尋模板起點。但該檔案使用 **Windows CRLF（`\r\n`）** 行尾，而搜尋字串含 Unix LF（`\n`），導致 `indexOf` 回傳 `-1`，模板提取完全偏移。
+
+**修正方式**:
+改為只搜尋 backtick marker（不含換行符），找到後手動跳過 `\r\n` 或 `\n`：
+```javascript
+const backtickMarker = 'const htmlContent = `';
+let tplStart = genScript.indexOf(backtickMarker) + backtickMarker.length;
+while (genScript[tplStart] === '\r' || genScript[tplStart] === '\n') tplStart++;
+```
+
+---
+
+## 8. 報表生成腳本對照表 (Script Reference)
+
+| 月份 | 建議使用腳本 | 備註 |
+|------|------------|------|
+| 2026年01月 | `generate_report_jan_2026_v3.js` | v3 版本，伺服器端預聚合 |
+| 2026年02月 | `generate_report_feb_2026_v3.js` | v3 版本，伺服器端預聚合 |
+| 2026年03月 | `generate_report_mar_2026_v3.js` | v3 版本，伺服器端預聚合 |
+
+> **原則**：未來新增月份報表，請以 v3 腳本為基礎複製修改，僅需調整 MongoDB 查詢月份、`dateTitle`、輸出檔名三處。
+
+---
 *最後更新日期: 2026/04/01*
 

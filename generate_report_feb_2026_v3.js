@@ -15,9 +15,9 @@ async function generateReport() {
         const db = client.db("QwareAi");
         const collection = db.collection('Qware_Ticket_Data');
 
-        console.log("Fetching and aggregating March 2026 data...");
+        console.log("Fetching and aggregating February 2026 data...");
         const rawData = await collection.find(
-            { "交易時間": { $regex: "^2026-03" } },
+            { "交易時間": { $regex: "^2026-02" } },
             { projection: { "交易時間": 1, "售價": 1, "狀態": 1, "訂單編號": 1, "節目/商品名稱": 1, "付款方式": 1, "銷售點": 1, "手續費": 1, "實退金額": 1, "退票時間": 1, "退票因素": 1 } }
         ).toArray();
 
@@ -158,9 +158,9 @@ async function generateReport() {
             : genScript.lastIndexOf('\r\n`;\r\n');
         let uiTemplate = tplEnd > tplStart ? genScript.substring(tplStart, tplEnd) : genScript.substring(tplStart, genScript.lastIndexOf('`;\r\n'));
 
-        // Replace Node.js template placeholders with actual March 2026 values
+        // Replace Node.js template placeholders with actual February 2026 values
         const reportTime = new Date().toLocaleString('zh-TW');
-        const dateTitle = "2026年03月 分析報表 (A系統)";
+        const dateTitle = "2026年02月 分析報表 (A系統)";
         let logoBase64 = '';
         try {
             const logoPath = path.join(__dirname, 'ibon_logo.png');
@@ -181,9 +181,9 @@ async function generateReport() {
 
     window.addEventListener('load', function() {
         const s = summaryData;
-        document.title = "ibon售票系統 2026年03月 分析報表 (A系統)";
+        document.title = "ibon售票系統 2026年02月 分析報表 (A系統)";
         const h1 = document.querySelector('h1');
-        if(h1) h1.innerText = "ibon售票系統 2026年03月 分析報表 (A系統)";
+        if(h1) h1.innerText = "ibon售票系統 2026年02月 分析報表 (A系統)";
         
         document.getElementById('val-revenue').innerText = 'NT$ ' + s.totalRevenue.toLocaleString();
         document.getElementById('val-tickets').innerText = s.totalTickets.toLocaleString();
@@ -275,9 +275,9 @@ async function generateReport() {
         document.body.style.overflow = 'auto';
     }
 </script>
-</body></html>`.replace(/2026年02月/g, "2026年03月");
+</body></html>`;
 
-        const fileName = `A_Qware_Revenue_Report_2026年03月_分析報表.html`;
+        const fileName = `A_Qware_Revenue_Report_2026年02月_分析報表.html`;
         fs.writeFileSync(path.join(__dirname, fileName), '\ufeff' + finalHtml);
         console.log(`FIXED Sales Points Tickets report generated: ${fileName}`);
 
