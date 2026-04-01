@@ -142,6 +142,21 @@
             font-family: 'Outfit', monospace;
             white-space: nowrap;
         }
+
+        .spec-link {
+            font-size: 0.85rem;
+            color: #ffccbc;
+            border: 1px solid #ff5722;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .spec-link:hover {
+            background: #ff5722;
+            color: white;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -157,6 +172,7 @@
                 <th>更新時間</th>
                 <th>檔名 (超連結)</th>
                 <th>內容說明</th>
+                <th>視覺規範與功能組件</th>
                 <th>資料表 (Sources)</th>
                 <th>排程</th>
             </tr>
@@ -164,7 +180,7 @@
         <tbody>
             <!-- Section: Dashboards -->
             <tr style="background: rgba(66, 165, 245, 0.1);">
-                <td colspan="7" style="font-weight: bold; color: var(--accent-color);">📍 主控台與概覽儀表板</td>
+                <td colspan="8" style="font-weight: bold; color: var(--accent-color);">📍 主控台與概覽儀表板</td>
             </tr>
             <tr>
                 <td>1</td>
@@ -172,6 +188,7 @@
                 <td class="update-time">2026/03/17 09:25</td>
                 <td><a href="https://lard23chen.github.io/report/report_index.html" target="_blank">report_index.html</a></td>
                 <td>A 系統報表導覽入口指標，包含年度趨勢與統計摘要</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_Ticket_Data</span></td>
                 <td>每月一號 08:30</td>
             </tr>
@@ -181,13 +198,14 @@
                 <td class="update-time">2026/03/11 15:26</td>
                 <td><a href="https://lard23chen.github.io/report/E_report_index.html" target="_blank">E_report_index.html</a></td>
                 <td>E 系統報表主控台儀表板</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_ticket_list</span></td>
                 <td>手動/連動</td>
             </tr>
 
             <!-- Section: A System Reports -->
             <tr style="background: rgba(255, 215, 0, 0.1);">
-                <td colspan="7" style="font-weight: bold; color: var(--accent-gold);">📊 A 系統 營業分析報告</td>
+                <td colspan="8" style="font-weight: bold; color: var(--accent-gold);">📊 A 系統 營業分析報告</td>
             </tr>
             <tr>
                 <td>3</td>
@@ -195,6 +213,7 @@
                 <td class="update-time">2026/03/19 09:04</td>
                 <td><a href="https://lard23chen.github.io/report/A_Qware_Revenue_Report_Daily.html" target="_blank">A_Qware_Revenue_Report_Daily.html</a></td>
                 <td>A 系統 每日營業快訊分析</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_A_Ticket_data_Daily</span></td>
                 <td>每日 08:00
                     <div class="run-info">
@@ -209,6 +228,7 @@
                 <td class="update-time">2026/04/01 16:30</td>
                 <td><a href="https://lard23chen.github.io/report/A_Qware_Revenue_Report_2026年03月_分析報表.html" target="_blank">A_Qware_Revenue_Report_2026年03月.html</a></td>
                 <td>月度營業分析儀表板 (2026/03)</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_REVENUE_A.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
                 <td><span class="table-name">Qware_Ticket_Data</span></td>
                 <td>月次</td>
             </tr>
@@ -218,6 +238,7 @@
                 <td class="update-time">2026/03/11 15:26</td>
                 <td><a href="https://lard23chen.github.io/report/A_Qware_Revenue_Report_2026年02月_分析報表.html" target="_blank">A_Qware_Revenue_Report_2026年02月.html</a></td>
                 <td>月度營業分析儀表板 (2026/02)</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_REVENUE_A.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
                 <td><span class="table-name">Qware_Ticket_Data</span></td>
                 <td>月次</td>
             </tr>
@@ -227,6 +248,7 @@
                 <td class="update-time">2026/03/11 15:26</td>
                 <td><a href="https://lard23chen.github.io/report/A_Qware_Revenue_Report_2026年01月_分析報表.html" target="_blank">A_Qware_Revenue_Report_2026年01月.html</a></td>
                 <td>月度營業分析儀表板 (2026/01)</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_REVENUE_A.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
                 <td><span class="table-name">Qware_Ticket_Data</span></td>
                 <td>月次</td>
             </tr>
@@ -236,6 +258,7 @@
                 <td class="update-time">2026/03/11 15:26</td>
                 <td><a href="https://lard23chen.github.io/report/A_Qware_Revenue_Report_2025年12月_分析報表.html" target="_blank">A_Qware_Revenue_Report_2025年12月.html</a></td>
                 <td>月度營業分析儀表板 (2025/12)</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_REVENUE_A.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
                 <td><span class="table-name">Qware_Ticket_Data</span></td>
                 <td>月次</td>
             </tr>
@@ -245,13 +268,14 @@
                 <td class="update-time">2026/03/11 15:26</td>
                 <td><a href="https://lard23chen.github.io/report/A_Qware_Sales_Refund_Comparison_2025-12_vs_2026-01.html" target="_blank">A_Qware_Sales_Refund_Comparison_...</a></td>
                 <td>跨月度銷售與退票對比分析</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_Ticket_Data</span></td>
                 <td>手動</td>
             </tr>
 
             <!-- Section: Project Specific -->
             <tr style="background: rgba(245, 124, 0, 0.1);">
-                <td colspan="7" style="font-weight: bold; color: #f57c00;">✨ 演唱會與專案深度評估</td>
+                <td colspan="8" style="font-weight: bold; color: #f57c00;">✨ 演唱會與專案深度評估</td>
             </tr>
             <tr>
                 <td>9</td>
@@ -259,6 +283,7 @@
                 <td class="update-time">2026/03/19 09:05</td>
                 <td><a href="https://lard23chen.github.io/report/A_GoldenDisc_Report_2026-02-06.html" target="_blank">A_GoldenDisc_Report_2026-02-06.html</a></td>
                 <td>第40屆金唱片頒獎典禮 深度評估報表</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_Ticket_Data</span></td>
                 <td>手動</td>
             </tr>
@@ -268,6 +293,7 @@
                 <td class="update-time">2026/03/11 15:26</td>
                 <td><a href="https://lard23chen.github.io/report/A_SamLee_Report_2025_Taipei.html" target="_blank">A_SamLee_Report_2025_Taipei.html</a></td>
                 <td>李聖傑 2025 台北站 營業評估報告</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_Ticket_Data</span></td>
                 <td>手動</td>
             </tr>
@@ -277,6 +303,7 @@
                 <td class="update-time">2026/03/18 10:05</td>
                 <td><a href="https://lard23chen.github.io/report/A_UniformLions_Order_Analysis_20260309.html" target="_blank">A_UniformLions_Order_Analysis...</a></td>
                 <td>統一獅 2026 例行賽 訂單營收分析</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_A_Ticket_data_Daily</span></td>
                 <td>手動</td>
             </tr>
@@ -286,13 +313,14 @@
                 <td class="update-time">2026/03/24 08:35</td>
                 <td><a href="https://lard23chen.github.io/report/A_WeiBird_Report_2026.html" target="_blank">A_WeiBird_Report_2026.html</a></td>
                 <td>韋禮安「HI WE1 巡迴演唱會」台北場分析</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_A_Ticket_data_Daily</span></td>
                 <td>手動</td>
             </tr>
 
             <!-- Section: Traffic Reports -->
             <tr style="background: rgba(233, 30, 99, 0.1);">
-                <td colspan="7" style="font-weight: bold; color: #e91e63;">🌐 流量分析與 DMP 行銷</td>
+                <td colspan="8" style="font-weight: bold; color: #e91e63;">🌐 流量分析與 DMP 行銷</td>
             </tr>
             <tr>
                 <td>13</td>
@@ -300,6 +328,7 @@
                 <td class="update-time">2026/03/19 10:49</td>
                 <td><a href="https://lard23chen.github.io/report/A_DecaJoins_Traffic_Analysis.html" target="_blank">A_DecaJoins_Traffic_Analysis.html</a></td>
                 <td>deca joins 2026 場次流量明細</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_A_Traffic_session_data</span></td>
                 <td>手動</td>
             </tr>
@@ -309,6 +338,7 @@
                 <td class="update-time">2026/03/11 15:26</td>
                 <td><a href="https://lard23chen.github.io/report/A_DMP_PageView_Report_AllTime_Top10.html" target="_blank">A_DMP_PageView_Report_AllTime_Top10.html</a></td>
                 <td>DMP 歷史總流量 Top 10 活動排行</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_A_Traffic_session_data</span></td>
                 <td>手動</td>
             </tr>
@@ -318,6 +348,7 @@
                 <td class="update-time">2026/03/11 15:26</td>
                 <td><a href="https://lard23chen.github.io/report/A_GA_Traffic_Analysis_Report.html" target="_blank">A_GA_Traffic_Analysis_Report.html</a></td>
                 <td>GA 網站流量與閱讀留存分析</td>
+                <td>-</td>
                 <td><span class="table-name">QwareTrafficSession</span></td>
                 <td>每日 08:00 / 15:00
                     <div class="run-info">
@@ -332,13 +363,14 @@
                 <td class="update-time">2026/03/17 17:16</td>
                 <td><a href="https://lard23chen.github.io/report/A_UniformLions_GA_Analysis_20260309.html" target="_blank">A_UniformLions_GA_Analysis_...</a></td>
                 <td>統一獅 開賣首日 GA 流量即時分析</td>
+                <td>-</td>
                 <td><span class="table-name">QwareTrafficSession</span></td>
                 <td>手動</td>
             </tr>
 
             <!-- Section: E System Reports -->
             <tr style="background: rgba(76, 175, 80, 0.1);">
-                <td colspan="7" style="font-weight: bold; color: var(--accent-green);">🛒 E 系統與其他分析</td>
+                <td colspan="8" style="font-weight: bold; color: var(--accent-green);">🛒 E 系統與其他分析</td>
             </tr>
             <tr>
                 <td>17</td>
@@ -346,6 +378,7 @@
                 <td class="update-time">2026/03/11 15:26</td>
                 <td><a href="https://lard23chen.github.io/report/E_Qware_Revenue_Report_2026年02月_分析報表.html" target="_blank">E_Qware_Revenue_Report_Monthly.html</a></td>
                 <td>E 系統 月度對帳報表 (退補分析)</td>
+                <td>-</td>
                 <td><span class="table-name">Qware_ticket_list</span></td>
                 <td>月次</td>
             </tr>
@@ -355,6 +388,7 @@
                 <td class="update-time">2026/03/19 08:31</td>
                 <td><a href="https://lard23chen.github.io/report/Azure_Cost_Analysis_Report.html" target="_blank">Azure_Cost_Analysis_Report.html</a></td>
                 <td>Azure 全站雲端基礎設施 費用分析評估</td>
+                <td>-</td>
                 <td><span class="table-name">AzureMonthlyCost</span></td>
                 <td>月次</td>
             </tr>
@@ -364,6 +398,7 @@
                 <td class="update-time">2026/03/23 12:50</td>
                 <td><a href="https://lard23chen.github.io/report/daily_expense_report.html" target="_blank">daily_expense_report.html</a></td>
                 <td>每日經費與活動分析報表</td>
+                <td>-</td>
                 <td><span class="table-name">AzureMonthlyCost_Daily</span></td>
                 <td>每日 08:00
                     <div class="run-info">
