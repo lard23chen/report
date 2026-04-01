@@ -108,7 +108,7 @@ async function generateReport() {
 
         const reportTime = new Date().toLocaleString('zh-TW');
         const summaryData = {
-            totalRevenue, totalTickets, orderCount, aov, totalRefundTickets: totalRefundedTickets, totalRefundedValue, totalRefundedValue, totalRefundFees,
+            totalRevenue, totalTickets, orderCount, aov, totalRefundTickets: totalRefundedTickets, totalRefundedValue, totalRefundFees,
             trendDates, trendSales, refundDates, refundAmounts,
             topByRevenue, topByTickets, paymentList, spList,
             eventSummaryMap,
@@ -118,24 +118,15 @@ async function generateReport() {
         // --- 6. Build HTML by patching the template properly ---
         const templateHtml = fs.readFileSync('A_Qware_Revenue_Report_2026年02月_分析報表.html', 'utf8');
         
-        // Find the FIRST <script> tag - everything before it is UI/CSS
-        const firstScriptIndex = templateHtml.indexOf('<script>');
-        const uiHeader = templateHtml.substring(0, firstScriptIndex);
+        // 抓取整個 HTML 結構，直到第一個出現 const dbData 的 <script>
+        // 2月報表裡面的數據是 const dbData = [...];
+        const uiPart = templateHtml.split('const dbData = [')[0];
         
-        // Find the LAST </body></html>
-        const bodyEndIndex = templateHtml.lastIndexOf('</body>');
-        
-        // Construct the final HTML
-        let finalHtml = uiHeader + `
-<script>
-    const summaryData = ${JSON.stringify(summaryData)};
+        let finalHtml = uiPart + `const summaryData = ${JSON.stringify(summaryData)};
     const dbData = []; // Legacy support
 
-    // Core Initialization
     window.addEventListener('load', function() {
         const s = summaryData;
-        
-        // Update Title and Meta
         document.title = "ibon售票系統 2026年03月 分析報表 (A系統)";
         const h1 = document.querySelector('h1');
         if(h1) h1.innerText = "ibon售票系統 2026年03月 分析報表 (A系統)";
@@ -143,7 +134,6 @@ async function generateReport() {
         if(document.getElementById('meta-total-rows'))
             document.getElementById('meta-total-rows').innerText = s.meta.totalRows.toLocaleString();
         
-        // Update Cards
         document.getElementById('val-revenue').innerText = 'NT$ ' + s.totalRevenue.toLocaleString();
         document.getElementById('val-tickets').innerText = s.totalTickets.toLocaleString();
         document.getElementById('val-orders').innerText = s.orderCount.toLocaleString();
@@ -152,7 +142,6 @@ async function generateReport() {
         document.getElementById('val-refund-fees').innerText = 'NT$ ' + s.totalRefundFees.toLocaleString();
         document.getElementById('val-refund-tickets').innerText = s.totalRefundTickets.toLocaleString();
 
-        // Render Tables
         const renderTable = (selector, list, templateFn) => {
             const tbody = document.querySelector(selector + ' tbody');
             if(!tbody) return;
@@ -165,7 +154,6 @@ async function generateReport() {
         renderTable('#paymentTable', s.paymentList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">--</td><td class="text-right">--</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
         renderTable('#salesPointTable', s.spList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">--</td><td class="text-right">--</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
 
-        // Charts
         new Chart(document.getElementById('trendChart'), {
             type: 'line',
             data: {
@@ -225,24 +213,12 @@ async function generateReport() {
         document.getElementById('analysisModal').style.display = 'none';
         document.body.style.overflow = 'auto';
     }
-    
-    function exportPDF() {
-        const element = document.querySelector('.container');
-        const opt = {
-            margin: 10,
-            filename: 'A系統_營收分析報表_2026-03.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-        html2pdf().set(opt).from(element).save();
-    }
 </script>
-` + templateHtml.substring(bodyEndIndex);
+</body></html>`.replace(/2026年02月/g, "2026年03月");
 
         const fileName = `A_Qware_Revenue_Report_2026年03月_分析報表.html`;
         fs.writeFileSync(path.join(__dirname, fileName), '\ufeff' + finalHtml);
-        console.log(`COMPLETELY RESTORED report generated: ${fileName}`);
+        console.log(`CORRECTLY STRUCTURED report generated: ${fileName}`);
 
     } catch (e) {
         console.error("Error:", e);
