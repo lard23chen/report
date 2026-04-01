@@ -162,7 +162,7 @@ async function main() {
                 <h3 style="color: var(--text-primary); font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
                     📊 E系統 月份交易統計
                 </h3>
-                <span style="font-size: 0.85rem; color: var(--text-secondary);">最後更新: ${new Date().toLocaleString('zh-TW')}</span>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">最後更新: ${new Date().toLocaleString('zh-TW')} (每月一號 08:30)</span>
             </div>
             <div style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: separate; border-spacing: 0; color: var(--text-secondary); font-size: 0.95rem;">
