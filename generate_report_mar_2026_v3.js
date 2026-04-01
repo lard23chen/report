@@ -95,8 +95,8 @@ async function generateReport() {
         }
 
         const eventList = Object.entries(eventSummaryMap).map(([name, s]) => ({ name, ...s }));
-        const topByRevenue = [...eventList].sort((a,b) => b.revenue - a.revenue).slice(0, 10);
-        const topByTickets = [...eventList].sort((a,b) => b.tickets - a.tickets).slice(0, 10);
+        const topByRevenue = [...eventList].sort((a,b) => b.revenue - a.revenue).slice(0, 5);
+        const topByTickets = [...eventList].sort((a,b) => b.tickets - a.tickets).slice(0, 5);
 
         const payMap = {};
         validOrders.forEach(item => { payMap[item['付款方式'] || '未知'] = (payMap[item['付款方式'] || '未知'] || 0) + getVal(item['售價']); });
