@@ -116,105 +116,111 @@ async function generateReport() {
         };
 
         // --- 6. Build HTML by patching the template properly ---
-        // 讀取一個已存在的完整報表作為範本
         const templateHtml = fs.readFileSync('A_Qware_Revenue_Report_2026年02月_分析報表.html', 'utf8');
         
-        // 1. 注入彙總數據
-        let finalHtml = templateHtml.replace(/const dbData = \[.*\];/s, `const summaryData = ${JSON.stringify(summaryData)};\nconst dbData = [];`);
+        // Split template into UI part and Script part
+        // We find the <script> tag that starts defining dbData
+        const scriptSplitTag = '<script>';
+        const parts = templateHtml.split(scriptSplitTag);
         
-        // 2. 更新標題
-        finalHtml = finalHtml.replace(/2026年02月/g, "2026年03月");
+        // part[0] is the entire HTML + CSS head
+        // we want to rebuild everything from scratch after part[0]
         
-        // 3. 注入新的 JS 邏輯來覆蓋原本依賴 dbData 的部分
-        const patchScript = `
-        <script>
-            // Patch existing functions to use summaryData
-            window.addEventListener('load', function() {
-                const s = summaryData;
-                document.getElementById('meta-total-rows').innerText = s.meta.totalRows.toLocaleString();
-                document.getElementById('val-revenue').innerText = 'NT$ ' + s.totalRevenue.toLocaleString();
-                document.getElementById('val-tickets').innerText = s.totalTickets.toLocaleString();
-                document.getElementById('val-orders').innerText = s.orderCount.toLocaleString();
-                document.getElementById('val-aov').innerText = 'NT$ ' + s.aov.toLocaleString();
-                document.getElementById('val-refunded-amount').innerText = 'NT$ ' + s.totalRefundedValue.toLocaleString();
-                document.getElementById('val-refund-fees').innerText = 'NT$ ' + s.totalRefundFees.toLocaleString();
-                document.getElementById('val-refund-tickets').innerText = s.totalRefundTickets.toLocaleString();
+        let finalHtml = parts[0] + `
+<script>
+    const summaryData = ${JSON.stringify(summaryData)};
+    const dbData = []; // Legacy support
 
-                // Override global functions
-                window.init = function() { /* Already handled */ };
-                
-                // Re-render Tables
-                const renderTable = (selector, list, templateFn) => {
-                    const tbody = document.querySelector(selector + ' tbody');
-                    if(!tbody) return;
-                    tbody.innerHTML = '';
-                    list.forEach((item, i) => tbody.innerHTML += templateFn(item, i));
-                };
+    // Core Initialization
+    window.addEventListener('load', function() {
+        const s = summaryData;
+        
+        // Update Meta
+        if(document.getElementById('meta-total-rows'))
+            document.getElementById('meta-total-rows').innerText = s.meta.totalRows.toLocaleString();
+        
+        // Update Cards
+        document.getElementById('val-revenue').innerText = 'NT$ ' + s.totalRevenue.toLocaleString();
+        document.getElementById('val-tickets').innerText = s.totalTickets.toLocaleString();
+        document.getElementById('val-orders').innerText = s.orderCount.toLocaleString();
+        document.getElementById('val-aov').innerText = 'NT$ ' + s.aov.toLocaleString();
+        document.getElementById('val-refunded-amount').innerText = 'NT$ ' + s.totalRefundedValue.toLocaleString();
+        document.getElementById('val-refund-fees').innerText = 'NT$ ' + s.totalRefundFees.toLocaleString();
+        document.getElementById('val-refund-tickets').innerText = s.totalRefundTickets.toLocaleString();
 
-                renderTable('#topEventsTable', s.topByRevenue, (item, i) => \`<tr><td>\${i+1}</td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>\`);
-                renderTable('#topTicketsEventsTable', s.topByTickets, (item, i) => \`<tr><td>\${i+1}</td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td></tr>\`);
-                renderTable('#paymentTable', s.paymentList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">--</td><td class="text-right">--</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
-                renderTable('#salesPointTable', s.spList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">--</td><td class="text-right">--</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
+        // Render Tables
+        const renderTable = (selector, list, templateFn) => {
+            const tbody = document.querySelector(selector + ' tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            list.forEach((item, i) => tbody.innerHTML += templateFn(item, i));
+        };
 
-                // Re-init Charts
-                new Chart(document.getElementById('trendChart'), {
-                    type: 'line',
-                    data: {
-                        labels: s.trendDates,
-                        datasets: [{ label: '每日營收', data: s.trendSales, borderColor: '#d81b60', backgroundColor: 'rgba(216, 27, 96, 0.1)', fill: true, tension: 0.4 }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
+        renderTable('#topEventsTable', s.topByRevenue, (item, i) => \`<tr><td>\${i+1}</td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>\`);
+        renderTable('#topTicketsEventsTable', s.topByTickets, (item, i) => \`<tr><td>\${i+1}</td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td></tr>\`);
+        renderTable('#paymentTable', s.paymentList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">--</td><td class="text-right">--</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
+        renderTable('#salesPointTable', s.spList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">--</td><td class="text-right">--</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
 
-                new Chart(document.getElementById('refundTrendChart'), {
-                    type: 'line',
-                    data: {
-                        labels: s.refundDates,
-                        datasets: [{ label: '每日退票金額', data: s.refundAmounts, borderColor: '#757575', fill: false }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            });
+        // Charts
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: s.trendDates,
+                datasets: [{ label: '每日營收', data: s.trendSales, borderColor: '#d81b60', backgroundColor: 'rgba(216, 27, 96, 0.1)', fill: true, tension: 0.4 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
 
-            function analyzeEvent(eventName) {
-                const s = summaryData.eventSummaryMap[eventName];
-                if(!s) return;
-                document.body.style.overflow = 'hidden';
-                document.getElementById('analysisModal').style.display = 'flex';
-                document.getElementById('modalTitle').innerText = eventName;
-                document.getElementById('m-val-revenue').innerText = 'NT$ ' + s.revenue.toLocaleString();
-                document.getElementById('m-val-tickets').innerText = s.tickets.toLocaleString();
-                document.getElementById('m-val-aov').innerText = 'NT$ ' + (s.orderCount ? Math.round(s.revenue/s.orderCount).toLocaleString() : '0');
-                document.getElementById('m-val-refunds').innerText = 'NT$ ' + s.refunds.toLocaleString();
+        new Chart(document.getElementById('refundTrendChart'), {
+            type: 'line',
+            data: {
+                labels: s.refundDates,
+                datasets: [{ label: '每日退票金額', data: s.refundAmounts, borderColor: '#757575', fill: false }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    });
 
-                const renderInner = (selector, dataMap, fn) => {
-                    const tbody = document.querySelector(selector + ' tbody');
-                    tbody.innerHTML = '';
-                    Object.entries(dataMap).forEach(fn(tbody));
-                };
+    function analyzeEvent(eventName) {
+        const s = summaryData.eventSummaryMap[eventName];
+        if(!s) return;
+        document.body.style.overflow = 'hidden';
+        document.getElementById('analysisModal').style.display = 'flex';
+        document.getElementById('modalTitle').innerText = eventName;
+        document.getElementById('m-val-revenue').innerText = 'NT$ ' + s.revenue.toLocaleString();
+        document.getElementById('m-val-tickets').innerText = s.tickets.toLocaleString();
+        document.getElementById('m-val-aov').innerText = 'NT$ ' + (s.orderCount ? Math.round(s.revenue/s.orderCount).toLocaleString() : '0');
+        document.getElementById('m-val-refunds').innerText = 'NT$ ' + s.refunds.toLocaleString();
 
-                renderInner('#modalPriceTable', s.priceStats, (tbody) => ([price, count]) => {
-                    tbody.innerHTML += \`<tr><td>$\${price}</td><td>\${count}</td><td>$\${(price*count).toLocaleString()}</td><td class="text-right">\${(price*count/s.revenue*100).toFixed(1)}%</td></tr>\`;
-                });
+        const pTbody = document.querySelector('#modalPriceTable tbody');
+        pTbody.innerHTML = '';
+        Object.entries(s.priceStats).sort((a,b) => b[0]-a[0]).forEach(([price, count]) => {
+            pTbody.innerHTML += \`<tr><td>$\${price}</td><td>\${count}</td><td>$\${(price*count).toLocaleString()}</td><td class="text-right">\${(price*count/s.revenue*100).toFixed(1)}%</td></tr>\`;
+        });
 
-                renderInner('#modalSalesPointTable', s.pointStats, (tbody) => ([name, rev]) => {
-                    tbody.innerHTML += \`<tr><td>\${name}</td><td>--</td><td>$\${rev.toLocaleString()}</td><td class="text-right">\${(rev/s.revenue*100).toFixed(1)}%</td></tr>\`;
-                });
+        const spTbody = document.querySelector('#modalSalesPointTable tbody');
+        spTbody.innerHTML = '';
+        Object.entries(s.pointStats).sort((a,b) => b[1]-a[1]).forEach(([name, rev]) => {
+            spTbody.innerHTML += \`<tr><td>\${name}</td><td>--</td><td>$\${rev.toLocaleString()}</td><td class="text-right">\${(rev/s.revenue*100).toFixed(1)}%</td></tr>\`;
+        });
 
-                const rfTbody = document.querySelector('#modalRefundTable tbody');
-                rfTbody.innerHTML = '';
-                Object.entries(s.refundReasons).forEach(([reason, data]) => {
-                    rfTbody.innerHTML += \`<tr><td>\${reason}</td><td>\${data.count}</td><td>NT$ \${data.fee.toLocaleString()}</td></tr>\`;
-                });
-            }
-        </script>
-        `;
+        const rfTbody = document.querySelector('#modalRefundTable tbody');
+        rfTbody.innerHTML = '';
+        Object.entries(s.refundReasons).forEach(([reason, data]) => {
+            rfTbody.innerHTML += \`<tr><td>\${reason}</td><td>\${data.count}</td><td>NT$ \${data.fee.toLocaleString()}</td></tr>\`;
+        });
+    }
 
-        finalHtml = finalHtml.replace('</body>', patchScript + '</body>');
+    function closeModal() {
+        document.getElementById('analysisModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+</script>
+</body></html>`.replace(/2026年02月/g, "2026年03月");
 
         const fileName = `A_Qware_Revenue_Report_2026年03月_分析報表.html`;
         fs.writeFileSync(path.join(__dirname, fileName), '\ufeff' + finalHtml);
-        console.log(`Fully restored professional report generated: ${fileName}`);
+        console.log(`Cleanly patched report generated: ${fileName}`);
 
     } catch (e) {
         console.error("Error:", e);
