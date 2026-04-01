@@ -25,7 +25,7 @@ async function generateReport() {
 
         const getVal = (v) => (v && v['$numberDecimal'] ? parseFloat(v['$numberDecimal']) : (Number(v) || 0));
 
-        // --- 1. Global Stats ---
+        // --- 1. Global Aggregation ---
         const validOrders = rawData.filter(d => d['狀態'] === '正常');
         const totalRevenue = validOrders.reduce((acc, cur) => acc + getVal(cur['售價']), 0);
         const totalTickets = validOrders.length;
@@ -38,7 +38,7 @@ async function generateReport() {
         const orderCount = globalOrdersSet.size;
         const aov = orderCount ? Math.round(totalRevenue / orderCount) : 0;
 
-        // --- 2. Global Trends ---
+        // --- 2. Trends ---
         const salesByDate = {};
         const dailyEventSales = {}; 
         validOrders.forEach(item => {
@@ -69,7 +69,7 @@ async function generateReport() {
         const refundDates = Object.keys(refundsByDate).sort();
         const refundAmounts = refundDates.map(d => refundsByDate[d]);
 
-        // --- 3. Per-Event, Payment, Point Aggregation ---
+        // --- 3. Per-Event & Payment/Point Aggregation ---
         const eventSummaryMap = {};
         const payMap = {};
         const pointMap = {};
@@ -80,12 +80,8 @@ async function generateReport() {
             const name = item['節目/商品名稱'] || 'Unknown';
             const date = item['交易時間'].split(' ')[0];
 
-            // Event Aggregation
-            if (!eventSummaryMap[name]) eventSummaryMap[name] = { 
-                revenue: 0, tickets: 0, orders: new Set(), refunds: 0, refundTickets: 0, 
-                priceStats: {}, pointStats: {}, refundReasons: {}, refundOrders: new Set(),
-                dailyTrend: {} 
-            };
+            // Event
+            if (!eventSummaryMap[name]) eventSummaryMap[name] = { revenue: 0, tickets: 0, orders: new Set(), refunds: 0, refundTickets: 0, priceStats: {}, pointStats: {}, refundReasons: {}, refundOrders: new Set(), dailyTrend: {} };
             const es = eventSummaryMap[name];
             es.revenue += p;
             es.tickets += 1;
@@ -94,14 +90,14 @@ async function generateReport() {
             es.pointStats[item['銷售點'] || '未知'] = (es.pointStats[item['銷售點'] || '未知'] || 0) + p;
             es.dailyTrend[date] = (es.dailyTrend[date] || 0) + p;
 
-            // Payment Aggregation
+            // Payment
             const payMode = item['付款方式'] || '未知';
             if (!payMap[payMode]) payMap[payMode] = { revenue: 0, tickets: 0, orders: new Set() };
             payMap[payMode].revenue += p;
             payMap[payMode].tickets += 1;
             payMap[payMode].orders.add(baseOrder);
 
-            // Point Aggregation
+            // Point
             const ptName = item['銷售點'] || '未知';
             if (!pointMap[ptName]) pointMap[ptName] = { revenue: 0, tickets: 0, orders: new Set() };
             pointMap[ptName].revenue += p;
@@ -109,7 +105,7 @@ async function generateReport() {
             pointMap[ptName].orders.add(baseOrder);
         });
 
-        // Mapping Refund data into events
+        // Mapping Refund data
         rawData.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票' || getVal(d['手續費']) > 0).forEach(item => {
             const name = item['節目/商品名稱'] || 'Unknown';
             if (!eventSummaryMap[name]) return;
@@ -127,7 +123,6 @@ async function generateReport() {
         const eventList = Object.entries(eventSummaryMap).map(([name, s]) => {
             s.orderCount = s.orders.size;
             s.refundOrderCount = s.refundOrders.size;
-            // Format dailyTrend for Chart.js
             const sortedDates = Object.keys(s.dailyTrend).sort();
             s.trendData = { labels: sortedDates, values: sortedDates.map(d => s.dailyTrend[d]) };
             delete s.orders; delete s.refundOrders; delete s.dailyTrend;
@@ -149,7 +144,6 @@ async function generateReport() {
             meta: { totalRows: rawData.length, reportTime: new Date().toLocaleString('zh-TW') }
         };
 
-        // --- 6. Build HTML ---
         const templateHtml = fs.readFileSync('A_Qware_Revenue_Report_2026年02月_分析報表.html', 'utf8');
         const uiPart = templateHtml.split('const dbData = [')[0];
         
@@ -182,6 +176,7 @@ async function generateReport() {
         renderTable('#topTicketsEventsTable', s.topByTickets, (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td></tr>\`);
         renderTable('#topRefundTable', s.topByRefunds, (item, i) => \`<tr><td><span style="background:#c62828; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.refundOrderCount.toLocaleString()}</td><td class="text-right">\${item.refundTickets.toLocaleString()}</td><td class="text-right" style="color: #c62828; font-weight:bold;">NT$ \${item.refunds.toLocaleString()}</td></tr>\`);
         
+        // 修正付款方式與銷售點的表格渲染邏輯
         renderTable('#paymentTable', s.paymentList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
         renderTable('#salesPointTable', s.spList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
 
@@ -256,7 +251,7 @@ async function generateReport() {
 
         const fileName = `A_Qware_Revenue_Report_2026年03月_分析報表.html`;
         fs.writeFileSync(path.join(__dirname, fileName), '\ufeff' + finalHtml);
-        console.log(`FULLY ENHANCED report generated: ${fileName}`);
+        console.log(`FIXED Sales Points Tickets report generated: ${fileName}`);
 
     } catch (e) {
         console.error("Error:", e);
