@@ -1025,7 +1025,10 @@ var editOn = false;
 var _ctx = {};   // current editing context (avoids inline-handler quote issues)
 
 /* ── MongoDB sync config ────────────────────────────────────── */
-var MONGO_API = 'http://localhost:3001/api/travel';
+// If hosted on GitHub, change this to your production API URL (e.g. Render/Heroku)
+var MONGO_API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:3001/api/travel'
+    : 'https://your-production-api.com/api/travel'; // <--- 更新為您的雲端 API 網址
 
 function getStore() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e) { return {}; } }
 function saveStore(s) {
