@@ -1102,12 +1102,24 @@ function assignIds() {
 /* ── Apply stored state on load ─────────────────────────────── */
 function applyStore() {
     var s = getStore();
-    /* deletions */
+    /* 1. Added rows (Must be first so they have EIDs to be edited/deleted) */
+    Object.entries(s.added || {}).forEach(function(entry) {
+        var tbId = entry[0], rows = entry[1];
+        var tbody = document.querySelector('[data-eid="' + tbId + '"]');
+        if (!tbody) return;
+        rows.forEach(function(row) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = row.html;
+            tr.dataset.eid = row.id; // Use the stored ID
+            tbody.appendChild(tr);
+        });
+    });
+    /* 2. Deletions */
     Object.keys(s.deleted || {}).forEach(function(id) {
         var el = document.querySelector('[data-eid="' + id + '"]');
         if (el) el.style.display = 'none';
     });
-    /* row cell edits */
+    /* 3. Row cell edits */
     Object.entries(s.rowEdits || {}).forEach(function(entry) {
         var id = entry[0], cells = entry[1];
         var tr = document.querySelector('[data-eid="' + id + '"]');
@@ -1115,19 +1127,7 @@ function applyStore() {
         var tds = tr.querySelectorAll('td:not(.row-actions)');
         cells.forEach(function(html, i) { if (tds[i]) tds[i].outerHTML = html; });
     });
-    /* added rows */
-    Object.entries(s.added || {}).forEach(function(entry) {
-        var tbId = entry[0], rows = entry[1];
-        var tbody = document.querySelector('[data-eid="' + tbId + '"]');
-        if (!tbody) return;
-        rows.forEach(function(inner) {
-            var tr = document.createElement('tr');
-            tr.innerHTML = inner;
-            tr.dataset.eid = tbId + ':a' + Math.random().toString(36).slice(2, 7);
-            tbody.appendChild(tr);
-        });
-    });
-    /* trip header edits */
+    /* 4. Trip header edits */
     Object.entries(s.tripEdits || {}).forEach(function(entry) {
         var id = entry[0], d = entry[1];
         var trip = document.querySelector('[data-eid="' + id + '"]');
@@ -1429,9 +1429,10 @@ function saveNewRow() {
         inputs.forEach(function(inp) { inner += '<td>' + (inp.value||'—') + '</td>'; });
     }
 
+    var trId = tbody.dataset.eid + ':a' + Date.now();
     var tr = document.createElement('tr');
     tr.innerHTML = inner;
-    tr.dataset.eid = tbody.dataset.eid + ':a' + Date.now();
+    tr.dataset.eid = trId;
     if (editOn) {
         var td = document.createElement('td'); td.className = 'row-actions';
         td.innerHTML = '<button class="ea-btn" title="編輯">✏️</button>'
@@ -1444,7 +1445,7 @@ function saveNewRow() {
 
     var s = getStore(); s.added = s.added || {};
     if (!s.added[tbody.dataset.eid]) s.added[tbody.dataset.eid] = [];
-    s.added[tbody.dataset.eid].push(inner); saveStore(s); hideModal();
+    s.added[tbody.dataset.eid].push({ id: trId, html: inner }); saveStore(s); hideModal();
 }
 
 /* ── Modal show/hide ────────────────────────────────────────── */
