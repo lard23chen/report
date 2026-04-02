@@ -71,8 +71,47 @@
 
 ## 6. 輸出規範 (Output Requirements)
 - **檔案編碼**: 儲存檔案時必須添加 BOM (`\ufeff`)。
-- **功能按鈕**: 底部需提供「下載 PDF (列印模式)」與「回首頁」按鈕。
+- **功能按鈕**: 底部需提供「下載 PDF (列印模式)」與「回首頁」按鈕。實作範本如下：
+
+```html
+<!-- Fixed PDF Button -->
+<button onclick="downloadPDF()" style="
+    position: fixed; bottom: 90px; right: 30px;
+    background: linear-gradient(135deg, #1e88e5, #1565c0);
+    color: white; padding: 12px 24px; border: none; border-radius: 50px;
+    cursor: pointer; font-weight: 600; font-size: 0.95rem;
+    box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4);
+    display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; z-index: 1000;
+" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(30, 136, 229, 0.5)';"
+   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(30, 136, 229, 0.4)';">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+    下載 PDF
+</button>
+
+<script>
+    function downloadPDF() { window.print(); }
+</script>
+
+<!-- Fixed Home Button -->
+<a href="report_index.html" style="
+    position: fixed; bottom: 30px; right: 30px;
+    background: linear-gradient(135deg, #d81b60, #ad1457);
+    color: white; padding: 12px 24px; border-radius: 50px;
+    text-decoration: none; font-weight: 600; font-size: 0.95rem;
+    box-shadow: 0 4px 15px rgba(216, 27, 96, 0.4);
+    display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; z-index: 1000;
+" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(216, 27, 96, 0.5)';"
+   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(216, 27, 96, 0.4)';">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+    回首頁
+</a>
+
+<!-- 安全驗證腳本 -->
+<script src="auth.js"></script>
+```
+
 - **錯誤處理**: 必須包含 `window.onerror` 攔截。
+
 
 ---
 
@@ -161,6 +200,11 @@ while (genScript[tplStart] === '\r' || genScript[tplStart] === '\n') tplStart++;
 
 > **原則**：未來新增月份報表，請以 v3 腳本為基礎複製修改，僅需調整 MongoDB 查詢月份、`dateTitle`、輸出檔名三處。
 
+## 9. Git 管理規範 (Git Management)
+- **提交頻率**: 每完成一項子任務或功能修正後，**必須立即進行 Git 提交 (Commit)**。
+- **提交訊息**: 應簡潔描述變更內容與目的（例如：`feat: 增加 PDF 下載與回首頁按鈕`）。
+- **流程確認**: 提交後執行 `git status` 確認工作目錄狀態。
+
 ---
-*最後更新日期: 2026/04/01*
+*最後更新日期: 2026/04/02*
 
