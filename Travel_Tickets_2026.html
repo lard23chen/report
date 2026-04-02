@@ -1109,8 +1109,12 @@ function applyStore() {
         if (!tbody) return;
         rows.forEach(function(row) {
             var tr = document.createElement('tr');
-            tr.innerHTML = row.html;
-            tr.dataset.eid = row.id; // Use the stored ID
+            /* Compatibility check: handle both string (old) and object (new) formats */
+            var html = (typeof row === 'string') ? row : row.html;
+            var id   = (typeof row === 'string') ? (tbId + ':a' + Math.random().toString(36).slice(2, 7)) : row.id;
+            
+            tr.innerHTML = html;
+            tr.dataset.eid = id;
             tbody.appendChild(tr);
         });
     });
