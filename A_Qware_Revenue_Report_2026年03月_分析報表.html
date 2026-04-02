@@ -430,6 +430,7 @@ const summaryData = {"totalRevenue":246199145,"totalTickets":295010,"orderCount"
         if(h1) h1.innerText = "ibon售票系統 2026年03月 分析報表 (A系統)";
         
         document.getElementById('val-revenue').innerText = 'NT$ ' + s.totalRevenue.toLocaleString();
+        document.getElementById('meta-total-rows').innerText = s.meta.totalRows.toLocaleString();
         document.getElementById('val-tickets').innerText = s.totalTickets.toLocaleString();
         document.getElementById('val-orders').innerText = s.orderCount.toLocaleString();
         document.getElementById('val-aov').innerText = 'NT$ ' + s.aov.toLocaleString();
