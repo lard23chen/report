@@ -76,11 +76,11 @@
     <div class="summary-card">
         <div class="stat-item">
             <h3>總消費金額 (Total)</h3>
-            <div class="value">NT$ 63,824.25</div>
+            <div class="value">NT$ 42,140</div>
         </div>
         <div class="stat-item">
             <h3>總筆數 (Count)</h3>
-            <div class="value">85</div>
+            <div class="value">58</div>
         </div>
     </div>
 
@@ -106,14 +106,14 @@
             <label>📅 日期：</label>
             <select id="dateFilter">
                 <option value="all">全部 (All)</option>
-                <option value="2026-02-10">2026-02-10</option><option value="2026-02-11">2026-02-11</option><option value="2026-02-12">2026-02-12</option><option value="2026-02-13">2026-02-13</option><option value="2026-02-14">2026-02-14</option><option value="2026-02-15">2026-02-15</option><option value="2026-02-16">2026-02-16</option><option value="2026-02-17">2026-02-17</option><option value="2026-02-18">2026-02-18</option><option value="2026-02-19">2026-02-19</option><option value="2026-02-20">2026-02-20</option><option value="2026-02-21">2026-02-21</option><option value="2026-02-22">2026-02-22</option>
+                <option value="2026-02-10">2026-02-10</option><option value="2026-02-11">2026-02-11</option><option value="2026-02-12">2026-02-12</option><option value="2026-02-13">2026-02-13</option><option value="2026-02-14">2026-02-14</option><option value="2026-02-15">2026-02-15</option><option value="2026-02-16">2026-02-16</option><option value="2026-02-17">2026-02-17</option><option value="2026-02-18">2026-02-18</option><option value="2026-02-19">2026-02-19</option><option value="2026-02-20">2026-02-20</option><option value="2026-02-21">2026-02-21</option><option value="2026-02-22">2026-02-22</option><option value="ALEX&SEAN"">ALEX&SEAN"</option>
             </select>
         </div>
         <div>
             <label>👤 付款人：</label>
             <select id="payerFilter">
                 <option value="all">全部 (All)</option>
-                <option value="信用卡">信用卡</option><option value="泰國帳戶">泰國帳戶</option><option value="現金">現金</option>
+                <option value="信用卡">信用卡</option><option value="匯豐信用卡">匯豐信用卡</option><option value="泰國帳戶">泰國帳戶</option><option value="現金">現金</option>
             </select>
         </div>
     </div>
@@ -197,13 +197,13 @@
                 </td>
             </tr>
             
-            <tr data-date="2026-02-12" data-payer="信用卡">
+            <tr data-date="2026-02-12" data-payer="匯豐信用卡">
                 <td>2026-02-12</td>
                 <td>🏨 住宿</td>
                 <td>Grande Centre Point Ratchadamri</td>
                 <td class="amount ">非數值</td>
-                <td>20678</td>
-                <td>信用卡</td>
+                <td>19686</td>
+                <td>匯豐信用卡</td>
                 <td>
                     <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
@@ -228,7 +228,7 @@
                 <td>💬 其他</td>
                 <td>換錢 20000換19500</td>
                 <td class="amount negative">-19,500</td>
-                <td></td>
+                <td>20000</td>
                 <td>現金</td>
                 <td>
                     <button class="photo-btn" onclick="openModal('MARK')">📷 照片</button> 
@@ -239,13 +239,65 @@
             <tr data-date="2026-02-12" data-payer="信用卡">
                 <td>2026-02-12</td>
                 <td>🛍️ 購物</td>
-                <td>燕窩 92 X 2</td>
-                <td class="amount ">631</td>
-                <td></td>
+                <td>7-11共631 燕窩 92 X 2</td>
+                <td class="amount ">非數值</td>
+                <td>650</td>
                 <td>信用卡</td>
                 <td>
                     <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     https://drive.google.com/file/d/1jz9BhuG5jk-71VOfQto3JEgxedhd6ILJ/view?usp=drivesdk
+                </td>
+            </tr>
+            
+            <tr data-date="2026-02-12" data-payer="泰國帳戶">
+                <td>2026-02-12</td>
+                <td>🍽️ 餐飲</td>
+                <td>夜市晚餐</td>
+                <td class="amount ">1,034</td>
+                <td></td>
+                <td>泰國帳戶</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('泰國帳戶')">📷 照片</button> 
+                    無照片
+                </td>
+            </tr>
+            
+            <tr data-date="2026-02-13" data-payer="現金">
+                <td>2026-02-13</td>
+                <td>🏨 住宿</td>
+                <td>飯店小費</td>
+                <td class="amount ">20</td>
+                <td></td>
+                <td>現金</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('MARK')">📷 照片</button> 
+                    無照片
+                </td>
+            </tr>
+            
+            <tr data-date="2026-02-13" data-payer="泰國帳戶">
+                <td>2026-02-13</td>
+                <td>🍽️ 餐飲</td>
+                <td>炒飯三人</td>
+                <td class="amount ">200</td>
+                <td></td>
+                <td>泰國帳戶</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
+                    無照片
+                </td>
+            </tr>
+            
+            <tr data-date="2026-02-17" data-payer="信用卡">
+                <td>2026-02-17</td>
+                <td>🏨 住宿</td>
+                <td>INTERCONTINENTAL BANGKOK 洲際飯店</td>
+                <td class="amount ">非數值</td>
+                <td>52534</td>
+                <td>信用卡</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
+                    
                 </td>
             </tr>
             
@@ -353,19 +405,6 @@
                 </td>
             </tr>
             
-            <tr data-date="2026-02-12" data-payer="泰國帳戶">
-                <td>2026-02-12</td>
-                <td>🍽️ 餐飲</td>
-                <td>夜市晚餐</td>
-                <td class="amount ">1,034</td>
-                <td></td>
-                <td>泰國帳戶</td>
-                <td>
-                    <button class="photo-btn" onclick="openModal('泰國帳戶')">📷 照片</button> 
-                    無照片
-                </td>
-            </tr>
-            
             <tr data-date="2026-02-12" data-payer="">
                 <td>2026-02-12</td>
                 <td>🛍️ 購物</td>
@@ -379,37 +418,11 @@
                 </td>
             </tr>
             
-            <tr data-date="2026-02-13" data-payer="現金">
-                <td>2026-02-13</td>
-                <td>🏨 住宿</td>
-                <td>飯店小費</td>
-                <td class="amount ">20</td>
-                <td></td>
-                <td>現金</td>
-                <td>
-                    <button class="photo-btn" onclick="openModal('MARK')">📷 照片</button> 
-                    無照片
-                </td>
-            </tr>
-            
             <tr data-date="2026-02-13" data-payer="泰國帳戶">
                 <td>2026-02-13</td>
                 <td>🍽️ 餐飲</td>
-                <td>魚市場</td>
+                <td>魚市場三人</td>
                 <td class="amount ">1,800</td>
-                <td></td>
-                <td>泰國帳戶</td>
-                <td>
-                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
-                    無照片
-                </td>
-            </tr>
-            
-            <tr data-date="2026-02-13" data-payer="泰國帳戶">
-                <td>2026-02-13</td>
-                <td>🍽️ 餐飲</td>
-                <td>炒飯</td>
-                <td class="amount ">200</td>
                 <td></td>
                 <td>泰國帳戶</td>
                 <td>
@@ -486,7 +499,7 @@
             <tr data-date="" data-payer="">
                 <td></td>
                 <td></td>
-                <td>代購-VK-CKM บรรเทาอาการปวดเมื่อย 酸痛藥膏 15X8</td>
+                <td>代購-VK-CKM บรรเทาอาการปวดเมื่อย 酸痛藥膏 15X8收16X10</td>
                 <td class="amount ">非數值</td>
                 <td></td>
                 <td></td>
@@ -525,8 +538,8 @@
             <tr data-date="2026-02-13" data-payer="信用卡">
                 <td>2026-02-13</td>
                 <td>🛍️ 購物</td>
-                <td>代購-VK香水 </td>
-                <td class="amount ">1,290</td>
+                <td>代購-VK香水 1290收1363</td>
+                <td class="amount ">非數值</td>
                 <td>1334</td>
                 <td>信用卡</td>
                 <td>
@@ -668,7 +681,7 @@
             <tr data-date="2026-02-14" data-payer="信用卡">
                 <td>2026-02-14</td>
                 <td>🛍️ 購物</td>
-                <td>口腔噴霧 UIN聯名卡 99X6</td>
+                <td>口腔噴霧 UIN聯名卡 99X6 收110</td>
                 <td class="amount ">594</td>
                 <td></td>
                 <td>信用卡</td>
@@ -772,9 +785,9 @@
             <tr data-date="2026-02-15" data-payer="信用卡">
                 <td>2026-02-15</td>
                 <td>🛍️ 購物</td>
-                <td>Big C 中華聯名卡</td>
-                <td class="amount ">5,283</td>
-                <td></td>
+                <td>Big C 中華聯名卡-5283</td>
+                <td class="amount ">非數值</td>
+                <td>5445</td>
                 <td>信用卡</td>
                 <td>
                     <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
@@ -889,7 +902,7 @@
             <tr data-date="" data-payer="">
                 <td></td>
                 <td></td>
-                <td>代購-VK-hygiene wrinkle-hygiene-速效衣物柔順噴霧 198</td>
+                <td>代購-VK-hygiene wrinkle-hygiene-速效衣物柔順噴霧 99X2=198 收105X2</td>
                 <td class="amount ">非數值</td>
                 <td></td>
                 <td></td>
@@ -902,7 +915,7 @@
             <tr data-date="" data-payer="">
                 <td></td>
                 <td></td>
-                <td>代購-VK-buddy dean gold-阿拉比卡即溶咖啡</td>
+                <td>代購-VK-buddy dean gold-阿拉比卡即溶咖啡 109</td>
                 <td class="amount ">非數值</td>
                 <td></td>
                 <td></td>
@@ -941,7 +954,7 @@
             <tr data-date="" data-payer="">
                 <td></td>
                 <td></td>
-                <td>hygiene prewash-強效去漬筆 89X4</td>
+                <td>hygiene prewash-強效去漬筆 89X4 收95</td>
                 <td class="amount ">非數值</td>
                 <td></td>
                 <td></td>
@@ -967,7 +980,7 @@
             <tr data-date="" data-payer="">
                 <td></td>
                 <td></td>
-                <td>代購-hg freshener or-HYGIENE 陽光香氣衣物香氛袋 32X2</td>
+                <td>代購-hg freshener or-HYGIENE 陽光香氣衣物香氛袋 32X2收35X2</td>
                 <td class="amount ">非數值</td>
                 <td></td>
                 <td></td>
@@ -980,7 +993,7 @@
             <tr data-date="" data-payer="">
                 <td></td>
                 <td></td>
-                <td>代購-官-kopiko macchiat-即溶瑪奇朵咖啡85X2</td>
+                <td>代購-官-kopiko macchiat-即溶瑪奇朵咖啡85X2 收90X2</td>
                 <td class="amount ">非數值</td>
                 <td></td>
                 <td></td>
@@ -993,7 +1006,7 @@
             <tr data-date="" data-payer="">
                 <td></td>
                 <td></td>
-                <td>代購-怡修-wbp amira makam-羅望子糖果 4X48</td>
+                <td>代購-怡修-wbp amira makam-羅望子糖果 4X48 收51X2</td>
                 <td class="amount ">非數值</td>
                 <td></td>
                 <td></td>
@@ -1162,9 +1175,9 @@
             <tr data-date="2026-02-16" data-payer="信用卡">
                 <td>2026-02-16</td>
                 <td>🍽️ 餐飲</td>
-                <td>ALEX&SEAN 雙聖</td>
+                <td>ALEX&SEAN 雙聖，99</td>
                 <td class="amount ">99</td>
-                <td></td>
+                <td>103</td>
                 <td>信用卡</td>
                 <td>
                     <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
@@ -1175,9 +1188,9 @@
             <tr data-date="2026-02-16" data-payer="信用卡">
                 <td>2026-02-16</td>
                 <td>🍽️ 餐飲</td>
-                <td>ALEX&SEAN 宵夜-PLEUNPUNG NOODLES-SILOM E       </td>
-                <td class="amount ">275</td>
-                <td></td>
+                <td>ALEX&SEAN 宵夜-PLEUNPUNG NOODLES-SILOM E，275</td>
+                <td class="amount ">非數值</td>
+                <td>283</td>
                 <td>信用卡</td>
                 <td>
                     <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
@@ -1198,6 +1211,19 @@
                 </td>
             </tr>
             
+            <tr data-date="" data-payer="">
+                <td></td>
+                <td></td>
+                <td>魚丸麵</td>
+                <td class="amount ">非數值</td>
+                <td></td>
+                <td></td>
+                <td>
+                     
+                    
+                </td>
+            </tr>
+            
             <tr data-date="2026-02-17" data-payer="信用卡">
                 <td>2026-02-17</td>
                 <td>🚗 交通</td>
@@ -1211,12 +1237,25 @@
                 </td>
             </tr>
             
+            <tr data-date="ALEX&SEAN"" data-payer="">
+                <td>ALEX&SEAN"</td>
+                <td></td>
+                <td>1357</td>
+                <td class="amount ">非數值</td>
+                <td>ALEX</td>
+                <td></td>
+                <td>
+                     
+                    
+                </td>
+            </tr>
+            
             <tr data-date="2026-02-17" data-payer="信用卡">
                 <td>2026-02-17</td>
                 <td>🍽️ 餐飲</td>
-                <td>ALEX 午餐-Took Lae Dee Park Silom</td>
-                <td class="amount ">263</td>
-                <td></td>
+                <td>ALEX 午餐-Took Lae Dee Park Silom，263</td>
+                <td class="amount ">非數值</td>
+                <td>271</td>
                 <td>信用卡</td>
                 <td>
                     <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
@@ -1266,19 +1305,19 @@
             <tr data-date="2026-02-18" data-payer="信用卡">
                 <td>2026-02-18</td>
                 <td>🍽️ 餐飲</td>
-                <td>UNO咖啡 華航聯名卡</td>
-                <td class="amount ">65</td>
-                <td></td>
+                <td>UNO咖啡 華航聯名卡，65</td>
+                <td class="amount ">非數值</td>
+                <td>67</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
             
             <tr data-date="2026-02-18" data-payer="信用卡">
                 <td>2026-02-18</td>
-                <td></td>
+                <td>🍽️ 餐飲</td>
                 <td>挽肉與米 UIN聯名卡</td>
                 <td class="amount ">非數值</td>
                 <td></td>
@@ -1292,12 +1331,12 @@
             <tr data-date="2026-02-18" data-payer="信用卡">
                 <td>2026-02-18</td>
                 <td>🛍️ 購物</td>
-                <td>GREYHOUND ORIGINAL 吊飾玩偶</td>
-                <td class="amount ">1,380</td>
-                <td></td>
+                <td>GREYHOUND ORIGINAL 吊飾玩偶，1380</td>
+                <td class="amount ">非數值</td>
+                <td>1418</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1357,12 +1396,12 @@
             <tr data-date="2026-02-18" data-payer="信用卡">
                 <td>2026-02-18</td>
                 <td>🛍️ 購物</td>
-                <td>BOBBY &FRIENDS 新年盲盒</td>
-                <td class="amount ">890</td>
-                <td></td>
+                <td>BOBBY &FRIENDS 新年盲盒 890，2670/915</td>
+                <td class="amount ">非數值</td>
+                <td>915</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1370,12 +1409,12 @@
             <tr data-date="2026-02-18" data-payer="信用卡">
                 <td>2026-02-18</td>
                 <td>🛍️ 購物</td>
-                <td>代購-BOBBY &FRIENDS 新年盲盒 890X2</td>
-                <td class="amount ">1,780</td>
-                <td></td>
+                <td>代購-BOBBY &FRIENDS 新年盲盒 890X2，915X2</td>
+                <td class="amount ">非數值</td>
+                <td>1830</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1383,12 +1422,12 @@
             <tr data-date="2026-02-18" data-payer="信用卡">
                 <td>2026-02-18</td>
                 <td>🛍️ 購物</td>
-                <td>7-11 信用</td>
+                <td>7-11 信用 240</td>
                 <td class="amount ">240</td>
-                <td></td>
+                <td>247</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1422,23 +1461,23 @@
             <tr data-date="2026-02-18" data-payer="信用卡">
                 <td>2026-02-18</td>
                 <td>🛍️ 購物</td>
-                <td>มาม่าซอง เส้นเล็ก-MAMA 船麵 32 X 8</td>
-                <td class="amount ">224</td>
-                <td></td>
+                <td>มาม่าซอง เส้นเล็ก-MAMA 船麵 32 X 8＝224</td>
+                <td class="amount ">非數值</td>
+                <td>230</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
             
-            <tr data-date="2026-02-18" data-payer="信用卡">
+            <tr data-date="2026-02-18" data-payer="現金">
                 <td>2026-02-18</td>
                 <td>🍽️ 餐飲</td>
                 <td>แม่วารี 芒果糯米飯</td>
                 <td class="amount ">160</td>
                 <td></td>
-                <td>信用卡</td>
+                <td>現金</td>
                 <td>
                      
                     
@@ -1474,9 +1513,9 @@
             <tr data-date="2026-02-18" data-payer="信用卡">
                 <td>2026-02-18</td>
                 <td>🍽️ 餐飲</td>
-                <td>Plu</td>
-                <td class="amount ">1,594</td>
-                <td></td>
+                <td>Plu 晚餐，1594.83</td>
+                <td class="amount ">非數值</td>
+                <td>1639</td>
                 <td>信用卡</td>
                 <td>
                     <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
@@ -1513,12 +1552,12 @@
             <tr data-date="2026-02-19" data-payer="信用卡">
                 <td>2026-02-19</td>
                 <td>🍽️ 餐飲</td>
-                <td>after you 甜點</td>
-                <td class="amount ">295</td>
-                <td></td>
+                <td>after you 甜點 295</td>
+                <td class="amount ">非數值</td>
+                <td>303</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1526,12 +1565,12 @@
             <tr data-date="2026-02-19" data-payer="信用卡">
                 <td>2026-02-19</td>
                 <td>🛍️ 購物</td>
-                <td>代購-VK-SUNDALO 香水 399X3=1197</td>
-                <td class="amount ">1,077</td>
-                <td></td>
+                <td>COS ICONSIAM 衣服 3190</td>
+                <td class="amount ">非數值</td>
+                <td>3277</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1539,12 +1578,12 @@
             <tr data-date="2026-02-19" data-payer="信用卡">
                 <td>2026-02-19</td>
                 <td>🛍️ 購物</td>
-                <td>代購-小薰-just.in.case 包包</td>
-                <td class="amount ">109</td>
-                <td></td>
+                <td>代購-VK-SUNDALO 香水 399X3=1197收1266，1107</td>
+                <td class="amount ">非數值</td>
+                <td>1107</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1552,12 +1591,25 @@
             <tr data-date="2026-02-19" data-payer="信用卡">
                 <td>2026-02-19</td>
                 <td>🛍️ 購物</td>
-                <td>代購-mandy-slip sleep 睡衣兩件</td>
-                <td class="amount ">2,280</td>
-                <td></td>
+                <td>代購-小薰-just.in.case 包包，1090收1152</td>
+                <td class="amount ">非數值</td>
+                <td>1120</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
+                    
+                </td>
+            </tr>
+            
+            <tr data-date="2026-02-19" data-payer="信用卡">
+                <td>2026-02-19</td>
+                <td>🛍️ 購物</td>
+                <td>代購-mandy-slip sleep 睡衣兩件，2280收2409</td>
+                <td class="amount ">非數值</td>
+                <td>2343</td>
+                <td>信用卡</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1565,12 +1617,12 @@
             <tr data-date="2026-02-19" data-payer="信用卡">
                 <td>2026-02-19</td>
                 <td>🍽️ 餐飲</td>
-                <td>UNO Coffee</td>
-                <td class="amount ">85</td>
-                <td></td>
+                <td>UNO Coffee，85</td>
+                <td class="amount ">非數值</td>
+                <td>87</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1591,12 +1643,12 @@
             <tr data-date="2026-02-19" data-payer="信用卡">
                 <td>2026-02-19</td>
                 <td>🛍️ 購物</td>
-                <td>BIG C-LOREAL 防曬乳</td>
-                <td class="amount ">119</td>
-                <td></td>
+                <td>BIG C-LOREAL 防曬乳718，105</td>
+                <td class="amount ">非數值</td>
+                <td>738</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1604,8 +1656,8 @@
             <tr data-date="2026-02-19" data-payer="信用卡">
                 <td>2026-02-19</td>
                 <td>🛍️ 購物</td>
-                <td>代購-Grace-BIG C-LOREAL 防曬乳</td>
-                <td class="amount ">599</td>
+                <td>代購-Grace-BIG C-LOREAL 防曬乳，599 收633</td>
+                <td class="amount ">非數值</td>
                 <td></td>
                 <td>信用卡</td>
                 <td>
@@ -1643,12 +1695,12 @@
             <tr data-date="2026-02-20" data-payer="信用卡">
                 <td>2026-02-20</td>
                 <td>🍽️ 餐飲</td>
-                <td>UNO Coffee</td>
-                <td class="amount ">85</td>
-                <td></td>
+                <td>UNO Coffee 65</td>
+                <td class="amount ">非數值</td>
+                <td>67</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1656,12 +1708,12 @@
             <tr data-date="2026-02-20" data-payer="信用卡">
                 <td>2026-02-20</td>
                 <td>🍽️ 餐飲</td>
-                <td>Central Embassy-美食街 446.25</td>
-                <td class="amount ">1,878.25</td>
-                <td></td>
+                <td>Central Embassy 1878.25 -美食街 446.25</td>
+                <td class="amount ">非數值</td>
+                <td>1941</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1773,7 +1825,7 @@
             <tr data-date="" data-payer="">
                 <td></td>
                 <td></td>
-                <td>代購-mandy-大象零錢包 130</td>
+                <td>代購-mandy-大象零錢包 130收137</td>
                 <td class="amount ">非數值</td>
                 <td></td>
                 <td></td>
@@ -1786,12 +1838,12 @@
             <tr data-date="2026-02-20" data-payer="信用卡">
                 <td>2026-02-20</td>
                 <td>🍽️ 餐飲</td>
-                <td>Central silom-แก้วบูทีด 香蘭葉捲</td>
-                <td class="amount ">160</td>
-                <td></td>
+                <td>Central silom-แก้วบูทีด 香蘭葉捲，160</td>
+                <td class="amount ">非數值</td>
+                <td>165</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1799,12 +1851,12 @@
             <tr data-date="2026-02-20" data-payer="信用卡">
                 <td>2026-02-20</td>
                 <td>🍽️ 餐飲</td>
-                <td>Central silom-PASH Juices and Smoothies 水果冰砂</td>
-                <td class="amount ">145</td>
-                <td></td>
+                <td>Central silom-PASH Juices and Smoothies 水果冰砂 145</td>
+                <td class="amount ">非數值</td>
+                <td>150</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1812,12 +1864,12 @@
             <tr data-date="2026-02-20" data-payer="信用卡">
                 <td>2026-02-20</td>
                 <td>🛍️ 購物</td>
-                <td>7-11 信用卡</td>
-                <td class="amount ">220</td>
-                <td></td>
+                <td>7-11 信用卡 220</td>
+                <td class="amount ">非數值</td>
+                <td>227</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1877,12 +1929,12 @@
             <tr data-date="2026-02-20" data-payer="信用卡">
                 <td>2026-02-20</td>
                 <td>🛍️ 購物</td>
-                <td>Boots 代購-阿姐-五塔散 19X4</td>
-                <td class="amount ">146</td>
-                <td></td>
+                <td>Boots146 代購-阿姐-五塔散 19X4</td>
+                <td class="amount ">非數值</td>
+                <td>151</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1916,12 +1968,12 @@
             <tr data-date="2026-02-20" data-payer="信用卡">
                 <td>2026-02-20</td>
                 <td>🛍️ 購物</td>
-                <td>Silom Complex-Tops Gatsby Wax 髮蠟 X2</td>
-                <td class="amount ">178</td>
-                <td></td>
+                <td>Silom Complex-Tops Gatsby Wax 髮蠟 X2，178</td>
+                <td class="amount ">非數值</td>
+                <td>184</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -1942,12 +1994,12 @@
             <tr data-date="2026-02-20" data-payer="信用卡">
                 <td>2026-02-20</td>
                 <td>🍽️ 餐飲</td>
-                <td>7-11 信用卡</td>
-                <td class="amount ">213</td>
-                <td></td>
+                <td>7-11 信用卡 213</td>
+                <td class="amount ">非數值</td>
+                <td>220</td>
                 <td>信用卡</td>
                 <td>
-                     
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
                     
                 </td>
             </tr>
@@ -2069,15 +2121,67 @@
                 </td>
             </tr>
             
+            <tr data-date="2026-02-21" data-payer="信用卡">
+                <td>2026-02-21</td>
+                <td>🍽️ 餐飲</td>
+                <td>SAVOEY MERCURY TOWER 午餐，1859</td>
+                <td class="amount ">非數值</td>
+                <td>1916</td>
+                <td>信用卡</td>
+                <td>
+                    <button class="photo-btn" onclick="openModal('ALEX')">📷 照片</button> 
+                    
+                </td>
+            </tr>
+            
             <tr data-date="2026-02-22" data-payer="信用卡">
                 <td>2026-02-22</td>
                 <td>🛍️ 購物</td>
-                <td>代購-阿姐-酒</td>
-                <td class="amount ">420</td>
+                <td>代購-阿姐-酒420收445</td>
+                <td class="amount ">非數值</td>
                 <td>432</td>
                 <td>信用卡</td>
                 <td>
                     <button class="photo-btn" onclick="openModal('MARK')">📷 照片</button> 
+                    
+                </td>
+            </tr>
+            
+            <tr data-date="" data-payer="">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="amount ">非數值</td>
+                <td></td>
+                <td></td>
+                <td>
+                     
+                    
+                </td>
+            </tr>
+            
+            <tr data-date="" data-payer="">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="amount ">非數值</td>
+                <td></td>
+                <td></td>
+                <td>
+                     
+                    
+                </td>
+            </tr>
+            
+            <tr data-date="" data-payer="">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="amount ">非數值</td>
+                <td></td>
+                <td></td>
+                <td>
+                     
                     
                 </td>
             </tr>
@@ -2108,9 +2212,9 @@
     Chart.register(ChartDataLabels);
 
     // Data Preparation
-    const categoryData = {"💬 其他":9997,"🛍️ 購物":39657,"🚗 交通":1381,"🏨 住宿":100,"🍽️ 餐飲":12689.25};
-    const payerData = {"信用卡":34462.25,"現金":16330,"泰國帳戶":12437,"":595};
-    const methodData = {"31":31,"35":34,"36":34,"37":35,"42":40,"63":61,"67":65,"113":109,"134":130,"142":138,"180":175,"189":183,"239":232,"288":280,"382":370,"432":420,"434":420,"452":438,"613":1318,"620":600,"779":753,"786":760,"820":800,"1290":1250,"1334":1290,"":53858.25};
+    const categoryData = {"💬 其他":9997,"🛍️ 購物":23031,"🚗 交通":1381,"🏨 住宿":100,"🍽️ 餐飲":7631};
+    const payerData = {"信用卡":12618,"現金":16490,"泰國帳戶":12437,"":595};
+    const methodData = {"31":31,"35":34,"36":34,"37":35,"42":40,"63":61,"67":65,"103":99,"113":109,"134":130,"142":138,"180":175,"189":183,"239":232,"247":240,"288":280,"382":370,"434":420,"452":438,"613":1318,"620":600,"779":753,"786":760,"820":800,"1290":1250,"":33545};
 
     // Colors
     const colors = ['#FF8BA7', '#FFC6C7', '#FAEEE7', '#33272a', '#594a4e', '#3da9fc', '#ff9f1c'];
