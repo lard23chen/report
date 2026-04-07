@@ -239,7 +239,7 @@
 </head>
 <body>
 <div id="status-panel">
-    <div>網頁部署 (Push): <span id="deploy-time">2026/04/07 16:14:00</span></div>
+    <div>網頁部署 (Push): <span id="deploy-time">2026/04/07 16:55:00</span></div>
     <div>資料存檔 (Data): <span id="last-updated">更新中...</span></div>
 </div>
 <div class="container">
@@ -1044,7 +1044,7 @@ var _ctx = {};   // current editing context (avoids inline-handler quote issues)
 // If hosted on GitHub, change this to your production API URL (e.g. Render/Heroku)
 var MONGO_API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:3001/api/travel'
-    : 'https://your-production-api.com/api/travel'; // <--- 更新為您的雲端 API 網址
+    : 'https://report-theta-nine.vercel.app/api/travel';
 
 function getStore() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e) { return {}; } }
 function saveStore(s) {
