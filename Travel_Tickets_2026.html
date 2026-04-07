@@ -1127,7 +1127,7 @@ function applyStore() {
     var s = getStore();
     updateLastUpdatedDisplay(s.lastUpdated);
 
-    /* 1. Added Trips (Must be first so added rows can find their parent tbody) */
+    /* 1. Added Trips (Must be first) */
     Object.entries(s.addedTrips || {}).forEach(function(entry) {
         var tabId = entry[0], trips = entry[1];
         var tab = document.getElementById(tabId);
@@ -1135,15 +1135,27 @@ function applyStore() {
         trips.forEach(function(t) {
             if (document.querySelector('[data-eid="' + t.id + '"]')) return;
             var div = document.createElement('div');
-            div.className = 'trip';
-            div.dataset.eid = t.id;
-            div.innerHTML = t.html;
+            div.className = 'trip'; div.dataset.eid = t.id; div.innerHTML = t.html;
             var addWrap = tab.querySelector('.add-trip-wrap');
             if (addWrap) tab.insertBefore(div, addWrap); else tab.appendChild(div);
         });
     });
 
-    /* 2. Added rows */
+    /* 2. Added Passenger Sections */
+    Object.entries(s.addedSections || {}).forEach(function(entry) {
+        var tripId = entry[0], sections = entry[1];
+        var trip = document.querySelector('[data-eid="' + tripId + '"]');
+        if (!trip) return;
+        sections.forEach(function(sec) {
+            if (document.querySelector('[data-eid="' + sec.id + '"]')) return;
+            var div = document.createElement('div');
+            div.className = 'passenger-section'; div.dataset.eid = sec.id; div.innerHTML = sec.html;
+            var hotel = trip.querySelector('.hotel-section');
+            if (hotel) trip.insertBefore(div, hotel); else trip.appendChild(div);
+        });
+    });
+
+    /* 3. Added rows */
     Object.entries(s.added || {}).forEach(function(entry) {
         var tbId = entry[0], rows = entry[1];
         var tbody = document.querySelector('[data-eid="' + tbId + '"]');
@@ -1152,19 +1164,18 @@ function applyStore() {
             var tr = document.createElement('tr');
             var html = (typeof row === 'string') ? row : row.html;
             var id   = (typeof row === 'string') ? (tbId + ':a' + Math.random().toString(36).slice(2, 7)) : row.id;
-            tr.innerHTML = html;
-            tr.dataset.eid = id;
+            tr.innerHTML = html; tr.dataset.eid = id;
             tbody.appendChild(tr);
         });
     });
 
-    /* 3. Deletions */
+    /* 4. Deletions */
     Object.keys(s.deleted || {}).forEach(function(id) {
         var el = document.querySelector('[data-eid="' + id + '"]');
         if (el) el.style.display = 'none';
     });
 
-    /* 4. Row cell edits */
+    /* 5. Row cell edits */
     Object.entries(s.rowEdits || {}).forEach(function(entry) {
         var id = entry[0], cells = entry[1];
         var tr = document.querySelector('[data-eid="' + id + '"]');
@@ -1173,7 +1184,7 @@ function applyStore() {
         cells.forEach(function(html, i) { if (tds[i]) tds[i].outerHTML = html; });
     });
 
-    /* 5. Trip header edits */
+    /* 6. Trip header edits */
     Object.entries(s.tripEdits || {}).forEach(function(entry) {
         var id = entry[0], d = entry[1];
         var trip = document.querySelector('[data-eid="' + id + '"]');
@@ -1182,6 +1193,14 @@ function applyStore() {
         if (d.dates) { var e = trip.querySelector('.trip-dates'); if (e) e.textContent = d.dates; }
         if (d.tag)   { var e = trip.querySelector('.trip-tag');   if (e) e.textContent = d.tag; }
     });
+}
+
+function getFlightTdHtml(idx, val) {
+    if (idx === 0) {
+        if (val.trim() === '去程') return '<td><span class="badge-go">去程 <span class="en">Outbound</span></span></td>';
+        if (val.trim() === '回程') return '<td><span class="badge-back">回程 <span class="en">Inbound</span></span></td>';
+    }
+    return '<td>' + (val || '—') + '</td>';
 }
 
 /* ── Toggle edit mode ───────────────────────────────────────── */
@@ -1277,15 +1296,17 @@ function addControls() {
         }
     });
 
-    /* Per-trip: edit-header + delete-trip buttons */
+    /* Per-trip: edit-header + add-passenger + delete-trip buttons */
     document.querySelectorAll('.tab-content .trip-header').forEach(function(hdr) {
         if (hdr.querySelector('.trip-edit-btn')) return;
         var eb = document.createElement('button'); eb.className = 'trip-edit-btn'; eb.textContent = '✏️ 標題';
+        var pb = document.createElement('button'); pb.className = 'trip-edit-btn'; pb.style.borderColor = '#bbf7d0'; pb.style.color = '#16a34a'; pb.textContent = '👤 旅客';
         var db = document.createElement('button'); db.className = 'trip-del-btn';  db.textContent = '🗑 刪除';
         var trip = hdr.closest('.trip');
         eb.addEventListener('click', function() { editTripHeader(trip); });
+        pb.addEventListener('click', function() { openAddPassengerModal(trip); });
         db.addEventListener('click', function() { delTrip(trip); });
-        hdr.appendChild(eb); hdr.appendChild(db);
+        hdr.appendChild(eb); hdr.appendChild(pb); hdr.appendChild(db);
     });
 
     /* Per-tab: add-trip button */
@@ -1340,10 +1361,44 @@ function saveNewTrip() {
                '<tbody data-eid="' + tripId + ':b1"></tbody></table></div></div>';
     var trip = document.createElement('div'); trip.className = 'trip'; trip.dataset.eid = tripId; trip.innerHTML = html;
     var addWrap = tab.querySelector('.add-trip-wrap');
-    if (addWrap) tab.insertBefore(trip, addWrap); else tab.appendChild(trip);
+    if (addWrap) tab.insertBefore(trip, addWrap); else tab.appendChild(div);
     var s = getStore(); s.addedTrips = s.addedTrips || {};
     if (!s.addedTrips[tabId]) s.addedTrips[tabId] = [];
     s.addedTrips[tabId].push({ id: tripId, html: html });
+    saveStore(s); if (editOn) addControls(); hideModal();
+}
+
+/* ── Add passenger ─────────────────────────────────────────── */
+function openAddPassengerModal(trip) {
+    _ctx.activeTrip = trip;
+    document.getElementById('crud-dialog').innerHTML =
+        '<h3 style="color:var(--go)">👤 新增旅客區塊</h3>' +
+        '<div class="form-row"><label>旅客姓名</label><input id="np-name" placeholder="MARK / FRANK / 其他"></div>' +
+        '<div class="form-row"><label>標籤顏色</label><select id="np-color" style="width:100%;padding:10px;border-radius:8px;border:1px solid #cbd5e1">' +
+        '<option value="mark">橘黃 (MARK)</option><option value="frank">綠色 (FRANK)</option><option value="alex">藍色 (ALEX)</option></select></div>' +
+        '<div class="form-actions">' +
+        '<button class="btn-save" id="save-new-p-btn">＋ 新增區塊</button>' +
+        '<button class="btn-cancel" id="cancel-btn">取消</button></div>';
+    document.getElementById('save-new-p-btn').addEventListener('click', saveNewPassenger);
+    document.getElementById('cancel-btn').addEventListener('click', hideModal);
+    showModal();
+}
+
+function saveNewPassenger() {
+    var trip = _ctx.activeTrip;
+    var name = gv('np-name') || '旅客';
+    var color = document.getElementById('np-color').value;
+    var tripId = trip.dataset.eid;
+    var sectionId = tripId + ':p' + Date.now();
+    var inner = '<div class="passenger-label"><span class="p-badge badge-' + color + '">' + xe(name) + '</span></div>' +
+                '<div class="table-wrap"><table><thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>' +
+                '<tbody data-eid="' + sectionId + ':b"></tbody></table></div>';
+    var div = document.createElement('div'); div.className = 'passenger-section'; div.dataset.eid = sectionId; div.innerHTML = inner;
+    var hotel = trip.querySelector('.hotel-section');
+    if (hotel) trip.insertBefore(div, hotel); else trip.appendChild(div);
+    var s = getStore(); s.addedSections = s.addedSections || {};
+    if (!s.addedSections[tripId]) s.addedSections[tripId] = [];
+    s.addedSections[tripId].push({ id: sectionId, html: inner });
     saveStore(s); if (editOn) addControls(); hideModal();
 }
 
@@ -1455,9 +1510,11 @@ function saveRowEdit() {
             }
             else { td.className = (val && val !== '—') ? 'note' : 'dash'; td.textContent = val; }
         } else {
-            td.textContent = val;
+            td.outerHTML = getFlightTdHtml(i, val);
         }
-        saved[i] = td.outerHTML;
+        /* Refetch the TD since outerHTML replaces it */
+        var newTds = tr.querySelectorAll('td:not(.row-actions)');
+        saved[i] = newTds[i].outerHTML;
     });
 
     var s = getStore(); s.rowEdits = s.rowEdits || {};
@@ -1525,7 +1582,9 @@ function saveNewRow() {
             (h7 ? '<td class="note">' + h7 + '</td>' : '<td class="dash">—</td>');
     } else {
         var inputs = document.querySelectorAll('#crud-dialog input[data-idx]');
-        inputs.forEach(function(inp) { inner += '<td>' + (inp.value||'—') + '</td>'; });
+        inputs.forEach(function(inp) { 
+            inner += getFlightTdHtml(parseInt(inp.dataset.idx), inp.value); 
+        });
     }
 
     var trId = tbody.dataset.eid + ':a' + Date.now();
