@@ -1126,45 +1126,8 @@ function assignIds() {
 function applyStore() {
     var s = getStore();
     updateLastUpdatedDisplay(s.lastUpdated);
-    /* 1. Added rows (Must be first so they have EIDs to be edited/deleted) */
-    Object.entries(s.added || {}).forEach(function(entry) {
-        var tbId = entry[0], rows = entry[1];
-        var tbody = document.querySelector('[data-eid="' + tbId + '"]');
-        if (!tbody) return;
-        rows.forEach(function(row) {
-            var tr = document.createElement('tr');
-            /* Compatibility check: handle both string (old) and object (new) formats */
-            var html = (typeof row === 'string') ? row : row.html;
-            var id   = (typeof row === 'string') ? (tbId + ':a' + Math.random().toString(36).slice(2, 7)) : row.id;
-            
-            tr.innerHTML = html;
-            tr.dataset.eid = id;
-            tbody.appendChild(tr);
-        });
-    });
-    /* 2. Deletions */
-    Object.keys(s.deleted || {}).forEach(function(id) {
-        var el = document.querySelector('[data-eid="' + id + '"]');
-        if (el) el.style.display = 'none';
-    });
-    /* 3. Row cell edits */
-    Object.entries(s.rowEdits || {}).forEach(function(entry) {
-        var id = entry[0], cells = entry[1];
-        var tr = document.querySelector('[data-eid="' + id + '"]');
-        if (!tr) return;
-        var tds = tr.querySelectorAll('td:not(.row-actions)');
-        cells.forEach(function(html, i) { if (tds[i]) tds[i].outerHTML = html; });
-    });
-    /* 4. Trip header edits */
-    Object.entries(s.tripEdits || {}).forEach(function(entry) {
-        var id = entry[0], d = entry[1];
-        var trip = document.querySelector('[data-eid="' + id + '"]');
-        if (!trip) return;
-        if (d.dest)  { var e = trip.querySelector('.trip-dest');  if (e) e.textContent = d.dest; }
-        if (d.dates) { var e = trip.querySelector('.trip-dates'); if (e) e.textContent = d.dates; }
-        if (d.tag)   { var e = trip.querySelector('.trip-tag');   if (e) e.textContent = d.tag; }
-    });
-    /* 5. Added Trips */
+
+    /* 1. Added Trips (Must be first so added rows can find their parent tbody) */
     Object.entries(s.addedTrips || {}).forEach(function(entry) {
         var tabId = entry[0], trips = entry[1];
         var tab = document.getElementById(tabId);
@@ -1178,6 +1141,46 @@ function applyStore() {
             var addWrap = tab.querySelector('.add-trip-wrap');
             if (addWrap) tab.insertBefore(div, addWrap); else tab.appendChild(div);
         });
+    });
+
+    /* 2. Added rows */
+    Object.entries(s.added || {}).forEach(function(entry) {
+        var tbId = entry[0], rows = entry[1];
+        var tbody = document.querySelector('[data-eid="' + tbId + '"]');
+        if (!tbody) return;
+        rows.forEach(function(row) {
+            var tr = document.createElement('tr');
+            var html = (typeof row === 'string') ? row : row.html;
+            var id   = (typeof row === 'string') ? (tbId + ':a' + Math.random().toString(36).slice(2, 7)) : row.id;
+            tr.innerHTML = html;
+            tr.dataset.eid = id;
+            tbody.appendChild(tr);
+        });
+    });
+
+    /* 3. Deletions */
+    Object.keys(s.deleted || {}).forEach(function(id) {
+        var el = document.querySelector('[data-eid="' + id + '"]');
+        if (el) el.style.display = 'none';
+    });
+
+    /* 4. Row cell edits */
+    Object.entries(s.rowEdits || {}).forEach(function(entry) {
+        var id = entry[0], cells = entry[1];
+        var tr = document.querySelector('[data-eid="' + id + '"]');
+        if (!tr) return;
+        var tds = tr.querySelectorAll('td:not(.row-actions)');
+        cells.forEach(function(html, i) { if (tds[i]) tds[i].outerHTML = html; });
+    });
+
+    /* 5. Trip header edits */
+    Object.entries(s.tripEdits || {}).forEach(function(entry) {
+        var id = entry[0], d = entry[1];
+        var trip = document.querySelector('[data-eid="' + id + '"]');
+        if (!trip) return;
+        if (d.dest)  { var e = trip.querySelector('.trip-dest');  if (e) e.textContent = d.dest; }
+        if (d.dates) { var e = trip.querySelector('.trip-dates'); if (e) e.textContent = d.dates; }
+        if (d.tag)   { var e = trip.querySelector('.trip-tag');   if (e) e.textContent = d.tag; }
     });
 }
 
