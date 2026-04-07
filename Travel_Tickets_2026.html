@@ -224,18 +224,24 @@
         }
         .btn-cancel:hover { color: var(--text); background: #f8fafc; }
 
-        /* Last Updated */
-        #last-updated {
+        /* Status Panel */
+        #status-panel {
             position: fixed; top: 12px; right: 20px; z-index: 500;
-            font-size: 0.72rem; color: var(--text-muted);
-            background: rgba(255,255,255,0.6); backdrop-filter: blur(4px);
-            padding: 4px 10px; border-radius: 12px; border: 1px solid var(--card-border);
-            pointer-events: none;
+            font-size: 0.68rem; color: var(--text-muted);
+            background: rgba(255,255,255,0.7); backdrop-filter: blur(6px);
+            padding: 6px 12px; border-radius: 12px; border: 1px solid var(--card-border);
+            pointer-events: none; text-align: right; line-height: 1.4;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
+        #deploy-time { color: var(--accent2); font-weight: 600; }
+        #last-updated { font-weight: 600; color: var(--go); }
     </style>
 </head>
 <body>
-<div id="last-updated">更新中...</div>
+<div id="status-panel">
+    <div>網頁部署 (Push): <span id="deploy-time">2026/04/07 16:14:00</span></div>
+    <div>資料存檔 (Data): <span id="last-updated">更新中...</span></div>
+</div>
 <div class="container">
 
     <header>
