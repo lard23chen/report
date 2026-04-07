@@ -239,7 +239,7 @@
 </head>
 <body>
 <div id="status-panel">
-    <div>網頁部署 (Push): <span id="deploy-time">2026/04/07 17:10:00</span></div>
+    <div>網頁部署 (Push): <span id="deploy-time">2026/04/07 23:10:00</span></div>
     <div>資料存檔 (Data): <span id="last-updated">更新中...</span></div>
 </div>
 <div class="container">
@@ -1199,6 +1199,18 @@ function getFlightTdHtml(idx, val) {
     if (idx === 0) {
         if (val.trim() === '去程') return '<td><span class="badge-go">去程 <span class="en">Outbound</span></span></td>';
         if (val.trim() === '回程') return '<td><span class="badge-back">回程 <span class="en">Inbound</span></span></td>';
+    }
+    if (idx === 6) { // Ticket column
+        var v = (val || '').trim();
+        if (!v || v === '—') return '<td class="dash">—</td>';
+        /* Format: Label|URL or just URL */
+        var parts = v.split('|');
+        var label = 'LINK', url = '';
+        if (parts.length > 1) { label = parts[0]; url = parts[1]; }
+        else if (v.indexOf('http') === 0) { url = v; }
+        else if (v.toUpperCase() === 'LINK') { return '<td><span class="link-badge">LINK</span></td>'; }
+        else { return '<td>' + v + '</td>'; }
+        return '<td><a href="' + url + '" target="_blank" class="link-badge">' + label + '</a></td>';
     }
     return '<td>' + (val || '—') + '</td>';
 }
