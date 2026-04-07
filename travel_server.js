@@ -25,19 +25,31 @@ const DOC_ID    = 'store';
 const client = new MongoClient(MONGO_URI);
 let db = null;
 
-async function connectDB() {
+async function ensureDB() {
+    if (db) return db;
     try {
         await client.connect();
         db = client.db(DB_NAME);
         console.log('✅ Connected to MongoDB  db=' + DB_NAME);
+        return db;
     } catch (err) {
         console.error('❌ MongoDB connection failed:', err.message);
+        throw err;
     }
 }
-connectDB();
 
 /* ── Middleware ─────────────────────────────────────────────── */
 app.use(express.json({ limit: '4mb' }));
+
+// Ensure DB is connected before handling any API requests
+app.use('/api/travel', async function (req, res, next) {
+    try {
+        await ensureDB();
+        next();
+    } catch (err) {
+        res.status(503).json({ error: 'Database connection failed' });
+    }
+});
 
 // CORS – allow the GitHub Pages origin and localhost
 app.use(function (req, res, next) {
@@ -58,7 +70,6 @@ app.get('/api/travel/status', function (req, res) {
 
 /* ── API: GET all trips (optionally filtered by tab) ────────── */
 app.get('/api/travel/trips', async function (req, res) {
-    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
         const filter = req.query.tab ? { tab: req.query.tab } : {};
         const trips  = await db.collection(COL_TRIPS).find(filter)
@@ -71,7 +82,6 @@ app.get('/api/travel/trips', async function (req, res) {
 
 /* ── API: GET single trip ───────────────────────────────────── */
 app.get('/api/travel/trips/:id', async function (req, res) {
-    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
         const trip = await db.collection(COL_TRIPS).findOne({ _id: req.params.id });
         if (!trip) return res.status(404).json({ error: 'Not found' });
@@ -83,7 +93,6 @@ app.get('/api/travel/trips/:id', async function (req, res) {
 
 /* ── API: PUT single trip (upsert) ─────────────────────────── */
 app.put('/api/travel/trips/:id', async function (req, res) {
-    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
         const doc = Object.assign({}, req.body, { _id: req.params.id, updatedAt: new Date() });
         await db.collection(COL_TRIPS).replaceOne({ _id: req.params.id }, doc, { upsert: true });
@@ -95,7 +104,6 @@ app.put('/api/travel/trips/:id', async function (req, res) {
 
 /* ── API: DELETE single trip ────────────────────────────────── */
 app.delete('/api/travel/trips/:id', async function (req, res) {
-    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
         await db.collection(COL_TRIPS).deleteOne({ _id: req.params.id });
         res.json({ ok: true });
@@ -106,7 +114,6 @@ app.delete('/api/travel/trips/:id', async function (req, res) {
 
 /* ── API: GET edit-store (UI overrides) ─────────────────────── */
 app.get('/api/travel/store', async function (req, res) {
-    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
         const doc = await db.collection(COL_STORE).findOne({ _id: DOC_ID });
         res.json(doc ? doc.data : {});
@@ -117,7 +124,6 @@ app.get('/api/travel/store', async function (req, res) {
 
 /* ── API: PUT edit-store ────────────────────────────────────── */
 app.put('/api/travel/store', async function (req, res) {
-    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
         await db.collection(COL_STORE).replaceOne(
             { _id: DOC_ID },
@@ -132,7 +138,6 @@ app.put('/api/travel/store', async function (req, res) {
 
 /* ── API: DELETE edit-store (reset all UI edits) ────────────── */
 app.delete('/api/travel/store', async function (req, res) {
-    if (!db) return res.status(503).json({ error: 'DB not ready' });
     try {
         await db.collection(COL_STORE).deleteOne({ _id: DOC_ID });
         res.json({ ok: true });
