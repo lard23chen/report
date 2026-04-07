@@ -1,36 +1,49 @@
 const { MongoClient } = require('mongodb');
 
-// Trying to connect to the other DB 'allticket' to see if maybe the user provided credentials work there now?
-// Or just check if the user is mistaken about where the data is.
-
-// Let's check ALL collections in QwareAi again, maybe it's in another collection?
-const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const client = new MongoClient(uri);
+const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const DB_NAME   = 'AlexLIFE';
 
 async function searchAllCollections() {
+    const client = new MongoClient(MONGO_URI);
     try {
         await client.connect();
-        const db = client.db("QwareAi");
-
-        const cols = await db.listCollections().toArray();
-        console.log("Searching in collections:", cols.map(c => c.name));
-
-        for (const colInfo of cols) {
-            const col = db.collection(colInfo.name);
-            const order = await col.findOne({ '訂單編號': { $regex: /A2512010000011/ } });
-            if (order) {
-                console.log(`\nFound order in collection '${colInfo.name}':`);
-                console.log(JSON.stringify(order, null, 2));
-                return;
+        const db = client.db(DB_NAME);
+        const collections = await db.listCollections().toArray();
+        
+        for (const colInfo of collections) {
+            const colName = colInfo.name;
+            const docs = await db.collection(colName).find({}).toArray();
+            console.log(`Searching in ${colName} (${docs.length} docs)...`);
+            
+            for (const doc of docs) {
+                const found = findInObj(doc, 'test');
+                if (found.length > 0) {
+                    console.log(`\nMatch in ${colName} doc _id: ${doc._id}`);
+                    found.forEach(f => console.log(`  - ${f.path}: ${f.value}`));
+                }
             }
         }
-        console.log("\nOrder not found in ANY collection in QwareAi.");
-
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        console.error(err);
     } finally {
         await client.close();
     }
+}
+
+function findInObj(obj, target, path = '') {
+    let results = [];
+    for (let key in obj) {
+        const val = obj[key];
+        const curPath = path ? `${path}.${key}` : key;
+        if (typeof val === 'string') {
+            if (val.toLowerCase().includes(target.toLowerCase())) {
+                results.push({ path: curPath, value: val });
+            }
+        } else if (typeof val === 'object' && val !== null) {
+            results = results.concat(findInObj(val, target, curPath));
+        }
+    }
+    return results;
 }
 
 searchAllCollections();
