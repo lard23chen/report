@@ -223,9 +223,19 @@
             color: var(--text-muted); font-size: 0.9rem; font-family: inherit;
         }
         .btn-cancel:hover { color: var(--text); background: #f8fafc; }
+
+        /* Last Updated */
+        #last-updated {
+            position: fixed; top: 12px; right: 20px; z-index: 500;
+            font-size: 0.72rem; color: var(--text-muted);
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(4px);
+            padding: 4px 10px; border-radius: 12px; border: 1px solid var(--card-border);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+<div id="last-updated">更新中...</div>
 <div class="container">
 
     <header>
@@ -1032,8 +1042,15 @@ var MONGO_API = (window.location.hostname === 'localhost' || window.location.hos
 
 function getStore() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e) { return {}; } }
 function saveStore(s) {
+    s.lastUpdated = new Date().toLocaleString('zh-TW', { hour12: false });
     localStorage.setItem(STORE_KEY, JSON.stringify(s));
+    updateLastUpdatedDisplay(s.lastUpdated);
     syncToMongo(s);
+}
+
+function updateLastUpdatedDisplay(ts) {
+    var el = document.getElementById('last-updated');
+    if (el) el.textContent = '最後更新: ' + (ts || '無紀錄');
 }
 
 /* ── MongoDB sync helpers ───────────────────────────────────── */
@@ -1102,6 +1119,7 @@ function assignIds() {
 /* ── Apply stored state on load ─────────────────────────────── */
 function applyStore() {
     var s = getStore();
+    updateLastUpdatedDisplay(s.lastUpdated);
     /* 1. Added rows (Must be first so they have EIDs to be edited/deleted) */
     Object.entries(s.added || {}).forEach(function(entry) {
         var tbId = entry[0], rows = entry[1];
