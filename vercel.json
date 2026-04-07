@@ -4,6 +4,10 @@
     {
       "src": "stock_api.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "travel_server.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -14,6 +18,14 @@
     {
       "src": "/api/stock",
       "dest": "stock_api.js"
+    },
+    {
+      "src": "/api/travel/(.*)",
+      "dest": "travel_server.js"
+    },
+    {
+      "src": "/api/travel",
+      "dest": "travel_server.js"
     }
   ]
 }

@@ -142,9 +142,15 @@ app.delete('/api/travel/store', async function (req, res) {
 });
 
 /* ── Start ──────────────────────────────────────────────────── */
-app.listen(PORT, function () {
-    console.log('');
-    console.log('Travel API server running at http://localhost:' + PORT);
-    console.log('Open:  http://localhost:' + PORT + '/Travel_Tickets_2026.html');
-    console.log('');
-});
+// For local testing
+if (require.main === module) {
+    app.listen(PORT, function () {
+        console.log('');
+        console.log('Travel API server running at http://localhost:' + PORT);
+        console.log('Open:  http://localhost:' + PORT + '/Travel_Tickets_2026.html');
+        console.log('');
+    });
+}
+
+// Export for Vercel
+module.exports = app;
