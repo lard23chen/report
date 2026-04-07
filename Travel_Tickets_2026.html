@@ -1206,10 +1206,17 @@ function getFlightTdHtml(idx, val) {
         /* Format: Label|URL or just URL */
         var parts = v.split('|');
         var label = 'LINK', url = '';
-        if (parts.length > 1) { label = parts[0]; url = parts[1]; }
-        else if (v.indexOf('http') === 0) { url = v; }
-        else if (v.toUpperCase() === 'LINK') { return '<td><span class="link-badge">LINK</span></td>'; }
-        else { return '<td>' + v + '</td>'; }
+        if (parts.length > 1) { 
+            label = parts[0]; 
+            url = parts[1]; 
+        } else if (v.indexOf('http') === 0) { 
+            label = 'LINK'; // Don't show full URL, just 'LINK'
+            url = v; 
+        } else if (v.toUpperCase() === 'LINK') { 
+            return '<td><span class="link-badge">LINK</span></td>'; 
+        } else { 
+            return '<td>' + v + '</td>'; 
+        }
         return '<td><a href="' + url + '" target="_blank" class="link-badge">' + label + '</a></td>';
     }
     return '<td>' + (val || '—') + '</td>';
