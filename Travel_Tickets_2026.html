@@ -82,10 +82,19 @@
         th:nth-child(8), td:nth-child(8) { width: 150px; } /* Payment */
         th:nth-child(9), td:nth-child(9) { width: 100px; } /* Fare */
 
-        .badge-go, .badge-back { display: flex; flex-direction: column; align-items: center; padding: 4px 6px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; line-height: 1.1; text-align: center; font-family: 'Outfit', 'Noto Sans TC', sans-serif; }
-        .badge-go { background: #ecfdf5; border: 1px solid #a7f3d0; color: var(--go); }
-        .badge-back { background: #fef2f2; border: 1px solid #fecaca; color: var(--back); }
-        .badge-go .en, .badge-back .en { color: inherit; opacity: 0.8; font-size: 0.65rem; margin-top: 1px; }
+        .badge-go, .badge-back {
+            display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;
+            line-height: 1.1; text-align: center; width: 75px; min-height: 42px;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif; border: 1.5px solid;
+            transition: all 0.2s;
+        }
+        .badge-go { background: #ecfdf5; border-color: #a7f3d0; color: #059669; }
+        .badge-back { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+        .badge-go .en, .badge-back .en {
+            color: inherit; opacity: 0.7; font-size: 0.65rem; margin-top: 2px;
+            font-weight: 400; text-transform: uppercase;
+        }
 
         .flight-no { font-weight: 700; color: var(--accent); font-family: 'Outfit', sans-serif; font-size: 1rem; }
         .pnr { font-family: monospace; font-size: 0.94rem; color: var(--gold); letter-spacing: 0.08em; font-weight: 700; }
@@ -239,7 +248,7 @@
 </head>
 <body>
 <div id="status-panel">
-    <div>網頁部署 (Push): <span id="deploy-time">2026/04/07 18:15:00</span></div>
+    <div>網頁部署 (Push): <span id="deploy-time">2026/04/07 18:55:00</span></div>
     <div>資料存檔 (Data): <span id="last-updated">更新中...</span></div>
 </div>
 <div class="container">
