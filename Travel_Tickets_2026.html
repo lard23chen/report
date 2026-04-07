@@ -1140,6 +1140,21 @@ function applyStore() {
         if (d.dates) { var e = trip.querySelector('.trip-dates'); if (e) e.textContent = d.dates; }
         if (d.tag)   { var e = trip.querySelector('.trip-tag');   if (e) e.textContent = d.tag; }
     });
+    /* 5. Added Trips */
+    Object.entries(s.addedTrips || {}).forEach(function(entry) {
+        var tabId = entry[0], trips = entry[1];
+        var tab = document.getElementById(tabId);
+        if (!tab) return;
+        trips.forEach(function(t) {
+            if (document.querySelector('[data-eid="' + t.id + '"]')) return;
+            var div = document.createElement('div');
+            div.className = 'trip';
+            div.dataset.eid = t.id;
+            div.innerHTML = t.html;
+            var addWrap = tab.querySelector('.add-trip-wrap');
+            if (addWrap) tab.insertBefore(div, addWrap); else tab.appendChild(div);
+        });
+    });
 }
 
 /* ── Toggle edit mode ───────────────────────────────────────── */
@@ -1245,11 +1260,64 @@ function addControls() {
         db.addEventListener('click', function() { delTrip(trip); });
         hdr.appendChild(eb); hdr.appendChild(db);
     });
+
+    /* Per-tab: add-trip button */
+    document.querySelectorAll('.tab-content').forEach(function(tab) {
+        if (tab.querySelector('.add-trip-wrap')) return;
+        var wrap = document.createElement('div'); wrap.className = 'add-trip-wrap';
+        wrap.style.cssText = 'margin-top:20px; padding:20px; border:2px dashed var(--card-border); border-radius:16px; text-align:center;';
+        var btn = document.createElement('button'); btn.className = 'add-row-btn';
+        btn.style.cssText = 'width:auto; padding:12px 30px; font-size:1rem;';
+        btn.textContent = '＋ 新增旅程 (Add Trip)';
+        btn.addEventListener('click', function() { openAddTripModal(tab.id); });
+        wrap.appendChild(btn); tab.appendChild(wrap);
+    });
 }
 
 function removeControls() {
-    document.querySelectorAll('.th-actions, .row-actions, .add-row-wrap, .trip-edit-btn, .trip-del-btn')
+    document.querySelectorAll('.th-actions, .row-actions, .add-row-wrap, .trip-edit-btn, .trip-del-btn, .add-trip-wrap')
         .forEach(function(el) { el.remove(); });
+}
+
+/* ── Add trip ────────────────────────────────────────────────── */
+function openAddTripModal(tabId) {
+    _ctx.activeTabId = tabId;
+    document.getElementById('crud-dialog').innerHTML =
+        '<h3 style="color:var(--accent)">＋ 新增完整旅程</h3>' +
+        '<div class="form-row"><label>目的地</label><input id="nt-dest" placeholder="🇹🇭 Bangkok (BKK)"></div>' +
+        '<div class="form-row"><label>日期範圍</label><input id="nt-dates" placeholder="2026/xx/xx – 2026/xx/xx"></div>' +
+        '<div class="form-row"><label>標籤</label><input id="nt-tag" placeholder="新旅程"></div>' +
+        '<div class="form-actions">' +
+        '<button class="btn-save" id="save-new-trip-btn">💾 建立旅程</button>' +
+        '<button class="btn-cancel" id="cancel-btn">取消</button></div>';
+    document.getElementById('save-new-trip-btn').addEventListener('click', saveNewTrip);
+    document.getElementById('cancel-btn').addEventListener('click', hideModal);
+    showModal();
+}
+
+function saveNewTrip() {
+    var tabId = _ctx.activeTabId;
+    var dest = gv('nt-dest') || '新目的地';
+    var dates = gv('nt-dates') || '日期未定';
+    var tag = gv('nt-tag') || 'Travel';
+    var tab = document.getElementById(tabId);
+    var tripCount = tab.querySelectorAll('.trip').length + 1;
+    var tripId = tabId + ':t' + Date.now();
+    var html = '<div class="trip-header"><span class="trip-num">Trip ' + tripCount + '</span>' +
+               '<div><div class="trip-dest">' + xe(dest) + '</div><div class="trip-dates">' + xe(dates) + '</div></div>' +
+               '<span class="trip-tag">' + xe(tag) + '</span></div>' +
+               '<div class="passenger-section"><div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>' +
+               '<div class="table-wrap"><table><thead><tr><th>方向 <div class="en">Direction</div></th><th>出發 <div class="en">Departure</div></th><th>抵達 <div class="en">Arrival</div></th><th>班機 <div class="en">Flight</div></th><th>PNR <div class="en">Booking Ref</div></th><th>機型 <div class="en">Aircraft</div></th><th>票 <div class="en">Ticket</div></th><th>支付 <div class="en">Payment</div></th><th>票價 <div class="en">Fare</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>' +
+               '<tbody data-eid="' + tripId + ':b0"></tbody></table></div></div>' +
+               '<div class="hotel-section"><div class="hotel-section-title">🏨 飯店 Hotels</div><div class="hotel-table"><table><thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>' +
+               '<tbody data-eid="' + tripId + ':b1"></tbody></table></div></div>';
+    var trip = document.createElement('div'); trip.className = 'trip'; trip.dataset.eid = tripId; trip.innerHTML = html;
+    var addWrap = tab.querySelector('.add-trip-wrap');
+    if (addWrap) tab.insertBefore(trip, addWrap); else tab.appendChild(trip);
+    var s = getStore(); s.addedTrips = s.addedTrips || {};
+    if (!s.addedTrips[tabId]) s.addedTrips[tabId] = [];
+    s.addedTrips[tabId].push({ id: tripId, html: html });
+    saveStore(s); if (editOn) addControls(); hideModal();
 }
 
 /* ── Confirm modal (replaces browser confirm()) ─────────────── */
