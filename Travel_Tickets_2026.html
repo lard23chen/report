@@ -1181,7 +1181,17 @@ function applyStore() {
         var tr = document.querySelector('[data-eid="' + id + '"]');
         if (!tr) return;
         var tds = tr.querySelectorAll('td:not(.row-actions)');
-        cells.forEach(function(html, i) { if (tds[i]) tds[i].outerHTML = html; });
+        cells.forEach(function(html, i) {
+            if (!tds[i]) return;
+            /* Auto-fix for Ticket column (index 6) if it contains a raw URL */
+            if (i === 6 && html.indexOf('http') !== -1 && html.indexOf('link-badge') === -1) {
+                var temp = document.createElement('div'); temp.innerHTML = html;
+                var rawVal = temp.textContent.trim();
+                tds[i].outerHTML = getFlightTdHtml(6, rawVal);
+            } else {
+                tds[i].outerHTML = html;
+            }
+        });
     });
 
     /* 6. Trip header edits */
