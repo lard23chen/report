@@ -142,6 +142,7 @@ body.edit-on .act-btn{display:inline-block}
         <th class="num" style="min-width:90px">今日股價</th>
       </tr></thead>
       <tbody id="tx-body"></tbody>
+      <tfoot id="tx-foot"></tfoot>
     </table>
   </div>
   <div class="pagination" id="pagination"></div>
@@ -264,6 +265,17 @@ function render(){
   renderSummary(topRows);
   var filtered=applyFilters(data);
   document.getElementById('filter-count').textContent=filtered.length+'筆';
+  
+  var fSpend=0, fIncome=0;
+  filtered.forEach(r => { fSpend+=Number(r.spend)||0; fIncome+=Number(r.income)||0; });
+  var foot=document.getElementById('tx-foot');
+  if(foot) foot.innerHTML = `<tr style="background:var(--surface2);font-weight:700">
+    <td colspan="8" style="text-align:right;color:var(--muted)">篩選小計:</td>
+    <td class="num neg">${fmt(fSpend)}</td>
+    <td class="num pos">${fmt(fIncome)}</td>
+    <td colspan="3"></td>
+  </tr>`;
+
   filtered=doSort(filtered);
   var total=filtered.length;
   var pages=Math.max(1, Math.ceil(total/perPage));
