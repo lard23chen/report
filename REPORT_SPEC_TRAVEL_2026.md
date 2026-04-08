@@ -1,0 +1,44 @@
+# 2026 旅遊票券統計與管理系統 (Travel Tickets Overview 2026)
+## 視覺規範 (Visual Specifications)
+
+### 1. 核心配色與風格 (Theme & Style)
+*   **視覺風格**：簡約現代感，採用 **Apple-style** 的圓角與陰影效果。
+*   **字體規範**：標題使用 `Outfit` 字體（現代感），內文搭配 `Noto Sans TC` 以確保繁體中文的可讀性。
+*   **配色方案 (CSS Variables)**：
+    *   `--accent`: `#0284c7` (Sky Blue) - 用於主標題與主要統計數字。
+    *   `--accent2`: `#4f46e5` (Indigo) - 用於標籤與導航狀態。
+    *   `--go`: `#059669` (Emerald Green) - 去程或成功狀態。
+    *   `--back`: `#dc2626` (Red) - 回程或刪除狀態。
+    *   `--gold`: `#b45309` (Amber) - PNR 訂位代號或特殊強調。
+
+### 2. 佈局組件 (Layout Components)
+*   **狀態面板 (Status Panel)**：右上角懸浮窗，顯示「網頁部署時間」與「資料存檔時間」。
+*   **摘要卡片 (Summary Cards)**：四欄式網格佈局，包含總行程數、目的地加總（BKK/日本）及航空公司清單。
+*   **行程區塊 (Trip Card)**：每個行程以獨立卡片封裝，頭部包含 Trip 編號、目的地圖示與日期區間。
+*   **表格設計 (Flight Table)**：採用 `word-break: break-word` 與固定寬度配置，確保在不同螢幕尺寸下內容不溢出。
+
+---
+
+## 功能組件 (Functional Components)
+
+### 1. 數據連動與統計 (Dynamic Stats)
+*   **自動統計功能**：JavaScript 會即時掃描 DOM 中的 `.trip` 與 `.flight-no`。
+*   **目的地關鍵字過濾**：自動偵測行程標題中的關鍵字（如：🇹🇭, BKK, 🇯🇵, KIX 等）並更新摘要卡片。
+*   **航空公司動態彙整**：自動提取所有航班代碼，並彙整不重複的航空公司清單顯示於卡片。
+
+### 2. 資料持久化與 CRUD (Persistence & Editing)
+*   **管理員編輯模式**：點擊右下角按鈕並輸入密碼（`0918216001`）後開啟 CRUD 工具列。
+*   **編輯功能**：支援標題、航班資訊、飯店明細的即時編輯（In-place Editing）。
+*   **數據儲存**：
+    *   **優先級 1**：遠端 MongoDB (REST API)。
+    *   **優先級 2**：本地 LocalStorage (離線存取)。
+*   **自動對齊**：編輯完成後自動呼叫統計函數與同步機制。
+
+### 3. 多分頁管理 (Tab Navigation)
+*   支援 2026 (當前)、2025 (歷史) 及 2022-2024 (歷史) 的切換。
+*   歷史頁面採用淡化處理（Desaturated color scheme），區分當前與過去數據。
+
+### 4. 航班方向標籤 (Directional Badges)
+*   **Outbound (去程)**：綠色主題標籤。
+*   **Inbound (回程)**：紅色主題標籤。
+*   **自定義區段**：支援非標準區段（如 URT↔DMK）的標籤生成。
