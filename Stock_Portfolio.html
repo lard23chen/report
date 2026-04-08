@@ -30,6 +30,8 @@ tr:hover td{background:rgba(255,255,255,0.03)}
 .badge-buy{background:rgba(248,113,113,0.15);color:var(--buy);border:1px solid rgba(248,113,113,0.3)}
 .badge-sell{background:rgba(34,197,94,0.15);color:var(--sell);border:1px solid rgba(34,197,94,0.3)}
 .badge-div{background:rgba(192,132,252,0.15);color:var(--div);border:1px solid rgba(192,132,252,0.3)}
+.row-buy{background:rgba(248,113,113,0.04)}
+.row-sell{background:rgba(34,197,94,0.04)}
 .code{font-family:monospace;font-weight:700;font-size:0.78rem;color:var(--accent)}
 .num{text-align:right}.muted{color:var(--muted)}
 .person-mark{color:#fb923c;font-size:0.73rem;font-weight:700}
@@ -422,7 +424,7 @@ function renderTable(rows){
     var displayCost = r.cost;
     if (r.type === '賣' && r.amount && r.income) displayCost = r.amount - r.income;
     else if (r.type === '買' && r.spend && r.amount) displayCost = r.spend - r.amount;
-    html+=`<tr>
+    html+=`<tr class="${r.type==='買'?'row-buy':r.type==='賣'?'row-sell':''}">
       <td class="muted">${formatDate(r.date)}</td><td><span class="badge ${r.type==='買'?'badge-buy':r.type==='賣'?'badge-sell':'badge-div'}">${r.type}</span></td>
       <td class="code">${r.code}</td><td>${r.name}</td><td class="num">${fmt(r.type==='賣'?r.sellShares:r.buyShares)}</td>
       <td class="num">${fmtP(r.type==='賣'?r.sellPrice:r.buyPrice)}</td><td class="num">${fmt(r.amount)}</td><td class="num muted">${fmt(displayCost)}</td>
