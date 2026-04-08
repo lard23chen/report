@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>股票交易記錄 (MongoDB)</title>
 <style>
-:root{--bg:#0f172a;--surface:#1e293b;--surface2:#263348;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--buy:#22c55e;--sell:#f87171;--div:#c084fc;}
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#263348;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--buy:#f87171;--sell:#22c55e;--div:#c084fc;}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px}
 header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
@@ -27,8 +27,8 @@ td{padding:7px 11px;font-size:0.82rem;border-bottom:1px solid var(--border);whit
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(255,255,255,0.03)}
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:700}
-.badge-buy{background:rgba(34,197,94,0.15);color:var(--buy);border:1px solid rgba(34,197,94,0.3)}
-.badge-sell{background:rgba(248,113,113,0.15);color:var(--sell);border:1px solid rgba(248,113,113,0.3)}
+.badge-buy{background:rgba(248,113,113,0.15);color:var(--buy);border:1px solid rgba(248,113,113,0.3)}
+.badge-sell{background:rgba(34,197,94,0.15);color:var(--sell);border:1px solid rgba(34,197,94,0.3)}
 .badge-div{background:rgba(192,132,252,0.15);color:var(--div);border:1px solid rgba(192,132,252,0.3)}
 .code{font-family:monospace;font-weight:700;font-size:0.78rem;color:var(--accent)}
 .num{text-align:right}.muted{color:var(--muted)}
@@ -384,10 +384,11 @@ function renderTable(rows){
   var prices=getPrices(), html='';
   rows.forEach(r => {
     var px=prices[r.code];
+    var displayCost = (r.type === '賣' && r.amount && r.income) ? (r.amount - r.income) : (r.cost);
     html+=`<tr>
       <td class="muted">${formatDate(r.date)}</td><td><span class="badge ${r.type==='買'?'badge-buy':r.type==='賣'?'badge-sell':'badge-div'}">${r.type}</span></td>
       <td class="code">${r.code}</td><td>${r.name}</td><td class="num">${fmt(r.type==='賣'?r.sellShares:r.buyShares)}</td>
-      <td class="num">${fmtP(r.type==='賣'?r.sellPrice:r.buyPrice)}</td><td class="num">${fmt(r.amount)}</td><td class="num muted">${fmt(r.cost)}</td>
+      <td class="num">${fmtP(r.type==='賣'?r.sellPrice:r.buyPrice)}</td><td class="num">${fmt(r.amount)}</td><td class="num muted">${fmt(displayCost)}</td>
       <td class="num neg">${r.spend?fmt(r.spend):'—'}</td><td class="num pos">${r.income?fmt(r.income):'—'}</td>
       <td><span class="${r.person==='mark'?'person-mark':'person-alex'}">${(r.person||'alex').toUpperCase()}</span></td>
       <td class="muted">${r.note||''}</td>
