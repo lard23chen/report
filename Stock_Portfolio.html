@@ -231,23 +231,44 @@ window.savePrice=function(code,val){var p=getPrices();p[code]=parseFloat(val)||0
 
 window.fetchPrices=async function(){
     var btn=document.getElementById('fetch-prices-btn');
+    if (!data || data.length === 0) {
+        alert('請先等待資料載入完成');
+        return;
+    }
     var orig=btn.textContent;
     btn.textContent='⏳ 查詢中…'; btn.disabled=true;
     try {
-        var codes = Array.from(new Set(data.map(r => r.code))).filter(c => c);
+        // Sanitize codes: remove duplicates, nulls, and trim spaces
+        var codes = Array.from(new Set(data.map(r => r.code ? r.code.toString().trim() : ''))).filter(c => c && c.length >= 2);
+        if (codes.length === 0) {
+            btn.textContent = '無有效代號';
+            setTimeout(() => { btn.textContent=orig; btn.disabled=false; }, 2000);
+            return;
+        }
+
         var url = `${API_BASE}/prices?codes=${codes.join(',')}`;
+        console.log('Fetching prices for:', codes);
         var res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP error ' + res.status);
+        
         var json = await res.json();
-        if(json.ok){
+        if(json.ok && json.prices){
             var prices = getPrices();
+            var updatedCount = Object.keys(json.prices).length;
+            
+            // Merge new prices
             Object.assign(prices, json.prices);
             localStorage.setItem(PKEY, JSON.stringify(prices));
+            
             render();
-            btn.textContent = '✓ 已更新';
-        } else throw new Error('Price API error');
+            btn.textContent = '✓ 更新 ' + updatedCount + ' 檔';
+        } else {
+            throw new Error(json.error || 'Price API returned no data');
+        }
     } catch(e) {
         btn.textContent = '❌ 失敗';
-        console.error(e);
+        console.error('Fetch prices failed:', e);
+        alert('股價更新失敗: ' + e.message);
     }
     setTimeout(() => { btn.textContent=orig; btn.disabled=false; }, 3000);
 };
