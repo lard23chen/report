@@ -24,3 +24,19 @@
 *   **環境部署**：**Railway.app**。
 *   **API 核心**：Express.js 搭配 MongoDB Driver。
 *   **安全性**：啟用生產環境下的 SSL 強制與 Rate Limiting。
+
+---
+
+## 操作流程 (Operating Procedures)
+
+### 1. 登入與授權 (Login & Auth)
+*   **權限入口**：輸入管理帳號與 10 位數安全密碼。
+*   **憑證取得**：成功後由 Railway Server 簽發效期 24 小時的 Session，以供後續 CRUD 操作。
+
+### 2. 資料管理 (Data Management)
+*   **新增項目**：點擊右上角「＋」按鈕，填入 JSON 格式數據並提交。
+*   **編輯與刪除**：在表格行尾點擊「編輯」或「刪除」，操作後系統會立即同步至 `Railway_Prod_DB` 並重新整理列表。
+
+### 3. 日誌與監控 (Monitoring)
+*   **即時日誌**：開啟「Live Log」視窗可查看當前生產環境的所有 HTTP 請求與錯誤回應。
+*   **快取清除**：若有資料更新未即時反映，可手動執行「Clear Server Cache」強制重新整理。

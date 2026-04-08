@@ -23,3 +23,18 @@
 *   **託管平台**：**Railway.app** (Production Environment)。
 *   **後端系統**：Node.js / Express。
 *   **資料來源**：`Railway_Prod_DB`。
+
+---
+
+## 操作流程 (Operating Procedures)
+
+### 1. 存取與啟動 (Access & Initialization)
+*   **進入頁面**：點擊專屬 URL 進入展示頁面。
+*   **自動健康檢查**：系統啟動時會自動呼叫後端 `/health` API，若狀態燈變為**綠色**表示生產環境運行正常。
+
+### 2. 功能操作 (Interaction)
+*   **即時數據檢視**：頁面載入後，系統會從 Railway 數據庫抓取最新的 Demo 資料並動態渲染至卡片中。
+*   **組件切換**：點擊分頁或按鈕可切換不同的 UI 展示模組，所有切換過程皆有平滑過場動畫。
+
+### 3. 反饋回報 (Feedback)
+*   若遇到 API 逾時，頁面會自動顯示「連線重試中」提示，使用者無需手動重新整理。
