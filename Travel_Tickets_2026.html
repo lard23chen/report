@@ -1257,6 +1257,9 @@ function applyStore() {
         if (d.dates) { var e = trip.querySelector('.trip-dates'); if (e) e.textContent = d.dates; }
         if (d.tag)   { var e = trip.querySelector('.trip-tag');   if (e) e.textContent = d.tag; }
     });
+
+    /* Recalculate stats after everything is applied */
+    updateSummaryStats();
 }
 
 function getFlightTdHtml(idx, val) {
