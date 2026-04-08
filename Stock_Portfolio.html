@@ -311,8 +311,9 @@ function renderStats(rows){
   
   var posMap={};
   rows.forEach(r => {
-    var key=r.code+'|'+(r.person||'alex');
-    if(!posMap[key])posMap[key]={code:r.code,net:0};
+    var c = r.code ? r.code.toString().trim() : '';
+    var key=c+'|'+(r.person||'alex');
+    if(!posMap[key])posMap[key]={code:c,net:0};
     if(r.type==='買')posMap[key].net+=Number(r.buyShares)||0;
     else if(r.type==='賣')posMap[key].net-=Number(r.sellShares)||0;
   });
@@ -339,8 +340,9 @@ function renderStats(rows){
 function renderSummary(rows){
   var prices=getPrices(), map={};
   rows.forEach(r => {
-    var key=r.code+'|'+(r.person||'alex');
-    if(!map[key])map[key]={code:r.code,name:r.name,person:r.person||'alex',buyShares:0,sellShares:0,totalSpend:0,totalIncome:0};
+    var c = r.code ? r.code.toString().trim() : '';
+    var key=c+'|'+(r.person||'alex');
+    if(!map[key])map[key]={code:c,name:r.name,person:r.person||'alex',buyShares:0,sellShares:0,totalSpend:0,totalIncome:0};
     var m=map[key];
     if(r.type==='買'){ m.buyShares+=Number(r.buyShares)||0; m.totalSpend+=Number(r.spend)||0; }
     else if(r.type==='賣'){ m.sellShares+=Number(r.sellShares)||0; m.totalIncome+=Number(r.income)||0; }
