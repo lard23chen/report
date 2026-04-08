@@ -419,7 +419,9 @@ function renderTable(rows){
   var prices=getPrices(), html='';
   rows.forEach(r => {
     var px=prices[r.code];
-    var displayCost = (r.type === '賣' && r.amount && r.income) ? (r.amount - r.income) : (r.cost);
+    var displayCost = r.cost;
+    if (r.type === '賣' && r.amount && r.income) displayCost = r.amount - r.income;
+    else if (r.type === '買' && r.spend && r.amount) displayCost = r.spend - r.amount;
     html+=`<tr>
       <td class="muted">${formatDate(r.date)}</td><td><span class="badge ${r.type==='買'?'badge-buy':r.type==='賣'?'badge-sell':'badge-div'}">${r.type}</span></td>
       <td class="code">${r.code}</td><td>${r.name}</td><td class="num">${fmt(r.type==='賣'?r.sellShares:r.buyShares)}</td>
