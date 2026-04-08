@@ -42,3 +42,21 @@
 *   **Outbound (去程)**：綠色主題標籤。
 *   **Inbound (回程)**：紅色主題標籤。
 *   **自定義區段**：支援非標準區段（如 URT↔DMK）的標籤生成。
+
+---
+
+## 技術架構與部署 (Technical Stack & Deployment)
+
+### 1. 部署環境 (Deployment)
+*   **前端網頁 (Frontend)**：託管於 **GitHub Pages**，提供靜態 HTML/JS 存取。
+*   **後端 API (Backend)**：運行於 **Vercel Serverless Functions**，處理與 MongoDB 的資料交換。
+*   **自動化 (CI/CD)**：透過 Git Push 觸發 GitHub Actions 或 Vercel 自動部署。
+
+### 2. 資料庫與持久化 (Databases)
+*   **主要資料庫 (Primary DB)**：**MongoDB Atlas** (Cloud Database)，儲存行程增刪、修改及標題編輯等持久化數據。
+*   **備援與快取 (Local Cache)**：**瀏覽器 LocalStorage**，確保在網路斷線或 API 故障時，使用者仍能存取並暫存編輯內容。
+*   **資料結構 (Data Schema)**：
+    *   `deleted`: 紀錄已刪除組件的 Unique ID。
+    *   `added`: 儲存新插入行的 HTML 片段。
+    *   `tripEdits`: 儲存行程標題、日期與標籤的覆蓋屬性。
+    *   `lastUpdated`: 紀錄最後一次同步的時間戳記。
