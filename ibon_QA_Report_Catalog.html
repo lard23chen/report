@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ibon 票券客服 QA - 分類目錄</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #42A5F5;
+            --accent-green: #4CAF50;
+            --accent-gold: #ffd700;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            color: #42f5b6;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+        }
+
+        .subtitle a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .subtitle a:hover {
+            text-decoration: underline;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            margin-bottom: 50px;
+        }
+
+        th,
+        td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        th {
+            background-color: #2c2c2c;
+            color: var(--accent-gold);
+            font-weight: 600;
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
+
+        tr:hover {
+            background-color: #2a2a2a;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #64b5f6;
+        }
+
+        .sys-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #121212;
+            margin-right: 8px;
+        }
+
+        .sys-other { background-color: #e91e63; }
+
+        .table-name {
+            font-family: monospace;
+            background: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ff9800;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .update-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-family: 'Outfit';
+            white-space: nowrap;
+        }
+
+        .spec-link {
+            font-size: 0.85rem;
+            color: #ffccbc;
+            border: 1px solid #ff5722;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .spec-link:hover {
+            background: #ff5722;
+            color: white;
+            text-decoration: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="https://lard23chen.github.io/report/HTML_Report_Catalog.html" class="back-link">← 返回報表總目錄</a>
+
+    <h1>🚀 ibon 票券客服 QA</h1>
+    <p class="subtitle">ibon 票券客服 QA 系統 — Demo / Admin / 架構文件 &nbsp;|&nbsp; 資料來源：<span class="table-name">ibon_QA_DB</span> &nbsp;|&nbsp; 排程：即時</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>編號</th>
+                <th>系統</th>
+                <th>更新時間</th>
+                <th>檔名 (超連結)</th>
+                <th>內容說明</th>
+                <th>視覺規範與功能組件</th>
+                <th>資料表 (Sources)</th>
+                <th>排程</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background: rgba(66, 245, 182, 0.1);">
+                <td colspan="8" style="font-weight: bold; color: #42f5b6;">🚀 ibon 票券客服 QA</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td><span class="sys-badge sys-other">ibon</span></td>
+                <td class="update-time">2026/04/08 11:20</td>
+                <td><a href="https://project1-production-76e0.up.railway.app/demo.html" target="_blank">demo.html</a></td>
+                <td>ibon 票券客服展示頁面 (Demo)</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_RAILWAY_DEMO.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
+                <td><span class="table-name">ibon_QA_DB</span></td>
+                <td>即時</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td><span class="sys-badge sys-other">ibon</span></td>
+                <td class="update-time">2026/04/08 11:20</td>
+                <td><a href="https://project1-production-76e0.up.railway.app/admin" target="_blank">admin</a></td>
+                <td>ibon 票券客服管理系統 (Admin Dashboard)</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_RAILWAY_ADMIN.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
+                <td><span class="table-name">ibon_QA_DB</span></td>
+                <td>即時</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td><span class="sys-badge sys-other">ibon</span></td>
+                <td class="update-time">2026/04/08 11:45</td>
+                <td>-</td>
+                <td>ibon 票券客服 (Demo + Admin) 專屬系統架構與流程圖</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/RAILWAY_SYSTEM_ARCHITECTURE.md" class="spec-link" target="_blank">🌐 檢視專案架構與流程圖</a></td>
+                <td><span class="table-name">ibon_QA_DB</span></td>
+                <td>即時</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+
+</html>
