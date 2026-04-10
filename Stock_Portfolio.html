@@ -287,13 +287,16 @@ function render(){
   renderStats(topRows);
   renderSummary(topRows);
   var filtered=applyFilters(data);
-  document.getElementById('filter-count').textContent=filtered.length+'筆';
   
   var fSpend=0, fIncome=0;
   filtered.forEach(r => { fSpend+=Number(r.spend)||0; fIncome+=Number(r.income)||0; });
+  var fNet = fIncome - fSpend;
+
+  document.getElementById('filter-count').innerHTML = `${filtered.length} 筆 | 損益 (收入-支出): <span class="${fNet>=0?'pos':'neg'}">${fmt(fNet)}</span>`;
+  
   var foot=document.getElementById('tx-foot');
   if(foot) foot.innerHTML = `<tr style="background:var(--surface2);font-weight:700">
-    <td colspan="8" style="text-align:right;color:var(--muted)">篩選小計:</td>
+    <td colspan="8" style="text-align:right;color:var(--muted)">篩選小計 (損益 收入-支出: <span class="${fNet>=0?'pos':'neg'}">${fmt(fNet)}</span>):</td>
     <td class="num neg">${fmt(fSpend)}</td>
     <td class="num pos">${fmt(fIncome)}</td>
     <td colspan="3"></td>
