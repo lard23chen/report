@@ -1,45 +1,43 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-// MongoDB Connection Setup
 const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const client = new MongoClient(uri, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
+    serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
 });
 
-async function findOrder() {
+async function run() {
     try {
-        console.log("Connecting to MongoDB...");
         await client.connect();
         const db = client.db("QwareAi");
-        const collection = db.collection('Qware_Ticket_Data');
 
-        console.log("Searching for A251201000001 range...");
+        console.log("Searching for ticket sales on 2026/03/09...");
+        
+        // Match transactions on 3/9 around 18:00
+        const sales = await db.collection("Qware_A_Ticket_data_Daily").find({
+            "交易時間": { $regex: "^2026-03-09" }
+        }).limit(20).toArray();
 
-        // Find everything around A251201000001
-        const docs = await collection.find({
-            '訂單編號': { $regex: '^A251201000001' }
-        }).toArray();
-
-        // Sort them for clarity
-        docs.sort((a, b) => a['訂單編號'].localeCompare(b['訂單編號']));
-
-        if (docs.length > 0) {
-            console.log(`Found ${docs.length} matches:`);
-            docs.forEach(d => console.log(`- ${d['訂單編號']} [${d['狀態']}]`));
+        if (sales.length > 0) {
+            console.log("Found recent sales on 3/9:");
+            const uniqueNames = [...new Set(sales.map(s => s["節目/商品名稱"]))];
+            uniqueNames.forEach(name => console.log("-", name));
+            
+            // Look for ActivityID link if possible
+            const oneSale = await db.collection("Qware_A_Ticket_data_Daily").findOne({
+                 "交易時間": { $regex: "^2026-03-09 18" }
+            });
+            if(oneSale) {
+                console.log("\nSample 18:00 sale detail:");
+                console.log("Name:", oneSale["節目/商品名稱"]);
+                console.log("Order ID:", oneSale["訂單編號"]);
+            }
         } else {
-            console.log("No matches found starting with A251201000001");
+            console.log("No sales found on 3/9 in Qware_A_Ticket_data_Daily");
         }
 
-    } catch (e) {
-        console.error("Error:", e);
     } finally {
         await client.close();
-        console.log("Connection closed.");
     }
 }
 
-findOrder();
+run().catch(console.dir);

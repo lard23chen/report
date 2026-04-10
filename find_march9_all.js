@@ -1,48 +1,59 @@
+const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, {
+    serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
+});
 
-async function findAnythingOnMarch9() {
+async function run() {
     try {
         await client.connect();
         const db = client.db("QwareAi");
-        
-        console.log("Searching for any activity in Qware_Ticket_Data on 2026-03-09 18:00-23:59...");
-        const samples = await db.collection("Qware_Ticket_Data")
-            .find({ "交易時間": { $regex: "^2026-03-09 (18|19|20|21|22|23)" } })
-            .limit(10)
-            .toArray();
-            
-        if (samples.length > 0) {
-            console.log(`Found ${samples.length} samples:`);
-            samples.forEach(s => console.log(`[${s['交易時間']}] ${s['節目/商品名稱']}`));
-        } else {
-            console.log("Nothing found in Qware_Ticket_Data. Trying different date format...");
-            const samples2 = await db.collection("Qware_Ticket_Data")
-                .find({ "交易時間": { $regex: "^2026/03/09 (18|19|20|21|22|23)" } })
-                .limit(10)
-                .toArray();
-            if (samples2.length > 0) {
-                console.log(`Found ${samples2.length} samples with slashes:`);
-                samples2.forEach(s => console.log(`[${s['交易時間']}] ${s['節目/商品名稱']}`));
-            } else {
-                console.log("Still nothing. Searching by ActivityID 39455 for all dates...");
-                const allLions = await db.collection("Qware_Ticket_Data").find({ "ActivityID": 39455 }).limit(5).toArray();
-                if (allLions.length > 0) {
-                    allLions.forEach(s => console.log(`[${s['交易時間']}] ${s['節目/商品名稱']}`));
-                } else {
-                    // Try to find ANY record in March
-                    const march = await db.collection("Qware_Ticket_Data").find({"交易時間": {$regex: "^2026-03"}}).limit(5).toArray();
-                    console.log("Any March records?", march.length);
-                    march.forEach(s => console.log(`[${s['交易時間']}] ${s['節目/商品名稱']}`));
-                }
-            }
-        }
-    } catch (e) {
-        console.error(e);
+
+        // 3/9 18:00 - 18:30 (Local Time)
+        const startTime = new Date("2026-03-09T18:00:00+08:00");
+        const endTime = new Date("2026-03-09T18:30:00+08:00");
+
+        const sessions = await db.collection("QwareTrafficSession").find({
+            ActivityID: 39455,
+            CreateTime: { $gte: startTime, $lte: endTime }
+        }).sort({ CreateTime: 1 }).toArray();
+
+        const reads = await db.collection("QwareTrafficGAReadTime").find({
+            ActivityID: 39455,
+            CreateTime: { $gte: startTime, $lte: endTime }
+        }).sort({ CreateTime: 1 }).toArray();
+
+        // Flatten data by minute
+        const masterMap = {};
+
+        sessions.forEach(s => {
+            const m = s.CreateTime.getMinutes().toString().padStart(2, '0');
+            const key = `18:${m}`;
+            if (!masterMap[key]) masterMap[key] = { time: key, session: 0, activeD: 0, activeA: 0, activeDMin: 0, activeAMin: 0 };
+            masterMap[key].session = Math.max(masterMap[key].session, s.SessionCount);
+        });
+
+        reads.forEach(r => {
+            const m = r.CreateTime.getMinutes().toString().padStart(2, '0');
+            const key = `18:${m}`;
+            if (!masterMap[key]) masterMap[key] = { time: key, session: 0, activeD: 0, activeA: 0, activeDMin: 0, activeAMin: 0 };
+            masterMap[key].activeD = r.ActiveUsersDCount;
+            masterMap[key].activeA = r.ActiveUsersACount;
+            masterMap[key].activeDMin = r.ActiveUsersDMinCount;
+            masterMap[key].activeAMin = r.ActiveUsersAMinCount;
+        });
+
+        const sortedKeys = Object.keys(masterMap).sort();
+        console.log("TIME,SESSION,ACTIVE_D,ACTIVE_A,ACTIVE_D_MIN,ACTIVE_A_MIN");
+        sortedKeys.forEach(k => {
+            const d = masterMap[k];
+            console.log(`${d.time},${d.session},${d.activeD},${d.activeA},${d.activeDMin},${d.activeAMin}`);
+        });
+
     } finally {
         await client.close();
     }
 }
-findAnythingOnMarch9();
+
+run().catch(console.dir);

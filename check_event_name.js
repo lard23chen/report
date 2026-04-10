@@ -1,24 +1,36 @@
-
-const { MongoClient } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, {
+    serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
+});
 
-async function checkEventName() {
+async function run() {
     try {
         await client.connect();
-        const db = client.db("allticket");
-        const collection = db.collection('Qware_DashBoard');
+        const db = client.db("QwareAi");
 
-        // Search for event names containing "金唱片"
-        const events = await collection.distinct('節目商品名稱', { '節目商品名稱': { $regex: '金唱片' } });
-        console.log("Found Events:", events);
+        const event = await db.collection("QwareTrafficSession").findOne({ ActivityID: 39455 });
+        
+        if (event) {
+            console.log("ID: 39455");
+            console.log("Raw Name from DB:", event.ActivityInfoName);
+            
+            // Try to detect other events on March 9th just in case
+            const startTime = new Date("2026-03-09T00:00:00+08:00");
+            const endTime = new Date("2026-03-09T23:59:59+08:00");
+            const otherEvents = await db.collection("QwareTrafficSession").distinct("ActivityInfoName", {
+                CreateTime: { $gte: startTime, $lte: endTime }
+            });
+            console.log("\nOther events on 3/9:");
+            otherEvents.forEach(name => console.log("-", name));
+        } else {
+            console.log("No data found for ID 39455");
+        }
 
-    } catch (e) {
-        console.error(e);
     } finally {
         await client.close();
     }
 }
 
-checkEventName();
+run().catch(console.dir);
