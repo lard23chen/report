@@ -222,7 +222,7 @@
         </div>
         <div class="meta">
             資料月份: <span id="rangeText"></span><br>
-            產生時間: 2026/4/20 下午1:49:56
+            產生時間: 2026/4/20 下午1:54:38
         </div>
     </header>
 
@@ -264,7 +264,7 @@
             <div class="sub">佔比: 14.2%</div>
         </div>
         <div class="card card-huiwan">
-            <h3>匯灣系統費用</h3>
+            <h3>會員系統費用</h3>
             <div class="value" style="color: #F06292;">$168,941</div>
             <div class="sub">佔比: 8.0%</div>
         </div>
@@ -281,7 +281,7 @@
                         <th>D系統</th>
                         <th>E系統</th>
                         <th>共用</th>
-                        <th>匯灣</th>
+                        <th>會員</th>
                         <th>總費用 (Total)</th>
                     </tr>
                 </thead>
@@ -307,7 +307,7 @@
                         <th>D系統</th>
                         <th>E系統</th>
                         <th>共用</th>
-                        <th>匯灣</th>
+                        <th>會員</th>
                         <th>年度總費用 (Total)</th>
                         <th>YoY 變化</th>
                     </tr>
@@ -421,7 +421,7 @@
             const other = getOtherCost(d);
             const prevOther = prev ? getOtherCost(prev) : null;
             const huiwan = d.SystemHuiwan_Cost || 0;
-            const prevHuiwan = prev ? (prev.SystemHuiwan_Cost || 0) : null;
+            const prevHuiwan = (prev && prev.SystemHuiwan_Cost !== undefined) ? prev.SystemHuiwan_Cost : null;
 
             sumA += (d.SystemA_Cost || 0);
             sumD += (d.SystemD_Cost || 0);

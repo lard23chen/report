@@ -327,7 +327,7 @@ async function generateReport() {
             <div class="sub">佔比: ${(((latestDoc.SystemE_Cost || 0) / (latestDoc.QWARE_Ticket_TotalCost || 1)) * 100).toFixed(1)}%</div>
         </div>
         <div class="card card-huiwan">
-            <h3>匯灣系統費用</h3>
+            <h3>會員系統費用</h3>
             <div class="value" style="color: #F06292;">$${(latestDoc.SystemHuiwan_Cost || 0).toLocaleString()}</div>
             <div class="sub">佔比: ${(((latestDoc.SystemHuiwan_Cost || 0) / (latestDoc.QWARE_Ticket_TotalCost || 1)) * 100).toFixed(1)}%</div>
         </div>
@@ -344,7 +344,7 @@ async function generateReport() {
                         <th>D系統</th>
                         <th>E系統</th>
                         <th>共用</th>
-                        <th>匯灣</th>
+                        <th>會員</th>
                         <th>總費用 (Total)</th>
                     </tr>
                 </thead>
@@ -370,7 +370,7 @@ async function generateReport() {
                         <th>D系統</th>
                         <th>E系統</th>
                         <th>共用</th>
-                        <th>匯灣</th>
+                        <th>會員</th>
                         <th>年度總費用 (Total)</th>
                         <th>YoY 變化</th>
                     </tr>
@@ -484,7 +484,7 @@ async function generateReport() {
             const other = getOtherCost(d);
             const prevOther = prev ? getOtherCost(prev) : null;
             const huiwan = d.SystemHuiwan_Cost || 0;
-            const prevHuiwan = prev ? (prev.SystemHuiwan_Cost || 0) : null;
+            const prevHuiwan = (prev && prev.SystemHuiwan_Cost !== undefined) ? prev.SystemHuiwan_Cost : null;
 
             sumA += (d.SystemA_Cost || 0);
             sumD += (d.SystemD_Cost || 0);
