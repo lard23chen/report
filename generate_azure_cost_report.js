@@ -158,6 +158,7 @@ async function generateReport() {
         .card.card-d::before { background: var(--color-d); }
         .card.card-e::before { background: var(--color-e); }
         .card.card-total::before { background: var(--color-total); }
+        .card.card-huiwan::before { background: #F06292; }
 
         .card:hover { transform: translateY(-3px); }
 
@@ -325,6 +326,11 @@ async function generateReport() {
             <div class="value" style="color: var(--color-e);">$${(latestDoc.SystemE_Cost || 0).toLocaleString()}</div>
             <div class="sub">佔比: ${(((latestDoc.SystemE_Cost || 0) / (latestDoc.QWARE_Ticket_TotalCost || 1)) * 100).toFixed(1)}%</div>
         </div>
+        <div class="card card-huiwan">
+            <h3>匯灣系統費用</h3>
+            <div class="value" style="color: #F06292;">$${(latestDoc.SystemHuiwan_Cost || 0).toLocaleString()}</div>
+            <div class="sub">佔比: ${(((latestDoc.SystemHuiwan_Cost || 0) / (latestDoc.QWARE_Ticket_TotalCost || 1)) * 100).toFixed(1)}%</div>
+        </div>
     </div>
 
     <div class="main-content">
@@ -338,6 +344,7 @@ async function generateReport() {
                         <th>D系統</th>
                         <th>E系統</th>
                         <th>共用</th>
+                        <th>匯灣</th>
                         <th>總費用 (Total)</th>
                     </tr>
                 </thead>
@@ -363,6 +370,7 @@ async function generateReport() {
                         <th>D系統</th>
                         <th>E系統</th>
                         <th>共用</th>
+                        <th>匯灣</th>
                         <th>年度總費用 (Total)</th>
                         <th>YoY 變化</th>
                     </tr>
@@ -467,7 +475,7 @@ async function generateReport() {
         stackedChart.update();
 
         // Update Table
-        let sumA = 0, sumD = 0, sumE = 0, sumOther = 0, sumTotal = 0;
+        let sumA = 0, sumD = 0, sumE = 0, sumOther = 0, sumHuiwan = 0, sumTotal = 0;
 
         tableBody.innerHTML = [...filtered].reverse().map(d => {
             const idx = allData.findIndex(a => a.YearMonth === d.YearMonth);
@@ -475,11 +483,14 @@ async function generateReport() {
             const total = d.QWARE_Ticket_TotalCost || 0;
             const other = getOtherCost(d);
             const prevOther = prev ? getOtherCost(prev) : null;
+            const huiwan = d.SystemHuiwan_Cost || 0;
+            const prevHuiwan = prev ? (prev.SystemHuiwan_Cost || 0) : null;
 
             sumA += (d.SystemA_Cost || 0);
             sumD += (d.SystemD_Cost || 0);
             sumE += (d.SystemE_Cost || 0);
             sumOther += other;
+            sumHuiwan += huiwan;
             sumTotal += total;
 
             return \`<tr>
@@ -488,6 +499,7 @@ async function generateReport() {
                 <td><span style="font-size: 1.1em; font-weight: bold;">\${(d.SystemD_Cost || 0).toLocaleString()}</span> \${getChangeHTML(d.SystemD_Cost, prev?.SystemD_Cost)}</td>
                 <td><span style="font-size: 1.1em; font-weight: bold;">\${(d.SystemE_Cost || 0).toLocaleString()}</span> \${getChangeHTML(d.SystemE_Cost, prev?.SystemE_Cost)}</td>
                 <td><span style="font-size: 1.1em; font-weight: bold;">\${other.toLocaleString()}</span> \${getChangeHTML(other, prevOther)}</td>
+                <td><span style="font-size: 1.1em; font-weight: bold; color: #F06292;">\${huiwan.toLocaleString()}</span> \${prevHuiwan !== null ? getChangeHTML(huiwan, prevHuiwan) : ''}</td>
                 <td><span style="font-size: 1.3em; font-weight: bold; color: var(--accent-color);">\${total.toLocaleString()}</span> \${getChangeHTML(total, prev?.QWARE_Ticket_TotalCost)}</td>
             </tr>\`;
         }).join('');
@@ -498,6 +510,7 @@ async function generateReport() {
             <td style="font-weight: bold; font-size: 1.25em; color: #fff;">\${sumD.toLocaleString()}</td>
             <td style="font-weight: bold; font-size: 1.25em; color: #fff;">\${sumE.toLocaleString()}</td>
             <td style="font-weight: bold; font-size: 1.25em; color: #fff;">\${sumOther.toLocaleString()}</td>
+            <td style="font-weight: bold; font-size: 1.25em; color: #F06292;">\${sumHuiwan.toLocaleString()}</td>
             <td style="font-weight: bold; font-size: 1.5em; color: var(--color-total);">\${sumTotal.toLocaleString()}</td>
         </tr>\`;
     }
@@ -620,24 +633,25 @@ async function generateReport() {
         const yearMap = new Map();
         allData.forEach(d => {
             const year = d.YearMonth.slice(0, 4);
-            if (!yearMap.has(year)) yearMap.set(year, { months: 0, a: 0, d: 0, e: 0, other: 0, total: 0 });
+            if (!yearMap.has(year)) yearMap.set(year, { months: 0, a: 0, d: 0, e: 0, other: 0, huiwan: 0, total: 0 });
             const y = yearMap.get(year);
             y.months += 1;
             y.a += (d.SystemA_Cost || 0);
             y.d += (d.SystemD_Cost || 0);
             y.e += (d.SystemE_Cost || 0);
             y.other += getOtherCost(d);
+            y.huiwan += (d.SystemHuiwan_Cost || 0);
             y.total += (d.QWARE_Ticket_TotalCost || 0);
         });
 
         const years = Array.from(yearMap.keys()).sort();
-        let grandA = 0, grandD = 0, grandE = 0, grandOther = 0, grandTotal = 0;
+        let grandA = 0, grandD = 0, grandE = 0, grandOther = 0, grandHuiwan = 0, grandTotal = 0;
 
         document.getElementById('yearlyTableBody').innerHTML = [...years].reverse().map(year => {
             const cur = yearMap.get(year);
             const prevYear = String(Number(year) - 1);
             const prev = yearMap.get(prevYear);
-            grandA += cur.a; grandD += cur.d; grandE += cur.e; grandOther += cur.other; grandTotal += cur.total;
+            grandA += cur.a; grandD += cur.d; grandE += cur.e; grandOther += cur.other; grandHuiwan += cur.huiwan; grandTotal += cur.total;
 
             let yoyHtml = '';
             if (prev) {
@@ -657,6 +671,7 @@ async function generateReport() {
                 <td style="color:var(--color-d);font-weight:bold;">\${Math.round(cur.d).toLocaleString()}</td>
                 <td style="color:var(--color-e);font-weight:bold;">\${Math.round(cur.e).toLocaleString()}</td>
                 <td style="color:#AB47BC;font-weight:bold;">\${Math.round(cur.other).toLocaleString()}</td>
+                <td style="color:#F06292;font-weight:bold;">\${Math.round(cur.huiwan).toLocaleString()}</td>
                 <td style="font-size:1.3em;font-weight:bold;color:var(--color-total);">\${Math.round(cur.total).toLocaleString()}</td>
                 <td>\${yoyHtml}</td>
             </tr>\`;
@@ -668,6 +683,7 @@ async function generateReport() {
             <td style="font-weight:bold;color:#fff;font-size:1.2em;">\${Math.round(grandD).toLocaleString()}</td>
             <td style="font-weight:bold;color:#fff;font-size:1.2em;">\${Math.round(grandE).toLocaleString()}</td>
             <td style="font-weight:bold;color:#fff;font-size:1.2em;">\${Math.round(grandOther).toLocaleString()}</td>
+            <td style="font-weight:bold;color:#F06292;font-size:1.2em;">\${Math.round(grandHuiwan).toLocaleString()}</td>
             <td style="font-weight:bold;font-size:1.5em;color:var(--color-total);">\${Math.round(grandTotal).toLocaleString()}</td>
             <td></td>
         </tr>\`;
