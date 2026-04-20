@@ -113,12 +113,32 @@ function generateHTML(data) {
                 data: {
                     labels: dat.map(d => d.date.substring(5)),
                     datasets: [
-                        { label: '總計', data: dat.map(d=>d.total), borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.1)', fill: true, tension: 0.3, borderWidth: 4, pointRadius: 5 },
-                        { label: 'A系統', data: dat.map(d=>d.sysA), borderColor: '#a78bfa', fill: false, tension: 0.3, pointRadius: 2 },
-                        { label: 'D系統', data: dat.map(d=>d.sysD), borderColor: '#f472b6', fill: false, tension: 0.3, pointRadius: 2 },
-                        { label: 'E系統', data: dat.map(d=>d.sysE), borderColor: '#fbbf24', fill: false, tension: 0.3, pointRadius: 2 },
-                        { label: '共用', data: dat.map(d=>d.shared), borderColor: '#10b981', fill: false, tension: 0.3, pointRadius: 2 },
-                        { label: '會員', data: dat.map(d=>d.member), borderColor: '#94a3b8', fill: false, tension: 0.3, pointRadius: 2 }
+                        { label: '總計', data: dat.map(d=>d.total), borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.1)', fill: true, tension: 0.3, borderWidth: 4, pointRadius: 5,
+                          datalabels: { display: false } },
+                        { label: 'A系統', data: dat.map(d=>d.sysA), borderColor: '#a78bfa', fill: false, tension: 0.3,
+                          pointRadius: dat.map(d => d.activity ? 6 : 2),
+                          pointBackgroundColor: dat.map(d => d.activity ? '#a78bfa' : 'transparent'),
+                          datalabels: {
+                            display: (ctx) => showLabels && !!dat[ctx.dataIndex].activity,
+                            align: 'top',
+                            anchor: 'end',
+                            offset: 6,
+                            color: '#e2e8f0',
+                            backgroundColor: 'rgba(30, 41, 59, 0.85)',
+                            borderRadius: 4,
+                            padding: { top: 4, bottom: 4, left: 6, right: 6 },
+                            font: { size: 10, weight: 'bold' },
+                            formatter: (v, ctx) => {
+                                const act = dat[ctx.dataIndex].activity || '';
+                                const lines = act.split('\\n');
+                                return lines.map(l => l.length > 18 ? l.substring(0, 18) + '…' : l).join('\\n');
+                            }
+                          }
+                        },
+                        { label: 'D系統', data: dat.map(d=>d.sysD), borderColor: '#f472b6', fill: false, tension: 0.3, pointRadius: 2, datalabels: { display: false } },
+                        { label: 'E系統', data: dat.map(d=>d.sysE), borderColor: '#fbbf24', fill: false, tension: 0.3, pointRadius: 2, datalabels: { display: false } },
+                        { label: '共用', data: dat.map(d=>d.shared), borderColor: '#10b981', fill: false, tension: 0.3, pointRadius: 2, datalabels: { display: false } },
+                        { label: '會員', data: dat.map(d=>d.member), borderColor: '#94a3b8', fill: false, tension: 0.3, pointRadius: 2, datalabels: { display: false } }
                     ]
                 },
                 options: {
@@ -149,14 +169,7 @@ function generateHTML(data) {
                                 }
                             }
                         },
-                        datalabels: {
-                            display: showLabels,
-                            align: 'top',
-                            color: '#fff',
-                            font: { weight: 'bold', size: 10 },
-                            offset: 5,
-                            formatter: (v) => v > 0 ? v.toLocaleString() : ''
-                        }
+                        datalabels: { display: false }
                     },
                     scales: {
                         y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
