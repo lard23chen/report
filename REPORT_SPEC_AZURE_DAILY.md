@@ -1,0 +1,170 @@
+# 每日雲端費用明細與活動分析報表 技術規範說明
+
+本文件定義「每日雲端費用明細與活動分析報表」的產出標準與設定，未來更新資料或調整圖表時請遵循此規範。
+
+## 1. 基本資訊 (General Info)
+
+- **報表名稱**：`daily_expense_report.html`
+- **報表網址**：`https://lard23chen.github.io/report/daily_expense_report.html`
+- **資料來源**：MongoDB (`QwareAi` / `AzureMonthlyCost_Daily`)
+- **生成腳本**：`generate_expense_report.js`
+- **匯入腳本**：每月依實際需求建立（命名格式：`import_<月份>_azure_daily.js`）
+- **負責人**：陳俊良
+- **主要目的**：逐日追蹤各系統雲端費用，並結合活動備註呈現費用高峰原因，供成本稽核與活動排程參考。
+
+---
+
+## 2. 資料來源結構 (MongoDB Schema)
+
+Collection：`QwareAi.AzureMonthlyCost_Daily`
+
+| 欄位名稱 | 型態 | 說明 |
+|---------|------|------|
+| `Date` | String | 日期，格式 `YYYY/MM/DD`（如 `2026/03/01`） |
+| `ASys` | String | A 系統費用（數字字串，無 `$` 或 `,`） |
+| `DSysAWS` | String | D 系統（AWS）費用 |
+| `ESys` | String | E 系統費用 |
+| `Shared` | String | 共用費用 |
+| `Member` | String | 會員系統費用 |
+| `TotalRevenue` | String | 當日總費用（未稅） |
+| `Level` | String | 機器監控等級（如 `A系統-小型(小型監控)`，多筆以 `\n` 分隔） |
+| `Activity` | String | 當日主要活動名稱（多筆以 `\n` 分隔） |
+| `Note` | String | 備註說明 |
+
+> **注意**：費用欄位皆為字串型態，前端及後端讀取時需用 `parseFloat()` 轉型。
+
+---
+
+## 3. 資料匯入流程 (Monthly Import SOP)
+
+### 3.1 來源
+Google Sheets：`https://docs.google.com/spreadsheets/d/12PafK4fsLw7SAy4FG3SSK-P3khs0VcBnRwirgsBpeSk`
+
+每月費用資料位於 `gid=581929756`（04.AzureAWS合併費用 分頁）。
+
+### 3.2 CSV 欄位對應
+
+下載格式：`export?format=csv&gid=581929756`
+
+| CSV Index | 欄位名稱 | MongoDB 欄位 |
+|-----------|---------|-------------|
+| 1 | 年/月（日期） | `Date`（取前 10 字元） |
+| 2 | A系統 | `ASys` |
+| 3 | D系統(AWS) | `DSysAWS` |
+| 4 | E系統 | `ESys` |
+| 5 | 共用 | `Shared` |
+| 6 | 會員 | `Member` |
+| 7 | 總計[未稅] | `TotalRevenue` |
+| 8 | 機器監控等級 | `Level` |
+| 9 | 活動名稱 | `Activity` |
+| 10 | 備註說明 | `Note` |
+
+### 3.3 匯入注意事項
+
+- 費用欄位含 `$` 與 `,`，匯入時需清除：`str.replace(/[$,\s]/g, '').trim()`
+- CSV 部分欄位內含換行（引號包覆），需正確處理 RFC 4180 引號規則
+- 匯入前先 `deleteMany({ Date: { $regex: /^YYYY\/MM\// } })` 避免重複
+- 篩選條件：`dateStr.match(/^YYYY\/MM\//)`
+
+### 3.4 執行步驟
+
+```bash
+# 1. 下載最新 CSV（已有 fetch_gsheet_csv.js）
+node fetch_gsheet_csv.js
+
+# 2. 執行月份匯入腳本（以 3 月為例）
+node import_mar_azure_daily.js
+
+# 3. 重新生成報表
+node generate_expense_report.js
+
+# 4. 提交並推送
+git add daily_expense_report.html
+git commit -m "Update daily_expense_report: add YYYY/MM daily data"
+git push
+```
+
+---
+
+## 4. 視覺樣式設定 (Visual Styles)
+
+報表採用 **深藍夜間主題**。
+
+- **配色**：
+  - 背景色：`#0f172a`（Slate 950）
+  - 卡片背景：`rgba(30, 41, 59, 0.7)`（毛玻璃效果）
+  - 主要文字：`#f8fafc`
+  - 次要文字：`#94a3b8`
+- **字體**：`Outfit`, `Noto Sans TC`（Google Fonts）
+
+---
+
+## 5. 核心組件 (Components)
+
+### 5.1 月份篩選器
+
+- `<select>` 下拉，選項依資料中所有月份自動生成（倒序排列）
+- 預設顯示所有歷史資料
+- 切換後同步更新表格與圖表
+
+### 5.2 每日費用明細表格
+
+欄位（左至右）：
+
+| 日期 | A系統 | D(AWS) | E系統 | 共用 | 會員 | 總計[未稅] | 主要活動與備註 |
+
+- 固定高度 550px，超出可捲動
+- 表頭 sticky（`position: sticky; top: 0`）
+- 活動欄：活動名稱以綠色（`#34d399`）標示，備註灰色
+
+### 5.3 費用走勢趨勢圖 (Chart.js line)
+
+**Datasets（6 條線）**：
+
+| 線條 | 欄位 | 顏色 |
+|-----|------|------|
+| 總計 | `TotalRevenue` | `#60a5fa`（藍，含填色） |
+| A系統 | `ASys` | `#a78bfa`（紫） |
+| D系統 | `DSysAWS` | `#f472b6`（粉） |
+| E系統 | `ESys` | `#fbbf24`（黃） |
+| 共用 | `Shared` | `#10b981`（綠） |
+| 會員 | `Member` | `#94a3b8`（灰） |
+
+**活動節點標籤（A系統專屬）**：
+- 有 `activity` 資料的點：`pointRadius: 6`、填色（`#a78bfa`）
+- 無 `activity` 的點：`pointRadius: 2`、透明
+- 使用 `chartjs-plugin-datalabels` 在節點上方顯示活動名稱
+  - 每行截短至 18 字（超出加 `…`）
+  - 多活動以 `\n` 換行顯示
+  - 標籤樣式：深色背景框（`rgba(30, 41, 59, 0.85)`）、圓角 4px
+  - 僅在篩選月份 ≤ 31 筆時顯示（`showLabels = dat.length <= 31`）
+
+**Tooltip**：
+- `mode: 'index'`，顯示當日所有系統費用
+- `afterBody` 顯示活動名稱（截前 50 字）
+
+---
+
+## 6. 生成邏輯 (generate_expense_report.js)
+
+```
+MongoDB (AzureMonthlyCost_Daily)
+    ↓ find({}).sort({ Date: 1 })
+Node.js 轉換欄位（parseFloat）
+    ↓ JSON.stringify 注入前端
+daily_expense_report.html（靜態 HTML）
+```
+
+月份篩選選項由後端在生成時根據資料自動產出（`[...new Set(data.map(...))]`），無需手動維護。
+
+---
+
+## 7. Git 管理規範
+
+- 每次月份資料更新後立即 commit，訊息格式：
+  - `Update daily_expense_report: add YYYY/MM daily data (N days)`
+- 新增月份匯入腳本時一併 commit
+
+---
+
+*最後更新日期：2026/04/20*
