@@ -164,6 +164,14 @@ body.edit-on .act-btn{display:inline-block}
 const API_BASE = 'https://report-theta-nine.vercel.app/api/stock';
 var data=[];
 
+function yahooUrl(code){
+  if(!code)return'#';
+  var c=code.toString().trim();
+  var first=parseInt(c.charAt(0));
+  var suffix=(first===3||first===4)?'.TWO':'.TW';
+  return'https://tw.stock.yahoo.com/quote/'+c+suffix;
+}
+
 function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US')}
 function fmtP(n){if(!n&&n!==0)return'—';return Number(n).toFixed(2)}
 
@@ -429,7 +437,7 @@ function renderTable(rows){
     else if (r.type === '買' && r.spend && r.amount) displayCost = r.spend - r.amount;
     html+=`<tr class="${r.type==='買'?'row-buy':r.type==='賣'?'row-sell':''}">
       <td class="muted">${formatDate(r.date)}</td><td><span class="badge ${r.type==='買'?'badge-buy':r.type==='賣'?'badge-sell':'badge-div'}">${r.type}</span></td>
-      <td class="code">${r.code}</td><td>${r.name}</td><td class="num">${fmt(r.type==='賣'?r.sellShares:r.buyShares)}</td>
+      <td class="code"><a href="${yahooUrl(r.code)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)">${r.code}</a></td><td>${r.name}</td><td class="num">${fmt(r.type==='賣'?r.sellShares:r.buyShares)}</td>
       <td class="num">${fmtP(r.type==='賣'?r.sellPrice:r.buyPrice)}</td><td class="num">${fmt(r.amount)}</td><td class="num muted">${fmt(displayCost)}</td>
       <td class="num neg">${r.spend?fmt(r.spend):'—'}</td><td class="num pos">${r.income?fmt(r.income):'—'}</td>
       <td><span class="${r.person==='mark'?'person-mark':'person-alex'}">${(r.person||'alex').toUpperCase()}</span></td>
