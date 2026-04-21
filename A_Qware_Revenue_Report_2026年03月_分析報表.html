@@ -302,7 +302,7 @@
 
     <!-- Top 5 Refund Events Table -->
     <div class="table-container">
-        <h3 style="color: #c62828; border-bottom: 2px solid #c62828; padding-bottom: 10px;">📉 退票排行 Top 5 (By Refund Amount)</h3>
+        <h3 style="color: #c62828; border-bottom: 2px solid #c62828; padding-bottom: 10px;">📉 退票排行 Top 5 (By Tickets)</h3>
         <table id="topRefundTable">
             <thead>
                 <tr>
@@ -451,7 +451,7 @@ const summaryData = {"totalRevenue":246199145,"totalTickets":295010,"orderCount"
 
         renderTable('#topEventsTable', s.topByRevenue, (item, i) => `<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right" style="color:#888;">${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>`);
         renderTable('#topTicketsEventsTable', s.topByTickets, (item, i) => `<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td></tr>`);
-        renderTable('#topRefundTable', s.topByRefunds, (item, i) => `<tr><td><span style="background:#c62828; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.refundOrderCount.toLocaleString()}</td><td class="text-right">${item.refundTickets.toLocaleString()}</td><td class="text-right" style="color: #c62828; font-weight:bold;">NT$ ${item.refunds.toLocaleString()}</td></tr>`);
+        renderTable('#topRefundTable', [...s.topByRefunds].sort((a,b) => b.refundTickets - a.refundTickets), (item, i) => `<tr><td><span style="background:#c62828; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.refundOrderCount.toLocaleString()}</td><td class="text-right">${item.refundTickets.toLocaleString()}</td><td class="text-right" style="color: #c62828; font-weight:bold;">NT$ ${item.refunds.toLocaleString()}</td></tr>`);
         
         // 修正付款方式與銷售點的表格渲染邏輯
         renderTable('#paymentTable', s.paymentList, (item) => `<tr><td class="font-bold">${item.name}</td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right">${item.share}%</td></tr>`);
