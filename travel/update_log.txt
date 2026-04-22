@@ -644,3 +644,39 @@ Pushing to GitHub...
 To https://github.com/lard23chen/report.git
    13f82cf..26b12a7  main -> main
 Update finished. 
+2026/04/22 週三  9:00:54.41 - Starting update process... 
+Downloading CSV... 
+Invoke-WebRequest : 無法解析遠端名稱: 'docs.google.com'
+位於 線路:1 字元:1
++ Invoke-WebRequest -Uri 'https://docs.google.com/spreadsheets/d/1pZCR_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest]，WebExce
+    ption
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+ 
+Regenerating HTML... 
+Successfully generated expense report with filters and modal!
+Downloading Shopping CSV... 
+Invoke-WebRequest : 無法解析遠端名稱: 'docs.google.com'
+位於 線路:1 字元:1
++ Invoke-WebRequest -Uri 'https://docs.google.com/spreadsheets/d/1fgJbz ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest]，WebExce
+    ption
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+ 
+Downloading Reference Site... 
+Invoke-WebRequest : 無法解析遠端名稱: 'togoarai.github.io'
+位於 線路:1 字元:1
++ Invoke-WebRequest -Uri 'https://togoarai.github.io/20260211-Wishing-i ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest]，WebExce
+    ption
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+ 
+Regenerating Shopping Report... 
+Extracted photos for 52 products (mapped to IDs and Names).
+Found 61 products.
+Processed 23 orders. Total Revenue: 13281
+Successfully generated Shopping Report with ID-based Photo Linking!
+Pushing to GitHub... 
