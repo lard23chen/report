@@ -251,19 +251,18 @@ async function generateReport() {
                 labels: natLabels,
                 datasets: [{ data: natData, backgroundColor: natColors.slice(0, natLabels.length), borderWidth: 2, borderColor: '#1e1e1e' }]
             },
-            plugins: [ChartDataLabels],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'right', labels: { color: '#ccc', font: { size: 12 }, padding: 12 } },
-                    datalabels: {
-                        color: 'white',
-                        font: { weight: 'bold', size: 11 },
-                        formatter: (value, ctx) => {
-                            const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            const pct = (value / total * 100).toFixed(1);
-                            return pct > 2 ? pct + '%' : '';
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const pct = (ctx.raw / total * 100).toFixed(1);
+                                return \` \${ctx.label}: \${ctx.raw.toLocaleString()} 筆 (\${pct}%)\`;
+                            }
                         }
                     }
                 }
