@@ -501,7 +501,12 @@ function rowFormHtml(r,title){
 
 window.showAddModal=function(){
   showModal(rowFormHtml(null,'＋ 新增交易'));
-  document.getElementById('form-save').onclick=async ()=>{
+  document.getElementById('form-save').onclick=async function(){
+    var btn = this;
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = '儲存中...';
+
     var d={
       date:document.getElementById('f-date').value, type:document.getElementById('f-type-s').value,
       code:document.getElementById('f-code-i').value, name:document.getElementById('f-name-i').value,
@@ -510,15 +515,27 @@ window.showAddModal=function(){
       amount:Number(document.getElementById('f-amt').value), spend:Number(document.getElementById('f-spend').value),
       income:Number(document.getElementById('f-income').value), person:document.getElementById('f-person-s').value
     };
-    var res=await apiPost('/add', d);
-    if(res.ok){ hideModal(); fetchData(); }
+    try {
+        var res=await apiPost('/add', d);
+        if(res.ok){ hideModal(); fetchData(); }
+        else { alert('儲存失敗'); btn.disabled = false; btn.textContent = '儲存'; }
+    } catch(e) {
+        alert('發生錯誤');
+        btn.disabled = false;
+        btn.textContent = '儲存';
+    }
   };
 };
 
 window.showEditModal=function(id){
   var r=data.find(x => x._id===id);
   showModal(rowFormHtml(r,'✏️ 修改交易'));
-  document.getElementById('form-save').onclick=async ()=>{
+  document.getElementById('form-save').onclick=async function(){
+    var btn = this;
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = '儲存中...';
+
     var d={
       _id:id, date:document.getElementById('f-date').value, type:document.getElementById('f-type-s').value,
       code:document.getElementById('f-code-i').value, name:document.getElementById('f-name-i').value,
@@ -527,8 +544,15 @@ window.showEditModal=function(id){
       amount:Number(document.getElementById('f-amt').value), spend:Number(document.getElementById('f-spend').value),
       income:Number(document.getElementById('f-income').value), person:document.getElementById('f-person-s').value
     };
-    var res=await apiPost('/update', d);
-    if(res.ok){ hideModal(); fetchData(); }
+    try {
+        var res=await apiPost('/update', d);
+        if(res.ok){ hideModal(); fetchData(); }
+        else { alert('儲存失敗'); btn.disabled = false; btn.textContent = '儲存'; }
+    } catch(e) {
+        alert('發生錯誤');
+        btn.disabled = false;
+        btn.textContent = '儲存';
+    }
   };
 };
 
