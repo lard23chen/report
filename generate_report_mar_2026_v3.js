@@ -376,6 +376,18 @@ async function generateReport() {
     </div>
 </div>
 
+<!-- Fixed PDF Button -->
+<button onclick="window.print()" style="position:fixed; bottom:90px; right:30px; background:linear-gradient(135deg,#1e88e5,#1565c0); color:white; padding:12px 24px; border:none; border-radius:50px; cursor:pointer; font-weight:600; font-size:0.95rem; box-shadow:0 4px 15px rgba(30,136,229,0.4); display:flex; align-items:center; gap:8px; transition:all 0.3s ease; z-index:1000;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+    下載 PDF
+</button>
+
+<!-- Fixed Home Button -->
+<a href="report_index.html" style="position:fixed; bottom:30px; right:30px; background:linear-gradient(135deg,#d81b60,#ad1457); color:white; padding:12px 24px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.95rem; box-shadow:0 4px 15px rgba(216,27,96,0.4); display:flex; align-items:center; gap:8px; transition:all 0.3s ease; z-index:1000;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+    回首頁
+</a>
+
 </body></html>`.replace(/2026年02月/g, "2026年03月");
 
         const fileName = `A_Qware_Revenue_Report_2026年03月_分析報表.html`;
