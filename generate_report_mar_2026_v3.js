@@ -241,6 +241,37 @@ async function generateReport() {
         renderTable('#paymentTable', s.paymentList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
         renderTable('#salesPointTable', s.spList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
 
+        // Nationality Chart
+        const natColors = ['#d81b60','#e53935','#fb8c00','#fdd835','#43a047','#00acc1','#1e88e5','#5e35b1','#8e24aa','#00897b','#546e7a'];
+        const natLabels = s.nationalityList.map(n => n.name);
+        const natData = s.nationalityList.map(n => n.orders);
+        new Chart(document.getElementById('nationalityChart'), {
+            type: 'doughnut',
+            data: {
+                labels: natLabels,
+                datasets: [{ data: natData, backgroundColor: natColors.slice(0, natLabels.length), borderWidth: 2, borderColor: '#1e1e1e' }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#ccc', font: { size: 12 }, padding: 12 } },
+                    datalabels: {
+                        color: 'white',
+                        font: { weight: 'bold', size: 11 },
+                        formatter: (value, ctx) => {
+                            const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const pct = (value / total * 100).toFixed(1);
+                            return pct > 2 ? pct + '%' : '';
+                        }
+                    }
+                }
+            }
+        });
+
+        renderTable('#nationalityTable', s.nationalityList, (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i + 1}</span></td><td class="font-bold">\${item.name}</td><td class="text-right">\${item.orders.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);
+
         const chartAnnotations = {};
         s.peakAnnotations.forEach((ann, idx) => {
             chartAnnotations['label' + idx] = { type: 'label', xValue: ann.date, yValue: ann.value, backgroundColor: 'rgba(255, 243, 224, 0.9)', borderColor: '#ff9800', borderWidth: 1, borderRadius: 4, content: [ann.label], font: { size: 11, weight: 'bold' }, padding: 6, position: 'center', yAdjust: -20 };
@@ -308,6 +339,29 @@ async function generateReport() {
         document.body.style.overflow = 'auto';
     }
 </script>
+
+<div style="max-width:1400px; margin:0 auto 40px; padding:0 30px;">
+    <h2 style="font-size:1.1rem; color:#a0a0a0; text-transform:uppercase; letter-spacing:1px; border-left:4px solid var(--accent-color); padding-left:10px; margin-bottom:20px;">訂單國籍占比 (Order Nationality)</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:25px;">
+        <div style="background:#1e1e1e; border-radius:16px; padding:25px; box-shadow:0 8px 16px rgba(0,0,0,0.3); border:1px solid #333;">
+            <h3 style="margin-top:0; color:#e0e0e0; border-left:4px solid var(--accent-color); padding-left:10px;">國籍分佈</h3>
+            <div style="height:350px;"><canvas id="nationalityChart"></canvas></div>
+        </div>
+        <div style="background:#1e1e1e; border-radius:16px; padding:25px; box-shadow:0 8px 16px rgba(0,0,0,0.3); border:1px solid #333;">
+            <h3 style="margin-top:0; color:#e0e0e0; border-left:4px solid var(--accent-color); padding-left:10px;">國籍明細</h3>
+            <table id="nationalityTable" style="width:100%; border-collapse:collapse; font-size:0.95em;">
+                <thead><tr>
+                    <th style="padding:15px; text-align:left; border-bottom:1px solid #333; color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">排名</th>
+                    <th style="padding:15px; text-align:left; border-bottom:1px solid #333; color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">國家/地區</th>
+                    <th style="padding:15px; text-align:right; border-bottom:1px solid #333; color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">訂單數</th>
+                    <th style="padding:15px; text-align:right; border-bottom:1px solid #333; color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">佔比</th>
+                </tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </body></html>`.replace(/2026年02月/g, "2026年03月");
 
         const fileName = `A_Qware_Revenue_Report_2026年03月_分析報表.html`;
