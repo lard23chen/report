@@ -18,7 +18,7 @@ async function generateReport() {
         console.log("Fetching and aggregating March 2026 data...");
         const rawData = await collection.find(
             { "交易時間": { $regex: "^2026-03" } },
-            { projection: { "交易時間": 1, "售價": 1, "狀態": 1, "訂單編號": 1, "節目/商品名稱": 1, "付款方式": 1, "銷售點": 1, "手續費": 1, "實退金額": 1, "退票時間": 1, "退票因素": 1 } }
+            { projection: { "交易時間": 1, "售價": 1, "狀態": 1, "訂單編號": 1, "節目/商品名稱": 1, "付款方式": 1, "銷售點": 1, "手續費": 1, "實退金額": 1, "退票時間": 1, "退票因素": 1, "會員編號": 1 } }
         ).toArray();
 
         console.log(`Processing ${rawData.length} records...`);
@@ -129,6 +129,38 @@ async function generateReport() {
             return { name, ...s };
         });
 
+        // --- 4. Nationality from Member Data ---
+        const memberIds = [...new Set(validOrders.map(o => o['會員編號']).filter(Boolean))];
+        const memberCollection = db.collection('Qware_Member_data');
+        const memberDocs = await memberCollection.find(
+            { '會員編號': { $in: memberIds } },
+            { projection: { '會員編號': 1, '國家': 1, '_id': 0 } }
+        ).toArray();
+
+        const memberNationalityMap = {};
+        memberDocs.forEach(m => { memberNationalityMap[m['會員編號']] = m['國家'] || '未知'; });
+
+        const nationalityOrderMap = {};
+        const seenOrders = new Set();
+        validOrders.forEach(o => {
+            const baseOrder = o['訂單編號'] ? o['訂單編號'].split('_')[0] : null;
+            if (!baseOrder || seenOrders.has(baseOrder)) return;
+            seenOrders.add(baseOrder);
+            const country = memberNationalityMap[o['會員編號']] || '未知';
+            nationalityOrderMap[country] = (nationalityOrderMap[country] || 0) + 1;
+        });
+
+        const totalNationalityOrders = Object.values(nationalityOrderMap).reduce((a, b) => a + b, 0);
+        const nationalityListRaw = Object.entries(nationalityOrderMap)
+            .map(([name, orders]) => ({ name, orders, share: (orders / totalNationalityOrders * 100).toFixed(1) }))
+            .sort((a, b) => b.orders - a.orders);
+
+        const top10 = nationalityListRaw.slice(0, 10);
+        const othersOrders = nationalityListRaw.slice(10).reduce((acc, cur) => acc + cur.orders, 0);
+        const nationalityList = othersOrders > 0
+            ? [...top10, { name: '其他', orders: othersOrders, share: (othersOrders / totalNationalityOrders * 100).toFixed(1) }]
+            : top10;
+
         const topByRevenue = [...eventList].sort((a,b) => b.revenue - a.revenue).slice(0, 5);
         const topByTickets = [...eventList].sort((a,b) => b.tickets - a.tickets).slice(0, 5);
         const topByRefunds = [...eventList].sort((a,b) => b.refunds - b.refunds).slice(0, 5);
@@ -141,6 +173,7 @@ async function generateReport() {
             trendDates, trendSales, peakAnnotations, refundDates, refundAmounts,
             topByRevenue, topByTickets, topByRefunds, paymentList, spList,
             eventSummaryMap: Object.fromEntries(eventList.map(e => [e.name, e])),
+            nationalityList,
             meta: { totalRows: rawData.length, reportTime: new Date().toLocaleString('zh-TW') }
         };
 
