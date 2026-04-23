@@ -252,13 +252,14 @@ async function generateReport() {
             type: 'doughnut',
             data: {
                 labels: natLabels,
-                datasets: [{ data: natData, backgroundColor: natColors.slice(0, natLabels.length), borderWidth: 2, borderColor: '#1e1e1e' }]
+                datasets: [{ data: natData, backgroundColor: natColors.slice(0, natLabels.length), borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)' }]
             },
+            plugins: [ChartDataLabels],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'right', labels: { color: '#ccc', font: { size: 12 }, padding: 12 } },
+                    legend: { position: 'right', labels: { color: '#444', font: { size: 12 }, padding: 12 } },
                     tooltip: {
                         callbacks: {
                             label: (ctx) => {
@@ -266,6 +267,16 @@ async function generateReport() {
                                 const pct = (ctx.raw / total * 100).toFixed(1);
                                 return \` \${ctx.label}: \${ctx.raw.toLocaleString()} 筆 (\${pct}%)\`;
                             }
+                        }
+                    },
+                    datalabels: {
+                        color: 'white',
+                        font: { weight: 'bold', size: 11 },
+                        formatter: (value, ctx) => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = (value / total * 100);
+                            if (pct < 2) return '';
+                            return \`\${value.toLocaleString()}\n(\${pct.toFixed(1)}%)\`;
                         }
                     }
                 }
@@ -341,6 +352,7 @@ async function generateReport() {
         document.body.style.overflow = 'auto';
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 <div style="max-width:1400px; margin:0 auto 40px; padding:0 30px;">
     <h2 style="font-size:1.1rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; border-left:4px solid var(--accent-color); padding-left:10px; margin-bottom:20px;">訂單國籍占比 (Order Nationality)</h2>
