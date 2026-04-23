@@ -202,6 +202,7 @@ async function generateReport() {
             }
         } catch(e) {}
         uiTemplate = uiTemplate
+            .replace(/\\n/g, '\n')
             .replace(/\$\{dateTitle\}/g, dateTitle)
             .replace(/\$\{reportTime\}/g, reportTime)
             .replace("${logoBase64 ? logoBase64 : 'https://ticket.ibon.com.tw/assets/img/logo.png'}", logoBase64 || 'https://ticket.ibon.com.tw/assets/img/logo.png');
@@ -215,6 +216,8 @@ async function generateReport() {
     window.addEventListener('load', function() {
         const s = summaryData;
         document.title = "ibon售票系統 2026年03月 分析報表 (A系統)";
+        const metaRows = document.getElementById('meta-total-rows');
+        if (metaRows) metaRows.innerText = s.meta.totalRows.toLocaleString();
         const h1 = document.querySelector('h1');
         if(h1) h1.innerText = "ibon售票系統 2026年03月 分析報表 (A系統)";
         
@@ -340,20 +343,20 @@ async function generateReport() {
 </script>
 
 <div style="max-width:1400px; margin:0 auto 40px; padding:0 30px;">
-    <h2 style="font-size:1.1rem; color:#a0a0a0; text-transform:uppercase; letter-spacing:1px; border-left:4px solid var(--accent-color); padding-left:10px; margin-bottom:20px;">訂單國籍占比 (Order Nationality)</h2>
+    <h2 style="font-size:1.1rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; border-left:4px solid var(--accent-color); padding-left:10px; margin-bottom:20px;">訂單國籍占比 (Order Nationality)</h2>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:25px;">
-        <div style="background:#1e1e1e; border-radius:16px; padding:25px; box-shadow:0 8px 16px rgba(0,0,0,0.3); border:1px solid #333;">
-            <h3 style="margin-top:0; color:#e0e0e0; border-left:4px solid var(--accent-color); padding-left:10px;">國籍分佈</h3>
+        <div style="background:var(--card-bg); border-radius:16px; padding:25px; box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.08);">
+            <h3 style="margin-top:0; color:var(--text-primary); border-left:4px solid var(--accent-color); padding-left:10px;">國籍分佈</h3>
             <div style="height:350px;"><canvas id="nationalityChart"></canvas></div>
         </div>
-        <div style="background:#1e1e1e; border-radius:16px; padding:25px; box-shadow:0 8px 16px rgba(0,0,0,0.3); border:1px solid #333;">
-            <h3 style="margin-top:0; color:#e0e0e0; border-left:4px solid var(--accent-color); padding-left:10px;">國籍明細</h3>
+        <div style="background:var(--card-bg); border-radius:16px; padding:25px; box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.08);">
+            <h3 style="margin-top:0; color:var(--text-primary); border-left:4px solid var(--accent-color); padding-left:10px;">國籍明細</h3>
             <table id="nationalityTable" style="width:100%; border-collapse:collapse; font-size:0.95em;">
                 <thead><tr>
-                    <th style="padding:15px; text-align:left; border-bottom:1px solid #333; color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">排名</th>
-                    <th style="padding:15px; text-align:left; border-bottom:1px solid #333; color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">國家/地區</th>
-                    <th style="padding:15px; text-align:right; border-bottom:1px solid #333; color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">訂單數</th>
-                    <th style="padding:15px; text-align:right; border-bottom:1px solid #333; color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">佔比</th>
+                    <th style="padding:15px; text-align:left; border-bottom:1px solid rgba(0,0,0,0.1); color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">排名</th>
+                    <th style="padding:15px; text-align:left; border-bottom:1px solid rgba(0,0,0,0.1); color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">國家/地區</th>
+                    <th style="padding:15px; text-align:right; border-bottom:1px solid rgba(0,0,0,0.1); color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">訂單數</th>
+                    <th style="padding:15px; text-align:right; border-bottom:1px solid rgba(0,0,0,0.1); color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">佔比</th>
                 </tr></thead>
                 <tbody></tbody>
             </table>
