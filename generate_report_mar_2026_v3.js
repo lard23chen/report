@@ -276,7 +276,7 @@ async function generateReport() {
                             const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                             const pct = (value / total * 100);
                             if (pct < 2) return '';
-                            return \`\${value.toLocaleString()}\n(\${pct.toFixed(1)}%)\`;
+                            return \`\${ctx.chart.data.labels[ctx.dataIndex]}\n\${pct.toFixed(1)}%\`;
                         }
                     }
                 }
