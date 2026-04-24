@@ -1709,6 +1709,39 @@ function dateDiff(a, b) {
     } catch(e) { return '—'; }
 }
 
+/* ── Day-of-week annotation ─────────────────────────────────── */
+function addDayOfWeek() {
+    var DOW = ['日','一','二','三','四','五','六'];
+    function dow(y, m, d) {
+        return '(' + DOW[new Date(+y, +m-1, +d).getDay()] + ')';
+    }
+
+    // Full YYYY/MM/DD dates in trip headers and flight departure cells
+    document.querySelectorAll('.trip-dates, .time-main').forEach(function(el) {
+        el.textContent = el.textContent.replace(
+            /(\d{4})\/(\d{1,2})\/(\d{1,2})(?!\()/g,
+            function(match, y, m, d) { return match + dow(y, m, d); }
+        );
+    });
+
+    // Hotel check-in / check-out: "M/D" format — infer year from parent trip
+    document.querySelectorAll('.hotel-dates').forEach(function(el) {
+        var t = el.textContent.trim();
+        if (!/^\d{1,2}\/\d{1,2}$/.test(t)) return;
+        var parts = t.split('/'), hm = +parts[0], hd = +parts[1];
+        var yr = new Date().getFullYear();
+        var tripEl = el.closest('.trip');
+        if (tripEl) {
+            var tdEl = tripEl.querySelector('.trip-dates');
+            if (tdEl) {
+                var mx = tdEl.textContent.match(/(\d{4})\/(\d{1,2})\/\d{1,2}/);
+                if (mx) yr = hm < +mx[2] ? +mx[1] + 1 : +mx[1];
+            }
+        }
+        el.textContent = t + dow(yr, hm, hd);
+    });
+}
+
 /* ── Init ───────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
     assignIds();
@@ -1736,6 +1769,7 @@ document.addEventListener('DOMContentLoaded', function() {
     /* Load store from MongoDB first, fallback to localStorage */
     loadFromMongo(function() {
         applyStore();
+        addDayOfWeek();
     });
 });
 
