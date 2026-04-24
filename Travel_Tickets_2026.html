@@ -1709,6 +1709,44 @@ function dateDiff(a, b) {
     } catch(e) { return '—'; }
 }
 
+/* ── Sort hotel rows by check-in date ──────────────────────── */
+function sortHotelTables() {
+    document.querySelectorAll('.hotel-section tbody').forEach(function(tbody) {
+        var rows = Array.from(tbody.querySelectorAll('tr'));
+        if (rows.length < 2) return;
+
+        // Infer trip start year/month for cross-year handling
+        var startYear = new Date().getFullYear(), startMonth = 1;
+        var tripEl = tbody.closest('.trip');
+        if (tripEl) {
+            var tdEl = tripEl.querySelector('.trip-dates');
+            if (tdEl) {
+                var mx = tdEl.textContent.match(/(\d{4})\/(\d{1,2})\/\d{1,2}/);
+                if (mx) { startYear = +mx[1]; startMonth = +mx[2]; }
+            }
+        }
+
+        function toDate(cell) {
+            if (!cell) return null;
+            var m = cell.textContent.trim().match(/^(\d{1,2})\/(\d{1,2})/);
+            if (!m) return null;
+            var hm = +m[1], hd = +m[2];
+            var yr = hm < startMonth ? startYear + 1 : startYear;
+            return new Date(yr, hm - 1, hd);
+        }
+
+        rows.sort(function(a, b) {
+            var da = toDate(a.querySelector('.hotel-dates'));
+            var db = toDate(b.querySelector('.hotel-dates'));
+            if (!da) return 1;
+            if (!db) return -1;
+            return da - db;
+        });
+
+        rows.forEach(function(row) { tbody.appendChild(row); });
+    });
+}
+
 /* ── Day-of-week annotation ─────────────────────────────────── */
 function addDayOfWeek() {
     var DOW = ['日','一','二','三','四','五','六'];
@@ -1769,6 +1807,7 @@ document.addEventListener('DOMContentLoaded', function() {
     /* Load store from MongoDB first, fallback to localStorage */
     loadFromMongo(function() {
         applyStore();
+        sortHotelTables();
         addDayOfWeek();
     });
 });
