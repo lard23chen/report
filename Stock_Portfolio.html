@@ -177,7 +177,7 @@ function googleFinanceUrl(code){
   var c=code.toString().trim();
   var first=parseInt(c.charAt(0));
   var exchange=(first===3||first===4)?'TPEX':'TPE';
-  return'https://www.google.com/finance/quote/'+c+':'+exchange+'?hl=zh-TW&window=6M';
+  return'https://www.google.com/finance/quote/'+c+':'+exchange;
 }
 
 function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US')}
