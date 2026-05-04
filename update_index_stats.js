@@ -112,10 +112,10 @@ async function updateIndexStats() {
                 <h3 style="color: var(--text-primary); font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
                     📊 月份交易統計
                 </h3>
-                <span style="font-size: 0.85rem; color: var(--text-secondary);">最後更新: ${new Date().toLocaleString('zh-TW')} (每月一號 08:30)</span>
+                <span id="lastUpdated" style="font-size: 0.85rem; color: var(--text-secondary);">最後更新: ${new Date().toLocaleString('zh-TW')} (每月一號 08:30)</span>
             </div>
-            
-            <div style="overflow-x: auto;">
+
+            <div style="overflow-x: hidden;">
                 <table style="width: 100%; border-collapse: separate; border-spacing: 0; color: var(--text-secondary); font-size: 0.95rem;">
                     <thead>
                         <tr>
@@ -144,28 +144,52 @@ async function updateIndexStats() {
 
             statsHtml += `
                         <tr style="transition: background-color 0.2s;">
-                            <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">${r._id}</td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">
+                            <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">${r._id}</td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
                                 ${r.salesOrderCount.toLocaleString()} ${getCompareHtml(r.salesOrderCount, nextMonth ? nextMonth.salesOrderCount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
                                 ${r.salesTicketCount.toLocaleString()} ${getCompareHtml(r.salesTicketCount, nextMonth ? nextMonth.salesTicketCount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
                                 NT$ ${r.salesAmount.toLocaleString()} ${getCompareHtml(r.salesAmount, nextMonth ? nextMonth.salesAmount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
                                 ${r.refundOrderCount.toLocaleString()} ${getCompareHtml(r.refundOrderCount, nextMonth ? nextMonth.refundOrderCount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
                                 ${r.refundTicketCount.toLocaleString()} ${getCompareHtml(r.refundTicketCount, nextMonth ? nextMonth.refundTicketCount : null)}
                             </td>
-                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
                                 NT$ ${r.refundFee.toLocaleString()} ${getCompareHtml(r.refundFee, nextMonth ? nextMonth.refundFee : null)}
                             </td>
                         </tr>
             `;
         });
+
+        // Build MoM analysis for the two most recent months
+        const momHtml = (() => {
+            if (validResults.length < 2) return '';
+            const cur = validResults[0];
+            const prev = validResults[1];
+            const pct = (c, p) => {
+                const diff = c - p;
+                const sign = diff >= 0 ? '+' : '';
+                return `${sign}${((diff / p) * 100).toFixed(1)}%`;
+            };
+            const fmt = (n) => (n / 10000).toFixed(1) + '萬';
+            const isUp = cur.salesAmount >= prev.salesAmount;
+            return `
+                <div style="margin-top:24px;">
+                    <h4 style="color:var(--accent-color);font-size:1rem;margin-bottom:10px;">最近月份趨勢分析 (MoM Analysis)</h4>
+                    <div style="background:#252525;border-radius:10px;padding:14px 18px;border-left:3px solid ${isUp ? '#66BB6A' : '#EF5350'};max-width:640px;line-height:1.8;font-size:0.92rem;">
+                        <div style="font-weight:700;margin-bottom:6px;color:var(--text-primary);">${cur._id} 較上月(${prev._id})</div>
+                        <div style="color:var(--text-secondary);">📊 <b style="color:var(--text-primary);">交易量：</b>購票筆數 ${pct(cur.salesOrderCount, prev.salesOrderCount)}，購票張數 ${pct(cur.salesTicketCount, prev.salesTicketCount)}。</div>
+                        <div style="color:var(--text-secondary);">💰 <b style="color:var(--text-primary);">收入：</b>購票金額 ${pct(cur.salesAmount, prev.salesAmount)}，本月達 NT$ ${cur.salesAmount.toLocaleString()}。</div>
+                        <div style="color:var(--text-secondary);">🔺 <b style="color:var(--text-primary);">退票：</b>退票筆數 ${pct(cur.refundOrderCount, prev.refundOrderCount)}、退票張數 ${pct(cur.refundTicketCount, prev.refundTicketCount)}。</div>
+                    </div>
+                </div>`;
+        })();
 
         statsHtml += `
                         <tr style="background-color: rgba(255, 255, 255, 0.05); font-weight: bold;">
@@ -179,6 +203,7 @@ async function updateIndexStats() {
                         </tr>
                     </tbody>
                 </table>
+                ${momHtml}
             </div>
             <div style="margin-top: 1rem; text-align: right; font-size: 0.85rem; color: var(--text-secondary);">
                 * 購票/退票筆數: 不重複訂單編號數 (Orders) / 購票張數: 實際票券數量 (Tickets)
