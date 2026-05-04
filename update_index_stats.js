@@ -81,6 +81,21 @@ async function updateIndexStats() {
 
         const validResults = results.filter(r => r._id && r._id.match(/^\d{4}-\d{2}$/));
 
+        // Convert Decimal128 to plain number
+        const toNum = (v) => {
+            if (v == null) return 0;
+            if (typeof v === 'number') return v;
+            if (v.$numberDecimal !== undefined) return parseFloat(v.$numberDecimal);
+            if (v.constructor && v.constructor.name === 'Decimal128') return parseFloat(v.toString());
+            return parseFloat(v) || 0;
+        };
+
+        // Normalize all results to plain numbers
+        validResults.forEach(r => {
+            r.salesAmount = toNum(r.salesAmount);
+            r.refundFee = toNum(r.refundFee);
+        });
+
         // Calculate Totals
         const totalSalesOrders = validResults.reduce((acc, r) => acc + r.salesOrderCount, 0);
         const totalSalesTickets = validResults.reduce((acc, r) => acc + r.salesTicketCount, 0);
