@@ -167,26 +167,83 @@ async function updateIndexStats() {
             `;
         });
 
-        // Build MoM analysis for the two most recent months
+        // Build MoM analysis for the two most recent months (E-system style)
         const momHtml = (() => {
             if (validResults.length < 2) return '';
             const cur = validResults[0];
             const prev = validResults[1];
-            const pct = (c, p) => {
-                const diff = c - p;
-                const sign = diff >= 0 ? '+' : '';
-                return `${sign}${((diff / p) * 100).toFixed(1)}%`;
+
+            const diff = (c, p) => c - p;
+            const pct = (c, p) => ((diff(c, p) / p) * 100).toFixed(1);
+            const sign = (n) => n >= 0 ? '+' : '';
+            const wan = (n) => {
+                const abs = Math.abs(n);
+                if (abs >= 100000000) return (n / 100000000).toFixed(2) + '億';
+                return (n / 10000).toFixed(0) + '萬';
             };
-            const fmt = (n) => (n / 10000).toFixed(1) + '萬';
-            const isUp = cur.salesAmount >= prev.salesAmount;
+            const describe = (pctVal, upWord, downWord) =>
+                parseFloat(pctVal) >= 0 ? upWord : downWord;
+
+            const orderDiff   = diff(cur.salesOrderCount, prev.salesOrderCount);
+            const ticketDiff  = diff(cur.salesTicketCount, prev.salesTicketCount);
+            const revDiff     = diff(cur.salesAmount, prev.salesAmount);
+            const rOrderDiff  = diff(cur.refundOrderCount, prev.refundOrderCount);
+            const rTicketDiff = diff(cur.refundTicketCount, prev.refundTicketCount);
+            const rFeeDiff    = diff(cur.refundFee, prev.refundFee);
+
+            const orderPct   = pct(cur.salesOrderCount, prev.salesOrderCount);
+            const ticketPct  = pct(cur.salesTicketCount, prev.salesTicketCount);
+            const revPct     = pct(cur.salesAmount, prev.salesAmount);
+            const rOrderPct  = pct(cur.refundOrderCount, prev.refundOrderCount);
+            const rTicketPct = pct(cur.refundTicketCount, prev.refundTicketCount);
+            const rFeePct    = pct(cur.refundFee, prev.refundFee);
+
+            const isRevUp = cur.salesAmount >= prev.salesAmount;
+            const borderColor = isRevUp ? '#66BB6A' : '#EF5350';
+
+            // 交易量描述
+            const volDesc = (() => {
+                const scale = Math.abs(parseFloat(orderPct));
+                const qualifier = scale >= 30 ? '大幅' : scale >= 10 ? '明顯' : '小幅';
+                const orderDir = parseFloat(orderPct) >= 0 ? '成長' : '下滑';
+                const orderLabel = `購票筆數${qualifier}${orderDir}（${sign(orderDiff)}${wan(orderDiff)}筆，${sign(orderDiff)}${orderPct}%）`;
+                const ticketScale = Math.abs(parseFloat(ticketPct));
+                const tQualifier = ticketScale >= 30 ? '大幅' : ticketScale >= 10 ? '明顯' : '小幅';
+                const ticketDir = parseFloat(ticketPct) >= 0 ? '增加' : '減少';
+                const ticketLabel = `購票張數${tQualifier}${ticketDir}（${sign(ticketDiff)}${wan(ticketDiff)}張，${sign(ticketDiff)}${ticketPct}%）`;
+                return `${orderLabel}；${ticketLabel}。`;
+            })();
+
+            // 收入描述
+            const revDesc = (() => {
+                const qualifier = Math.abs(parseFloat(revPct)) >= 30 ? '大幅' : Math.abs(parseFloat(revPct)) >= 10 ? '明顯' : '小幅';
+                const dirWord = isRevUp ? '增加' : '減少';
+                return `購票金額${qualifier}${dirWord}約 NT$${wan(Math.abs(revDiff))}（${sign(revDiff)}${revPct}%），本月達 NT$${wan(cur.salesAmount)}，客單價${isRevUp ? '提升' : '下滑'}。`;
+            })();
+
+            // 退票描述
+            const refundDesc = (() => {
+                const isRefundDown = cur.refundOrderCount < prev.refundOrderCount;
+                const emoji = isRefundDown ? '🔻' : '🔺';
+                const label = isRefundDown ? '退票改善' : '退票增加';
+                const orderLabel = `退票筆數 ${sign(rOrderDiff)}${rOrderPct}%（${sign(rOrderDiff)}${rOrderDiff.toLocaleString()} 筆）`;
+                const ticketLabel = `退票張數 ${sign(rTicketDiff)}${rTicketPct}%（${sign(rTicketDiff)}${rTicketDiff.toLocaleString()} 張）`;
+                const feeLabel = `退票手續費 ${sign(rFeeDiff)}${rFeePct}%`;
+                const feeNote = isRefundDown ? '，手續費同步減少。' : '，手續費亦增加。';
+                return `${emoji} <b style="color:var(--text-primary);">${label}：</b>${orderLabel}、${ticketLabel}；${feeLabel}${feeNote}`;
+            })();
+
+            const volEmoji  = parseFloat(orderPct) >= 0 ? '📊' : '📉';
+            const revEmoji  = isRevUp ? '💰' : '📉';
+
             return `
                 <div style="margin-top:24px;">
                     <h4 style="color:var(--accent-color);font-size:1rem;margin-bottom:10px;">最近月份趨勢分析 (MoM Analysis)</h4>
-                    <div style="background:#252525;border-radius:10px;padding:14px 18px;border-left:3px solid ${isUp ? '#66BB6A' : '#EF5350'};max-width:640px;line-height:1.8;font-size:0.92rem;">
+                    <div style="background:#252525;border-radius:10px;padding:14px 18px;border-left:3px solid ${borderColor};max-width:640px;line-height:1.8;font-size:0.92rem;">
                         <div style="font-weight:700;margin-bottom:6px;color:var(--text-primary);">${cur._id} 較上月(${prev._id})</div>
-                        <div style="color:var(--text-secondary);">📊 <b style="color:var(--text-primary);">交易量：</b>購票筆數 ${pct(cur.salesOrderCount, prev.salesOrderCount)}，購票張數 ${pct(cur.salesTicketCount, prev.salesTicketCount)}。</div>
-                        <div style="color:var(--text-secondary);">💰 <b style="color:var(--text-primary);">收入：</b>購票金額 ${pct(cur.salesAmount, prev.salesAmount)}，本月達 NT$ ${cur.salesAmount.toLocaleString()}。</div>
-                        <div style="color:var(--text-secondary);">🔺 <b style="color:var(--text-primary);">退票：</b>退票筆數 ${pct(cur.refundOrderCount, prev.refundOrderCount)}、退票張數 ${pct(cur.refundTicketCount, prev.refundTicketCount)}。</div>
+                        <div style="color:var(--text-secondary);">${volEmoji} <b style="color:var(--text-primary);">交易量：</b>${volDesc}</div>
+                        <div style="color:var(--text-secondary);">${revEmoji} <b style="color:var(--text-primary);">收入：</b>${revDesc}</div>
+                        <div style="color:var(--text-secondary);">${refundDesc}</div>
                     </div>
                 </div>`;
         })();
