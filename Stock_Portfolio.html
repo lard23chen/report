@@ -172,6 +172,14 @@ function yahooUrl(code){
   return'https://tw.stock.yahoo.com/quote/'+c+suffix;
 }
 
+function googleFinanceUrl(code){
+  if(!code)return'#';
+  var c=code.toString().trim();
+  var first=parseInt(c.charAt(0));
+  var exchange=(first===3||first===4)?'TPEX':'TPE';
+  return'https://www.google.com/finance/quote/'+c+':'+exchange+'?hl=zh-TW&window=6M';
+}
+
 function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('en-US')}
 function fmtP(n){if(!n&&n!==0)return'—';return Number(n).toFixed(2)}
 
@@ -370,7 +378,7 @@ function renderSummary(rows){
     var plEstimate=m.totalIncome-m.totalSpend;
     var realPL=todayPx ? (estVal+plEstimate) : null;
     html+=`<tr>
-      <td class="code">${m.code}</td><td>${m.name}</td><td><span class="${m.person==='mark'?'person-mark':'person-alex'}">${m.person.toUpperCase()}</span></td>
+      <td class="code"><a href="${googleFinanceUrl(m.code)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent)">${m.code}</a></td><td>${m.name}</td><td><span class="${m.person==='mark'?'person-mark':'person-alex'}">${m.person.toUpperCase()}</span></td>
       <td class="num">${fmtP(avgBuy)}</td><td class="num pos">${fmt(netShares)}</td><td class="num muted">${fmt(m.totalSpend)}</td><td class="num muted">${fmt(m.totalIncome)}</td>
       <td class="num"><input class="price-input" type="number" step="0.01" value="${todayPx||''}" onchange="savePrice('${m.code}',this.value)"></td>
       <td class="num est-val">${todayPx?fmt(estVal):'—'}</td><td class="num ${plEstimate>=0?'pos':'neg'}">${fmt(plEstimate)}</td>
