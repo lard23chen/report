@@ -459,15 +459,20 @@ function render(start, end) {
     </tr>\`).join('');
 
   // ── Country detail table ───────────────────────────────
+  const tdFirst = (rank, name, code, highlight) => {
+    const color = highlight ? '#4ade80' : 'var(--text)';
+    const border = 'border-bottom:1px solid rgba(255,255,255,0.05)';
+    return \`<td style="padding:.65rem 1rem;\${border}"><span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted)">\${rank}</span> <span style="font-weight:\${highlight?700:600};color:\${color}">\${name}</span> <span style="color:var(--muted);font-size:.76rem">(\${code})</span></td>\`;
+  };
   const twRow = \`<tr style="background:rgba(74,222,128,0.08)">
-    \${td0('<span style="display:inline-block;width:20px;text-align:center;font-weight:700;color:var(--muted)">—</span> <span style="font-weight:700;color:#4ade80">🇹🇼 台灣</span> <span style="color:var(--muted);font-size:.76rem">(TW)</span>')}
+    \${tdFirst('—','🇹🇼 台灣','TW',true)}
     \${tdR(fmt(tw.o||0)+badge(pct(tw.o||0,go),'#4ade80'),'#4ade80')}
     \${tdR(fmt(tw.t||0)+badge(pct(tw.t||0,gt),'#4ade80'),'#4ade80')}
     \${tdR('NT\$'+fmt(tw.r||0)+badge(pct(tw.r||0,gr),'#4ade80'),'#4ade80')}
     \${tdR(fmt(tw.ro||0),'#f87171')}
   </tr>\`;
   const ovDetailRows = ovR.slice(0,15).map((r,i)=>\`<tr>
-    \${td0('<span style="display:inline-block;width:20px;text-align:center;font-weight:700;color:var(--muted)">'+(i+1)+'</span> <span style="font-weight:600">\${cname(r.country)}</span> <span style="color:var(--muted);font-size:.76rem">(\${r.country})</span>')}
+    \${tdFirst(i+1, cname(r.country), r.country, false)}
     \${tdR(fmt(r.o)+badge(pct(r.o,go),'#60a5fa'))}
     \${tdR(fmt(r.t)+badge(pct(r.t,gt),'#a78bfa'))}
     \${tdR('NT\$'+fmt(r.r)+badge(pct(r.r,gr),'#4ade80'),'#4ade80')}
