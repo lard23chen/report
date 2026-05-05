@@ -123,24 +123,36 @@ const fmtM = n => { const a=Math.abs(n); return a>=100000000?(n/100000000).toFix
   const twAge  = ageBuckets.map(b => ageGeo.TW[b]||0);
   const ovAge  = ageBuckets.map(b => ageGeo.Overseas[b]||0);
 
-  // Overseas totals for % calculation
-  const ovTotalRev     = ovRows.reduce((s,r)=>s+r.revenue,0);
-  const ovTotalOrders  = ovRows.reduce((s,r)=>s+r.orders,0);
-  const ovTotalTickets = ovRows.reduce((s,r)=>s+r.tickets,0);
+  // Grand totals (TW + Overseas, exclude UNKNOWN) for % base
+  const grandRev     = (tw.revenue||0) + ovRows.reduce((s,r)=>s+r.revenue,0);
+  const grandOrders  = (tw.orders||0)  + ovRows.reduce((s,r)=>s+r.orders,0);
+  const grandTickets = (tw.tickets||0) + ovRows.reduce((s,r)=>s+r.tickets,0);
   const pct = (v,t) => t ? (v/t*100).toFixed(1)+'%' : '—';
   const badge = (p,col='#94a3b8') => `<span style="font-size:0.72rem;color:${col};margin-left:5px;">(${p})</span>`;
 
-  // Country table HTML
-  const countryRowsHtml = ovRows.slice(0,15).map((r,i) => `
+  // Country table HTML (TW first as reference row, then overseas top 15)
+  const twRefRow = `
+    <tr style="background:rgba(74,222,128,0.08);">
+      <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);">
+        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">—</span>
+        <span style="font-weight:700;color:#4ade80;">🇹🇼 台灣</span>
+        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(TW)</span>
+      </td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);color:#4ade80;font-weight:600;">${fmt(tw.orders||0)}${badge(pct(tw.orders||0,grandOrders),'#4ade80')}</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);color:#4ade80;font-weight:600;">${fmt(tw.tickets||0)}${badge(pct(tw.tickets||0,grandTickets),'#4ade80')}</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);color:#4ade80;font-weight:700;">NT$${fmt(tw.revenue||0)}${badge(pct(tw.revenue||0,grandRev),'#4ade80')}</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);color:#f87171;">${fmt(tw.refOrders||0)}</td>
+    </tr>`;
+  const countryRowsHtml = twRefRow + ovRows.slice(0,15).map((r,i) => `
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
         <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">${i+1}</span>
         <span style="font-weight:600;color:var(--text);">${countryName(r.country)}</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(${r.country})</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">${fmt(r.orders)}${badge(pct(r.orders,ovTotalOrders),'#60a5fa')}</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">${fmt(r.tickets)}${badge(pct(r.tickets,ovTotalTickets),'#a78bfa')}</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$${fmt(r.revenue)}${badge(pct(r.revenue,ovTotalRev),'#4ade80')}</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">${fmt(r.orders)}${badge(pct(r.orders,grandOrders),'#60a5fa')}</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">${fmt(r.tickets)}${badge(pct(r.tickets,grandTickets),'#a78bfa')}</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$${fmt(r.revenue)}${badge(pct(r.revenue,grandRev),'#4ade80')}</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">${fmt(r.refOrders)}</td>
     </tr>`).join('');
 
@@ -270,12 +282,19 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
         <th class="r" style="padding:6px 10px;border-bottom:1px solid var(--border);color:#a78bfa;">張數</th>
         <th class="r" style="padding:6px 10px;border-bottom:1px solid var(--border);color:#4ade80;">金額</th>
       </tr></thead>
-      <tbody>${ovRows.slice(0,10).map(r=>`
+      <tbody>
+        <tr style="background:rgba(74,222,128,0.08);">
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.06);font-weight:700;color:#4ade80;">🇹🇼 台灣</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.06);color:#4ade80;font-weight:600;">${fmt(tw.orders||0)}<span style="font-size:0.7rem;opacity:.8;margin-left:3px;">${pct(tw.orders||0,grandOrders)}</span></td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.06);color:#4ade80;font-weight:600;">${fmt(tw.tickets||0)}<span style="font-size:0.7rem;opacity:.8;margin-left:3px;">${pct(tw.tickets||0,grandTickets)}</span></td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.06);color:#4ade80;font-weight:600;">NT$${fmt(tw.revenue||0)}<span style="font-size:0.7rem;opacity:.8;margin-left:3px;">${pct(tw.revenue||0,grandRev)}</span></td>
+        </tr>
+        ${ovRows.slice(0,10).map(r=>`
         <tr>
           <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">${countryName(r.country)}</td>
-          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">${fmt(r.orders)}<span style="font-size:0.7rem;color:#60a5fa;opacity:.7;margin-left:3px;">${pct(r.orders,ovTotalOrders)}</span></td>
-          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">${fmt(r.tickets)}<span style="font-size:0.7rem;color:#a78bfa;opacity:.7;margin-left:3px;">${pct(r.tickets,ovTotalTickets)}</span></td>
-          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$${fmt(r.revenue)}<span style="font-size:0.7rem;color:#4ade80;opacity:.7;margin-left:3px;">${pct(r.revenue,ovTotalRev)}</span></td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">${fmt(r.orders)}<span style="font-size:0.7rem;color:#60a5fa;opacity:.7;margin-left:3px;">${pct(r.orders,grandOrders)}</span></td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">${fmt(r.tickets)}<span style="font-size:0.7rem;color:#a78bfa;opacity:.7;margin-left:3px;">${pct(r.tickets,grandTickets)}</span></td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$${fmt(r.revenue)}<span style="font-size:0.7rem;color:#4ade80;opacity:.7;margin-left:3px;">${pct(r.revenue,grandRev)}</span></td>
         </tr>`).join('')}
       </tbody>
     </table>
@@ -332,23 +351,29 @@ new Chart(document.getElementById('orderPie'),{type:'pie',data:{
   datasets:[{data:[${tw.orders||0},${ov.orders},${unk.orders||0}],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
 },options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+'筆'}}}}});
 
-// Bar: Country Revenue
-const ovRevTotal = ${Math.round(ovTotalRev)};
+// Bar: Country Revenue (TW first, then top 10 overseas)
+const grandRevTotal    = ${Math.round(grandRev)};
+const grandOrderTotal  = ${grandOrders};
+const grandTicketTotal = ${grandTickets};
+const revLabels  = ['🇹🇼 台灣', ...${JSON.stringify(ovRows.slice(0,10).map(r=>countryName(r.country)))}];
+const revData    = [${Math.round(tw.revenue||0)}, ...${JSON.stringify(ovRows.slice(0,10).map(r=>Math.round(r.revenue)))}];
+const revColors  = ['#4ade80', ...COLORS_BAR];
 new Chart(document.getElementById('countryBar'),{type:'bar',data:{
-  labels:${JSON.stringify(ovRows.slice(0,10).map(r=>countryName(r.country)))},
-  datasets:[{label:'購票金額',data:${JSON.stringify(ovRows.slice(0,10).map(r=>Math.round(r.revenue)))},backgroundColor:COLORS_BAR,borderRadius:6}]
-},options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{color:'#e2e8f0',anchor:'end',align:'right',font:{size:11},formatter:v=>{const p=(v/ovRevTotal*100).toFixed(1);return 'NT$'+v.toLocaleString('en-US')+' ('+p+'%)'}}},scales:{x:{ticks:{color:'#94a3b8',callback:v=>'$'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#e2e8f0'},grid:{display:false}}}}});
+  labels: revLabels,
+  datasets:[{label:'購票金額',data:revData,backgroundColor:revColors,borderRadius:6}]
+},options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{color:'#e2e8f0',anchor:'end',align:'right',font:{size:11},formatter:v=>{const p=(v/grandRevTotal*100).toFixed(1);return 'NT$'+v.toLocaleString('en-US')+' ('+p+'%)'}}},scales:{x:{ticks:{color:'#94a3b8',callback:v=>'$'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#e2e8f0'},grid:{display:false}}}}});
 
-// Bar: Country Orders vs Tickets
-const ovOrderTotal  = ${ovTotalOrders};
-const ovTicketTotal = ${ovTotalTickets};
+// Bar: Country Orders vs Tickets (TW first, then top 10 overseas)
+const cntLabels   = ['🇹🇼 台灣', ...${JSON.stringify(ovRows.slice(0,10).map(r=>countryName(r.country)))}];
+const orderData   = [${tw.orders||0}, ...${JSON.stringify(ovRows.slice(0,10).map(r=>r.orders))}];
+const ticketData  = [${tw.tickets||0}, ...${JSON.stringify(ovRows.slice(0,10).map(r=>r.tickets))}];
 new Chart(document.getElementById('countryCountBar'),{type:'bar',data:{
-  labels:${JSON.stringify(ovRows.slice(0,10).map(r=>countryName(r.country)))},
+  labels: cntLabels,
   datasets:[
-    {label:'購票筆數',data:${JSON.stringify(ovRows.slice(0,10).map(r=>r.orders))},backgroundColor:'#60a5fa',borderRadius:4},
-    {label:'購票張數',data:${JSON.stringify(ovRows.slice(0,10).map(r=>r.tickets))},backgroundColor:'#a78bfa',borderRadius:4}
+    {label:'購票筆數',data:orderData,backgroundColor:'#60a5fa',borderRadius:4},
+    {label:'購票張數',data:ticketData,backgroundColor:'#a78bfa',borderRadius:4}
   ]
-},options:{indexAxis:'y',plugins:{legend:{position:'top',labels:{color:'#e2e8f0',padding:10}},datalabels:{color:'#fff',anchor:'end',align:'right',font:{size:11},formatter:(v,ctx)=>{const tot=ctx.datasetIndex===0?ovOrderTotal:ovTicketTotal;const p=(v/tot*100).toFixed(1);return v+' ('+p+'%)'}}},scales:{x:{ticks:{color:'#94a3b8'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#e2e8f0'},grid:{display:false}}}}});
+},options:{indexAxis:'y',plugins:{legend:{position:'top',labels:{color:'#e2e8f0',padding:10}},datalabels:{color:'#fff',anchor:'end',align:'right',font:{size:11},formatter:(v,ctx)=>{const tot=ctx.datasetIndex===0?grandOrderTotal:grandTicketTotal;const p=(v/tot*100).toFixed(1);return v+' ('+p+'%)'}}},scales:{x:{ticks:{color:'#94a3b8'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#e2e8f0'},grid:{display:false}}}}});
 
 // Bar: Age
 new Chart(document.getElementById('ageBar'),{type:'bar',data:{
