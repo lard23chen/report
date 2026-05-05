@@ -298,6 +298,18 @@ async function updateIndexStats() {
         fs.writeFileSync(indexPath, htmlContent, 'utf-8');
         console.log("Updated report_index.html successfully.");
 
+        // Update Header Date
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+        const timeStr = now.toLocaleString('zh-TW');
+
+        htmlContent = fs.readFileSync(indexPath, 'utf-8');
+        htmlContent = htmlContent.replace(/<div style="color: var\(--text-primary\); font-weight: 600;">.*?<\/div>/, `<div style="color: var(--text-primary); font-weight: 600;">${dateStr}</div>`);
+        htmlContent = htmlContent.replace(/<div>報表產生時間：.*?<\/div>/, `<div>報表產生時間：${timeStr}</div>`);
+        
+        fs.writeFileSync(indexPath, htmlContent, 'utf-8');
+        console.log("Updated header date and time successfully.");
+
     } catch (err) {
         console.error("Error:", err);
     } finally {

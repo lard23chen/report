@@ -147,8 +147,9 @@ background:
 | `generate_report_jan_2026_v3.js` | 產生 1 月正確數字 |
 | `generate_report_feb_2026_v3.js` | 產生 2 月正確數字 |
 | `generate_report_mar_2026_v3.js` | 產生 3 月正確數字 |
+| `update_index_stats.js` | 從 MongoDB 聚合所有月份數據，自動更新統計表、趨勢圖以及頁首產生時間 |
 | `update_all_verified.js` | ⚠️ 已知使用錯誤數字，勿使用 |
 
 ---
 
-*最後更新日期：2026/04/01*
+*最後更新日期：2026/05/05*
