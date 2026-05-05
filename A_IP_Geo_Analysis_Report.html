@@ -43,7 +43,7 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
   <div>
     <h1>🌐 本月 IP 地理分析報表 (A系統)</h1>
     <div style="font-size:.8rem;color:#4ade80;font-weight:600;">2026年05月</div>
-    <div id="range-info" style="font-size:.78rem;color:var(--muted)">產生時間：2026/5/5 下午4:21:25</div>
+    <div id="range-info" style="font-size:.78rem;color:var(--muted)">產生時間：2026/5/5 下午4:30:52</div>
   </div>
   <div class="filter-bar">
     <span style="color:var(--muted);font-size:.82rem;">查詢區間</span>
@@ -396,7 +396,7 @@ function render(start, end, sh, eh) {
   const slotFmt = s => { const h=Math.floor(s/2),m=(s%2)*30; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'); };
   const hourLabel = (sh!==0||eh!==47) ? ` | 時段：${slotFmt(sh)}～${slotFmt(eh)}` : '';
   const label = (start&&end) ? `查詢區間：${start} ~ ${end}${hourLabel}` : `資料範圍：${MIN_DATE} ~ ${MAX_DATE}（全部）${hourLabel}`;
-  document.getElementById('range-info').textContent = label + '  |  產生時間：2026/5/5 下午4:21:25';
+  document.getElementById('range-info').textContent = label + '  |  產生時間：2026/5/5 下午4:30:52';
 }
 
 function applyFilter() {
@@ -440,7 +440,19 @@ function setThisMonth() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initCharts();
-  render('2026-05-01', '2026-05-05');
+  const params = new URLSearchParams(window.location.search);
+  const sd = params.get('startDate'), ed = params.get('endDate');
+  const sh = params.get('startHour') !== null ? parseInt(params.get('startHour')) : 0;
+  const eh = params.get('endHour') !== null ? parseInt(params.get('endHour')) : 47;
+  if (sd && ed) {
+    document.getElementById('startDate').value = sd;
+    document.getElementById('endDate').value = ed;
+    document.getElementById('startHour').value = String(sh);
+    document.getElementById('endHour').value = String(eh);
+    render(sd, ed, sh, eh);
+  } else {
+    render('2026-05-01', '2026-05-05');
+  }
 });
 </script>
 </body>

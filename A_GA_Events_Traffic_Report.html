@@ -1082,7 +1082,16 @@
         document.getElementById('subMaxOrdersTime').innerText = "發生時間點: " + (maxOrdersTime || '-');
         document.getElementById('subMaxTicketsTime').innerText = "發生時間點: " + (maxTicketsTime || '-');
         
-        document.getElementById('valTime').innerText = d.start.slice(5) + " ~ " + d.end.slice(5);
+        (function() {
+            var _sd = d.start.slice(0, 10), _ed = d.end.slice(0, 10);
+            var _sParts = d.start.slice(11).split(':'), _eParts = d.end.slice(11).split(':');
+            var _sh = parseInt(_sParts[0])*2 + (parseInt(_sParts[1]||0)>=30?1:0);
+            var _eh = parseInt(_eParts[0])*2 + (parseInt(_eParts[1]||0)>=30?1:0);
+            var _isThisMonth = _sd.slice(0,7) === new Date().toISOString().slice(0,7);
+            var _geoBase = _isThisMonth ? 'A_IP_Geo_Analysis_Report.html' : 'A_IP_Geo_Analysis_Report_Historical.html';
+            var _url = _geoBase + '?startDate=' + _sd + '&endDate=' + _ed + '&startHour=' + _sh + '&endHour=' + _eh;
+            document.getElementById('valTime').innerHTML = '<a href="' + _url + '" target="_blank" title="查看 IP 地理分析" style="color:#60a5fa;text-decoration:underline dotted;">' + d.start.slice(5) + ' ~ ' + d.end.slice(5) + '</a>';
+        })();
         document.getElementById('valTimeSub').innerText = "總數據點數: " + d.data.length;
 
         // Update Table — show from 10 rows before peak session onwards

@@ -567,7 +567,19 @@ function setThisYear() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initCharts();
-  render(null, null);
+  const params = new URLSearchParams(window.location.search);
+  const sd = params.get('startDate'), ed = params.get('endDate');
+  const sh = params.get('startHour') !== null ? parseInt(params.get('startHour')) : 0;
+  const eh = params.get('endHour') !== null ? parseInt(params.get('endHour')) : 47;
+  if (sd && ed) {
+    document.getElementById('startDate').value = sd;
+    document.getElementById('endDate').value = ed;
+    document.getElementById('startHour').value = String(sh);
+    document.getElementById('endHour').value = String(eh);
+    render(sd, ed, sh, eh);
+  } else {
+    render(null, null);
+  }
 });
 <\/script>
 </body>
