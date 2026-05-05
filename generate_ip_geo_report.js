@@ -108,14 +108,18 @@ const toNum = v => {
     }
   }
 
-  const now = new Date().toLocaleString('zh-TW');
+  const nowObj = new Date();
+  const now = nowObj.toLocaleString('zh-TW');
+  const thisMonthStart = `${nowObj.getFullYear()}-${String(nowObj.getMonth()+1).padStart(2,'0')}-01`;
+  const thisMonthEnd   = nowObj.toISOString().split('T')[0];
+  const thisMonthLabel = `${nowObj.getFullYear()}年${String(nowObj.getMonth()+1).padStart(2,'0')}月`;
 
   const html = `<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>IP 地理分析報表 (A系統)</title>
+<title>本月 IP 地理分析報表 (A系統) | ${thisMonthLabel}</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"><\/script>
 <style>
@@ -152,15 +156,17 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
 <body>
 <header>
   <div>
-    <h1>🌐 IP 地理分析報表 (A系統)</h1>
-    <div id="range-info">產生時間：${now}</div>
+    <h1>🌐 本月 IP 地理分析報表 (A系統)</h1>
+    <div style="font-size:.8rem;color:#4ade80;font-weight:600;">${thisMonthLabel}</div>
+    <div id="range-info" style="font-size:.78rem;color:var(--muted)">產生時間：${now}</div>
   </div>
   <div class="filter-bar">
     <span style="color:var(--muted);font-size:.82rem;">查詢區間</span>
-    <input type="date" id="startDate" value="${minDate}">
+    <input type="date" id="startDate" value="${thisMonthStart}" min="${minDate}" max="${maxDate}">
     <span style="color:var(--muted)">~</span>
-    <input type="date" id="endDate" value="${maxDate}">
+    <input type="date" id="endDate" value="${thisMonthEnd}" min="${minDate}" max="${maxDate}">
     <button class="btn btn-primary" onclick="applyFilter()">查詢</button>
+    <button class="btn btn-ghost" onclick="setThisMonth()">本月</button>
     <button class="btn btn-ghost" onclick="setPreset(30)">近30天</button>
     <button class="btn btn-ghost" onclick="setPreset(90)">近90天</button>
     <button class="btn btn-ghost" onclick="resetFilter()">全部</button>
@@ -523,9 +529,15 @@ function setPreset(days) {
   render(s, e);
 }
 
+function setThisMonth() {
+  document.getElementById('startDate').value = '${thisMonthStart}';
+  document.getElementById('endDate').value   = '${thisMonthEnd}';
+  render('${thisMonthStart}', '${thisMonthEnd}');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initCharts();
-  render(null, null);
+  render('${thisMonthStart}', '${thisMonthEnd}');
 });
 <\/script>
 </body>

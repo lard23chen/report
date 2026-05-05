@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>IP 地理分析報表 (A系統)</title>
+<title>本月 IP 地理分析報表 (A系統) | 2026年05月</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <style>
@@ -40,15 +40,17 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
 <body>
 <header>
   <div>
-    <h1>🌐 IP 地理分析報表 (A系統)</h1>
-    <div id="range-info">產生時間：2026/5/5 上午10:56:40</div>
+    <h1>🌐 本月 IP 地理分析報表 (A系統)</h1>
+    <div style="font-size:.8rem;color:#4ade80;font-weight:600;">2026年05月</div>
+    <div id="range-info" style="font-size:.78rem;color:var(--muted)">產生時間：2026/5/5 上午11:00:53</div>
   </div>
   <div class="filter-bar">
     <span style="color:var(--muted);font-size:.82rem;">查詢區間</span>
-    <input type="date" id="startDate" value="2026-05-01">
+    <input type="date" id="startDate" value="2026-05-01" min="2026-05-01" max="2026-05-04">
     <span style="color:var(--muted)">~</span>
-    <input type="date" id="endDate" value="2026-05-04">
+    <input type="date" id="endDate" value="2026-05-05" min="2026-05-01" max="2026-05-04">
     <button class="btn btn-primary" onclick="applyFilter()">查詢</button>
+    <button class="btn btn-ghost" onclick="setThisMonth()">本月</button>
     <button class="btn btn-ghost" onclick="setPreset(30)">近30天</button>
     <button class="btn btn-ghost" onclick="setPreset(90)">近90天</button>
     <button class="btn btn-ghost" onclick="resetFilter()">全部</button>
@@ -384,7 +386,7 @@ function render(start, end) {
 
   // ── Range info ─────────────────────────────────────────
   const label = (start&&end) ? `查詢區間：${start} ~ ${end}` : `資料範圍：${MIN_DATE} ~ ${MAX_DATE}（全部）`;
-  document.getElementById('range-info').textContent = label + '  |  產生時間：2026/5/5 上午10:56:40';
+  document.getElementById('range-info').textContent = label + '  |  產生時間：2026/5/5 上午11:00:53';
 }
 
 function applyFilter() {
@@ -411,9 +413,15 @@ function setPreset(days) {
   render(s, e);
 }
 
+function setThisMonth() {
+  document.getElementById('startDate').value = '2026-05-01';
+  document.getElementById('endDate').value   = '2026-05-05';
+  render('2026-05-01', '2026-05-05');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initCharts();
-  render(null, null);
+  render('2026-05-01', '2026-05-05');
 });
 </script>
 </body>
