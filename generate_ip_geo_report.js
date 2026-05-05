@@ -244,8 +244,34 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
     <canvas id="countryBar" height="260"></canvas>
   </div>
   <div class="card">
+    <div style="font-weight:600;margin-bottom:16px;color:var(--text);">海外前 10 國家（購票筆數 vs 張數）</div>
+    <canvas id="countryCountBar" height="260"></canvas>
+  </div>
+</div>
+
+<div class="chart-grid">
+  <div class="card">
     <div style="font-weight:600;margin-bottom:16px;color:var(--text);">年齡分布：台灣 vs 海外</div>
     <canvas id="ageBar" height="260"></canvas>
+  </div>
+  <div class="card" style="display:flex;flex-direction:column;justify-content:center;">
+    <div style="font-weight:600;margin-bottom:14px;color:var(--text);">海外前 10 國家 綜合數據</div>
+    <table style="font-size:0.82rem;">
+      <thead><tr>
+        <th style="padding:6px 10px;border-bottom:1px solid var(--border);">國家</th>
+        <th class="r" style="padding:6px 10px;border-bottom:1px solid var(--border);color:#60a5fa;">筆數</th>
+        <th class="r" style="padding:6px 10px;border-bottom:1px solid var(--border);color:#a78bfa;">張數</th>
+        <th class="r" style="padding:6px 10px;border-bottom:1px solid var(--border);color:#4ade80;">金額</th>
+      </tr></thead>
+      <tbody>${ovRows.slice(0,10).map(r=>`
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">${countryName(r.country)}</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">${fmt(r.orders)}</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">${fmt(r.tickets)}</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$${fmt(r.revenue)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
   </div>
 </div>
 
