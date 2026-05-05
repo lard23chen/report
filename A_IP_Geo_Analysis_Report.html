@@ -33,7 +33,7 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
 <header>
   <div>
     <h1>🌐 IP 地理分析報表 (A系統)</h1>
-    <span style="color:var(--muted);font-size:0.82rem;">資料範圍：2026-05 &nbsp;|&nbsp; 產生時間：2026/5/4 下午5:03:10</span>
+    <span style="color:var(--muted);font-size:0.82rem;">資料範圍：2026-05 &nbsp;|&nbsp; 產生時間：2026/5/5 上午8:35:56</span>
   </div>
   <a href="report_index.html" style="margin-left:auto;color:var(--muted);font-size:0.82rem;text-decoration:none;">← 返回報表中心</a>
 </header>
@@ -45,33 +45,33 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
 <div class="kpi-grid">
   <div class="kpi">
     <div class="kpi-label">🇹🇼 台灣 購票金額</div>
-    <div class="kpi-value tw">NT$805.5萬</div>
-    <div class="kpi-sub">占比 83.0%&nbsp;|&nbsp;4,131 筆 / 12,662 張</div>
+    <div class="kpi-value tw">NT$1125.5萬</div>
+    <div class="kpi-sub">占比 84.7%&nbsp;|&nbsp;5,831 筆 / 16,925 張</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">🌏 海外 購票金額</div>
-    <div class="kpi-value ov">NT$53.4萬</div>
-    <div class="kpi-sub">占比 5.5%&nbsp;|&nbsp;181 筆 / 302 張</div>
+    <div class="kpi-value ov">NT$61.3萬</div>
+    <div class="kpi-sub">占比 4.6%&nbsp;|&nbsp;226 筆 / 392 張</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">❓ IP無法識別</div>
-    <div class="kpi-value uk">NT$112.1萬</div>
-    <div class="kpi-sub">占比 11.5%&nbsp;|&nbsp;765 筆</div>
+    <div class="kpi-value uk">NT$142.3萬</div>
+    <div class="kpi-sub">占比 10.7%&nbsp;|&nbsp;976 筆</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">🌍 海外國家數</div>
-    <div class="kpi-value" style="color:var(--warning)">17</div>
+    <div class="kpi-value" style="color:var(--warning)">19</div>
     <div class="kpi-sub">個不同國家/地區</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">🇹🇼 台灣 退票筆數</div>
-    <div class="kpi-value" style="color:#f87171">124</div>
-    <div class="kpi-sub">退票張數 209張 / 手續費 NT$15,392</div>
+    <div class="kpi-value" style="color:#f87171">195</div>
+    <div class="kpi-sub">退票張數 338張 / 手續費 NT$26,637</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">🌏 海外 退票筆數</div>
-    <div class="kpi-value" style="color:#f87171">4</div>
-    <div class="kpi-sub">退票張數 7張 / 手續費 NT$583</div>
+    <div class="kpi-value" style="color:#f87171">12</div>
+    <div class="kpi-sub">退票張數 21張 / 手續費 NT$1,615</div>
   </div>
 </div>
 
@@ -93,8 +93,88 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
     <canvas id="countryBar" height="260"></canvas>
   </div>
   <div class="card">
+    <div style="font-weight:600;margin-bottom:16px;color:var(--text);">海外前 10 國家（購票筆數 vs 張數）</div>
+    <canvas id="countryCountBar" height="260"></canvas>
+  </div>
+</div>
+
+<div class="chart-grid">
+  <div class="card">
     <div style="font-weight:600;margin-bottom:16px;color:var(--text);">年齡分布：台灣 vs 海外</div>
     <canvas id="ageBar" height="260"></canvas>
+  </div>
+  <div class="card" style="display:flex;flex-direction:column;justify-content:center;">
+    <div style="font-weight:600;margin-bottom:14px;color:var(--text);">海外前 10 國家 綜合數據</div>
+    <table style="font-size:0.82rem;">
+      <thead><tr>
+        <th style="padding:6px 10px;border-bottom:1px solid var(--border);">國家</th>
+        <th class="r" style="padding:6px 10px;border-bottom:1px solid var(--border);color:#60a5fa;">筆數</th>
+        <th class="r" style="padding:6px 10px;border-bottom:1px solid var(--border);color:#a78bfa;">張數</th>
+        <th class="r" style="padding:6px 10px;border-bottom:1px solid var(--border);color:#4ade80;">金額</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">美國</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">78</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">153</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$194,719</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">日本</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">53</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">74</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$160,100</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">香港</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">38</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">51</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$89,040</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">瑞典</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">10</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">26</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$51,240</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">韓國</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">7</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">8</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$18,290</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">澳門</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">3</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">6</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$18,000</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">印度</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">4</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">7</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$17,680</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">泰國</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">3</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">4</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$14,247</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">新加坡</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">5</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">12</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$8,250</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500;">澳洲</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#60a5fa;">3</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#a78bfa;">3</td>
+          <td style="text-align:right;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#4ade80;">NT$8,040</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -116,10 +196,10 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
         <span style="font-weight:600;color:var(--text);">美國</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(US)</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">59</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">111</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$153,369</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">3</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">78</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">153</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$194,719</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">4</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
@@ -127,10 +207,10 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
         <span style="font-weight:600;color:var(--text);">日本</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(JP)</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">44</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">60</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$150,720</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">0</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">53</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">74</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$160,100</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">4</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
@@ -138,10 +218,10 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
         <span style="font-weight:600;color:var(--text);">香港</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(HK)</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">33</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">43</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$82,790</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">0</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">38</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">51</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$89,040</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">1</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
@@ -149,14 +229,25 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
         <span style="font-weight:600;color:var(--text);">瑞典</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(SE)</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">9</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">22</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$46,840</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">10</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">26</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$51,240</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">0</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
         <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">5</span>
+        <span style="font-weight:600;color:var(--text);">韓國</span>
+        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(KR)</span>
+      </td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">7</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">8</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$18,290</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">1</td>
+    </tr>
+    <tr>
+      <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">6</span>
         <span style="font-weight:600;color:var(--text);">澳門</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(MO)</span>
       </td>
@@ -167,7 +258,7 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">6</span>
+        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">7</span>
         <span style="font-weight:600;color:var(--text);">印度</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(IN)</span>
       </td>
@@ -178,29 +269,29 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">7</span>
-        <span style="font-weight:600;color:var(--text);">韓國</span>
-        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(KR)</span>
-      </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">7</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">8</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$17,490</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">0</td>
-    </tr>
-    <tr>
-      <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
         <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">8</span>
         <span style="font-weight:600;color:var(--text);">泰國</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(TH)</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">2</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">3</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$11,648</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">4</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$14,247</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">0</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
         <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">9</span>
+        <span style="font-weight:600;color:var(--text);">新加坡</span>
+        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(SG)</span>
+      </td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">5</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">12</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$8,250</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">1</td>
+    </tr>
+    <tr>
+      <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">10</span>
         <span style="font-weight:600;color:var(--text);">澳洲</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(AU)</span>
       </td>
@@ -211,7 +302,7 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">10</span>
+        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">11</span>
         <span style="font-weight:600;color:var(--text);">孟加拉</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(BD)</span>
       </td>
@@ -222,58 +313,47 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">11</span>
+        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">12</span>
         <span style="font-weight:600;color:var(--text);">保加利亞</span>
         <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(BG)</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">6</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">14</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$5,860</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">7</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">15</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$6,260</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">0</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">12</span>
-        <span style="font-weight:600;color:var(--text);">新加坡</span>
-        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(SG)</span>
-      </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">3</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">8</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$5,450</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">1</td>
-    </tr>
-    <tr>
-      <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
         <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">13</span>
-        <span style="font-weight:600;color:var(--text);">馬來西亞</span>
-        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(MY)</span>
+        <span style="font-weight:600;color:var(--text);">英國</span>
+        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(GB)</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">3</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">5</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$2,800</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">2</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">6</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$4,100</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">0</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
         <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">14</span>
-        <span style="font-weight:600;color:var(--text);">越南</span>
-        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(VN)</span>
+        <span style="font-weight:600;color:var(--text);">馬來西亞</span>
+        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(MY)</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">1</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">4</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$2,700</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">6</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$3,900</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">0</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
         <span style="display:inline-block;width:22px;text-align:center;font-weight:700;color:var(--muted);">15</span>
-        <span style="font-weight:600;color:var(--text);">德國</span>
-        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(DE)</span>
+        <span style="font-weight:600;color:var(--text);">挪威</span>
+        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(NO)</span>
       </td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">1</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">3</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$1,800</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">0</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">2</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">5</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;font-weight:600;">NT$3,800</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);">1</td>
     </tr></tbody>
   </table>
 </div>
@@ -292,36 +372,36 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
     <tbody>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);font-weight:500;">信用卡</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">3,932</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$6,157,804</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">179</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#60a5fa;">NT$528,447</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">5,563</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$9,025,802</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">223</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#60a5fa;">NT$604,476</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);font-weight:500;">現金</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">178</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$1,788,465</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">243</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$2,098,525</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">0</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#60a5fa;">NT$0</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);font-weight:500;">LINE Pay</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">10</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$75,176</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">1</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#60a5fa;">NT$3,600</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">12</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$90,176</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">2</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#60a5fa;">NT$7,200</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);font-weight:500;">ATM虛擬帳號</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">9</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$24,800</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">10</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$28,400</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">1</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#60a5fa;">NT$1,600</td>
     </tr>
     <tr>
       <td style="padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);font-weight:500;">行動支付</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">2</td>
-      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$8,800</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">3</td>
+      <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#4ade80;">NT$12,188</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);">0</td>
       <td style="text-align:right;padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:#60a5fa;">NT$0</td>
     </tr></tbody>
@@ -338,28 +418,37 @@ const COLORS_BAR = ['#3b82f6','#f59e0b','#10b981','#f87171','#a78bfa','#fb923c',
 
 // Pie: Revenue
 new Chart(document.getElementById('revPie'),{type:'pie',data:{
-  labels:['台灣 (83.0%)','海外 (5.5%)','未識別 (11.5%)'],
-  datasets:[{data:[8055045,533647,1120794],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
+  labels:['台灣 (84.7%)','海外 (4.6%)','未識別 (10.7%)'],
+  datasets:[{data:[11255091,613276,1422921],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
 },options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' NT$'+Math.round(c.raw).toLocaleString('en-US')}}}}});
 
 // Pie: Orders
 new Chart(document.getElementById('orderPie'),{type:'pie',data:{
   labels:['台灣','海外','未識別'],
-  datasets:[{data:[4131,181,765],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
+  datasets:[{data:[5831,226,976],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
 },options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+'筆'}}}}});
 
-// Bar: Country
+// Bar: Country Revenue
 new Chart(document.getElementById('countryBar'),{type:'bar',data:{
-  labels:["美國","日本","香港","瑞典","澳門","印度","韓國","泰國","澳洲","孟加拉"],
-  datasets:[{label:'購票金額',data:[153369,150720,82790,46840,18000,17680,17490,11648,8040,6560],backgroundColor:COLORS_BAR,borderRadius:6}]
+  labels:["美國","日本","香港","瑞典","韓國","澳門","印度","泰國","新加坡","澳洲"],
+  datasets:[{label:'購票金額',data:[194719,160100,89040,51240,18290,18000,17680,14247,8250,8040],backgroundColor:COLORS_BAR,borderRadius:6}]
 },options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{color:'#e2e8f0',anchor:'end',align:'right',formatter:v=>'NT$'+Math.round(v).toLocaleString('en-US')}},scales:{x:{ticks:{color:'#94a3b8',callback:v=>'$'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#e2e8f0'},grid:{display:false}}}}});
+
+// Bar: Country Orders vs Tickets
+new Chart(document.getElementById('countryCountBar'),{type:'bar',data:{
+  labels:["美國","日本","香港","瑞典","韓國","澳門","印度","泰國","新加坡","澳洲"],
+  datasets:[
+    {label:'購票筆數',data:[78,53,38,10,7,3,4,3,5,3],backgroundColor:'#60a5fa',borderRadius:4},
+    {label:'購票張數',data:[153,74,51,26,8,6,7,4,12,3],backgroundColor:'#a78bfa',borderRadius:4}
+  ]
+},options:{indexAxis:'y',plugins:{legend:{position:'top',labels:{color:'#e2e8f0',padding:10}},datalabels:{color:'#fff',anchor:'end',align:'right',formatter:v=>v}},scales:{x:{ticks:{color:'#94a3b8'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#e2e8f0'},grid:{display:false}}}}});
 
 // Bar: Age
 new Chart(document.getElementById('ageBar'),{type:'bar',data:{
   labels:["<20","20-29","30-39","40-49","50-59","60+"],
   datasets:[
-    {label:'🇹🇼 台灣',data:[306,2406,2506,2153,537,77],backgroundColor:'#4ade80',borderRadius:4},
-    {label:'🌏 海外',data:[9,128,72,52,36,5],backgroundColor:'#60a5fa',borderRadius:4}
+    {label:'🇹🇼 台灣',data:[455,3450,3760,2948,670,96],backgroundColor:'#4ade80',borderRadius:4},
+    {label:'🌏 海外',data:[15,155,91,76,49,6],backgroundColor:'#60a5fa',borderRadius:4}
   ]
 },options:{plugins:{legend:{position:'top',labels:{color:'#e2e8f0'}},datalabels:{display:false}},scales:{x:{ticks:{color:'#e2e8f0'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#94a3b8'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
 </script>

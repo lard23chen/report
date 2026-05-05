@@ -325,11 +325,20 @@ new Chart(document.getElementById('orderPie'),{type:'pie',data:{
   datasets:[{data:[${tw.orders||0},${ov.orders},${unk.orders||0}],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
 },options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+'筆'}}}}});
 
-// Bar: Country
+// Bar: Country Revenue
 new Chart(document.getElementById('countryBar'),{type:'bar',data:{
   labels:${JSON.stringify(ovRows.slice(0,10).map(r=>countryName(r.country)))},
   datasets:[{label:'購票金額',data:${JSON.stringify(ovRows.slice(0,10).map(r=>r.revenue))},backgroundColor:COLORS_BAR,borderRadius:6}]
 },options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{color:'#e2e8f0',anchor:'end',align:'right',formatter:v=>'NT$'+Math.round(v).toLocaleString('en-US')}},scales:{x:{ticks:{color:'#94a3b8',callback:v=>'$'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#e2e8f0'},grid:{display:false}}}}});
+
+// Bar: Country Orders vs Tickets
+new Chart(document.getElementById('countryCountBar'),{type:'bar',data:{
+  labels:${JSON.stringify(ovRows.slice(0,10).map(r=>countryName(r.country)))},
+  datasets:[
+    {label:'購票筆數',data:${JSON.stringify(ovRows.slice(0,10).map(r=>r.orders))},backgroundColor:'#60a5fa',borderRadius:4},
+    {label:'購票張數',data:${JSON.stringify(ovRows.slice(0,10).map(r=>r.tickets))},backgroundColor:'#a78bfa',borderRadius:4}
+  ]
+},options:{indexAxis:'y',plugins:{legend:{position:'top',labels:{color:'#e2e8f0',padding:10}},datalabels:{color:'#fff',anchor:'end',align:'right',formatter:v=>v}},scales:{x:{ticks:{color:'#94a3b8'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#e2e8f0'},grid:{display:false}}}}});
 
 // Bar: Age
 new Chart(document.getElementById('ageBar'),{type:'bar',data:{
