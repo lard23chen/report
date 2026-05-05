@@ -77,24 +77,38 @@ app.post('/api/stock/delete', async (req, res) => {
 app.get('/api/stock/prices', async (req, res) => {
     try {
         const codes = req.query.codes ? req.query.codes.split(',') : [];
-        if (codes.length === 0) return res.json({ ok: true, prices: {} });
+        if (codes.length === 0) return res.json({ ok: true, prices: {}, time: new Date().toLocaleString('zh-TW') });
 
-        const parts = codes.flatMap(c => [`tse_${c}.tw`, `otc_${c}.tw`]);
+        // Filter and sanitize codes
+        const cleanCodes = codes.map(c => c.toString().trim()).filter(c => c.length >= 2);
+        const parts = cleanCodes.flatMap(c => [`tse_${c}.tw`, `otc_${c}.tw`]);
         const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${parts.join('|')}&json=1&delay=0&_=${Date.now()}`;
         
-        // Use node-fetch polyfill or check environment
-        const response = await fetch(url);
+        console.log('Fetching prices from TWSE:', cleanCodes.join(','));
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Referer': 'https://mis.twse.com.tw/'
+            }
+        });
         const twseData = await response.json();
         
         const prices = {};
         if (twseData.msgArray) {
             twseData.msgArray.forEach(item => {
-                const px = parseFloat((item.z && item.z !== '-') ? item.z : (item.y || item.pz || '0'));
-                if (item.c && px > 0) prices[item.c] = px;
+                // z: 最近成交價, y: 昨收, pz: 昨收(備援), o: 開盤
+                const px = parseFloat((item.z && item.z !== '-') ? item.z : (item.y && item.y !== '-' ? item.y : (item.pz && item.pz !== '-' ? item.pz : '0')));
+                if (item.c && px > 0) {
+                    // 如果已經有值(tse)，不要被 0 或更差的值覆蓋
+                    if (!prices[item.c] || prices[item.c] === 0) {
+                        prices[item.c] = px;
+                    }
+                }
             });
         }
-        res.json({ ok: true, prices });
+        res.json({ ok: true, prices, time: new Date().toLocaleString('zh-TW') });
     } catch (e) {
+        console.error('Price API Error:', e);
         res.status(500).json({ ok: false, error: e.message });
     }
 });

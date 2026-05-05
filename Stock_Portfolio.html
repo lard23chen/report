@@ -99,7 +99,7 @@ body.edit-on .act-btn{display:inline-block}
   <div class="stats" id="stats-grid"></div>
 
   <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
-    <span>持股摘要（依代號 × 人員）</span>
+    <span>持股摘要（依代號 × 人員）<span id="price-update-time" style="font-size:0.7rem;color:var(--muted);margin-left:8px;text-transform:none"></span></span>
     <button id="fetch-prices-btn" class="btn btn-secondary" style="font-size:0.78rem;padding:5px 12px" onclick="fetchPrices()">🔄 取得今日股價</button>
   </div>
   <div class="table-wrap">
@@ -264,7 +264,7 @@ window.fetchPrices=async function(){
             return;
         }
 
-        var url = `${API_BASE}/prices?codes=${codes.join(',')}`;
+        var url = `${API_BASE}/prices?codes=${codes.join(',')}&t=${Date.now()}`;
         console.log('Fetching prices for:', codes);
         var res = await fetch(url);
         if (!res.ok) throw new Error('HTTP error ' + res.status);
@@ -277,6 +277,7 @@ window.fetchPrices=async function(){
             // Merge new prices
             Object.assign(prices, json.prices);
             localStorage.setItem(PKEY, JSON.stringify(prices));
+            localStorage.setItem('price_update_time', json.time || new Date().toLocaleString('zh-TW'));
             
             render();
             btn.textContent = '✓ 更新 ' + updatedCount + ' 檔';
@@ -302,6 +303,10 @@ function render(){
   var topRows=activePerson ? data.filter(r => (r.person||'alex')===activePerson) : data;
   renderStats(topRows);
   renderSummary(topRows);
+  
+  var updateTime = localStorage.getItem('price_update_time');
+  if(updateTime) document.getElementById('price-update-time').textContent = ' (股價更新於: ' + updateTime + ')';
+  
   var filtered=applyFilters(data);
   
   var fSpend=0, fIncome=0;
