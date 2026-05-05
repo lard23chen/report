@@ -171,11 +171,9 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
   <div class="filter-bar">
     <span style="color:var(--muted);font-size:.82rem;">查詢區間</span>
     <input type="date" id="startDate" value="${minDate}" min="${minDate}" max="${maxDate}">
-    <span style="color:var(--muted)">~</span>
-    <input type="date" id="endDate" value="${maxDate}" min="${minDate}" max="${maxDate}">
-    <span style="color:var(--muted);font-size:.78rem;margin-left:4px">時段</span>
     <select id="startHour">${hourOpts(0)}</select>
     <span style="color:var(--muted)">~</span>
+    <input type="date" id="endDate" value="${maxDate}" min="${minDate}" max="${maxDate}">
     <select id="endHour">${hourOpts(23)}</select>
     <button class="btn btn-primary" onclick="applyFilter()">查詢</button>
     <button class="btn btn-ghost" onclick="setThisYear()">今年</button>

@@ -43,16 +43,14 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
   <div>
     <h1>🌐 本月 IP 地理分析報表 (A系統)</h1>
     <div style="font-size:.8rem;color:#4ade80;font-weight:600;">2026年05月</div>
-    <div id="range-info" style="font-size:.78rem;color:var(--muted)">產生時間：2026/5/5 下午3:53:25</div>
+    <div id="range-info" style="font-size:.78rem;color:var(--muted)">產生時間：2026/5/5 下午4:09:12</div>
   </div>
   <div class="filter-bar">
     <span style="color:var(--muted);font-size:.82rem;">查詢區間</span>
     <input type="date" id="startDate" value="2026-05-01" min="2026-05-01" max="2026-05-04">
-    <span style="color:var(--muted)">~</span>
-    <input type="date" id="endDate" value="2026-05-05" min="2026-05-01" max="2026-05-04">
-    <span style="color:var(--muted);font-size:.78rem;margin-left:4px">時段</span>
     <select id="startHour"><option value="0" selected>00:00</option><option value="1">01:00</option><option value="2">02:00</option><option value="3">03:00</option><option value="4">04:00</option><option value="5">05:00</option><option value="6">06:00</option><option value="7">07:00</option><option value="8">08:00</option><option value="9">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option></select>
     <span style="color:var(--muted)">~</span>
+    <input type="date" id="endDate" value="2026-05-05" min="2026-05-01" max="2026-05-04">
     <select id="endHour"><option value="0">00:00</option><option value="1">01:00</option><option value="2">02:00</option><option value="3">03:00</option><option value="4">04:00</option><option value="5">05:00</option><option value="6">06:00</option><option value="7">07:00</option><option value="8">08:00</option><option value="9">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23" selected>23:00</option></select>
     <button class="btn btn-primary" onclick="applyFilter()">查詢</button>
     <button class="btn btn-ghost" onclick="setThisMonth()">本月</button>
@@ -397,7 +395,7 @@ function render(start, end, sh, eh) {
   // ── Range info ─────────────────────────────────────────
   const hourLabel = (sh!==0||eh!==23) ? ` | 時段：${String(sh).padStart(2,'0')}:00～${String(eh).padStart(2,'0')}:59` : '';
   const label = (start&&end) ? `查詢區間：${start} ~ ${end}${hourLabel}` : `資料範圍：${MIN_DATE} ~ ${MAX_DATE}（全部）${hourLabel}`;
-  document.getElementById('range-info').textContent = label + '  |  產生時間：2026/5/5 下午3:53:25';
+  document.getElementById('range-info').textContent = label + '  |  產生時間：2026/5/5 下午4:09:12';
 }
 
 function applyFilter() {
