@@ -11,7 +11,15 @@ const COUNTRY_NAMES = {
   IN:'印度', GB:'英國', DE:'德國', FR:'法國', CA:'加拿大',
   VN:'越南', ID:'印尼', PH:'菲律賓', NL:'荷蘭', SE:'瑞典',
   BG:'保加利亞', BD:'孟加拉', NO:'挪威', CN:'中國', NZ:'紐西蘭',
-  UNKNOWN:'無法識別'
+  INTERNAL:'內部訂單', UNKNOWN:'無法識別'
+};
+
+const isPrivateIP = ip => {
+  const s = ip.toString().trim();
+  return /^10\./.test(s) ||
+         /^192\.168\./.test(s) ||
+         /^172\.(1[6-9]|2\d|3[01])\./.test(s) ||
+         s === '127.0.0.1' || s === '::1';
 };
 const countryName = c => COUNTRY_NAMES[c] || c;
 
@@ -39,6 +47,7 @@ const fmtM = n => { const a=Math.abs(n); return a>=100000000?(n/100000000).toFix
   const lookup = ip => {
     if (!ip) return 'UNKNOWN';
     if (ipCache[ip]) return ipCache[ip];
+    if (isPrivateIP(ip)) return (ipCache[ip] = 'INTERNAL');
     const geo = geoip.lookup(ip.toString().trim());
     return (ipCache[ip] = geo ? geo.country : 'UNKNOWN');
   };
@@ -51,7 +60,7 @@ const fmtM = n => { const a=Math.abs(n); return a>=100000000?(n/100000000).toFix
   all.forEach(r => {
     const country = lookup(r.IP);
     const isTW    = country === 'TW';
-    const geoKey  = isTW ? 'TW' : (country === 'UNKNOWN' ? 'UNKNOWN' : 'Overseas');
+    const geoKey  = isTW ? 'TW' : (country === 'INTERNAL' ? 'INTERNAL' : country === 'UNKNOWN' ? 'UNKNOWN' : 'Overseas');
     const orderId = r['訂單編號'] ? r['訂單編號'].toString().split('_')[0] : 'X';
     const price   = toNum(r['售價']);
     const fee     = toNum(r['手續費']);
@@ -68,15 +77,15 @@ const fmtM = n => { const a=Math.abs(n); return a>=100000000?(n/100000000).toFix
     if (isSale) { s.orders.add(orderId); s.tickets++; s.revenue+=price; }
     if (isRef)  { s.refOrders.add(orderId); s.refTickets++; s.refFee+=fee; }
 
-    // Payment breakdown (TW vs Overseas only, exclude UNKNOWN)
-    if (geoKey !== 'UNKNOWN' && isSale) {
+    // Payment breakdown (TW vs Overseas only, exclude UNKNOWN/INTERNAL)
+    if (geoKey !== 'UNKNOWN' && geoKey !== 'INTERNAL' && isSale) {
       if (!paymentGeo[geoKey][pay]) paymentGeo[geoKey][pay] = {orders:new Set(), revenue:0};
       paymentGeo[geoKey][pay].orders.add(orderId);
       paymentGeo[geoKey][pay].revenue += price;
     }
 
     // Age bucket
-    if (geoKey !== 'UNKNOWN' && isSale && age > 0) {
+    if (geoKey !== 'UNKNOWN' && geoKey !== 'INTERNAL' && isSale && age > 0) {
       const bucket = age < 20 ? '<20' : age < 30 ? '20-29' : age < 40 ? '30-39' :
                      age < 50 ? '40-49' : age < 60 ? '50-59' : '60+';
       if (!ageGeo[geoKey][bucket]) ageGeo[geoKey][bucket] = 0;
@@ -96,16 +105,18 @@ const fmtM = n => { const a=Math.abs(n); return a>=100000000?(n/100000000).toFix
   })).sort((a,b) => b.revenue - a.revenue);
 
   const tw  = rows.find(r=>r.country==='TW') || {};
+  const int_ = rows.find(r=>r.country==='INTERNAL') || {};
   const unk = rows.find(r=>r.country==='UNKNOWN') || {};
-  const ovRows = rows.filter(r=>r.country!=='TW'&&r.country!=='UNKNOWN');
+  const ovRows = rows.filter(r=>r.country!=='TW'&&r.country!=='UNKNOWN'&&r.country!=='INTERNAL');
   const ov = ovRows.reduce((a,r)=>({
     orders:a.orders+r.orders, tickets:a.tickets+r.tickets, revenue:a.revenue+r.revenue,
     refOrders:a.refOrders+r.refOrders, refTickets:a.refTickets+r.refTickets, refFee:a.refFee+r.refFee
   }), {orders:0,tickets:0,revenue:0,refOrders:0,refTickets:0,refFee:0});
 
-  const totalRev = (tw.revenue||0) + (ov.revenue||0) + (unk.revenue||0);
+  const totalRev = (tw.revenue||0) + (ov.revenue||0) + (int_.revenue||0) + (unk.revenue||0);
   const twPct  = totalRev ? ((tw.revenue||0)/totalRev*100).toFixed(1) : 0;
   const ovPct  = totalRev ? (ov.revenue/totalRev*100).toFixed(1) : 0;
+  const intPct = totalRev ? ((int_.revenue||0)/totalRev*100).toFixed(1) : 0;
   const unkPct = totalRev ? ((unk.revenue||0)/totalRev*100).toFixed(1) : 0;
 
   // Payment table rows
@@ -222,6 +233,11 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
     <div class="kpi-label">🌏 海外 購票金額</div>
     <div class="kpi-value ov">NT$${fmtM(ov.revenue)}</div>
     <div class="kpi-sub">占比 ${ovPct}%&nbsp;|&nbsp;${fmt(ov.orders)} 筆 / ${fmt(ov.tickets)} 張</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">🏢 內部訂單（內網IP）</div>
+    <div class="kpi-value" style="color:#f59e0b">NT$${fmtM(int_.revenue||0)}</div>
+    <div class="kpi-sub">占比 ${intPct}%&nbsp;|&nbsp;${fmt(int_.orders||0)} 筆 / ${fmt(int_.tickets||0)} 張</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">❓ IP無法識別</div>
@@ -341,15 +357,15 @@ const COLORS_BAR = ['#3b82f6','#f59e0b','#10b981','#f87171','#a78bfa','#fb923c',
 
 // Pie: Revenue
 new Chart(document.getElementById('revPie'),{type:'pie',data:{
-  labels:['台灣 (${twPct}%)','海外 (${ovPct}%)','未識別 (${unkPct}%)'],
-  datasets:[{data:[${Math.round(tw.revenue||0)},${Math.round(ov.revenue)},${Math.round(unk.revenue||0)}],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
-},options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' NT$'+Math.round(c.raw).toLocaleString('en-US')}}}}});
+  labels:['台灣 (${twPct}%)','海外 (${ovPct}%)','內部訂單 (${intPct}%)','未識別 (${unkPct}%)'],
+  datasets:[{data:[${Math.round(tw.revenue||0)},${Math.round(ov.revenue)},${Math.round(int_.revenue||0)},${Math.round(unk.revenue||0)}],backgroundColor:['#4ade80','#60a5fa','#f59e0b','#94a3b8'],borderWidth:2,borderColor:'#1e293b'}]
+},options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t&&v?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' NT$'+Math.round(c.raw).toLocaleString('en-US')}}}}});
 
 // Pie: Orders
 new Chart(document.getElementById('orderPie'),{type:'pie',data:{
-  labels:['台灣','海外','未識別'],
-  datasets:[{data:[${tw.orders||0},${ov.orders},${unk.orders||0}],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
-},options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+'筆'}}}}});
+  labels:['台灣','海外','內部訂單','未識別'],
+  datasets:[{data:[${tw.orders||0},${ov.orders},${int_.orders||0},${unk.orders||0}],backgroundColor:['#4ade80','#60a5fa','#f59e0b','#94a3b8'],borderWidth:2,borderColor:'#1e293b'}]
+},options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t&&v?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+'筆'}}}}});
 
 // Bar: Country Revenue (TW first, then top 10 overseas)
 const grandRevTotal    = ${Math.round(grandRev)};

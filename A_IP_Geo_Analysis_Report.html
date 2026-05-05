@@ -33,7 +33,7 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
 <header>
   <div>
     <h1>🌐 IP 地理分析報表 (A系統)</h1>
-    <span style="color:var(--muted);font-size:0.82rem;">資料範圍：2026-05 &nbsp;|&nbsp; 產生時間：2026/5/5 上午9:11:26</span>
+    <span style="color:var(--muted);font-size:0.82rem;">資料範圍：2026-05 &nbsp;|&nbsp; 產生時間：2026/5/5 上午9:59:32</span>
   </div>
   <a href="report_index.html" style="margin-left:auto;color:var(--muted);font-size:0.82rem;text-decoration:none;">← 返回報表中心</a>
 </header>
@@ -54,9 +54,14 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border
     <div class="kpi-sub">占比 4.6%&nbsp;|&nbsp;226 筆 / 392 張</div>
   </div>
   <div class="kpi">
+    <div class="kpi-label">🏢 內部訂單（內網IP）</div>
+    <div class="kpi-value" style="color:#f59e0b">NT$142.1萬</div>
+    <div class="kpi-sub">占比 10.7%&nbsp;|&nbsp;975 筆 / 1,857 張</div>
+  </div>
+  <div class="kpi">
     <div class="kpi-label">❓ IP無法識別</div>
-    <div class="kpi-value uk">NT$142.3萬</div>
-    <div class="kpi-sub">占比 10.7%&nbsp;|&nbsp;976 筆</div>
+    <div class="kpi-value uk">NT$0.2萬</div>
+    <div class="kpi-sub">占比 0.0%&nbsp;|&nbsp;1 筆</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">🌍 海外國家數</div>
@@ -436,15 +441,15 @@ const COLORS_BAR = ['#3b82f6','#f59e0b','#10b981','#f87171','#a78bfa','#fb923c',
 
 // Pie: Revenue
 new Chart(document.getElementById('revPie'),{type:'pie',data:{
-  labels:['台灣 (84.7%)','海外 (4.6%)','未識別 (10.7%)'],
-  datasets:[{data:[11255091,613276,1422921],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
-},options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' NT$'+Math.round(c.raw).toLocaleString('en-US')}}}}});
+  labels:['台灣 (84.7%)','海外 (4.6%)','內部訂單 (10.7%)','未識別 (0.0%)'],
+  datasets:[{data:[11255091,613276,1421321,1600],backgroundColor:['#4ade80','#60a5fa','#f59e0b','#94a3b8'],borderWidth:2,borderColor:'#1e293b'}]
+},options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t&&v?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' NT$'+Math.round(c.raw).toLocaleString('en-US')}}}}});
 
 // Pie: Orders
 new Chart(document.getElementById('orderPie'),{type:'pie',data:{
-  labels:['台灣','海外','未識別'],
-  datasets:[{data:[5831,226,976],backgroundColor:COLORS_PIE,borderWidth:2,borderColor:'#1e293b'}]
-},options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+'筆'}}}}});
+  labels:['台灣','海外','內部訂單','未識別'],
+  datasets:[{data:[5831,226,975,1],backgroundColor:['#4ade80','#60a5fa','#f59e0b','#94a3b8'],borderWidth:2,borderColor:'#1e293b'}]
+},options:{plugins:{legend:{position:'bottom',labels:{color:'#e2e8f0',padding:12}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return t&&v?((v/t)*100).toFixed(1)+'%':'';}},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+'筆'}}}}});
 
 // Bar: Country Revenue (TW first, then top 10 overseas)
 const grandRevTotal    = 11868367;
