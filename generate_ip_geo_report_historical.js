@@ -62,16 +62,19 @@ const toNum = v => {
     const isRef   = r['狀態'] === '退票' || r['狀態'] === '已退票';
     const pay     = r['付款方式'] || '其他';
     const age     = parseInt(r['年齡']) || 0;
-    const date    = r['交易時間'] ? r['交易時間'].toString().split(' ')[0] : null;
+    const txStr = r['交易時間'] ? r['交易時間'].toString() : '';
+    const date  = txStr.split(' ')[0] || null;
+    const hour  = txStr.split(' ')[1] ? parseInt(txStr.split(' ')[1]) : 0;
 
     if (!date) return;
     if (!dailyMap[date]) dailyMap[date] = {};
     if (!dailyMap[date][country]) dailyMap[date][country] = {
       g: geoKey, orders: new Set(), tickets: 0, revenue: 0,
-      refOrders: new Set(), refTickets: 0, refFee: 0, pay: {}, age: {}
+      refOrders: new Set(), refTickets: 0, refFee: 0, pay: {}, age: {},
+      hOrders: Array.from({length:24},()=>new Set()), hTickets: new Array(24).fill(0), hRevenue: new Array(24).fill(0)
     };
     const ds = dailyMap[date][country];
-    if (isSale) { ds.orders.add(orderId); ds.tickets++; ds.revenue += price; }
+    if (isSale) { ds.orders.add(orderId); ds.tickets++; ds.revenue += price; ds.hOrders[hour].add(orderId); ds.hTickets[hour]++; ds.hRevenue[hour] += price; }
     if (isRef)  { ds.refOrders.add(orderId); ds.refTickets++; ds.refFee += fee; }
     if (geoKey !== 'UNKNOWN' && geoKey !== 'INTERNAL' && isSale) {
       if (!ds.pay[pay]) ds.pay[pay] = { orders: new Set(), revenue: 0 };
@@ -96,7 +99,8 @@ const toNum = v => {
       const entry = {
         d: date, c: country, g: s.g,
         o: s.orders.size, t: s.tickets, r: Math.round(s.revenue),
-        ro: s.refOrders.size, rt: s.refTickets, rf: Math.round(s.refFee)
+        ro: s.refOrders.size, rt: s.refTickets, rf: Math.round(s.refFee),
+        hd: s.hOrders.map(x=>x.size), ht: s.hTickets.slice(), hr: s.hRevenue.map(Math.round)
       };
       const payObj = {};
       for (const [m, ps] of Object.entries(s.pay)) {
@@ -112,6 +116,10 @@ const toNum = v => {
   const now = nowObj.toLocaleString('zh-TW');
   const thisYearStart = `${nowObj.getFullYear()}-01-01`;
   const thisYearEnd   = nowObj.toISOString().split('T')[0];
+
+  const hourOpts = (def) => Array.from({length:24},(_,h)=>
+    `<option value="${h}"${h===def?' selected':''}>${String(h).padStart(2,'0')}:00</option>`
+  ).join('');
 
   const html = `<!DOCTYPE html>
 <html lang="zh-Hant">
@@ -130,6 +138,7 @@ header h1{font-size:1.1rem;font-weight:700;color:var(--accent);white-space:nowra
 .filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
 .filter-bar input[type=date]{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 9px;font-size:0.82rem;outline:none}
 .filter-bar input[type=date]:focus{border-color:var(--accent)}
+.filter-bar select{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;font-size:0.82rem;outline:none;cursor:pointer}
 .btn{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-size:0.82rem;font-weight:600;transition:opacity .15s}
 .btn-primary{background:var(--accent);color:#fff}
 .btn-ghost{background:rgba(255,255,255,0.07);color:var(--muted)}
@@ -164,6 +173,10 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
     <input type="date" id="startDate" value="${minDate}" min="${minDate}" max="${maxDate}">
     <span style="color:var(--muted)">~</span>
     <input type="date" id="endDate" value="${maxDate}" min="${minDate}" max="${maxDate}">
+    <span style="color:var(--muted);font-size:.78rem;margin-left:4px">時段</span>
+    <select id="startHour">${hourOpts(0)}</select>
+    <span style="color:var(--muted)">~</span>
+    <select id="endHour">${hourOpts(23)}</select>
     <button class="btn btn-primary" onclick="applyFilter()">查詢</button>
     <button class="btn btn-ghost" onclick="setThisYear()">今年</button>
     <button class="btn btn-ghost" onclick="setPreset(30)">近30天</button>
@@ -336,15 +349,19 @@ function initCharts() {
   });
 }
 
-function aggregate(start, end) {
+function aggregate(start, end, sh, eh) {
+  if(sh===undefined)sh=0; if(eh===undefined)eh=23;
   const data = (start && end) ? DAILY.filter(e => e.d >= start && e.d <= end) : DAILY;
+  const useHour = sh!==0 || eh!==23;
 
   const byC = {}, payG = {TW:{},Overseas:{}}, ageG = {TW:{},Overseas:{}};
 
   data.forEach(e => {
+    let o=e.o, t=e.t, r=e.r;
+    if(useHour && e.hd){o=0;t=0;r=0;for(let h=sh;h<=eh;h++){o+=e.hd[h]||0;t+=e.ht[h]||0;r+=e.hr[h]||0;}}
     if (!byC[e.c]) byC[e.c] = {country:e.c,g:e.g,o:0,t:0,r:0,ro:0,rt:0,rf:0};
     const s = byC[e.c];
-    s.o+=e.o; s.t+=e.t; s.r+=e.r; s.ro+=e.ro; s.rt+=e.rt; s.rf+=e.rf;
+    s.o+=o; s.t+=t; s.r+=r; s.ro+=e.ro; s.rt+=e.rt; s.rf+=e.rf;
     if (e.p && (e.g==='TW'||e.g==='Overseas')) {
       for (const [m,[mo,mr]] of Object.entries(e.p)) {
         if (!payG[e.g][m]) payG[e.g][m]={o:0,r:0};
@@ -373,8 +390,9 @@ function aggregate(start, end) {
   return {tw,int_,unk,ov,ovR,payG,ageG,totalRev,grandRev,grandOrders,grandTickets};
 }
 
-function render(start, end) {
-  const {tw,int_,unk,ov,ovR,payG,ageG,totalRev,grandRev,grandOrders,grandTickets} = aggregate(start,end);
+function render(start, end, sh, eh) {
+  if(sh===undefined)sh=0; if(eh===undefined)eh=23;
+  const {tw,int_,unk,ov,ovR,payG,ageG,totalRev,grandRev,grandOrders,grandTickets} = aggregate(start,end,sh,eh);
   window._grand = {rev:grandRev, orders:grandOrders, tickets:grandTickets};
 
   const tRev = totalRev || 1;
@@ -502,20 +520,26 @@ function render(start, end) {
   </tr>\`).join('');
 
   // ── Range info ─────────────────────────────────────────
-  const label = (start&&end) ? \`查詢區間：\${start} ~ \${end}\` : \`資料範圍：\${MIN_DATE} ~ \${MAX_DATE}（全部）\`;
+  const hourLabel = (sh!==0||eh!==23) ? \` | 時段：\${String(sh).padStart(2,'0')}:00～\${String(eh).padStart(2,'0')}:59\` : '';
+  const label = (start&&end) ? \`查詢區間：\${start} ~ \${end}\${hourLabel}\` : \`資料範圍：\${MIN_DATE} ~ \${MAX_DATE}（全部）\${hourLabel}\`;
   document.getElementById('range-info').textContent = label + '  |  產生時間：${now}';
 }
 
 function applyFilter() {
   const s = document.getElementById('startDate').value;
   const e = document.getElementById('endDate').value;
-  if (s && e && s <= e) render(s, e);
+  const sh = parseInt(document.getElementById('startHour').value);
+  const eh = parseInt(document.getElementById('endHour').value);
+  if (sh > eh) { alert('起始時間不可晚於結束時間'); return; }
+  if (s && e && s <= e) render(s, e, sh, eh);
   else alert('請選擇有效的日期區間');
 }
 
 function resetFilter() {
   document.getElementById('startDate').value = MIN_DATE;
   document.getElementById('endDate').value   = MAX_DATE;
+  document.getElementById('startHour').value = '0';
+  document.getElementById('endHour').value   = '23';
   render(null, null);
 }
 
@@ -527,12 +551,16 @@ function setPreset(days) {
   const s = fmt2(start), e = fmt2(end);
   document.getElementById('startDate').value = s;
   document.getElementById('endDate').value   = e;
+  document.getElementById('startHour').value = '0';
+  document.getElementById('endHour').value   = '23';
   render(s, e);
 }
 
 function setThisYear() {
   document.getElementById('startDate').value = THIS_YEAR_START;
   document.getElementById('endDate').value   = THIS_YEAR_END;
+  document.getElementById('startHour').value = '0';
+  document.getElementById('endHour').value   = '23';
   render(THIS_YEAR_START, THIS_YEAR_END);
 }
 
