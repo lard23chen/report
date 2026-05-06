@@ -249,6 +249,7 @@ function aggregate(start, end, sh, eh) {
   data.forEach(e => {
     let o=e.o, t=e.t, r=e.r;
     if(useHour && e.hd){o=0;t=0;r=0;for(let h=sh;h<=eh;h++){o+=e.hd[h]||0;t+=e.ht[h]||0;r+=e.hr[h]||0;}}
+    if(useHour && o===0 && t===0 && r===0) return;
     if (!byC[e.c]) byC[e.c] = {country:e.c,g:e.g,o:0,t:0,r:0,ro:0,rt:0,rf:0};
     const s = byC[e.c];
     s.o+=o; s.t+=t; s.r+=r; s.ro+=e.ro; s.rt+=e.rt; s.rf+=e.rf;
