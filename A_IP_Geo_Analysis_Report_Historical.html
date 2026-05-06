@@ -386,7 +386,7 @@ function render(start, end, sh, eh) {
     ${tdR('NT$'+fmt(tw.r||0)+badge(pct(tw.r||0,gr),'#4ade80'),'#4ade80')}
     ${tdR(fmt(tw.ro||0),'#f87171')}
   </tr>`;
-  const ovDetailRows = ovR.slice(0,15).map((r,i)=>`<tr>
+  const ovDetailRows = ovR.map((r,i)=>`<tr>
     ${tdFirst(i+1, cname(r.country), r.country, false)}
     ${tdR(fmt(r.o)+badge(pct(r.o,go),'#60a5fa'))}
     ${tdR(fmt(r.t)+badge(pct(r.t,gt),'#a78bfa'))}
