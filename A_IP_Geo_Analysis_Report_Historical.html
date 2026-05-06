@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -110,12 +110,6 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
   </table>
 </div>
 
-<div class="section-title">📊 購票分布圓餅圖</div>
-<div class="chart-grid">
-  <div class="card"><div style="font-weight:600;margin-bottom:14px">購票金額分布</div><canvas id="revPie" height="220"></canvas></div>
-  <div class="card"><div style="font-weight:600;margin-bottom:14px">訂單數分布</div><canvas id="orderPie" height="220"></canvas></div>
-</div>
-
 <div class="section-title">❓ IP 無法識別訂單列表</div>
 <div class="card" style="padding:0;overflow-x:auto">
   <div style="padding:10px 20px;font-size:.82rem;color:var(--muted)" id="unk-count"></div>
@@ -126,6 +120,12 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
     </tr></thead>
     <tbody id="unk-tbody"></tbody>
   </table>
+</div>
+
+<div class="section-title">📊 購票分布圓餅圖</div>
+<div class="chart-grid">
+  <div class="card"><div style="font-weight:600;margin-bottom:14px">購票金額分布</div><canvas id="revPie" height="220"></canvas></div>
+  <div class="card"><div style="font-weight:600;margin-bottom:14px">訂單數分布</div><canvas id="orderPie" height="220"></canvas></div>
 </div>
 </main>
 <footer>A系統 歷史 IP 地理分析 &copy; 2026 Qware Analytics &nbsp;|&nbsp; 資料來源：Qware_Ticket_Data (MongoDB)</footer>
