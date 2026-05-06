@@ -35,7 +35,8 @@ const toNum = v => {
   const col = client.db('QwareAi').collection('Qware_A_Ticket_data_Daily');
   const all = await col.find({}, {
     projection: { IP:1, '訂單編號':1, '狀態':1, '售價':1, '手續費':1,
-                  '交易時間':1, '付款方式':1, '年齡':1 }
+                  '交易時間':1, '付款方式':1, '年齡':1,
+                  '節目/商品名稱':1, '會員編號':1, '座位資訊/票區':1 }
   }).toArray();
   console.log('Records:', all.length);
 
@@ -50,6 +51,7 @@ const toNum = v => {
 
   // Build per-day per-country aggregation for client-side filtering
   const dailyMap = {};
+  const unknownMap = {};
 
   all.forEach(r => {
     const country = lookup(r.IP);
@@ -77,6 +79,15 @@ const toNum = v => {
     const ds = dailyMap[date][country];
     if (isSale) { ds.orders.add(orderId); ds.tickets++; ds.revenue += price; ds.hOrders[slot].add(orderId); ds.hTickets[slot]++; ds.hRevenue[slot] += price; }
     if (isRef)  { ds.refOrders.add(orderId); ds.refTickets++; ds.refFee += fee; }
+    if (country === 'UNKNOWN' && isSale) {
+      if (!unknownMap[orderId]) unknownMap[orderId] = {
+        id: orderId, name: r['節目/商品名稱']||'-', mem: r['會員編號']||'-',
+        ip: r.IP||'-', tickets: 0, seats: new Set(), d: date
+      };
+      unknownMap[orderId].tickets++;
+      const seatVal = r['座位資訊/票區'];
+      if (seatVal) unknownMap[orderId].seats.add(seatVal);
+    }
     if (geoKey !== 'UNKNOWN' && geoKey !== 'INTERNAL' && isSale) {
       if (!ds.pay[pay]) ds.pay[pay] = { orders: new Set(), revenue: 0 };
       ds.pay[pay].orders.add(orderId);
@@ -112,6 +123,13 @@ const toNum = v => {
       DAILY_DATA.push(entry);
     }
   }
+
+  const allUnknown = Object.values(unknownMap).map(u => ({
+    id: u.id, name: u.name, mem: u.mem, ip: u.ip,
+    t: u.tickets, seat: [...u.seats].join(' / '), d: u.d
+  })).sort((a,b) => b.d < a.d ? -1 : b.d > a.d ? 1 : b.t - a.t);
+  const UNKNOWN_ORDERS = allUnknown.slice(0, 1000);
+  console.log('Unknown orders:', allUnknown.length, '(embedding top 1000)');
 
   const nowObj = new Date();
   const now = nowObj.toLocaleString('zh-TW');
@@ -192,10 +210,6 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
 <div class="kpi-grid" id="kpi-grid"></div>
 
 <div class="chart-grid">
-  <div class="card"><div style="font-weight:600;margin-bottom:14px">購票金額分布</div><canvas id="revPie" height="220"></canvas></div>
-  <div class="card"><div style="font-weight:600;margin-bottom:14px">訂單數分布</div><canvas id="orderPie" height="220"></canvas></div>
-</div>
-<div class="chart-grid">
   <div class="card"><div style="font-weight:600;margin-bottom:14px">海外前 10 國家（購票金額）</div><canvas id="countryBar" height="260"></canvas></div>
   <div class="card"><div style="font-weight:600;margin-bottom:14px">海外前 10 國家（購票筆數 vs 張數）</div><canvas id="countryCountBar" height="260"></canvas></div>
 </div>
@@ -239,6 +253,24 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
     <tbody id="pay-tbody"></tbody>
   </table>
 </div>
+
+<div class="section-title">❓ IP 無法識別訂單列表</div>
+<div class="card" style="padding:0;overflow-x:auto">
+  <div style="padding:10px 20px;font-size:.82rem;color:var(--muted)" id="unk-count"></div>
+  <table>
+    <thead><tr>
+      <th>訂單編號</th><th>節目名稱</th><th>會員編號</th><th>IP</th>
+      <th class="r">張數</th><th>座位資訊</th>
+    </tr></thead>
+    <tbody id="unk-tbody"></tbody>
+  </table>
+</div>
+
+<div class="section-title">📊 購票分布圓餅圖</div>
+<div class="chart-grid">
+  <div class="card"><div style="font-weight:600;margin-bottom:14px">購票金額分布</div><canvas id="revPie" height="220"></canvas></div>
+  <div class="card"><div style="font-weight:600;margin-bottom:14px">訂單數分布</div><canvas id="orderPie" height="220"></canvas></div>
+</div>
 </main>
 <footer>A系統 IP 地理分析 &copy; 2026 Qware Analytics &nbsp;|&nbsp; 資料來源：Qware_A_Ticket_data_Daily (MongoDB)</footer>
 
@@ -246,6 +278,7 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
 Chart.register(ChartDataLabels);
 
 const DAILY = ${JSON.stringify(DAILY_DATA)};
+const UNK_ORDERS = ${JSON.stringify(UNKNOWN_ORDERS)};
 const MIN_DATE = '${minDate}';
 const MAX_DATE = '${maxDate}';
 const CN = ${JSON.stringify(COUNTRY_NAMES)};
@@ -358,6 +391,7 @@ function aggregate(start, end, sh, eh) {
   data.forEach(e => {
     let o=e.o, t=e.t, r=e.r;
     if(useHour && e.hd){o=0;t=0;r=0;for(let h=sh;h<=eh;h++){o+=e.hd[h]||0;t+=e.ht[h]||0;r+=e.hr[h]||0;}}
+    if(useHour && o===0 && t===0 && r===0) return;
     if (!byC[e.c]) byC[e.c] = {country:e.c,g:e.g,o:0,t:0,r:0,ro:0,rt:0,rf:0};
     const s = byC[e.c];
     s.o+=o; s.t+=t; s.r+=r; s.ro+=e.ro; s.rt+=e.rt; s.rf+=e.rf;
@@ -495,7 +529,7 @@ function render(start, end, sh, eh) {
     \${tdR('NT\$'+fmt(tw.r||0)+badge(pct(tw.r||0,gr),'#4ade80'),'#4ade80')}
     \${tdR(fmt(tw.ro||0),'#f87171')}
   </tr>\`;
-  const ovDetailRows = ovR.slice(0,15).map((r,i)=>\`<tr>
+  const ovDetailRows = ovR.map((r,i)=>\`<tr>
     \${tdFirst(i+1, cname(r.country), r.country, false)}
     \${tdR(fmt(r.o)+badge(pct(r.o,go),'#60a5fa'))}
     \${tdR(fmt(r.t)+badge(pct(r.t,gt),'#a78bfa'))}
@@ -516,6 +550,18 @@ function render(start, end, sh, eh) {
     \${tdR('NT\$'+fmt(p.twr),'#4ade80')}
     \${tdR(fmt(p.ovo))}
     \${tdR('NT\$'+fmt(p.ovr),'#60a5fa')}
+  </tr>\`).join('');
+
+  // ── Unknown IP orders table ────────────────────────────
+  const unkFiltered = (start&&end) ? UNK_ORDERS.filter(u=>u.d>=start&&u.d<=end) : UNK_ORDERS;
+  document.getElementById('unk-count').textContent = '共 ' + unkFiltered.length + ' 筆訂單（篩選後）';
+  document.getElementById('unk-tbody').innerHTML = unkFiltered.map(u=>\`<tr>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);font-family:monospace;font-size:.82rem;color:#94a3b8">\${u.id}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05)">\${u.name}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);font-family:monospace;font-size:.82rem">\${u.mem}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);font-family:monospace;font-size:.82rem;color:var(--muted)">\${u.ip}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right">\${u.t}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);font-size:.82rem">\${u.seat}</td>
   </tr>\`).join('');
 
   // ── Range info ─────────────────────────────────────────
