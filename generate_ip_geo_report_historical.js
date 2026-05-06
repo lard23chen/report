@@ -35,7 +35,8 @@ const toNum = v => {
   const col = client.db('QwareAi').collection('Qware_Ticket_Data');
   const all = await col.find({}, {
     projection: { IP:1, '訂單編號':1, '狀態':1, '售價':1, '手續費':1,
-                  '交易時間':1, '付款方式':1, '年齡':1 }
+                  '交易時間':1, '付款方式':1, '年齡':1,
+                  '節目/商品名稱':1, '會員編號':1, '座位資訊/票區':1 }
   }).toArray();
   console.log('Records:', all.length);
 
@@ -50,6 +51,7 @@ const toNum = v => {
 
   // Build per-day per-country aggregation for client-side filtering
   const dailyMap = {};
+  const unknownMap = {};
 
   all.forEach(r => {
     const country = lookup(r.IP);
@@ -77,6 +79,15 @@ const toNum = v => {
     const ds = dailyMap[date][country];
     if (isSale) { ds.orders.add(orderId); ds.tickets++; ds.revenue += price; ds.hOrders[slot].add(orderId); ds.hTickets[slot]++; ds.hRevenue[slot] += price; }
     if (isRef)  { ds.refOrders.add(orderId); ds.refTickets++; ds.refFee += fee; }
+    if (country === 'UNKNOWN' && isSale) {
+      if (!unknownMap[orderId]) unknownMap[orderId] = {
+        id: orderId, name: r['節目/商品名稱']||'-', mem: r['會員編號']||'-',
+        ip: r.IP||'-', tickets: 0, seats: new Set(), d: date
+      };
+      unknownMap[orderId].tickets++;
+      const seatVal = r['座位資訊/票區'];
+      if (seatVal) unknownMap[orderId].seats.add(seatVal);
+    }
     if (geoKey !== 'UNKNOWN' && geoKey !== 'INTERNAL' && isSale) {
       if (!ds.pay[pay]) ds.pay[pay] = { orders: new Set(), revenue: 0 };
       ds.pay[pay].orders.add(orderId);
@@ -112,6 +123,14 @@ const toNum = v => {
       DAILY_DATA.push(entry);
     }
   }
+
+  const allUnknown = Object.values(unknownMap).map(u => ({
+    id: u.id, name: u.name, mem: u.mem, ip: u.ip,
+    t: u.tickets, seat: [...u.seats].join(' / '), d: u.d
+  })).sort((a,b) => b.d < a.d ? -1 : b.d > a.d ? 1 : b.t - a.t);
+  const UNKNOWN_TOTAL = allUnknown.length;
+  const UNKNOWN_ORDERS = allUnknown.slice(0, 1000);
+  console.log('Unknown orders:', UNKNOWN_TOTAL, '(embedding top 1000)');
 
   const nowObj = new Date();
   const now = nowObj.toLocaleString('zh-TW');
@@ -191,10 +210,6 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
 <div class="kpi-grid" id="kpi-grid"></div>
 
 <div class="chart-grid">
-  <div class="card"><div style="font-weight:600;margin-bottom:14px">購票金額分布</div><canvas id="revPie" height="220"></canvas></div>
-  <div class="card"><div style="font-weight:600;margin-bottom:14px">訂單數分布</div><canvas id="orderPie" height="220"></canvas></div>
-</div>
-<div class="chart-grid">
   <div class="card"><div style="font-weight:600;margin-bottom:14px">海外前 10 國家（購票金額）</div><canvas id="countryBar" height="260"></canvas></div>
   <div class="card"><div style="font-weight:600;margin-bottom:14px">海外前 10 國家（購票筆數 vs 張數）</div><canvas id="countryCountBar" height="260"></canvas></div>
 </div>
@@ -238,6 +253,24 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
     <tbody id="pay-tbody"></tbody>
   </table>
 </div>
+
+<div class="section-title">📊 購票分布圓餅圖</div>
+<div class="chart-grid">
+  <div class="card"><div style="font-weight:600;margin-bottom:14px">購票金額分布</div><canvas id="revPie" height="220"></canvas></div>
+  <div class="card"><div style="font-weight:600;margin-bottom:14px">訂單數分布</div><canvas id="orderPie" height="220"></canvas></div>
+</div>
+
+<div class="section-title">❓ IP 無法識別訂單列表</div>
+<div class="card" style="padding:0;overflow-x:auto">
+  <div style="padding:10px 20px;font-size:.82rem;color:var(--muted)" id="unk-count"></div>
+  <table>
+    <thead><tr>
+      <th>訂單編號</th><th>節目名稱</th><th>會員編號</th><th>IP</th>
+      <th class="r">張數</th><th>座位資訊</th>
+    </tr></thead>
+    <tbody id="unk-tbody"></tbody>
+  </table>
+</div>
 </main>
 <footer>A系統 歷史 IP 地理分析 &copy; 2026 Qware Analytics &nbsp;|&nbsp; 資料來源：Qware_Ticket_Data (MongoDB)</footer>
 
@@ -245,6 +278,7 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
 Chart.register(ChartDataLabels);
 
 const DAILY = ${JSON.stringify(DAILY_DATA)};
+const UNK_ORDERS = ${JSON.stringify(UNKNOWN_ORDERS)};
 const MIN_DATE = '${minDate}';
 const MAX_DATE = '${maxDate}';
 const THIS_YEAR_START = '${thisYearStart}';
@@ -524,6 +558,18 @@ function render(start, end, sh, eh) {
   const hourLabel = (sh!==0||eh!==47) ? \` | 時段：\${slotFmt(sh)}～\${slotFmt(eh)}\` : '';
   const label = (start&&end) ? \`查詢區間：\${start} ~ \${end}\${hourLabel}\` : \`資料範圍：\${MIN_DATE} ~ \${MAX_DATE}（全部）\${hourLabel}\`;
   document.getElementById('range-info').textContent = label + '  |  產生時間：${now}';
+
+  // ── Unknown IP orders table ────────────────────────────
+  const unkFiltered = (start&&end) ? UNK_ORDERS.filter(u=>u.d>=start&&u.d<=end) : UNK_ORDERS;
+  document.getElementById('unk-count').textContent = '共 ' + unkFiltered.length + ' 筆訂單（篩選後）';
+  document.getElementById('unk-tbody').innerHTML = unkFiltered.map(u=>\`<tr>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);font-family:monospace;font-size:.82rem;color:#94a3b8">\${u.id}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05)">\${u.name}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);font-family:monospace;font-size:.82rem">\${u.mem}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);font-family:monospace;font-size:.82rem;color:var(--muted)">\${u.ip}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right">\${u.t}</td>
+    <td style="padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted);font-size:.82rem">\${u.seat}</td>
+  </tr>\`).join('');
 }
 
 function applyFilter() {
