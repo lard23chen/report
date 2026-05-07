@@ -259,12 +259,60 @@
     </header>
 
     <div class="tab-bar">
+        <button class="tab-btn" onclick="switchTab('2027', this)">2027 計劃 <div class="en">Upcoming</div></button>
         <button class="tab-btn active" onclick="switchTab('2026', this)">2026 當前 <div class="en">Current</div></button>
         <button class="tab-btn" onclick="switchTab('2025', this)">2025 歷史 <div class="en">History</div></button>
         <button class="tab-btn" onclick="switchTab('2024', this)">2024 歷史 <div class="en">History</div></button>
         <button class="tab-btn" onclick="switchTab('2023', this)">2023 歷史 <div class="en">History</div></button>
         <button class="tab-btn" onclick="switchTab('2022', this)">2022 歷史 <div class="en">History</div></button>
     </div>
+
+    <!-- ══════════════════ 2027 TAB ══════════════════ -->
+    <div id="tab-2027" class="tab-content">
+
+        <div class="summary">
+            <div class="sum-card"><div class="num">1</div><div class="label">趟旅程 <div class="en">Trips</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.3rem;">BKK × 0</div><div class="label">曼谷 <div class="en">Bangkok</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.3rem;">FUK × 1</div><div class="label">日本 <div class="en">Japan</div></div></div>
+            <div class="sum-card"><div class="num" style="color:var(--gold); font-size:1.1rem;">CI</div><div class="label">搭乘航空 <div class="en">Airlines</div></div></div>
+        </div>
+
+        <!-- Trip 1 -->
+        <div class="trip">
+            <div class="trip-header">
+                <span class="trip-num">Trip 1</span>
+                <div><div class="trip-dest">🇯🇵 Japan 福岡</div><div class="trip-dates">2027/04/24(六) – 2027/05/02(日)</div></div>
+                <span class="trip-tag" style="color:#f9a8d4;border-color:rgba(249,168,212,0.4);background:rgba(249,168,212,0.1);">櫻花之旅</span>
+            </div>
+            <div class="passenger-section">
+                <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2027/04/24 06:35</div></td><td><div class="time-arr">09:35</div></td><td class="flight-no">CI 110</td><td class="pnr">EWPKF5</td><td class="aircraft">A330-300</td><td><a href="https://drive.google.com/file/d/1eRX7xbAErxXfqXY-ZnPSNQgdKPBm5FWI/view?usp=drive_link" target="_blank" class="link-badge">LINK</a></td><td class="note">哩程兌換</td><td class="price-pts">哩 17,500 + TWD 1,926<br><span class="note">空運費 TWD 1,426 + 稅 TWD 500</span></td></tr>
+                    </tbody>
+                </table></div>
+                <div class="passenger-label"><span class="p-badge badge-mark">MARK</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2027/04/24 06:35</div></td><td><div class="time-arr">09:35</div></td><td class="flight-no">CI110</td><td class="pnr">EWP2N2</td><td class="aircraft">A330-300</td><td><a href="https://drive.google.com/file/d/1iYTK9MRD6yD2RMfDvkD9ByR_m_emcJPN/view?usp=drive_link" target="_blank" class="link-badge">LINK</a></td><td class="note">哩程兌換</td><td class="price-pts">哩 17,500 + TWD 1,926<br><span class="note">空運費 TWD 1,426 + 稅 TWD 500</span></td></tr>
+                    </tbody>
+                </table></div>
+            </div>
+            <div class="hotel-section">
+                <div class="hotel-section-title">🏨 飯店 Hotels</div>
+                <div class="hotel-table"><table>
+                    <thead><tr><th>酒店 <div class="en">Hotel</div></th><th>體系 <div class="en">Chain</div></th><th>入住 <div class="en">Check-in</div></th><th>退房 <div class="en">Check-out</div></th><th>晚數 <div class="en">Nights</div></th><th>支付 <div class="en">Payment</div></th><th>價錢 <div class="en">Price</div></th><th>備註 <div class="en">Notes</div></th></tr></thead>
+                    <tbody>
+                    <tr><td colspan="8" class="note" style="text-align:center;color:var(--text-muted);">— 飯店資料待補 —</td></tr>
+                    </tbody>
+                </table></div>
+            </div>
+        </div>
+
+    </div><!-- /tab-2027 -->
+
 
     <!-- ══════════════════ 2026 TAB ══════════════════ -->
     <div id="tab-2026" class="tab-content active">
@@ -1126,7 +1174,8 @@ function updateSummaryStats() {
         summaryCards[1].textContent = 'BKK × ' + bkkCount;
         
         var japanLabel = '日本';
-        if (tab.id === 'tab-2026') japanLabel = 'NRT/CTS';
+        if (tab.id === 'tab-2027') japanLabel = 'FUK';
+        else if (tab.id === 'tab-2026') japanLabel = 'NRT/CTS';
         else if (tab.id === 'tab-2025') japanLabel = 'KIX/NRT';
         else if (tab.id === 'tab-2024') japanLabel = 'NRT';
         else japanLabel = 'NRT';
