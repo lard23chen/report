@@ -108,8 +108,8 @@
         .dash { color: #cbd5e1; }
 
         /* History tab dim */
-        #tab-2025 .trip-header { background: #f8fafc; }
-        #tab-2025 .trip-num { background: #64748b; color: #ffffff; }
+        #tab-2025 .trip-header, #tab-2024 .trip-header, #tab-2023 .trip-header, #tab-2022 .trip-header { background: #f8fafc; }
+        #tab-2025 .trip-num, #tab-2024 .trip-num, #tab-2023 .trip-num, #tab-2022 .trip-num { background: #64748b; color: #ffffff; }
 
         /* Hotel section */
         .hotel-section { padding: 0 22px 18px; border-top: 1px solid var(--card-border); margin-top: 2px; background: #fafafa; }
@@ -261,7 +261,9 @@
     <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('2026', this)">2026 當前 <div class="en">Current</div></button>
         <button class="tab-btn" onclick="switchTab('2025', this)">2025 歷史 <div class="en">History</div></button>
-        <button class="tab-btn" onclick="switchTab('2024', this)">2022–2024 歷史 <div class="en">History</div></button>
+        <button class="tab-btn" onclick="switchTab('2024', this)">2024 歷史 <div class="en">History</div></button>
+        <button class="tab-btn" onclick="switchTab('2023', this)">2023 歷史 <div class="en">History</div></button>
+        <button class="tab-btn" onclick="switchTab('2022', this)">2022 歷史 <div class="en">History</div></button>
     </div>
 
     <!-- ══════════════════ 2026 TAB ══════════════════ -->
@@ -718,139 +720,20 @@
 
 </div>
 
-    <!-- ══════════════════ 2022–2024 TAB ══════════════════ -->
+    <!-- ══════════════════ 2024 TAB ══════════════════ -->
     <div id="tab-2024" class="tab-content">
 
         <div class="summary">
-            <div class="sum-card"><div class="num">12</div><div class="label">趟旅程 <div class="en">Trips</div></div></div>
-            <div class="sum-card"><div class="num" style="font-size:1.1rem;">BKK × 7</div><div class="label">曼谷 <div class="en">Bangkok</div></div></div>
-            <div class="sum-card"><div class="num" style="font-size:1.1rem;">NRT/NGO × 2</div><div class="label">日本 <div class="en">Japan</div></div></div>
-            <div class="sum-card"><div class="num" style="color:var(--gold);font-size:0.9rem;">BR/CI/FD/JX/IT/PG/TG/TR</div><div class="label">搭乘航空 <div class="en">Airlines</div></div></div>
+            <div class="sum-card"><div class="num">7</div><div class="label">趟旅程 <div class="en">Trips</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.1rem;">BKK × 4</div><div class="label">曼谷 <div class="en">Bangkok</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.1rem;">NRT × 1</div><div class="label">日本 <div class="en">Japan</div></div></div>
+            <div class="sum-card"><div class="num" style="color:var(--gold);font-size:0.9rem;">BR/CI/FD/IT/PG/TG/TR</div><div class="label">搭乘航空 <div class="en">Airlines</div></div></div>
         </div>
 
         <!-- T1 -->
         <div class="trip">
             <div class="trip-header">
                 <span class="trip-num">Trip 1</span>
-                <div><div class="trip-dest">🇯🇵 Tokyo (NRT)</div><div class="trip-dates">2022/12/29 – 2023/01/04</div></div>
-                <span class="trip-tag" style="color:#86efac;border-color:rgba(134,239,172,0.4);background:rgba(134,239,172,0.1);">New Year</span>
-            </div>
-            <div class="passenger-section">
-                <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
-                <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
-                    <tbody>
-                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2022/12/29 11:00</div></td><td><div class="time-arr">15:00</div></td><td class="flight-no">JX804</td><td class="pnr">5AX8Z4</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通</td><td class="price">NT$29,828</td></tr>
-                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/01/04 16:00</div></td><td><div class="time-arr">19:05</div></td><td class="flight-no">JX805</td><td class="dash">—</td><td class="aircraft">Airbus A321neo</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
-                    </tbody>
-                </table></div>
-            </div>
-        </div>
-
-        <!-- T2 -->
-        <div class="trip">
-            <div class="trip-header">
-                <span class="trip-num">Trip 2</span>
-                <div><div class="trip-dest">🇹🇭 Bangkok (BKK)</div><div class="trip-dates">2023/01/20 – 2023/01/27</div></div>
-                <span class="trip-tag">農曆新年前</span>
-            </div>
-            <div class="passenger-section">
-                <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span></div>
-                <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
-                    <tbody>
-                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/01/20 12:05</div></td><td><div class="time-arr">15:00</div></td><td class="flight-no">FD231</td><td class="pnr">R8FRRA</td><td class="aircraft">A321-200</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮</td><td class="price">NT$32,752</td></tr>
-                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/01/27 06:40</div></td><td><div class="time-arr">11:25</div></td><td class="flight-no">FD230</td><td class="dash">—</td><td class="aircraft">A321-200</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
-                    </tbody>
-                </table></div>
-            </div>
-        </div>
-
-        <!-- T3 -->
-        <div class="trip">
-            <div class="trip-header">
-                <span class="trip-num">Trip 3</span>
-                <div><div class="trip-dest">🇹🇭 Bangkok (BKK)</div><div class="trip-dates">2023/02/22 – 2023/03/05</div></div>
-                <span class="trip-tag" style="color:#c084fc;border-color:rgba(192,132,252,0.4);background:rgba(192,132,252,0.1);">商務艙 哩程兌換</span>
-            </div>
-            <div class="passenger-section">
-                <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span><span class="note" style="margin-left:8px;">商務艙各 50,000哩，共 100,000哩</span></div>
-                <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>票價</th><th>備註</th></tr></thead>
-                    <tbody>
-                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/02/22 09:45</div></td><td><div class="time-arr">12:40</div></td><td class="flight-no">BR201</td><td class="pnr">5JQMPC</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="price-pts">NT$0<br><span class="note">尊寵 43,777 / 基本 31,847</span></td><td class="note">商務艙</td></tr>
-                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/03/05 12:10</div></td><td><div class="time-arr">16:45</div></td><td class="flight-no">BR212</td><td class="dash">—</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
-                    </tbody>
-                </table></div>
-                <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:8px;">UDON 子行程 Sub-trip</span></div>
-                <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
-                    <tbody>
-                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/02/27 14:05</div></td><td><div class="time-arr">15:05</div></td><td class="flight-no">DD308</td><td class="pnr">5KQW6N</td><td class="note">mark pay 國泰亞萬</td><td class="price">NT$4,060</td></tr>
-                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/03/01 15:35</div></td><td><div class="time-arr">16:35</div></td><td class="flight-no">DD309</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
-                    </tbody>
-                </table></div>
-            </div>
-        </div>
-
-        <!-- T4 -->
-        <div class="trip">
-            <div class="trip-header">
-                <span class="trip-num">Trip 4</span>
-                <div><div class="trip-dest">🇹🇭 Bangkok + Phuket</div><div class="trip-dates">2023/06/16 – 2023/06/24</div></div>
-                <span class="trip-tag">夏季</span>
-            </div>
-            <div class="passenger-section">
-                <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span><span class="note" style="margin-left:8px;">BKK 幹線</span></div>
-                <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
-                    <tbody>
-                    <tr><td><span class="badge-go">去程 (MARK)</span></td><td><div class="time-main">2023/06/16 07:10</div></td><td><div class="time-arr">09:45</div></td><td class="flight-no">CI833</td><td class="pnr">64V3V3</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通</td><td class="price">NT$22,160</td></tr>
-                    <tr><td><span class="badge-back">回程 (ALEX)</span></td><td><div class="time-main">2023/06/24 17:35</div></td><td><div class="time-arr">22:10</div></td><td class="flight-no">CI836</td><td class="dash">—</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
-                    </tbody>
-                </table></div>
-                <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:8px;">Phuket 子行程 Sub-trip</span></div>
-                <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
-                    <tbody>
-                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/06/16 14:55</div></td><td><div class="time-arr">16:25</div></td><td class="flight-no">TG2283</td><td class="pnr">5FU45N</td><td class="note">美國運通</td><td class="price">NT$5,073</td></tr>
-                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/06/19 11:40</div></td><td><div class="time-arr">13:15</div></td><td class="flight-no">TG2286</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
-                    </tbody>
-                </table></div>
-            </div>
-        </div>
-
-        <!-- T5 -->
-        <div class="trip">
-            <div class="trip-header">
-                <span class="trip-num">Trip 5</span>
-                <div><div class="trip-dest">🇹🇭 Bangkok + Suratthani (URT)</div><div class="trip-dates">2023/09/23 – 2023/10/01</div></div>
-                <span class="trip-tag">中秋連假</span>
-            </div>
-            <div class="passenger-section">
-                <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span><span class="note" style="margin-left:8px;">BKK 幹線</span></div>
-                <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
-                    <tbody>
-                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/09/23 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6FX8F6</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通 + 7,336哩</td><td class="price">NT$23,080</td></tr>
-                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/10/01 17:30</div></td><td><div class="time-arr">22:10</div></td><td class="flight-no">CI836</td><td class="dash">—</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
-                    </tbody>
-                </table></div>
-                <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:8px;">URT 子行程 Sub-trip</span></div>
-                <div class="table-wrap"><table>
-                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
-                    <tbody>
-                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/09/27</div></td><td><div class="time-arr">17:30</div></td><td class="flight-no">FD3331</td><td class="pnr">A2PNKS</td><td class="note">富邦尊爵卡</td><td class="price">4,513 ฿ (NT$4,204)</td></tr>
-                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/09/30</div></td><td><div class="time-arr">17:25</div></td><td class="flight-no">FD3232</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
-                    </tbody>
-                </table></div>
-            </div>
-        </div>
-
-        <!-- T6 -->
-        <div class="trip">
-            <div class="trip-header">
-                <span class="trip-num">Trip 6</span>
                 <div><div class="trip-dest">🇹🇭 Bangkok + Krabi (KBV)</div><div class="trip-dates">2024/02/02 – 2024/02/12</div></div>
                 <span class="trip-tag">農曆新年</span>
             </div>
@@ -882,10 +765,10 @@
             </div>
         </div>
 
-        <!-- T7 -->
+        <!-- T2 -->
         <div class="trip">
             <div class="trip-header">
-                <span class="trip-num">Trip 7</span>
+                <span class="trip-num">Trip 2</span>
                 <div><div class="trip-dest">🇹🇭 Bangkok (BKK)</div><div class="trip-dates">2024/04/02 – 2024/04/10</div></div>
                 <span class="trip-tag">春假</span>
             </div>
@@ -901,10 +784,10 @@
             </div>
         </div>
 
-        <!-- T8 -->
+        <!-- T3 -->
         <div class="trip">
             <div class="trip-header">
-                <span class="trip-num">Trip 8</span>
+                <span class="trip-num">Trip 3</span>
                 <div><div class="trip-dest">🇯🇵 Tokyo (NRT)</div><div class="trip-dates">2024/06/01 – 2024/06/09</div></div>
                 <span class="trip-tag">端午連假</span>
             </div>
@@ -936,10 +819,10 @@
             </div>
         </div>
 
-        <!-- T9 -->
+        <!-- T4 -->
         <div class="trip">
             <div class="trip-header">
-                <span class="trip-num">Trip 9</span>
+                <span class="trip-num">Trip 4</span>
                 <div><div class="trip-dest">🇩🇪 Germany (FRA)</div><div class="trip-dates">2024/07/19 – 2024/08/02</div></div>
                 <span class="trip-tag" style="color:#94a3b8;border-color:rgba(148,163,184,0.4);background:rgba(148,163,184,0.08);">FRANK only</span>
             </div>
@@ -955,10 +838,10 @@
             </div>
         </div>
 
-        <!-- T10 -->
+        <!-- T5 -->
         <div class="trip">
             <div class="trip-header">
-                <span class="trip-num">Trip 10</span>
+                <span class="trip-num">Trip 5</span>
                 <div><div class="trip-dest">🇹🇼 Taiwan (TPE)</div><div class="trip-dates">2024/08/10 – 2024/08/13</div></div>
                 <span class="trip-tag" style="color:#94a3b8;border-color:rgba(148,163,184,0.4);background:rgba(148,163,184,0.08);">FRANK only</span>
             </div>
@@ -974,10 +857,10 @@
             </div>
         </div>
 
-        <!-- T11 -->
+        <!-- T6 -->
         <div class="trip">
             <div class="trip-header">
-                <span class="trip-num">Trip 11</span>
+                <span class="trip-num">Trip 6</span>
                 <div><div class="trip-dest">🇹🇭 Bangkok + Samui / URT</div><div class="trip-dates">2024/09/12 – 2024/09/22</div></div>
                 <span class="trip-tag">中秋連假</span>
             </div>
@@ -1005,10 +888,10 @@
             </div>
         </div>
 
-        <!-- T12 -->
+        <!-- T7 -->
         <div class="trip">
             <div class="trip-header">
-                <span class="trip-num">Trip 12</span>
+                <span class="trip-num">Trip 7</span>
                 <div><div class="trip-dest">🇹🇼 Taiwan (TPE)</div><div class="trip-dates">2024/10/24 – 2024/10/31</div></div>
                 <span class="trip-tag" style="color:#94a3b8;border-color:rgba(148,163,184,0.4);background:rgba(148,163,184,0.08);">FRANK · Gay Parade</span>
             </div>
@@ -1025,6 +908,149 @@
         </div>
 
     </div><!-- /tab-2024 -->
+
+    <!-- ══════════════════ 2023 TAB ══════════════════ -->
+    <div id="tab-2023" class="tab-content">
+
+        <div class="summary">
+            <div class="sum-card"><div class="num">4</div><div class="label">趟旅程 <div class="en">Trips</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.1rem;">BKK × 4</div><div class="label">曼谷 <div class="en">Bangkok</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.1rem;">NRT × 0</div><div class="label">日本 <div class="en">Japan</div></div></div>
+            <div class="sum-card"><div class="num" style="color:var(--gold);font-size:0.9rem;">BR/CI/FD/TG</div><div class="label">搭乘航空 <div class="en">Airlines</div></div></div>
+        </div>
+
+        <!-- T1 -->
+        <div class="trip">
+            <div class="trip-header">
+                <span class="trip-num">Trip 1</span>
+                <div><div class="trip-dest">🇹🇭 Bangkok (BKK)</div><div class="trip-dates">2023/01/20 – 2023/01/27</div></div>
+                <span class="trip-tag">農曆新年前</span>
+            </div>
+            <div class="passenger-section">
+                <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/01/20 12:05</div></td><td><div class="time-arr">15:00</div></td><td class="flight-no">FD231</td><td class="pnr">R8FRRA</td><td class="aircraft">A321-200</td><td><span class="link-badge">LINK</span></td><td class="note">國泰長榮</td><td class="price">NT$32,752</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/01/27 06:40</div></td><td><div class="time-arr">11:25</div></td><td class="flight-no">FD230</td><td class="dash">—</td><td class="aircraft">A321-200</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    </tbody>
+                </table></div>
+            </div>
+        </div>
+
+        <!-- T2 -->
+        <div class="trip">
+            <div class="trip-header">
+                <span class="trip-num">Trip 2</span>
+                <div><div class="trip-dest">🇹🇭 Bangkok (BKK)</div><div class="trip-dates">2023/02/22 – 2023/03/05</div></div>
+                <span class="trip-tag" style="color:#c084fc;border-color:rgba(192,132,252,0.4);background:rgba(192,132,252,0.1);">商務艙 哩程兌換</span>
+            </div>
+            <div class="passenger-section">
+                <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span><span class="note" style="margin-left:8px;">商務艙各 50,000哩，共 100,000哩</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>票價</th><th>備註</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/02/22 09:45</div></td><td><div class="time-arr">12:40</div></td><td class="flight-no">BR201</td><td class="pnr">5JQMPC</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="price-pts">NT$0<br><span class="note">尊寵 43,777 / 基本 31,847</span></td><td class="note">商務艙</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/03/05 12:10</div></td><td><div class="time-arr">16:45</div></td><td class="flight-no">BR212</td><td class="dash">—</td><td class="aircraft">Boeing 777-300ER</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
+                    </tbody>
+                </table></div>
+                <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:8px;">UDON 子行程 Sub-trip</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/02/27 14:05</div></td><td><div class="time-arr">15:05</div></td><td class="flight-no">DD308</td><td class="pnr">5KQW6N</td><td class="note">mark pay 國泰亞萬</td><td class="price">NT$4,060</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/03/01 15:35</div></td><td><div class="time-arr">16:35</div></td><td class="flight-no">DD309</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    </tbody>
+                </table></div>
+            </div>
+        </div>
+
+        <!-- T3 -->
+        <div class="trip">
+            <div class="trip-header">
+                <span class="trip-num">Trip 3</span>
+                <div><div class="trip-dest">🇹🇭 Bangkok + Phuket</div><div class="trip-dates">2023/06/16 – 2023/06/24</div></div>
+                <span class="trip-tag">夏季</span>
+            </div>
+            <div class="passenger-section">
+                <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span><span class="note" style="margin-left:8px;">BKK 幹線</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 (MARK)</span></td><td><div class="time-main">2023/06/16 07:10</div></td><td><div class="time-arr">09:45</div></td><td class="flight-no">CI833</td><td class="pnr">64V3V3</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通</td><td class="price">NT$22,160</td></tr>
+                    <tr><td><span class="badge-back">回程 (ALEX)</span></td><td><div class="time-main">2023/06/24 17:35</div></td><td><div class="time-arr">22:10</div></td><td class="flight-no">CI836</td><td class="dash">—</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
+                    </tbody>
+                </table></div>
+                <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span><span class="note" style="margin-left:8px;">Phuket 子行程 Sub-trip</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/06/16 14:55</div></td><td><div class="time-arr">16:25</div></td><td class="flight-no">TG2283</td><td class="pnr">5FU45N</td><td class="note">美國運通</td><td class="price">NT$5,073</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/06/19 11:40</div></td><td><div class="time-arr">13:15</div></td><td class="flight-no">TG2286</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    </tbody>
+                </table></div>
+            </div>
+        </div>
+
+        <!-- T4 -->
+        <div class="trip">
+            <div class="trip-header">
+                <span class="trip-num">Trip 4</span>
+                <div><div class="trip-dest">🇹🇭 Bangkok + Suratthani (URT)</div><div class="trip-dates">2023/09/23 – 2023/10/01</div></div>
+                <span class="trip-tag">中秋連假</span>
+            </div>
+            <div class="passenger-section">
+                <div class="passenger-label"><span class="p-badge badge-alex">ALEX + MARK</span><span class="note" style="margin-left:8px;">BKK 幹線</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/09/23 22:40</div></td><td><div class="time-arr">01:25 (+1)</div></td><td class="flight-no">CI837</td><td class="pnr">6FX8F6</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通 + 7,336哩</td><td class="price">NT$23,080</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/10/01 17:30</div></td><td><div class="time-arr">22:10</div></td><td class="flight-no">CI836</td><td class="dash">—</td><td class="aircraft">Airbus A330-300</td><td><span class="link-badge">LINK</span></td><td class="dash">—</td><td class="dash">—</td></tr>
+                    </tbody>
+                </table></div>
+                <div class="passenger-label"><span class="p-badge badge-mark">MARK</span><span class="note" style="margin-left:8px;">URT 子行程 Sub-trip</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>支付</th><th>票價</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2023/09/27</div></td><td><div class="time-arr">17:30</div></td><td class="flight-no">FD3331</td><td class="pnr">A2PNKS</td><td class="note">富邦尊爵卡</td><td class="price">4,513 ฿ (NT$4,204)</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/09/30</div></td><td><div class="time-arr">17:25</div></td><td class="flight-no">FD3232</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    </tbody>
+                </table></div>
+            </div>
+        </div>
+
+    </div><!-- /tab-2023 -->
+
+    <!-- ══════════════════ 2022 TAB ══════════════════ -->
+    <div id="tab-2022" class="tab-content">
+
+        <div class="summary">
+            <div class="sum-card"><div class="num">1</div><div class="label">趟旅程 <div class="en">Trips</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.1rem;">BKK × 0</div><div class="label">曼谷 <div class="en">Bangkok</div></div></div>
+            <div class="sum-card"><div class="num" style="font-size:1.1rem;">NRT × 1</div><div class="label">日本 <div class="en">Japan</div></div></div>
+            <div class="sum-card"><div class="num" style="color:var(--gold);font-size:1.1rem;">JX</div><div class="label">搭乘航空 <div class="en">Airlines</div></div></div>
+        </div>
+
+        <!-- T1 -->
+        <div class="trip">
+            <div class="trip-header">
+                <span class="trip-num">Trip 1</span>
+                <div><div class="trip-dest">🇯🇵 Tokyo (NRT)</div><div class="trip-dates">2022/12/29 – 2023/01/04</div></div>
+                <span class="trip-tag" style="color:#86efac;border-color:rgba(134,239,172,0.4);background:rgba(134,239,172,0.1);">New Year</span>
+            </div>
+            <div class="passenger-section">
+                <div class="passenger-label"><span class="p-badge badge-alex">ALEX</span></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>方向</th><th>出發</th><th>抵達</th><th>班機</th><th>PNR <div class="en">Booking Ref</div></th><th>機型</th><th>票</th><th>支付</th><th>票價</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="badge-go">去程 <span class="en">Outbound</span></span></td><td><div class="time-main">2022/12/29 11:00</div></td><td><div class="time-arr">15:00</div></td><td class="flight-no">JX804</td><td class="pnr">5AX8Z4</td><td class="aircraft">Airbus A321neo</td><td><span class="link-badge">LINK</span></td><td class="note">美國運通</td><td class="price">NT$29,828</td></tr>
+                    <tr><td><span class="badge-back">回程 <span class="en">Inbound</span></span></td><td><div class="time-main">2023/01/04 16:00</div></td><td><div class="time-arr">19:05</div></td><td class="flight-no">JX805</td><td class="dash">—</td><td class="aircraft">Airbus A321neo</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+                    </tbody>
+                </table></div>
+            </div>
+        </div>
+
+    </div><!-- /tab-2022 -->
 
 <script>
 function switchTab(year, btn) {
@@ -1102,7 +1128,8 @@ function updateSummaryStats() {
         var japanLabel = '日本';
         if (tab.id === 'tab-2026') japanLabel = 'NRT/CTS';
         else if (tab.id === 'tab-2025') japanLabel = 'KIX/NRT';
-        else japanLabel = 'NRT/NGO';
+        else if (tab.id === 'tab-2024') japanLabel = 'NRT';
+        else japanLabel = 'NRT';
         summaryCards[2].textContent = japanLabel + ' × ' + japanCount;
 
         var airList = Array.from(airlines).sort().join(' / ');
