@@ -30,6 +30,41 @@ const toNum = v => {
   return parseFloat(v) || 0;
 };
 
+const EVENT_ROWS = [
+  ['2026-04-26', '2026 YANG YOSEOP SOLO CONCERT ＜Fade In＞ IN TAIPEI', '04-26 11:30~15:59', '1488筆/4144張', '124筆/166張', '92.3%', '7.7%', '146筆', '11筆'],
+  ['2026-04-18', '2026 EXID CONCERT EXID：EXtra ID in TAIPEI', '04-18 10:30~14:59', '1642筆/2290張', '125筆/179張', '92.9%', '7.1%', '345筆', '12筆'],
+  ['2026-04-15', "Solar '總有一顆屬於你的星球（Your Own Star）' LIVE", '04-15 11:30~12:59', '596筆/952張', '25筆/29張', '96.0%', '4.0%', '85筆', '1筆'],
+  ['2026-04-14', 'NEXZ GLOBAL SHOWCASE EVENT ＜Mmchk：Not Typical＞ in TAIPEI', '04-14 11:30~12:59', '703筆/1899張', '74筆/136張', '90.5%', '9.5%', '282筆', '6筆'],
+  ['2026-04-10', '2am Concert ［O－NEUL， 2am］ in Taipei', '04-10 11:30~12:59', '503筆/1883張', '54筆/57張', '90.3%', '9.7%', '68筆', '1筆'],
+  ['2026-03-31', 'KAO SUPASSARA BIRTHDAY FAN MEETING', '03-31 11:30~12:59', '487筆/1469張', '34筆/39張', '93.5%', '6.5%', '61筆', '1筆'],
+  ['2026-03-28', '孫淑媚《MAY好三十》演唱會－台北站(加場)', '03-28 10:30~11:59', '1425筆/3352張', '35筆/63張', '97.6%', '2.4%', '161筆', '3筆'],
+  ['2026-03-15', '國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場 (加場)', '03-14 10:30~11:59', '2450筆/4556張', '89筆/158張', '96.5%', '3.5%', '630筆', '0筆'],
+  ['2026-03-13', '2026台灣運彩中華職棒開季團圓大辦桌', '03-13 11:30~12:59', '1892筆/3160張', '91筆/132張', '95.4%', '4.6%', '110筆', '1筆'],
+  ['2026-03-08', '孫淑媚《MAY好三十》演唱會－台北站', '03-08 11:30~12:59', '1485筆/2705張', '89筆/190張', '94.3%', '5.7%', '104筆', '0筆'],
+  ['2026-03-03', '崔立于安可場', '03-03 12:30~13:59', '672筆/808張', '95筆/128張', '87.6%', '12.4%', '122筆', '7筆'],
+  ['2026-02-13', 'deca joins 2026 world tour', '02-07 13:30~14:29', '983筆/1943張', '17筆/28張', '98.3%', '1.7%', '95筆', '0筆'],
+  ['2026-02-11', '7-ELEVEN高雄櫻花季 SAKURA FESTIVA', '02-11 11:30~12:29', '8834筆/15945張', '207筆/338張', '97.7%', '2.3%', '108筆', '0筆'],
+  ['2026-02-07', '2026蘇永康演唱會', '02-07 13:30~14:29', '983筆/1943張', '17筆/28張', '98.3%', '1.7%', '95筆', '0筆'],
+  ['2026-02-07', '2026 SEVENUS SPRING MINI CONCERT ［Stay With Us］ in TAIPEI', '—', '—', '—', '—', '—', '—', '—'],
+  ['2026-01-31', '2026 idntt 1st FANMEETING in TAIPEI ＜FIRST ACTION＞', '01-31 11:30~12:29', '414筆/517張', '42筆/57張', '90.8%', '9.2%', '70筆', '0筆'],
+  ['2026-01-07', '第40屆金唱片頒獎典禮 The 40th Golden Disc Awards', '01-07 18:30~19:29', '1168筆/1381張', '73筆/87張', '94.1%', '5.9%', '7筆', '6筆'],
+].map(([date, name, range, tw, ov, twPct, ovPct, int_, unk]) => {
+  const na  = tw === '—';
+  const cs  = 'padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.05)';
+  const csr = 'text-align:right;' + cs;
+  return '<tr>'
+    + '<td style="' + cs + ';white-space:nowrap;color:var(--muted);font-size:.82rem">' + date + '</td>'
+    + '<td style="' + cs + ';font-size:.85rem">' + name + '</td>'
+    + '<td style="' + cs + ';white-space:nowrap;font-family:monospace;font-size:.8rem;color:var(--muted)">' + range + '</td>'
+    + '<td style="' + csr + ';color:' + (na ? 'var(--muted)' : '#4ade80') + '">' + tw + '</td>'
+    + '<td style="' + csr + ';color:' + (na ? 'var(--muted)' : '#60a5fa') + '">' + ov + '</td>'
+    + '<td style="' + csr + ';color:' + (na ? 'var(--muted)' : '#4ade80') + '">' + twPct + '</td>'
+    + '<td style="' + csr + ';color:' + (na ? 'var(--muted)' : '#60a5fa') + '">' + ovPct + '</td>'
+    + '<td style="' + csr + ';color:var(--muted)">' + int_ + '</td>'
+    + '<td style="' + csr + ';color:var(--muted)">' + unk + '</td>'
+    + '</tr>';
+}).join('\n');
+
 (async () => {
   await client.connect();
   const col = client.db('QwareAi').collection('Qware_Ticket_Data');
@@ -269,6 +304,25 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:.78rem;border
       <th class="r">張數</th><th>座位資訊</th>
     </tr></thead>
     <tbody id="unk-tbody"></tbody>
+  </table>
+</div>
+
+<div class="section-title">📅 重點活動搶票地理分析</div>
+<div class="card" style="padding:0;overflow-x:auto">
+  <div style="padding:10px 20px 6px;font-size:.8rem;color:var(--muted)">依各活動搶票時間區間統計｜台灣/海外占比排除內部訂單及未識別 IP</div>
+  <table>
+    <thead><tr>
+      <th style="white-space:nowrap">日期</th>
+      <th>節目名稱</th>
+      <th style="white-space:nowrap">搶票時間</th>
+      <th class="r" style="color:#4ade80;white-space:nowrap">🇹🇼 台灣筆數/張數</th>
+      <th class="r" style="color:#60a5fa;white-space:nowrap">🌏 海外筆數/張數</th>
+      <th class="r" style="color:#4ade80">台灣占比</th>
+      <th class="r" style="color:#60a5fa">海外占比</th>
+      <th class="r" style="white-space:nowrap">內部訂單</th>
+      <th class="r" style="white-space:nowrap">IP未識別</th>
+    </tr></thead>
+    <tbody>${EVENT_ROWS}</tbody>
   </table>
 </div>
 </main>
