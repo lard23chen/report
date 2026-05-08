@@ -244,6 +244,18 @@
         }
         #deploy-time { color: var(--accent2); font-weight: 600; }
         #last-updated { font-weight: 600; color: var(--go); }
+
+        /* -- Row Copy Feature -- */
+        .th-copy { width:30px; min-width:30px; padding:4px 2px !important; text-align:center; }
+        .td-copy  { padding:3px 4px !important; text-align:center; vertical-align:middle; }
+        .copy-row-btn { background:none; border:none; padding:3px 6px; cursor:pointer; font-size:0.85rem; color:var(--text-muted); border-radius:5px; transition:background 0.15s,color 0.15s; line-height:1; }
+        .copy-row-btn:hover { background:rgba(99,102,241,0.18); color:var(--accent); }
+        #copy-target-menu { position:fixed; background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,0.3); padding:8px; z-index:10000; min-width:175px; }
+        .cti { display:block; width:100%; text-align:left; background:none; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; font-size:0.85rem; color:var(--text); font-family:inherit; transition:background 0.15s; white-space:nowrap; }
+        .cti:hover { background:rgba(99,102,241,0.14); color:var(--accent); }
+        .cti-sep { height:1px; background:var(--card-border); margin:5px 0; }
+        #copy-toast { position:fixed; bottom:68px; left:50%; transform:translateX(-50%); background:#1e293b; color:#e2e8f0; padding:9px 22px; border-radius:20px; font-size:0.85rem; z-index:10001; opacity:0; pointer-events:none; transition:opacity 0.3s; white-space:nowrap; box-shadow:0 4px 16px rgba(0,0,0,0.3); }
+        #copy-toast.show { opacity:1; }
     </style>
 </head>
 <body>
@@ -2051,8 +2063,61 @@ document.addEventListener('DOMContentLoaded', function() {
         applyStore();
         sortHotelTables();
         addDayOfWeek();
+        initRowCopy();
     });
 });
+
+
+/* -- Row Copy Feature -- */
+function initRowCopy() {
+    document.querySelectorAll('.tab-content .table-wrap table').forEach(function(tbl) { _addCopyColToTable(tbl); });
+    if (!document.getElementById('copy-toast')) { var t=document.createElement('div'); t.id='copy-toast'; t.className='copy-toast'; document.body.appendChild(t); }
+    var obs=new MutationObserver(function(muts){ muts.forEach(function(m){ m.addedNodes.forEach(function(node){ if(node.nodeType===1&&node.tagName==='TR'&&!node.querySelector('.td-copy')){ _addCopyBtn(node); } }); }); });
+    document.querySelectorAll('.tab-content table tbody').forEach(function(tb){ obs.observe(tb,{childList:true}); });
+}
+function _addCopyColToTable(tbl) {
+    var thead=tbl.querySelector('thead tr');
+    if(thead&&!thead.querySelector('.th-copy')){ var th=document.createElement('th'); th.className='th-copy'; th.title='複製列'; th.textContent='📋'; var act=thead.querySelector('.th-actions'); if(act) thead.insertBefore(th,act); else thead.appendChild(th); }
+    tbl.querySelectorAll('tbody tr').forEach(function(tr){ _addCopyBtn(tr); });
+}
+function _addCopyBtn(tr) {
+    if(tr.querySelector('.td-copy')) return;
+    var td=document.createElement('td'); td.className='td-copy';
+    var btn=document.createElement('button'); btn.className='copy-row-btn'; btn.title='複製此列'; btn.textContent='📋';
+    btn.addEventListener('click',function(e){ e.stopPropagation(); _showCopyMenu(tr,btn); });
+    td.appendChild(btn);
+    var act=tr.querySelector('.row-actions');
+    if(act) tr.insertBefore(td,act); else tr.appendChild(td);
+}
+function _showCopyMenu(sourceTr, btn) {
+    var old=document.getElementById('copy-target-menu'); if(old){ old.remove(); return; }
+    var trip=sourceTr.closest('.trip'); var srcTb=sourceTr.closest('tbody'); var targets=[];
+    if(trip){ trip.querySelectorAll('.passenger-section').forEach(function(sec){ sec.querySelectorAll('tbody').forEach(function(tb){ if(tb===srcTb) return; var badge=sec.querySelector('.p-badge'); targets.push({tb:tb,label:badge?badge.textContent.trim():'其他旅客'}); }); }); }
+    var menu=document.createElement('div'); menu.id='copy-target-menu';
+    var clipBtn=document.createElement('button'); clipBtn.className='cti'; clipBtn.textContent='📋 複製文字';
+    clipBtn.addEventListener('click',function(){ var txt=Array.from(sourceTr.querySelectorAll('td:not(.td-copy):not(.row-actions)')).map(function(td){ return td.innerText.replace(/\n/g,' ').trim(); }).filter(Boolean).join(' | '); navigator.clipboard.writeText(txt).then(function(){ _showToast('已複製到剪貼簿 ✓'); }); menu.remove(); });
+    menu.appendChild(clipBtn);
+    if(targets.length){ var sep=document.createElement('div'); sep.className='cti-sep'; menu.appendChild(sep); targets.forEach(function(tgt){ var item=document.createElement('button'); item.className='cti'; item.textContent='→ 貼到 '+tgt.label; item.addEventListener('click',function(){ _cloneRowTo(sourceTr,tgt.tb); menu.remove(); _showToast('已複製到 '+tgt.label+' ✓'); }); menu.appendChild(item); }); }
+    document.body.appendChild(menu);
+    var r=btn.getBoundingClientRect(); var mw=menu.offsetWidth||180; var left=Math.min(r.left+window.scrollX, window.innerWidth-mw-10);
+    menu.style.top=(r.bottom+window.scrollY+4)+'px'; menu.style.left=left+'px';
+    setTimeout(function(){ document.addEventListener('click',function close(e){ if(!menu.contains(e.target)){ menu.remove(); document.removeEventListener('click',close); } }); },10);
+}
+function _cloneRowTo(sourceTr, targetTb) {
+    var cells=Array.from(sourceTr.querySelectorAll('td:not(.td-copy):not(.row-actions)'));
+    var htmlContent=cells.map(function(td){ return td.outerHTML; }).join('');
+    var newTr=document.createElement('tr'); newTr.innerHTML=htmlContent;
+    var id=targetTb.dataset.eid+':a'+Math.random().toString(36).slice(2,7); newTr.dataset.eid=id;
+    targetTb.appendChild(newTr);
+    if(editOn&&!newTr.querySelector('.row-actions')){ var atd=document.createElement('td'); atd.className='row-actions'; atd.innerHTML='<button class="ea-btn" data-action="edit" title="編輯">✏️</button><button class="ea-btn ea-del" data-action="del" title="刪除">🗑</button>'; newTr.appendChild(atd); atd.querySelector('[data-action=edit]').addEventListener('click',function(){ editRow(newTr); }); atd.querySelector('[data-action=del]').addEventListener('click',function(){ delRow(newTr); }); }
+    newTr.style.transition='background 0.6s'; newTr.style.background='rgba(99,102,241,0.18)'; setTimeout(function(){ newTr.style.background=''; },1200);
+    var s=getStore(); if(!s.added) s.added={}; if(!s.added[targetTb.dataset.eid]) s.added[targetTb.dataset.eid]=[];
+    s.added[targetTb.dataset.eid].push({id:id,html:htmlContent}); saveStore(s);
+}
+function _showToast(msg) {
+    var t=document.getElementById('copy-toast'); if(!t) return;
+    t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2500);
+}
 
 })();
 
