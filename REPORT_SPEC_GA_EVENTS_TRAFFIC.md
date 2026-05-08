@@ -108,6 +108,17 @@ git push origin main
 
 更新頻率：**手動 / 依需求**（新活動開賣後執行）
 
+### ⚠️ 維護注意：HTML 與 Generator 必須同步
+
+`A_GA_Events_Traffic_Report.html` 由 `generate_ga_events_report.js` 產出。
+
+若只修改 HTML 而未同步修改 generator，下次執行 `node generate_ga_events_report.js` 時 **HTML 會被覆蓋**，手動修改的功能將遺失。
+
+**規則：凡修改 HTML 中的 JS 邏輯，必須同步修改 `generate_ga_events_report.js` 對應位置。**
+
+受影響的功能（歷史上曾被覆蓋過）：
+- 4.3 資料記錄區間連結（`valTime` innerHTML / IP Geo cross-link）— 2026/05/07 被自動更新覆蓋，2026/05/08 已修復並同步 generator
+
 ## 6. 相關連結
 
 - IP 地理分析報表（本月）：`A_IP_Geo_Analysis_Report.html`
