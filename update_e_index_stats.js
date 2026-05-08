@@ -181,6 +181,7 @@ async function main() {
                         ${tableRows}
                     </tbody>
                 </table>
+                MOM_ANALYSIS_PLACEHOLDER
             </div>
             </div>
             <div style="margin-top: 1rem; text-align: right; font-size: 0.85rem; color: var(--text-secondary);">
@@ -252,8 +253,33 @@ async function main() {
             </script>
         `;
 
+        // Build MoM analysis block
+        let momHtml = '';
+        if (stats.length >= 2) {
+            const cur = stats[0], prev = stats[1];
+            const pct = (v, p) => p ? ((v - p) / p * 100).toFixed(1) : '0';
+            const sign = v => parseFloat(v) >= 0 ? '+' : '';
+            const ordPct  = pct(cur.orderCount,       prev.orderCount);
+            const tkPct   = pct(cur.totalTickets,     prev.totalTickets);
+            const revPct  = pct(cur.totalRevenue,     prev.totalRevenue);
+            const rOrdPct = pct(cur.refundOrderCount, prev.refundOrderCount);
+            const rTkPct  = pct(cur.refundTickets,    prev.refundTickets);
+            const rFeePct = pct(cur.refundFees,       prev.refundFees);
+            const ordDiff = Math.abs(cur.orderCount - prev.orderCount).toLocaleString();
+            const tkDiff  = Math.abs(cur.totalTickets - prev.totalTickets).toLocaleString();
+            const revDiff = Math.abs(cur.totalRevenue - prev.totalRevenue).toLocaleString();
+            momHtml = '<div style="margin-top:24px;">'
+                + '<h4 style="color:var(--accent-color);font-size:1rem;margin-bottom:10px;">最近月份趨勢分析 (MoM Analysis)</h4>'
+                + '<div style="background:#252525;border-radius:10px;padding:14px 18px;border-left:3px solid #66BB6A;max-width:640px;line-height:1.8;font-size:0.92rem;">'
+                + '<div style="font-weight:700;margin-bottom:6px;color:var(--text-primary);">' + cur.month + ' 較上月(' + prev.month + ')</div>'
+                + '<div style="color:var(--text-secondary);">📊 <b style="color:var(--text-primary);">交易量：</b>購票筆數 ' + sign(ordPct) + ordDiff + ' 筆（' + sign(ordPct) + ordPct + '%），購票張數 ' + sign(tkPct) + tkDiff + ' 張（' + sign(tkPct) + tkPct + '%）。</div>'
+                + '<div style="color:var(--text-secondary);">💰 <b style="color:var(--text-primary);">收入：</b>購票金額 ' + sign(revPct) + ' NT$' + revDiff + '（' + sign(revPct) + revPct + '%），達 NT$' + cur.totalRevenue.toLocaleString() + '。</div>'
+                + '<div style="color:var(--text-secondary);">🔻 <b style="color:var(--text-primary);">退票：</b>退票筆數 ' + sign(rOrdPct) + rOrdPct + '%、退票張數 ' + sign(rTkPct) + rTkPct + '%；退票手續費 ' + sign(rFeePct) + rFeePct + '%。</div>'
+                + '</div></div>';
+        }
+
         // Replace Placeholder
-        const newHtml = template.replace(
+        const newHtml = template.replace('MOM_ANALYSIS_PLACEHOLDER', momHtml).replace(
             /<!-- STATS_START -->[\s\S]*?<!-- Tabs Navigation -->/,
             () => `<!-- STATS_START -->
             <div class="stats-section" style="margin-bottom: 3rem; background: var(--card-bg); border-radius: 16px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
