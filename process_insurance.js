@@ -146,10 +146,10 @@ async function run() {
         fs.writeFileSync('insurance_data.json', JSON.stringify(mergedData, null, 2), 'utf8');
         console.log('Updated insurance_data.json');
 
-        // Generate HTML Report
+        // Generate HTML Report (Static Version)
         const htmlContent = generateHTML(mergedData);
-        fs.writeFileSync('A_Insurance_Report.html', htmlContent, 'utf8');
-        console.log('Generated A_Insurance_Report.html');
+        fs.writeFileSync('A_Insurance_Static.html', htmlContent, 'utf8');
+        console.log('Generated A_Insurance_Static.html');
 
     } catch (err) {
         console.error(err);
