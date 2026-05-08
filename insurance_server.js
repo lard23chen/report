@@ -6,8 +6,20 @@ const cors = require('cors');
 const app = express();
 const port = 3001;
 
-const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const client = new MongoClient(uri);
+// Using the URI from stock_api.js but aiming at AlexLFE database
+const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const DB_NAME = 'AlexLFE';
+const COLLECTION_NAME = 'insurance';
+
+let cachedDb = null;
+
+async function getDb() {
+    if (cachedDb) return cachedDb;
+    const client = await MongoClient.connect(MONGO_URI);
+    const db = client.db(DB_NAME);
+    cachedDb = db;
+    return db;
+}
 
 app.use(cors());
 app.use(express.json());
@@ -19,88 +31,60 @@ app.use((req, res, next) => {
     next();
 });
 
-let db;
-async function connectDB() {
-    try {
-        await client.connect();
-        db = client.db("QwareAi");
-        console.log("Connected to MongoDB QwareAi");
-    } catch (err) {
-        console.error("Failed to connect to MongoDB", err);
-    }
-}
-connectDB();
-
+// Root: Serve the management UI
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'A_Insurance_Report.html'));
 });
 
-// Helper to sync to static JSON
-async function syncToJSON() {
-    try {
-        const collection = db.collection('AlexLFE_insurance');
-        const data = await collection.find({}).toArray();
-        fs.writeFileSync('insurance_data.json', JSON.stringify(data, null, 2), 'utf8');
-        console.log('Synced to insurance_data.json');
-    } catch (err) {
-        console.error('Sync failed:', err);
-    }
-}
-
-// API Endpoints
+// API: GET all records
 app.get('/api/insurance', async (req, res) => {
     try {
-        const collection = db.collection('AlexLFE_insurance');
-        const data = await collection.find({}).toArray();
-        res.json(data);
+        const db = await getDb();
+        const data = await db.collection(COLLECTION_NAME).find({}).toArray();
+        res.json({ ok: true, data });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ ok: false, error: err.message });
     }
 });
 
-app.post('/api/insurance', async (req, res) => {
+// API: ADD record
+app.post('/api/insurance/add', async (req, res) => {
     try {
-        const collection = db.collection('AlexLFE_insurance');
-        const newRecord = { ...req.body, createdAt: new Date() };
-        const result = await collection.insertOne(newRecord);
-        await syncToJSON();
-        res.json({ success: true, id: result.insertedId });
+        const db = await getDb();
+        const result = await db.collection(COLLECTION_NAME).insertOne(req.body);
+        res.json({ ok: true, id: result.insertedId });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ ok: false, error: err.message });
     }
 });
 
-app.put('/api/insurance/:id', async (req, res) => {
+// API: UPDATE record
+app.post('/api/insurance/update', async (req, res) => {
     try {
-        const { id } = req.params;
-        const collection = db.collection('AlexLFE_insurance');
-        const updateData = { ...req.body };
-        delete updateData._id; 
-        
-        const result = await collection.updateOne(
-            { _id: new ObjectId(id) },
-            { $set: updateData }
-        );
-        await syncToJSON();
-        res.json({ success: true, modifiedCount: result.modifiedCount });
+        const db = await getDb();
+        const { _id, ...updateData } = req.body;
+        if (!_id) return res.status(400).json({ ok: false, error: "Missing _id" });
+        await db.collection(COLLECTION_NAME).updateOne({ _id: new ObjectId(_id) }, { $set: updateData });
+        res.json({ ok: true });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ ok: false, error: err.message });
     }
 });
 
-app.delete('/api/insurance/:id', async (req, res) => {
+// API: DELETE record
+app.post('/api/insurance/delete', async (req, res) => {
     try {
-        const { id } = req.params;
-        const collection = db.collection('AlexLFE_insurance');
-        const result = await collection.deleteOne({ _id: new ObjectId(id) });
-        await syncToJSON();
-        res.json({ success: true, deletedCount: result.deletedCount });
+        const db = await getDb();
+        const { _id } = req.body;
+        if (!_id) return res.status(400).json({ ok: false, error: "Missing _id" });
+        await db.collection(COLLECTION_NAME).deleteOne({ _id: new ObjectId(_id) });
+        res.json({ ok: true });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ ok: false, error: err.message });
     }
 });
 
 app.listen(port, () => {
-    console.log(`Insurance Management Server running at http://localhost:${port}`);
-    console.log(`Access the UI at http://localhost:${port}/A_Insurance_Manager.html`);
+    console.log(`Insurance API running at http://localhost:${port}`);
+    console.log(`UI available at http://localhost:${port}/A_Insurance_Report.html`);
 });

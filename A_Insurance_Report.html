@@ -1,408 +1,366 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保單資產管理系統</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #64748b;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #1e293b;
-            --accent: #3b82f6;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --warning: #f59e0b;
-        }
-        body {
-            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1450px;
-            margin: 0 auto;
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        h1 {
-            font-weight: 800;
-            font-size: 2.2em;
-            margin: 0;
-            background: linear-gradient(to right, #2563eb, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.9em;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-edit { background: #f1f5f9; color: var(--text); border: 1px solid #e2e8f0; }
-        .btn-edit:hover { background: #e2e8f0; }
-
-        .card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            white-space: nowrap;
-        }
-        th {
-            background: #f8fafc;
-            color: var(--secondary);
-            text-align: left;
-            padding: 12px 15px;
-            font-size: 0.8em;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.92em;
-        }
-        tr:hover {
-            background: #f8fafc;
-        }
-        .memo-cell { max-width: 250px; white-space: normal; color: #64748b; font-size: 0.85em; }
-        
-        .status-badge {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            font-weight: 600;
-            border: 1px solid #fde68a;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 0.85em; font-weight: 600; color: var(--secondary); }
-        .form-group input, .form-group textarea {
-            padding: 10px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: inherit;
-        }
-        .full-width { grid-column: span 2; }
-        .modal-footer {
-            margin-top: 25px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .loader {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 60px;
-            color: var(--secondary);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>保單資產管理系統 (MongoDB)</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#263348;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--buy:#f87171;--sell:#22c55e;--div:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{font-size:1.2rem;font-weight:700;color:var(--accent)}
+header span{color:var(--muted);font-size:0.82rem}
+main{padding:18px 24px;max-width:1700px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:18px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px}
+.stat-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:4px}
+.stat-value{font-size:1.15rem;font-weight:700;color:var(--text)}
+.pos{color:var(--buy)}.neg{color:var(--sell)}
+.section-title{font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:4px}
+table{width:100%;border-collapse:collapse}
+th{background:var(--surface2);padding:9px 11px;text-align:left;font-size:0.73rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+td{padding:10px 11px;font-size:0.82rem;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.03)}
+.muted{color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+.filters select,.filters input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:0.8rem}
+.filters select:focus,.filters input:focus{outline:none;border-color:var(--accent)}
+.btn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:0.8rem;font-weight:600}
+.btn-primary{background:var(--accent);color:#0f172a}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:#ef4444;color:#fff}
+#edit-toolbar{position:fixed;bottom:22px;right:22px;z-index:1000;display:flex;gap:8px;align-items:center}
+#edit-toggle{padding:10px 18px;border-radius:25px;border:none;cursor:pointer;font-size:0.83rem;font-weight:700;background:#64748b;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.5);transition:background 0.2s}
+#edit-toolbar.on #edit-toggle{background:var(--accent);color:#0f172a}
+#add-btn{display:none;padding:10px 16px;border-radius:25px;border:none;cursor:pointer;font-size:0.83rem;font-weight:700;background:var(--sell);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.5)}
+#edit-toolbar.on #add-btn{display:inline-block}
+.act-btn{background:none;border:none;cursor:pointer;padding:3px 6px;border-radius:4px;font-size:0.72rem;display:none}
+body.edit-on .act-btn{display:inline-block}
+.act-edit{color:var(--accent)}.act-edit:hover{background:rgba(56,189,248,0.15)}
+.act-del{color:var(--sell)}.act-del:hover{background:rgba(248,113,113,0.15)}
+#crud-modal{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center}
+#crud-modal.open{display:flex}
+#crud-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.65)}
+#crud-dialog{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:600px;max-width:96vw;max-height:92vh;overflow-y:auto}
+#crud-dialog h3{font-size:1rem;font-weight:700;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:0.73rem;color:var(--muted);font-weight:600}
+.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:0.82rem}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div>
-                <h1>保單資產管理系統</h1>
-                <div id="connectionStatus"></div>
-            </div>
-            <button id="addBtn" class="btn btn-primary" onclick="openModal()" style="display:none">+ 新增保單紀錄</button>
-        </header>
+<header>
+  <h1>📜 保單資產管理系統</h1>
+  <span id="hdr-sub">AlexLFE (MongoDB)</span>
+  <span id="sync-info" style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#64748b">
+    <span id="sync-dot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block;animation:pulse 1s infinite;flex-shrink:0"></span>
+    <span id="sync-text">載入中…</span>
+  </span>
+</header>
+<main>
+  <div class="stats" id="stats-grid"></div>
 
-        <div class="card">
-            <div id="tableContainer">
-                <div class="loader">載入中...</div>
-            </div>
-        </div>
+  <div class="filters">
+    <input type="text" id="f-search" placeholder="搜尋保單名稱…" style="width:200px">
+    <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+  </div>
 
-        <div class="footer" style="text-align: center; margin-top: 30px; color: #64748b; font-size: 0.85em;">
-            <p>&copy; 2026 AlexLFE Insurance Portfolio Management</p>
-        </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>保單名稱</th>
+          <th>成交日</th>
+          <th>保單號碼</th>
+          <th>年期</th>
+          <th class="num">年繳保費</th>
+          <th class="num">累計繳費</th>
+          <th>滿期年</th>
+          <th class="num">滿期金</th>
+          <th class="num">5年領回</th>
+          <th class="num">10年領回</th>
+          <th class="num">2025領回</th>
+          <th>備註</th>
+          <th class="act-col" style="width:100px;display:none">操作</th>
+        </tr>
+      </thead>
+      <tbody id="insurance-body"></tbody>
+    </table>
+  </div>
+</main>
+
+<div id="edit-toolbar">
+  <button id="edit-toggle" onclick="toggleEditMode()">✏️ 編輯</button>
+  <button id="add-btn" onclick="showAddModal()">＋ 新增</button>
+</div>
+
+<div id="crud-modal">
+  <div id="crud-backdrop" onclick="hideModal()"></div>
+  <div id="crud-dialog"></div>
+</div>
+
+<script>
+// Determining the API URL based on where the page is loaded from
+const isLocalFile = window.location.protocol === 'file:';
+const API_BASE = isLocalFile ? 'http://localhost:3001/api/insurance' : '/api/insurance';
+var data = [];
+
+function setSyncState(state, text) {
+  var dot = document.getElementById('sync-dot');
+  if (state === 'loading') { dot.style.background = '#f59e0b'; dot.style.animation = 'pulse 1s infinite'; }
+  else if (state === 'ok') { dot.style.background = '#22c55e'; dot.style.animation = 'none'; }
+  else { dot.style.background = '#ef4444'; dot.style.animation = 'none'; }
+  document.getElementById('sync-text').textContent = text;
+}
+
+async function fetchData() {
+  setSyncState('loading', '載入中…');
+  try {
+    var res = await fetch(API_BASE + '?t=' + Date.now());
+    var json = await res.json();
+    if (!json.ok) throw new Error('API error');
+    data = json.data;
+    setSyncState('ok', '同步完成・' + new Date().toLocaleTimeString('zh-TW', { hour12: false }));
+    render();
+  } catch (e) {
+    console.warn('API error, trying static fallback:', e);
+    try {
+        var fallbackRes = await fetch('insurance_data.json');
+        data = await fallbackRes.json();
+        setSyncState('error', '唯讀模式 (雲端)');
+        render();
+    } catch(fErr) {
+        setSyncState('error', '載入失敗');
+        console.error(fErr);
+    }
+  }
+}
+
+async function apiPost(endpoint, body) {
+  const res = await fetch(API_BASE + endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return await res.json();
+}
+
+function render() {
+  var filtered = applyFilters(data);
+  renderStats(filtered);
+  renderTable(filtered);
+}
+
+function renderStats(rows) {
+  var totalAnnual = 0, totalAccumulated = 0;
+  rows.forEach(r => {
+    var ap = parseFloat((r.annualPremium || '0').replace(/,/g, ''));
+    var ac = parseFloat((r.accumulatedPremium || '0').replace(/,/g, ''));
+    if (!isNaN(ap)) totalAnnual += ap;
+    if (!isNaN(ac)) totalAccumulated += ac;
+  });
+
+  var cards = [
+    { label: '總保單數', val: rows.length },
+    { label: '總年繳保費估算', val: '$' + totalAnnual.toLocaleString('en-US') },
+    { label: '總累計繳費估算', val: '$' + totalAccumulated.toLocaleString('en-US') }
+  ];
+  document.getElementById('stats-grid').innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value">${c.val}</div>
     </div>
+  `).join('');
+}
 
-    <!-- Add/Edit Modal -->
-    <div id="insuranceModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle" style="margin-top:0; color: var(--primary);">新增保單</h2>
-            </div>
-            <form id="insuranceForm">
-                <input type="hidden" id="recordId">
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>保單名稱</label>
-                        <input type="text" id="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>成交日</label>
-                        <input type="text" id="date">
-                    </div>
-                    <div class="form-group">
-                        <label>保單號碼</label>
-                        <input type="text" id="policyNumber">
-                    </div>
-                    <div class="form-group">
-                        <label>繳費年期</label>
-                        <input type="text" id="years">
-                    </div>
-                    <div class="form-group">
-                        <label>年繳保費</label>
-                        <input type="text" id="annualPremium">
-                    </div>
-                    <div class="form-group">
-                        <label>累計繳費</label>
-                        <input type="text" id="accumulatedPremium">
-                    </div>
-                    <div class="form-group">
-                        <label>滿期年</label>
-                        <input type="text" id="maturityYear">
-                    </div>
-                    <div class="form-group">
-                        <label>滿期金</label>
-                        <input type="text" id="maturityAmount">
-                    </div>
-                    <div class="form-group">
-                        <label>5年領回</label>
-                        <input type="text" id="return5yr">
-                    </div>
-                    <div class="form-group">
-                        <label>10年領回</label>
-                        <input type="text" id="return10yr">
-                    </div>
-                    <div class="form-group">
-                        <label>2025領回</label>
-                        <input type="text" id="returnNov2025">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>備註</label>
-                        <textarea id="memo" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-edit" onclick="closeModal()">取消</button>
-                    <button type="submit" class="btn btn-primary">儲存</button>
-                </div>
-            </form>
-        </div>
+function applyFilters(rows) {
+  var s = document.getElementById('f-search').value.toLowerCase();
+  return rows.filter(r => {
+    if (s && !(r.name && r.name.toLowerCase().includes(s))) return false;
+    return true;
+  });
+}
+
+function resetFilters() {
+  document.getElementById('f-search').value = ''; render();
+}
+
+function renderTable(rows) {
+  var html = '';
+  rows.forEach(r => {
+    var displayName = r.name && r.name.length > 10 ? r.name.substring(0, 10) + '...' : (r.name || '-');
+    html += `
+      <tr>
+        <td title="${r.name || ''}">${displayName}</td>
+        <td class="muted">${r.date || '-'}</td>
+        <td><span style="color:var(--accent);font-weight:700">${r.policyNumber || '-'}</span></td>
+        <td>${r.years || '-'}</td>
+        <td style="text-align:right">${r.annualPremium || '-'}</td>
+        <td style="text-align:right">${r.accumulatedPremium || '-'}</td>
+        <td class="muted">${r.maturityYear || '-'}</td>
+        <td style="text-align:right">${r.maturityAmount || '-'}</td>
+        <td style="text-align:right">${r.return5yr || '-'}</td>
+        <td style="text-align:right">${r.return10yr || '-'}</td>
+        <td style="text-align:right">${r.returnNov2025 || '-'}</td>
+        <td class="muted" style="white-space:normal;max-width:250px;font-size:0.75rem">${r.memo || '-'}</td>
+        <td class="act-btn-cell" style="display:none">
+          <button class="act-btn act-edit" onclick="showEditModal('${r._id}')">編輯</button>
+          <button class="act-btn act-del" onclick="confirmDel('${r._id}')">刪除</button>
+        </td>
+      </tr>
+    `;
+  });
+  document.getElementById('insurance-body').innerHTML = html;
+  
+  // Refresh edit buttons visibility
+  if(editOn) {
+    document.querySelectorAll('.act-btn-cell').forEach(el => el.style.display = 'table-cell');
+    document.querySelectorAll('.act-btn').forEach(el => el.style.display = 'inline-block');
+  }
+}
+
+var editOn = false;
+window.toggleEditMode = function() {
+  if (editOn) {
+    editOn = false;
+    document.body.classList.remove('edit-on');
+    document.getElementById('edit-toolbar').classList.remove('on');
+    document.getElementById('edit-toggle').textContent = '✏️ 編輯';
+    document.querySelectorAll('.act-btn-cell').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.act-btn').forEach(el => el.style.display = 'none');
+    document.querySelector('.act-col').style.display = 'none';
+  } else {
+    showPasswordModal(() => {
+      editOn = true;
+      document.body.classList.add('edit-on');
+      document.getElementById('edit-toolbar').classList.add('on');
+      document.getElementById('edit-toggle').textContent = '✕ 退出編輯';
+      document.querySelectorAll('.act-btn-cell').forEach(el => el.style.display = 'table-cell');
+      document.querySelectorAll('.act-btn').forEach(el => el.style.display = 'inline-block');
+      document.querySelector('.act-col').style.display = 'table-cell';
+    });
+  }
+};
+
+function showModal(html) {
+  document.getElementById('crud-dialog').innerHTML = html;
+  document.getElementById('crud-modal').classList.add('open');
+}
+window.hideModal = function() {
+  document.getElementById('crud-modal').classList.remove('open');
+};
+
+function showPasswordModal(onSuccess) {
+  showModal(`
+    <h3>🔒 請輸入密碼</h3>
+    <input type="password" id="pw-inp" style="width:100%;padding:8px;margin:10px 0;background:var(--surface2);border:1px solid var(--border);color:white">
+    <div id="pw-err" style="color:var(--buy);font-size:0.8rem;margin-top:4px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="hideModal()">取消</button>
+      <button class="btn btn-primary" id="pw-ok">確認</button>
     </div>
+  `);
+  const check = () => {
+    if (document.getElementById('pw-inp').value === '0918216001') { hideModal(); onSuccess(); }
+    else document.getElementById('pw-err').textContent = '密碼錯誤';
+  };
+  document.getElementById('pw-ok').onclick = check;
+  document.getElementById('pw-inp').onkeyup = (e) => { if (e.key === 'Enter') check(); };
+}
 
-    <script>
-        const isLocalFile = window.location.protocol === 'file:';
-        const API_BASE = isLocalFile ? 'http://localhost:3001' : '';
-        const API_URL = `${API_BASE}/api/insurance`;
-        
-        let allRecords = [];
-        let isReadOnly = false;
+window.confirmDel = function(id) {
+  showModal(`
+    <h3>⚠️ 確認刪除</h3>
+    <p>確定要刪除此筆保單記錄嗎？</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="hideModal()">取消</button>
+      <button class="btn btn-danger" id="del-yes">確定</button>
+    </div>
+  `);
+  document.getElementById('del-yes').onclick = async () => {
+    var res = await apiPost('/delete', { _id: id });
+    if (res.ok) { hideModal(); fetchData(); }
+  };
+};
 
-        async function fetchRecords() {
-            try {
-                // Try API first
-                const res = await fetch(API_URL);
-                if (!res.ok) throw new Error('API not available');
-                allRecords = await res.json();
-                isReadOnly = false;
-                document.getElementById('addBtn').style.display = 'inline-flex';
-                document.getElementById('connectionStatus').innerHTML = '<span style="color:var(--success); font-size:0.8em;">● 管理模式 (連線正常)</span>';
-            } catch (err) {
-                console.warn('API error, falling back to static data:', err);
-                try {
-                    const fallback = await fetch('insurance_data.json');
-                    allRecords = await fallback.json();
-                    isReadOnly = true;
-                    document.getElementById('addBtn').style.display = 'none';
-                    document.getElementById('connectionStatus').innerHTML = '<span class="status-badge">⚠️ 唯讀模式 (無法連線伺服器)</span>';
-                } catch (fErr) {
-                    document.getElementById('tableContainer').innerHTML = '無法載入資料。';
-                    return;
-                }
-            }
-            renderTable();
-        }
+function rowFormHtml(r, title) {
+  r = r || {};
+  const v = f => r[f] !== undefined ? r[f] : '';
+  return `
+    <h3>${title}</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>保單名稱</label><input id="f-name" value="${v('name')}"></div>
+      <div class="form-group"><label>成交日</label><input id="f-date" value="${v('date')}"></div>
+      <div class="form-group"><label>保單號碼</label><input id="f-policyNumber" value="${v('policyNumber')}"></div>
+      <div class="form-group"><label>繳費年期</label><input id="f-years" value="${v('years')}"></div>
+      <div class="form-group"><label>年繳保費</label><input id="f-annualPremium" value="${v('annualPremium')}"></div>
+      <div class="form-group"><label>累計繳費</label><input id="f-accumulatedPremium" value="${v('accumulatedPremium')}"></div>
+      <div class="form-group"><label>滿期年</label><input id="f-maturityYear" value="${v('maturityYear')}"></div>
+      <div class="form-group"><label>滿期金</label><input id="f-maturityAmount" value="${v('maturityAmount')}"></div>
+      <div class="form-group"><label>5年領回</label><input id="f-return5yr" value="${v('return5yr')}"></div>
+      <div class="form-group"><label>10年領回</label><input id="f-return10yr" value="${v('return10yr')}"></div>
+      <div class="form-group"><label>2025領回</label><input id="f-returnNov2025" value="${v('returnNov2025')}"></div>
+      <div class="form-group full"><label>備註</label><textarea id="f-memo" rows="3">${v('memo')}</textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="hideModal()">取消</button>
+      <button class="btn btn-primary" id="form-save">儲存</button>
+    </div>
+  `;
+}
 
-        function renderTable() {
-            const container = document.getElementById('tableContainer');
-            if (allRecords.length === 0) {
-                container.innerHTML = '尚無資料';
-                return;
-            }
+window.showAddModal = function() {
+  showModal(rowFormHtml(null, '＋ 新增保單'));
+  document.getElementById('form-save').onclick = async function() {
+    var btn = this; if (btn.disabled) return; btn.disabled = true; btn.textContent = '儲存中...';
+    var d = {
+      name: document.getElementById('f-name').value, date: document.getElementById('f-date').value,
+      policyNumber: document.getElementById('f-policyNumber').value, years: document.getElementById('f-years').value,
+      annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
+      maturityYear: document.getElementById('f-maturityYear').value, maturityAmount: document.getElementById('f-maturityAmount').value,
+      return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
+      returnNov2025: document.getElementById('f-returnNov2025').value, memo: document.getElementById('f-memo').value
+    };
+    try {
+      var res = await apiPost('/add', d);
+      if (res.ok) { hideModal(); fetchData(); }
+      else { alert('儲存失敗'); btn.disabled = false; btn.textContent = '儲存'; }
+    } catch (e) { alert('發生錯誤'); btn.disabled = false; }
+  };
+};
 
-            let html = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>保單名稱</th>
-                        <th>成交日</th>
-                        <th>保單號碼</th>
-                        <th>年期</th>
-                        <th>年繳保費</th>
-                        <th>累計繳費</th>
-                        <th>滿期年</th>
-                        <th>滿期金</th>
-                        <th>5年領回</th>
-                        <th>10年領回</th>
-                        <th>2025領回</th>
-                        <th>備註</th>
-                        ${!isReadOnly ? '<th>操作</th>' : ''}
-                    </tr>
-                </thead>
-                <tbody>
-            `;
+window.showEditModal = function(id) {
+  var r = data.find(x => x._id === id);
+  showModal(rowFormHtml(r, '✏️ 修改保單'));
+  document.getElementById('form-save').onclick = async function() {
+    var btn = this; if (btn.disabled) return; btn.disabled = true; btn.textContent = '儲存中...';
+    var d = {
+      _id: id, name: document.getElementById('f-name').value, date: document.getElementById('f-date').value,
+      policyNumber: document.getElementById('f-policyNumber').value, years: document.getElementById('f-years').value,
+      annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
+      maturityYear: document.getElementById('f-maturityYear').value, maturityAmount: document.getElementById('f-maturityAmount').value,
+      return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
+      returnNov2025: document.getElementById('f-returnNov2025').value, memo: document.getElementById('f-memo').value
+    };
+    try {
+      var res = await apiPost('/update', d);
+      if (res.ok) { hideModal(); fetchData(); }
+      else { alert('儲存失敗'); btn.disabled = false; btn.textContent = '儲存'; }
+    } catch (e) { alert('發生錯誤'); btn.disabled = false; }
+  };
+};
 
-            allRecords.forEach(record => {
-                const rawName = record.name || '-';
-                const displayName = rawName.length > 10 ? rawName.substring(0, 10) + '...' : rawName;
-                html += `
-                    <tr>
-                        <td title="${rawName}">${displayName}</td>
-                        <td>${record.date || '-'}</td>
-                        <td>${record.policyNumber || '-'}</td>
-                        <td>${record.years || '-'}</td>
-                        <td>${record.annualPremium || '-'}</td>
-                        <td>${record.accumulatedPremium || '-'}</td>
-                        <td>${record.maturityYear || '-'}</td>
-                        <td>${record.maturityAmount || '-'}</td>
-                        <td>${record.return5yr || '-'}</td>
-                        <td>${record.return10yr || '-'}</td>
-                        <td>${record.returnNov2025 || '-'}</td>
-                        <td class="memo-cell">${record.memo || '-'}</td>
-                        ${!isReadOnly ? `
-                        <td>
-                            <button class="btn btn-edit" onclick="editRecord('${record._id}')">編輯</button>
-                            <button class="btn btn-danger" onclick="deleteRecord('${record._id}')">刪除</button>
-                        </td>` : ''}
-                    </tr>
-                `;
-            });
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        function openModal(record = null) {
-            const modal = document.getElementById('insuranceModal');
-            document.getElementById('insuranceForm').reset();
-            document.getElementById('recordId').value = '';
-            
-            if (record) {
-                document.getElementById('modalTitle').innerText = '編輯保單';
-                document.getElementById('recordId').value = record._id;
-                document.getElementById('name').value = record.name || '';
-                document.getElementById('date').value = record.date || '';
-                document.getElementById('policyNumber').value = record.policyNumber || '';
-                document.getElementById('years').value = record.years || '';
-                document.getElementById('annualPremium').value = record.annualPremium || '';
-                document.getElementById('accumulatedPremium').value = record.accumulatedPremium || '';
-                document.getElementById('maturityYear').value = record.maturityYear || '';
-                document.getElementById('maturityAmount').value = record.maturityAmount || '';
-                document.getElementById('return5yr').value = record.return5yr || '';
-                document.getElementById('return10yr').value = record.return10yr || '';
-                document.getElementById('returnNov2025').value = record.returnNov2025 || '';
-                document.getElementById('memo').value = record.memo || '';
-            } else {
-                document.getElementById('modalTitle').innerText = '新增保單';
-            }
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() { document.getElementById('insuranceModal').style.display = 'none'; }
-
-        function editRecord(id) {
-            const record = allRecords.find(r => r._id === id);
-            if (record) openModal(record);
-        }
-
-        async function deleteRecord(id) {
-            if (!confirm('確定要刪除嗎？')) return;
-            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            if (res.ok) fetchRecords();
-        }
-
-        document.getElementById('insuranceForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('recordId').value;
-            const formData = {
-                name: document.getElementById('name').value,
-                date: document.getElementById('date').value,
-                policyNumber: document.getElementById('policyNumber').value,
-                years: document.getElementById('years').value,
-                annualPremium: document.getElementById('annualPremium').value,
-                accumulatedPremium: document.getElementById('accumulatedPremium').value,
-                maturityYear: document.getElementById('maturityYear').value,
-                maturityAmount: document.getElementById('maturityAmount').value,
-                return5yr: document.getElementById('return5yr').value,
-                return10yr: document.getElementById('return10yr').value,
-                returnNov2025: document.getElementById('returnNov2025').value,
-                memo: document.getElementById('memo').value
-            };
-            const method = id ? 'PUT' : 'POST';
-            const url = id ? `${API_URL}/${id}` : API_URL;
-            const res = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-            if (res.ok) { closeModal(); fetchRecords(); }
-        };
-
-        window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
-        fetchRecords();
-    </script>
+document.getElementById('f-search').oninput = () => render();
+fetchData();
+</script>
 </body>
 </html>
