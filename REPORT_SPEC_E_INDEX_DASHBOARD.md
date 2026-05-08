@@ -22,6 +22,7 @@
 *   **位置**: 頁面頂部統計區塊。
 *   **顯示欄位**: 月份、購票筆數、購票張數、購票金額、退票筆數、退票張數、退票手續費。
 *   **MoM 成長分析**: 自動計算與前一個月的百分比差異，並以箭頭與色塊顯示 (▲ 綠色 / ▼ 紅色)。
+*   **最近月份趨勢分析區塊**: 統計表下方自動產生最新月與上月的文字摘要（交易量、收入、退票三行），由 `update_e_index_stats.js` 動態生成，**不得手動寫死在 HTML**，否則下次更新會被覆蓋。
 *   **自動化更新**: 透過 `update_e_index_stats.js` 定期從 MongoDB 聚合數據並注入 HTML 標記 `<!-- STATS_START -->` 之間。
 
 #### B. 營收趨勢圖 (Revenue Trend Chart)
@@ -47,5 +48,14 @@
 *   **靜態網站**: 部署於 GitHub Pages (`https://lard23chen.github.io/report/E_report_index.html`)。
 *   **PDF 匯出**: 報表內建 PDF 匯出組件 (html2pdf)，方便團隊進行離線存檔與傳閱。
 
+### ⚠️ 維護注意：HTML 與 Generator 必須同步
+
+`E_report_index.html` 由 `update_e_index_stats.js` 產出（替換 `<!-- STATS_START -->` 至 `<!-- Tabs Navigation -->` 之間的內容）。
+
+**若只修改 HTML 而未同步修改 generator，下次執行更新腳本時 HTML 會被完整覆蓋。**
+
+受影響的功能（歷史上曾被覆蓋過）：
+- 最近月份趨勢分析區塊 — 2026/05/08 被更新覆蓋，已修復並同步至 generator（以 `MOM_ANALYSIS_PLACEHOLDER` 動態替換）
+
 ---
-*Last Updated: 2026/04/09 by Gemini CLI*
+*Last Updated: 2026/05/08*
