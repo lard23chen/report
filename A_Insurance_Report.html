@@ -1,21 +1,19 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保單資產整合管理報表</title>
+    <title>保單資產整合分析報表</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
-            --primary-dark: #1e40af;
             --secondary: #64748b;
-            --bg: #f8fafc;
+            --bg: #f1f5f9;
             --card: #ffffff;
             --text: #1e293b;
             --accent: #3b82f6;
-            --danger: #ef4444;
-            --success: #22c55e;
         }
         body {
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
@@ -25,47 +23,24 @@
             padding: 20px;
         }
         .container {
-            max-width: 1450px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center;
             margin-bottom: 30px;
-            padding: 0 10px;
         }
         h1 {
             font-weight: 800;
-            font-size: 2.2em;
-            margin: 0;
-            background: linear-gradient(to right, #2563eb, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: var(--primary);
         }
-        .btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.9em;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-edit { background: #f1f5f9; color: var(--text); border: 1px solid #e2e8f0; }
-        .btn-edit:hover { background: #e2e8f0; }
-
         .card {
             background: var(--card);
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             overflow-x: auto;
         }
         table {
@@ -78,7 +53,7 @@
             color: var(--secondary);
             text-align: left;
             padding: 12px 15px;
-            font-size: 0.8em;
+            font-size: 0.85em;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             border-bottom: 2px solid #e2e8f0;
@@ -86,367 +61,116 @@
         td {
             padding: 12px 15px;
             border-bottom: 1px solid #f1f5f9;
-            font-size: 0.92em;
-        }
-        .memo-cell { max-width: 250px; white-space: normal; color: #64748b; font-size: 0.85em; }
-        
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        .modal-header {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 15px;
-        }
-        .modal-header h2 { margin: 0; color: var(--primary); font-size: 1.5em; }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 0.85em; font-weight: 600; color: var(--secondary); }
-        .form-group input, .form-group textarea {
-            padding: 10px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: inherit;
             font-size: 0.95em;
         }
-        .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        .full-width { grid-column: span 2; }
-        .modal-footer {
-            margin-top: 25px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
+        tr:hover {
+            background: #f8fafc;
         }
-
-        .loader {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px;
+        .memo-cell {
+            max-width: 300px;
+            white-space: normal;
+            font-size: 0.85em;
+            color: #64748b;
+        }
+        .footer {
+            text-align: center;
             color: var(--secondary);
-            gap: 15px;
-        }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .tag {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75em;
-            font-weight: 600;
-            background: #e2e8f0;
-            color: #475569;
+            font-size: 0.85em;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div>
-                <h1>保單資產整合管理報表</h1>
-                <p style="margin: 5px 0 0; color: var(--secondary); font-size: 0.9em;">即時管理與資產分析</p>
-            </div>
-            <button class="btn btn-primary" onclick="openModal()">+ 新增保單紀錄</button>
+            <h1>保單資產整合分析報表</h1>
+            <p>最後更新時間：2026/5/8 下午3:59:17</p>
         </header>
 
         <div class="card">
-            <div id="tableContainer">
-                <div class="loader">
-                    <div class="spinner"></div>
-                    <div>正在從雲端載入資料...</div>
-                </div>
-            </div>
+            <table>
+                <thead>
+                    <tr><th>保單名稱</th><th>成交日</th><th>保單號碼</th><th>繳費年期</th><th>年繳保費</th><th>累計繳費</th><th>滿期年</th><th>滿期金</th><th>5年領回</th><th>10年領回</th><th>2025領回</th><th>備註</th></tr>
+                </thead>
+                <tbody>
+                    
+                        <tr>
+                            <td>雙好還本終身</td>
+                            <td class="">-</td><td class="">-</td><td class="">20</td><td class="">64,124</td><td class="">-</td><td class="">2022</td><td class="">1,282,480</td><td class="">-</td><td class="">-</td><td class="">-</td><td class="memo-cell">每兩年還本5.4萬 至滿期已領450,000 20年領540000 40年領1,080,000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>添美利美元</td>
+                            <td class="">-</td><td class="">-</td><td class="">6</td><td class="">1,191</td><td class="">-</td><td class="">2015</td><td class="">7,146</td><td class="">9093美元</td><td class="">10887美元</td><td class="">-</td><td class="memo-cell">-</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>新呵護久久殘廢照護</td>
+                            <td class="">-</td><td class="">-</td><td class="">5</td><td class="">40,350</td><td class="">-</td><td class="">2035/12/28</td><td class="">807,000</td><td class="">-</td><td class="">-</td><td class="">-</td><td class="memo-cell">失能給付 最高50年</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>添鑫終身壽險</td>
+                            <td class="">-</td><td class="">-</td><td class="">17</td><td class="">38,214</td><td class="">-</td><td class="">2028/02/09</td><td class="">764,280</td><td class="">1,113,440</td><td class="">1314540</td><td class="">-</td><td class="memo-cell">儲蓄險保費原36540元</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>富利年年終身保險</td>
+                            <td class="">-</td><td class="">-</td><td class="">17</td><td class="">67,539</td><td class="">-</td><td class="">2028/02/09</td><td class="">1,350,780</td><td class="">1,015,155</td><td class="">1028385</td><td class="">-</td><td class="memo-cell">儲蓄原保費64581元 繳費期間年年領20250 繳費期滿年年領29250 至25年年金共領回259025 至30年 年金共領回418506</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>台灣人壽吉順利(躉繳...</td>
+                            <td class="">106.3.1</td><td class="">10380750</td><td class="">1</td><td class="">503,088</td><td class="">503,088</td><td class="">-</td><td class="">-</td><td class="">548,315</td><td class="">644,436</td><td class="">574,687</td><td class="memo-cell">繳完 2021-增值回饋分享金$6456 2022-增值回饋分享金$2975 2023-增值回饋分享金$3021 2024-增值回饋分享金$3625 2025-增值回饋分享金$3685 2026-增值回饋分享金$4610</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>中國人壽年年旺(2年...</td>
+                            <td class="">106.11.27</td><td class="">D0561253</td><td class="">2</td><td class="">107,920</td><td class="">215,840</td><td class="">-</td><td class="">-</td><td class="">212,801</td><td class="">217,868</td><td class="">213,481</td><td class="memo-cell">繳完,(不含)年領生存保險金 第1年領1260、第2年領2537、第3年領2576 第4年領2614、第5年領2653、第6年領2693 第7年以後領2733 2020--2229(存進本金的錢)+2578 2023-2632 2024-2646 生存金 2025-2646生存金給付至凱基帳戶</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>中國人壽鑫增利(2年...</td>
+                            <td class="">107.11.8</td><td class="">D0877826</td><td class="">2</td><td class="">100,328</td><td class="">200,656</td><td class="">-</td><td class="">-</td><td class="">210,278</td><td class="">245,550</td><td class="">211,063</td><td class="memo-cell">繳完 2020--2047 2023增值回饋分享金$957 2024增值回饋分享金$1030 2025增值回饋分享金$1356</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>中國人壽鑫增利(2年...</td>
+                            <td class="">107.12.14</td><td class="">D0906605</td><td class="">2</td><td class="">70,122</td><td class="">140,244</td><td class="">-</td><td class="">-</td><td class="">146,968</td><td class="">171,620</td><td class="">146,248</td><td class="memo-cell">繳完 2020-1431 2021-1348 2024-719</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>中國人壽三得利(3年...</td>
+                            <td class="">108.11.26</td><td class="">D1166250</td><td class="">3</td><td class="">102,048</td><td class="">306,144</td><td class="">-</td><td class="">-</td><td class="">308,940</td><td class="">351,564</td><td class="">307,034</td><td class="memo-cell">繳完 2020-858 2023-1501  2024-1527 2025-2020</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>中壽金美好利(躉繳)</td>
+                            <td class="">110.4.8</td><td class="">D1522179</td><td class="">1</td><td class="">8,000</td><td class="">8,000</td><td class="">-</td><td class="">-</td><td class="">8,691</td><td class="">10,057</td><td class="">-</td><td class="memo-cell">繳完.第二年保本 (美金) 2022-期末保單價值準備金 增值回饋分享金147 2023-增值回饋分享金151 保單資訊- 解約金-181945(台) ,5988(美) 身故-337547 2024-增值回饋分享金159 2025-增值回饋分享金163 2025解約金--$8297美 273428台幣 身故/完全失能 11725美 386397台幣 2026-增值回饋分享金172 2026-解約金$8535 $270773</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>富邦_1</td>
+                            <td class="">11/15/90</td><td class="">8546947824</td><td class="">20</td><td class="">367,060</td><td class="">18,353</td><td class="">-</td><td class="">-</td><td class="">367,060</td><td class="">-</td><td class="">-</td><td class="memo-cell">期滿不可領回 每年需繳2487意外險</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>富邦_2</td>
+                            <td class="">11/15/90</td><td class="">8546947833</td><td class="">20</td><td class="">857,320</td><td class="">42,866</td><td class="">-</td><td class="">-</td><td class="">857,320</td><td class="">-</td><td class="">-</td><td class="memo-cell">期滿領約1百萬</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>南山人壽</td>
+                            <td class="">12/18/103</td><td class="">N603008221</td><td class="">6</td><td class="">767,880</td><td class="">-</td><td class="">-</td><td class="">-</td><td class="">767,800</td><td class="">-</td><td class="">882,516</td><td class="memo-cell">滿六年增額65696 2024年底滿10年148916</td>
+                        </tr>
+                        
+                </tbody>
+            </table>
         </div>
 
         <div class="footer">
-            <p>&copy; 2026 AlexLFE Insurance Management System • Connected to MongoDB</p>
+            <p>&copy; 2026 AlexLFE Insurance Portfolio. Merged View Analysis.</p>
         </div>
     </div>
-
-    <!-- Add/Edit Modal -->
-    <div id="insuranceModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">新增保單</h2>
-            </div>
-            <form id="insuranceForm">
-                <input type="hidden" id="recordId">
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>保單名稱</label>
-                        <input type="text" id="name" required placeholder="例如：雙好還本終身">
-                    </div>
-                    <div class="form-group">
-                        <label>成交日</label>
-                        <input type="text" id="date" placeholder="YYYY.MM.DD">
-                    </div>
-                    <div class="form-group">
-                        <label>保單號碼</label>
-                        <input type="text" id="policyNumber" placeholder="例如：10380750">
-                    </div>
-                    <div class="form-group">
-                        <label>繳費年期</label>
-                        <input type="text" id="years" placeholder="例如：20">
-                    </div>
-                    <div class="form-group">
-                        <label>年繳保費</label>
-                        <input type="text" id="annualPremium" placeholder="例如：64,124">
-                    </div>
-                    <div class="form-group">
-                        <label>累計繳費</label>
-                        <input type="text" id="accumulatedPremium" placeholder="例如：1,282,480">
-                    </div>
-                    <div class="form-group">
-                        <label>滿期年</label>
-                        <input type="text" id="maturityYear" placeholder="例如：2022">
-                    </div>
-                    <div class="form-group">
-                        <label>滿期金</label>
-                        <input type="text" id="maturityAmount" placeholder="例如：1,282,480">
-                    </div>
-                    <div class="form-group">
-                        <label>5年領回預估</label>
-                        <input type="text" id="return5yr">
-                    </div>
-                    <div class="form-group">
-                        <label>10年領回預估</label>
-                        <input type="text" id="return10yr">
-                    </div>
-                    <div class="form-group">
-                        <label>2025/11 領回預估</label>
-                        <input type="text" id="returnNov2025">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>備註說明</label>
-                        <textarea id="memo" rows="3" placeholder="輸入相關備註資訊..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-edit" onclick="closeModal()">取消</button>
-                    <button type="submit" class="btn btn-primary">確認儲存</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Try to determine the API URL based on where the page is loaded from
-        const isLocalFile = window.location.protocol === 'file:';
-        const API_BASE = isLocalFile ? 'http://localhost:3001' : '';
-        const API_URL = `${API_BASE}/api/insurance`;
-        let allRecords = [];
-
-        async function fetchRecords() {
-            try {
-                const res = await fetch(API_URL);
-                allRecords = await res.json();
-                renderTable();
-            } catch (err) {
-                console.error('Fetch error:', err);
-                document.getElementById('tableContainer').innerHTML = `
-                    <div class="loader" style="color: var(--danger)">
-                        <div>連線失敗。請確保已執行伺服器 (node insurance_server.js)</div>
-                        <div style="margin-top: 10px; font-size: 0.9em;">
-                            或是嘗試直接訪問：<a href="http://localhost:3001" target="_blank">http://localhost:3001</a>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function renderTable() {
-            const container = document.getElementById('tableContainer');
-            if (allRecords.length === 0) {
-                container.innerHTML = '<div class="loader">尚無任何保單紀錄，請點選右上角新增。</div>';
-                return;
-            }
-
-            let html = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>保單名稱</th>
-                        <th>成交日</th>
-                        <th>保單號碼</th>
-                        <th>年期</th>
-                        <th>年繳保費</th>
-                        <th>累計繳費</th>
-                        <th>滿期年</th>
-                        <th>滿期金</th>
-                        <th>5年領回</th>
-                        <th>10年領回</th>
-                        <th>2025領回</th>
-                        <th>備註</th>
-                        <th style="text-align: center;">操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-            `;
-
-            allRecords.forEach(record => {
-                const rawName = record.name || '-';
-                const displayName = rawName.length > 10 ? rawName.substring(0, 10) + '...' : rawName;
-                
-                html += `
-                    <tr>
-                        <td title="${rawName}">${displayName}</td>
-                        <td>${record.date || '-'}</td>
-                        <td><span class="tag">${record.policyNumber || '-'}</span></td>
-                        <td>${record.years || '-'}</td>
-                        <td style="font-weight: 500;">${record.annualPremium || '-'}</td>
-                        <td>${record.accumulatedPremium || '-'}</td>
-                        <td>${record.maturityYear || '-'}</td>
-                        <td>${record.maturityAmount || '-'}</td>
-                        <td>${record.return5yr || '-'}</td>
-                        <td>${record.return10yr || '-'}</td>
-                        <td>${record.returnNov2025 || '-'}</td>
-                        <td class="memo-cell">${record.memo || '-'}</td>
-                        <td style="text-align: center;">
-                            <div style="display: flex; gap: 5px; justify-content: center;">
-                                <button class="btn btn-edit" onclick="editRecord('${record._id}')">編輯</button>
-                                <button class="btn btn-danger" onclick="deleteRecord('${record._id}')" style="padding: 8px 10px;">刪</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        function openModal(record = null) {
-            const modal = document.getElementById('insuranceModal');
-            const form = document.getElementById('insuranceForm');
-            const title = document.getElementById('modalTitle');
-            
-            form.reset();
-            document.getElementById('recordId').value = '';
-            
-            if (record) {
-                title.innerText = '編輯保單紀錄';
-                document.getElementById('recordId').value = record._id;
-                document.getElementById('name').value = record.name || '';
-                document.getElementById('date').value = record.date || '';
-                document.getElementById('policyNumber').value = record.policyNumber || '';
-                document.getElementById('years').value = record.years || '';
-                document.getElementById('annualPremium').value = record.annualPremium || '';
-                document.getElementById('accumulatedPremium').value = record.accumulatedPremium || '';
-                document.getElementById('maturityYear').value = record.maturityYear || '';
-                document.getElementById('maturityAmount').value = record.maturityAmount || '';
-                document.getElementById('return5yr').value = record.return5yr || '';
-                document.getElementById('return10yr').value = record.return10yr || '';
-                document.getElementById('returnNov2025').value = record.returnNov2025 || '';
-                document.getElementById('memo').value = record.memo || '';
-            } else {
-                title.innerText = '新增保單紀錄';
-            }
-            
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('insuranceModal').style.display = 'none';
-        }
-
-        function editRecord(id) {
-            const record = allRecords.find(r => r._id === id);
-            if (record) openModal(record);
-        }
-
-        async function deleteRecord(id) {
-            if (!confirm('確定要永久刪除這筆保單資料嗎？此動作無法復原。')) return;
-            try {
-                const res = await fetch(\`\${API_URL}/\${id}\`, { method: 'DELETE' });
-                if (res.ok) {
-                    fetchRecords();
-                } else {
-                    const err = await res.json();
-                    alert('刪除失敗: ' + err.error);
-                }
-            } catch (err) {
-                alert('伺服器連線失敗');
-            }
-        }
-
-        document.getElementById('insuranceForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('recordId').value;
-            const formData = {
-                name: document.getElementById('name').value,
-                date: document.getElementById('date').value,
-                policyNumber: document.getElementById('policyNumber').value,
-                years: document.getElementById('years').value,
-                annualPremium: document.getElementById('annualPremium').value,
-                accumulatedPremium: document.getElementById('accumulatedPremium').value,
-                maturityYear: document.getElementById('maturityYear').value,
-                maturityAmount: document.getElementById('maturityAmount').value,
-                return5yr: document.getElementById('return5yr').value,
-                return10yr: document.getElementById('return10yr').value,
-                returnNov2025: document.getElementById('returnNov2025').value,
-                memo: document.getElementById('memo').value
-            };
-
-            try {
-                const url = id ? \`\${API_URL}/\${id}\` : API_URL;
-                const method = id ? 'PUT' : 'POST';
-                const res = await fetch(url, {
-                    method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                
-                if (res.ok) {
-                    closeModal();
-                    fetchRecords();
-                } else {
-                    const err = await res.json();
-                    alert('儲存失敗: ' + err.error);
-                }
-            } catch (err) {
-                alert('伺服器連線失敗');
-            }
-        };
-
-        // Close modal when clicking outside
-        window.onclick = (event) => {
-            const modal = document.getElementById('insuranceModal');
-            if (event.target == modal) closeModal();
-        };
-
-        // Initialize
-        fetchRecords();
-    </script>
 </body>
 </html>

@@ -35,6 +35,18 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'A_Insurance_Report.html'));
 });
 
+// Helper to sync to static JSON
+async function syncToJSON() {
+    try {
+        const collection = db.collection('AlexLFE_insurance');
+        const data = await collection.find({}).toArray();
+        fs.writeFileSync('insurance_data.json', JSON.stringify(data, null, 2), 'utf8');
+        console.log('Synced to insurance_data.json');
+    } catch (err) {
+        console.error('Sync failed:', err);
+    }
+}
+
 // API Endpoints
 app.get('/api/insurance', async (req, res) => {
     try {
@@ -51,6 +63,7 @@ app.post('/api/insurance', async (req, res) => {
         const collection = db.collection('AlexLFE_insurance');
         const newRecord = { ...req.body, createdAt: new Date() };
         const result = await collection.insertOne(newRecord);
+        await syncToJSON();
         res.json({ success: true, id: result.insertedId });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -62,12 +75,13 @@ app.put('/api/insurance/:id', async (req, res) => {
         const { id } = req.params;
         const collection = db.collection('AlexLFE_insurance');
         const updateData = { ...req.body };
-        delete updateData._id; // Remove _id from body if present
+        delete updateData._id; 
         
         const result = await collection.updateOne(
             { _id: new ObjectId(id) },
             { $set: updateData }
         );
+        await syncToJSON();
         res.json({ success: true, modifiedCount: result.modifiedCount });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -79,6 +93,7 @@ app.delete('/api/insurance/:id', async (req, res) => {
         const { id } = req.params;
         const collection = db.collection('AlexLFE_insurance');
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
+        await syncToJSON();
         res.json({ success: true, deletedCount: result.deletedCount });
     } catch (err) {
         res.status(500).json({ error: err.message });

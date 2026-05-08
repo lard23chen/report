@@ -142,6 +142,10 @@ async function run() {
         await col.insertMany(mergedData);
         console.log('Saved merged data to MongoDB QwareAi.AlexLFE_insurance');
 
+        // Also save to a static JSON file for GitHub Pages fallback
+        fs.writeFileSync('insurance_data.json', JSON.stringify(mergedData, null, 2), 'utf8');
+        console.log('Updated insurance_data.json');
+
         // Generate HTML Report
         const htmlContent = generateHTML(mergedData);
         fs.writeFileSync('A_Insurance_Report.html', htmlContent, 'utf8');
