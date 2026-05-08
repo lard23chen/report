@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Prompt Log Viewer</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --card: #1a1d2e;
+            --border: #2d3148;
+            --text: #e2e8f0;
+            --muted: #8892a4;
+            --accent: #7c9eff;
+            --accent2: #a78bfa;
+            --success: #4ade80;
+            --ts: #fbbf24;
+            --hover: #252a45;
+            --scrollbar: #2d3148;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .stats {
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .stats span {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            width: 240px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--muted);
+        }
+
+        button {
+            background: var(--accent);
+            color: #0f1117;
+            border: none;
+            padding: 7px 18px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        button:hover { opacity: 0.88; }
+        button:active { transform: scale(0.97); }
+
+        button.secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        #order-btn {
+            background: var(--accent2);
+            color: #0f1117;
+            min-width: 110px;
+        }
+
+        main {
+            padding: 20px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        #error-msg {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            color: #f87171;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        thead tr {
+            background: var(--card);
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            color: var(--ts);
+            font-weight: 600;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        th.num { width: 52px; color: var(--muted); }
+        th.time { width: 170px; }
+        th.prompt { }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.12s;
+        }
+
+        tbody tr:hover {
+            background: var(--hover);
+        }
+
+        td {
+            padding: 11px 16px;
+            vertical-align: top;
+        }
+
+        td.num {
+            color: var(--muted);
+            font-size: 0.78rem;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        td.time {
+            color: var(--ts);
+            font-family: 'Cascadia Code', 'Consolas', monospace;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        td.prompt-cell {
+            line-height: 1.55;
+            word-break: break-word;
+        }
+
+        .highlight {
+            background: rgba(251, 191, 36, 0.25);
+            border-radius: 2px;
+            padding: 0 1px;
+        }
+
+        .empty-row td {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+        }
+
+        ::-webkit-scrollbar { width: 7px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🤖 Claude Prompt Log Viewer</h1>
+    <div class="stats">總計 <span id="total-count">0</span> 筆 &nbsp;|&nbsp; 顯示 <span id="show-count">0</span> 筆</div>
+    <div class="controls">
+        <input type="text" id="search" placeholder="搜尋 prompt..." oninput="renderTable()">
+        <button id="order-btn" onclick="toggleOrder()">⬆ 最舊優先</button>
+        <button onclick="loadLog()">↻ 重新整理</button>
+    </div>
+</header>
+
+<main>
+    <div id="error-msg"></div>
+    <table>
+        <thead>
+            <tr>
+                <th class="num">#</th>
+                <th class="time">時間</th>
+                <th class="prompt">Prompt</th>
+            </tr>
+        </thead>
+        <tbody id="log-body">
+            <tr class="empty-row"><td colspan="3">載入中...</td></tr>
+        </tbody>
+    </table>
+</main>
+
+<script>
+    let entries = [];
+    let newestFirst = true;
+
+    async function loadLog() {
+        try {
+            const res = await fetch('/api/prompt-log');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const text = await res.text();
+            document.getElementById('error-msg').style.display = 'none';
+            parseLog(text);
+        } catch (e) {
+            const el = document.getElementById('error-msg');
+            el.style.display = 'block';
+            el.textContent = `無法讀取 prompt-log.txt：${e.message}。請確認 server.js 已啟動（localhost:3000）。`;
+        }
+    }
+
+    function parseLog(text) {
+        entries = text
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+            .map((line, i) => {
+                const m = line.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s*\|\s*([\s\S]*)$/);
+                if (m) return { time: m[1], prompt: m[2] };
+                return { time: '', prompt: line };
+            });
+
+        document.getElementById('total-count').textContent = entries.length;
+        renderTable();
+    }
+
+    function renderTable() {
+        const q = document.getElementById('search').value.trim().toLowerCase();
+        let filtered = entries.filter(e =>
+            !q || e.prompt.toLowerCase().includes(q) || e.time.includes(q)
+        );
+
+        const ordered = newestFirst ? [...filtered].reverse() : filtered;
+        document.getElementById('show-count').textContent = ordered.length;
+
+        const tbody = document.getElementById('log-body');
+        if (ordered.length === 0) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="3">沒有符合的資料</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = ordered.map((e, i) => {
+            const num = newestFirst ? (filtered.length - i) : (i + 1);
+            const promptHtml = q
+                ? escapeHtml(e.prompt).replace(
+                    new RegExp(escapeRe(escapeHtml(q)), 'gi'),
+                    m => `<mark class="highlight">${m}</mark>`)
+                : escapeHtml(e.prompt);
+            return `<tr>
+                <td class="num">${num}</td>
+                <td class="time">${escapeHtml(e.time)}</td>
+                <td class="prompt-cell">${promptHtml}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    function toggleOrder() {
+        newestFirst = !newestFirst;
+        const btn = document.getElementById('order-btn');
+        btn.textContent = newestFirst ? '⬆ 最舊優先' : '⬇ 最新優先';
+        renderTable();
+    }
+
+    function escapeHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function escapeRe(s) {
+        return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    loadLog();
+</script>
+</body>
+</html>

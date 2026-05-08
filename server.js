@@ -2,6 +2,7 @@
 const express = require('express');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = 3000;
@@ -45,6 +46,14 @@ app.get('/api/dashboard-data', async (req, res) => {
         console.error(err);
         res.status(500).json({ error: "Internal Server Error" });
     }
+});
+
+app.get('/api/prompt-log', (req, res) => {
+    const logPath = 'C:\\Users\\alexchen\\.claude\\prompt-log.txt';
+    fs.readFile(logPath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.type('text/plain').send(data);
+    });
 });
 
 app.listen(port, () => {
