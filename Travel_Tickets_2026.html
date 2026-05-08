@@ -2099,8 +2099,8 @@ function _showCopyMenu(sourceTr, btn) {
     menu.appendChild(clipBtn);
     if(targets.length){ var sep=document.createElement('div'); sep.className='cti-sep'; menu.appendChild(sep); targets.forEach(function(tgt){ var item=document.createElement('button'); item.className='cti'; item.textContent='→ 貼到 '+tgt.label; item.addEventListener('click',function(){ _cloneRowTo(sourceTr,tgt.tb); menu.remove(); _showToast('已複製到 '+tgt.label+' ✓'); }); menu.appendChild(item); }); }
     document.body.appendChild(menu);
-    var r=btn.getBoundingClientRect(); var mw=menu.offsetWidth||180; var left=Math.min(r.left+window.scrollX, window.innerWidth-mw-10);
-    menu.style.top=(r.bottom+window.scrollY+4)+'px'; menu.style.left=left+'px';
+    var r=btn.getBoundingClientRect(); var mw=menu.offsetWidth||180;
+    menu.style.top=(r.bottom+4)+'px'; menu.style.left=Math.min(r.left, window.innerWidth-mw-10)+'px';
     setTimeout(function(){ document.addEventListener('click',function close(e){ if(!menu.contains(e.target)){ menu.remove(); document.removeEventListener('click',close); } }); },10);
 }
 function _cloneRowTo(sourceTr, targetTb) {
