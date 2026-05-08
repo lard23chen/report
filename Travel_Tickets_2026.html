@@ -2092,7 +2092,7 @@ function _addCopyBtn(tr) {
 function _showCopyMenu(sourceTr, btn) {
     var old=document.getElementById('copy-target-menu'); if(old){ old.remove(); return; }
     var trip=sourceTr.closest('.trip'); var srcTb=sourceTr.closest('tbody'); var targets=[];
-    if(trip){ trip.querySelectorAll('.passenger-section').forEach(function(sec){ sec.querySelectorAll('tbody').forEach(function(tb){ if(tb===srcTb) return; var badge=sec.querySelector('.p-badge'); targets.push({tb:tb,label:badge?badge.textContent.trim():'其他旅客'}); }); }); }
+    if(trip){ trip.querySelectorAll('.table-wrap').forEach(function(wrap){ var tbl=wrap.querySelector('table'); if(!tbl) return; var tb=tbl.querySelector('tbody'); if(!tb||tb===srcTb) return; var label='其他旅客'; var prev=wrap.previousElementSibling; while(prev){ if(prev.classList.contains('passenger-label')){ var b=prev.querySelector('.p-badge'); if(b) label=b.textContent.trim(); break; } prev=prev.previousElementSibling; } targets.push({tb:tb,label:label}); }); }
     var menu=document.createElement('div'); menu.id='copy-target-menu';
     var clipBtn=document.createElement('button'); clipBtn.className='cti'; clipBtn.textContent='📋 複製文字';
     clipBtn.addEventListener('click',function(){ var txt=Array.from(sourceTr.querySelectorAll('td:not(.td-copy):not(.row-actions)')).map(function(td){ return td.innerText.replace(/\n/g,' ').trim(); }).filter(Boolean).join(' | '); navigator.clipboard.writeText(txt).then(function(){ _showToast('已複製到剪貼簿 ✓'); }); menu.remove(); });
