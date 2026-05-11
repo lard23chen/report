@@ -89,6 +89,7 @@ body.edit-on .act-btn{display:inline-block}
           <th class="num">5年領回</th>
           <th class="num">10年領回</th>
           <th class="num">2025領回</th>
+          <th>保險公司</th>
           <th>保險人</th>
           <th>經手人</th>
           <th>備註</th>
@@ -220,6 +221,7 @@ function renderTable(rows) {
         <td style="text-align:right">${r.return5yr || '-'}</td>
         <td style="text-align:right">${r.return10yr || '-'}</td>
         <td style="text-align:right">${r.returnNov2025 || '-'}</td>
+        <td>${r.company || '-'}</td>
         <td>${r.insured || '-'}</td>
         <td>${r.agent || '-'}</td>
         <td class="muted" style="white-space:normal;max-width:250px;font-size:0.75rem">${r.memo || '-'}</td>
@@ -321,6 +323,17 @@ function rowFormHtml(r, title) {
       <div class="form-group"><label>10年領回</label><input id="f-return10yr" value="${v('return10yr')}"></div>
       <div class="form-group"><label>2025領回</label><input id="f-returnNov2025" value="${v('returnNov2025')}"></div>
       <div class="form-group">
+        <label>保險公司</label>
+        <select id="f-company">
+          <option value="">-- 選擇 --</option>
+          <option value="國泰" ${v('company')==='國泰'?'selected':''}>國泰</option>
+          <option value="台灣人壽" ${v('company')==='台灣人壽'?'selected':''}>台灣人壽</option>
+          <option value="中國人壽" ${v('company')==='中國人壽'?'selected':''}>中國人壽</option>
+          <option value="富邦" ${v('company')==='富邦'?'selected':''}>富邦</option>
+          <option value="南山" ${v('company')==='南山'?'selected':''}>南山</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label>保險人</label>
         <select id="f-insured">
           <option value="">-- 選擇 --</option>
@@ -356,6 +369,7 @@ window.showAddModal = function() {
       maturityYear: document.getElementById('f-maturityYear').value, maturityAmount: document.getElementById('f-maturityAmount').value,
       return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
       returnNov2025: document.getElementById('f-returnNov2025').value,
+      company: document.getElementById('f-company').value,
       insured: document.getElementById('f-insured').value,
       agent: document.getElementById('f-agent').value,
       memo: document.getElementById('f-memo').value
@@ -380,6 +394,7 @@ window.showEditModal = function(id) {
       maturityYear: document.getElementById('f-maturityYear').value, maturityAmount: document.getElementById('f-maturityAmount').value,
       return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
       returnNov2025: document.getElementById('f-returnNov2025').value,
+      company: document.getElementById('f-company').value,
       insured: document.getElementById('f-insured').value,
       agent: document.getElementById('f-agent').value,
       memo: document.getElementById('f-memo').value
