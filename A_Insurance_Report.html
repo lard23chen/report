@@ -11,7 +11,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 header h1{font-size:1.2rem;font-weight:700;color:var(--accent)}
 header span{color:var(--muted);font-size:0.82rem}
-main{padding:18px 24px;max-width:1700px;margin:0 auto}
+main{padding:18px 24px 80px;max-width:1700px;margin:0 auto}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:18px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px}
 .stat-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:4px}
@@ -343,11 +343,13 @@ function rowFormHtml(r, title) {
       </div>
       <div class="form-group">
         <label>經手人</label>
-        <select id="f-agent">
+        <select id="f-agent" onchange="toggleAgentOther(this)">
           <option value="">-- 選擇 --</option>
           <option value="金" ${v('agent')==='金'?'selected':''}>金</option>
           <option value="琪" ${v('agent')==='琪'?'selected':''}>琪</option>
+          <option value="__other__" ${(v('agent')&&v('agent')!=='金'&&v('agent')!=='琪')?'selected':''}>其他</option>
         </select>
+        <input id="f-agent-other" placeholder="請輸入經手人" value="${(v('agent')&&v('agent')!=='金'&&v('agent')!=='琪')?v('agent'):''}" style="margin-top:6px;display:${(v('agent')&&v('agent')!=='金'&&v('agent')!=='琪')?'block':'none'};background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:0.82rem;width:100%">
       </div>
       <div class="form-group full"><label>備註</label><textarea id="f-memo" rows="3">${v('memo')}</textarea></div>
     </div>
@@ -371,7 +373,7 @@ window.showAddModal = function() {
       returnNov2025: document.getElementById('f-returnNov2025').value,
       company: document.getElementById('f-company').value,
       insured: document.getElementById('f-insured').value,
-      agent: document.getElementById('f-agent').value,
+      agent: getAgentValue(),
       memo: document.getElementById('f-memo').value
     };
     try {
@@ -396,7 +398,7 @@ window.showEditModal = function(id) {
       returnNov2025: document.getElementById('f-returnNov2025').value,
       company: document.getElementById('f-company').value,
       insured: document.getElementById('f-insured').value,
-      agent: document.getElementById('f-agent').value,
+      agent: getAgentValue(),
       memo: document.getElementById('f-memo').value
     };
     try {
@@ -406,6 +408,18 @@ window.showEditModal = function(id) {
     } catch (e) { alert(e.message || '發生錯誤'); btn.disabled = false; btn.textContent = '儲存'; }
   };
 };
+
+window.toggleAgentOther = function(sel) {
+  var inp = document.getElementById('f-agent-other');
+  inp.style.display = sel.value === '__other__' ? 'block' : 'none';
+  if (sel.value !== '__other__') inp.value = '';
+};
+
+function getAgentValue() {
+  var sel = document.getElementById('f-agent');
+  if (sel.value === '__other__') return document.getElementById('f-agent-other').value.trim();
+  return sel.value;
+}
 
 document.getElementById('f-search').oninput = () => render();
 fetchData();
