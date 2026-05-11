@@ -78,6 +78,7 @@ body.edit-on .act-btn{display:inline-block}
     <table>
       <thead>
         <tr>
+          <th>#</th>
           <th>保單名稱</th>
           <th>成交日</th>
           <th>保單號碼</th>
@@ -206,10 +207,11 @@ function resetFilters() {
 
 function renderTable(rows) {
   var html = '';
-  rows.forEach(r => {
+  rows.forEach((r, idx) => {
     var displayName = r.name && r.name.length > 10 ? r.name.substring(0, 10) + '...' : (r.name || '-');
     html += `
       <tr>
+        <td class="muted" style="text-align:center;font-size:0.75rem">${idx + 1}</td>
         <td title="${r.name || ''}">${displayName}</td>
         <td class="muted">${r.date || '-'}</td>
         <td><span style="color:var(--accent);font-weight:700">${r.policyNumber || '-'}</span></td>
