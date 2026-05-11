@@ -8,7 +8,7 @@ const port = 3001;
 
 // Using the URI from stock_api.js but aiming at AlexLFE database
 const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
-const DB_NAME = 'AlexLFE';
+const DB_NAME = 'AlexLIFE';
 const COLLECTION_NAME = 'insurance';
 
 let cachedDb = null;
