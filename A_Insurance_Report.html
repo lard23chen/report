@@ -109,14 +109,11 @@ body.edit-on .act-btn{display:inline-block}
 </div>
 
 <script>
-// Remote API (Render deployment) — update after deploy
-const REMOTE_API = 'https://alexlife-insurance.onrender.com/api/insurance';
-
 const host = window.location.hostname;
 const isLocalFile = window.location.protocol === 'file:';
 const API_BASE = isLocalFile ? 'http://localhost:3001/api/insurance'
               : host === 'localhost' ? '/api/insurance'
-              : REMOTE_API;
+              : 'https://report-theta-nine.vercel.app/api/insurance';
 var data = [];
 var readOnly = false;
 

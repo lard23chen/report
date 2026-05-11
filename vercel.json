@@ -8,6 +8,10 @@
     {
       "src": "travel_server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "insurance_api.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -26,6 +30,14 @@
     {
       "src": "/api/travel",
       "dest": "travel_server.js"
+    },
+    {
+      "src": "/api/insurance/(.*)",
+      "dest": "insurance_api.js"
+    },
+    {
+      "src": "/api/insurance",
+      "dest": "insurance_api.js"
     }
   ]
 }
