@@ -89,6 +89,8 @@ body.edit-on .act-btn{display:inline-block}
           <th class="num">5年領回</th>
           <th class="num">10年領回</th>
           <th class="num">2025領回</th>
+          <th>保險人</th>
+          <th>經手人</th>
           <th>備註</th>
           <th class="act-col" style="width:100px;display:none">操作</th>
         </tr>
@@ -218,6 +220,8 @@ function renderTable(rows) {
         <td style="text-align:right">${r.return5yr || '-'}</td>
         <td style="text-align:right">${r.return10yr || '-'}</td>
         <td style="text-align:right">${r.returnNov2025 || '-'}</td>
+        <td>${r.insured || '-'}</td>
+        <td>${r.agent || '-'}</td>
         <td class="muted" style="white-space:normal;max-width:250px;font-size:0.75rem">${r.memo || '-'}</td>
         <td class="act-btn-cell" style="display:none">
           <button class="act-btn act-edit" onclick="showEditModal('${r._id}')">編輯</button>
@@ -316,6 +320,22 @@ function rowFormHtml(r, title) {
       <div class="form-group"><label>5年領回</label><input id="f-return5yr" value="${v('return5yr')}"></div>
       <div class="form-group"><label>10年領回</label><input id="f-return10yr" value="${v('return10yr')}"></div>
       <div class="form-group"><label>2025領回</label><input id="f-returnNov2025" value="${v('returnNov2025')}"></div>
+      <div class="form-group">
+        <label>保險人</label>
+        <select id="f-insured">
+          <option value="">-- 選擇 --</option>
+          <option value="Alex" ${v('insured')==='Alex'?'selected':''}>Alex</option>
+          <option value="Mark" ${v('insured')==='Mark'?'selected':''}>Mark</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>經手人</label>
+        <select id="f-agent">
+          <option value="">-- 選擇 --</option>
+          <option value="金" ${v('agent')==='金'?'selected':''}>金</option>
+          <option value="琪" ${v('agent')==='琪'?'selected':''}>琪</option>
+        </select>
+      </div>
       <div class="form-group full"><label>備註</label><textarea id="f-memo" rows="3">${v('memo')}</textarea></div>
     </div>
     <div class="modal-actions">
@@ -335,7 +355,10 @@ window.showAddModal = function() {
       annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
       maturityYear: document.getElementById('f-maturityYear').value, maturityAmount: document.getElementById('f-maturityAmount').value,
       return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
-      returnNov2025: document.getElementById('f-returnNov2025').value, memo: document.getElementById('f-memo').value
+      returnNov2025: document.getElementById('f-returnNov2025').value,
+      insured: document.getElementById('f-insured').value,
+      agent: document.getElementById('f-agent').value,
+      memo: document.getElementById('f-memo').value
     };
     try {
       var res = await apiPost('/add', d);
@@ -356,7 +379,10 @@ window.showEditModal = function(id) {
       annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
       maturityYear: document.getElementById('f-maturityYear').value, maturityAmount: document.getElementById('f-maturityAmount').value,
       return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
-      returnNov2025: document.getElementById('f-returnNov2025').value, memo: document.getElementById('f-memo').value
+      returnNov2025: document.getElementById('f-returnNov2025').value,
+      insured: document.getElementById('f-insured').value,
+      agent: document.getElementById('f-agent').value,
+      memo: document.getElementById('f-memo').value
     };
     try {
       var res = await apiPost('/update', d);
