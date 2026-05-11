@@ -113,6 +113,7 @@ body.edit-on .act-btn{display:inline-block}
 const isLocalFile = window.location.protocol === 'file:';
 const API_BASE = isLocalFile ? 'http://localhost:3001/api/insurance' : '/api/insurance';
 var data = [];
+var readOnly = false;
 
 function setSyncState(state, text) {
   var dot = document.getElementById('sync-dot');
@@ -122,6 +123,11 @@ function setSyncState(state, text) {
   document.getElementById('sync-text').textContent = text;
 }
 
+function setReadOnly(flag) {
+  readOnly = flag;
+  document.getElementById('edit-toolbar').style.display = flag ? 'none' : 'flex';
+}
+
 async function fetchData() {
   setSyncState('loading', '載入中…');
   try {
@@ -129,6 +135,7 @@ async function fetchData() {
     var json = await res.json();
     if (!json.ok) throw new Error('API error');
     data = json.data;
+    setReadOnly(false);
     setSyncState('ok', '同步完成・' + new Date().toLocaleTimeString('zh-TW', { hour12: false }));
     render();
   } catch (e) {
@@ -136,9 +143,11 @@ async function fetchData() {
     try {
         var fallbackRes = await fetch('insurance_data.json');
         data = await fallbackRes.json();
+        setReadOnly(true);
         setSyncState('error', '唯讀模式 (雲端)');
         render();
     } catch(fErr) {
+        setReadOnly(true);
         setSyncState('error', '載入失敗');
         console.error(fErr);
     }

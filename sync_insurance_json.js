@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
 const DB_NAME = 'AlexLIFE';
-const COLLECTION_NAME = 'Insurance';
+const COLLECTION_NAME = 'Insurance'; // matches insurance_server.js
 
 async function sync() {
     const client = new MongoClient(MONGO_URI);
