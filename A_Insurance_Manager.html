@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保單資產管理系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #64748b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --accent: #3b82f6;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 0 10px;
+        }
+        h1 {
+            font-weight: 800;
+            font-size: 2.2em;
+            margin: 0;
+            color: var(--primary);
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-edit { background: #e2e8f0; color: var(--text); }
+        .btn-edit:hover { background: #cbd5e1; }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+        th {
+            background: #f8fafc;
+            color: var(--secondary);
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95em;
+        }
+        .memo-cell { max-width: 250px; white-space: normal; color: #64748b; font-size: 0.85em; }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.85em; font-weight: 600; color: var(--secondary); }
+        .form-group input, .form-group textarea {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+        .full-width { grid-column: span 2; }
+        .modal-footer {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .loader {
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>保單資產管理系統</h1>
+            <button class="btn btn-primary" onclick="openModal()">+ 新增保單</button>
+        </header>
+
+        <div class="card">
+            <div id="tableContainer">
+                <div class="loader">載入中...</div>
+            </div>
+        </div>
+
+        <div class="footer" style="text-align: center; margin-top: 30px; color: #64748b;">
+            <p>&copy; 2026 AlexLFE Insurance Portfolio Management</p>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="insuranceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">新增保單</h2>
+            </div>
+            <form id="insuranceForm">
+                <input type="hidden" id="recordId">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>保單名稱</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>成交日</label>
+                        <input type="text" id="date" placeholder="YYYY.MM.DD">
+                    </div>
+                    <div class="form-group">
+                        <label>保單號碼</label>
+                        <input type="text" id="policyNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>繳費年期</label>
+                        <input type="text" id="years">
+                    </div>
+                    <div class="form-group">
+                        <label>年繳保費</label>
+                        <input type="text" id="annualPremium">
+                    </div>
+                    <div class="form-group">
+                        <label>累計繳費</label>
+                        <input type="text" id="accumulatedPremium">
+                    </div>
+                    <div class="form-group">
+                        <label>滿期年</label>
+                        <input type="text" id="maturityYear">
+                    </div>
+                    <div class="form-group">
+                        <label>滿期金</label>
+                        <input type="text" id="maturityAmount">
+                    </div>
+                    <div class="form-group">
+                        <label>5年領回</label>
+                        <input type="text" id="return5yr">
+                    </div>
+                    <div class="form-group">
+                        <label>10年領回</label>
+                        <input type="text" id="return10yr">
+                    </div>
+                    <div class="form-group">
+                        <label>2025領回</label>
+                        <input type="text" id="returnNov2025">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>備註</label>
+                        <textarea id="memo" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-edit" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">儲存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/insurance';
+        let allRecords = [];
+
+        async function fetchRecords() {
+            try {
+                const res = await fetch(API_URL);
+                allRecords = await res.json();
+                renderTable();
+            } catch (err) {
+                console.error('Fetch error:', err);
+                document.getElementById('tableContainer').innerHTML = '載入失敗';
+            }
+        }
+
+        function renderTable() {
+            const container = document.getElementById('tableContainer');
+            if (allRecords.length === 0) {
+                container.innerHTML = '尚無保單資料';
+                return;
+            }
+
+            let html = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>保單名稱</th>
+                        <th>成交日</th>
+                        <th>保單號碼</th>
+                        <th>年期</th>
+                        <th>年繳保費</th>
+                        <th>累計繳費</th>
+                        <th>滿期年</th>
+                        <th>滿期金</th>
+                        <th>5年領回</th>
+                        <th>10年領回</th>
+                        <th>2025領回</th>
+                        <th>備註</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            allRecords.forEach(record => {
+                const displayName = record.name && record.name.length > 10 ? record.name.substring(0, 10) + '...' : (record.name || '-');
+                html += `
+                    <tr>
+                        <td title="${record.name || ''}">${displayName}</td>
+                        <td>${record.date || '-'}</td>
+                        <td>${record.policyNumber || '-'}</td>
+                        <td>${record.years || '-'}</td>
+                        <td>${record.annualPremium || '-'}</td>
+                        <td>${record.accumulatedPremium || '-'}</td>
+                        <td>${record.maturityYear || '-'}</td>
+                        <td>${record.maturityAmount || '-'}</td>
+                        <td>${record.return5yr || '-'}</td>
+                        <td>${record.return10yr || '-'}</td>
+                        <td>${record.returnNov2025 || '-'}</td>
+                        <td class="memo-cell">${record.memo || '-'}</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editRecord('${record._id}')">編輯</button>
+                            <button class="btn btn-danger" onclick="deleteRecord('${record._id}')">刪除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function openModal(record = null) {
+            const modal = document.getElementById('insuranceModal');
+            const form = document.getElementById('insuranceForm');
+            const title = document.getElementById('modalTitle');
+            
+            form.reset();
+            document.getElementById('recordId').value = '';
+            
+            if (record) {
+                title.innerText = '編輯保單';
+                document.getElementById('recordId').value = record._id;
+                document.getElementById('name').value = record.name || '';
+                document.getElementById('date').value = record.date || '';
+                document.getElementById('policyNumber').value = record.policyNumber || '';
+                document.getElementById('years').value = record.years || '';
+                document.getElementById('annualPremium').value = record.annualPremium || '';
+                document.getElementById('accumulatedPremium').value = record.accumulatedPremium || '';
+                document.getElementById('maturityYear').value = record.maturityYear || '';
+                document.getElementById('maturityAmount').value = record.maturityAmount || '';
+                document.getElementById('return5yr').value = record.return5yr || '';
+                document.getElementById('return10yr').value = record.return10yr || '';
+                document.getElementById('returnNov2025').value = record.returnNov2025 || '';
+                document.getElementById('memo').value = record.memo || '';
+            } else {
+                title.innerText = '新增保單';
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('insuranceModal').style.display = 'none';
+        }
+
+        function editRecord(id) {
+            const record = allRecords.find(r => r._id === id);
+            if (record) openModal(record);
+        }
+
+        async function deleteRecord(id) {
+            if (!confirm('確定要刪除這筆保單資料嗎？')) return;
+            try {
+                const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                if (res.ok) fetchRecords();
+            } catch (err) {
+                alert('刪除失敗');
+            }
+        }
+
+        document.getElementById('insuranceForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('recordId').value;
+            const formData = {
+                name: document.getElementById('name').value,
+                date: document.getElementById('date').value,
+                policyNumber: document.getElementById('policyNumber').value,
+                years: document.getElementById('years').value,
+                annualPremium: document.getElementById('annualPremium').value,
+                accumulatedPremium: document.getElementById('accumulatedPremium').value,
+                maturityYear: document.getElementById('maturityYear').value,
+                maturityAmount: document.getElementById('maturityAmount').value,
+                return5yr: document.getElementById('return5yr').value,
+                return10yr: document.getElementById('return10yr').value,
+                returnNov2025: document.getElementById('returnNov2025').value,
+                memo: document.getElementById('memo').value
+            };
+
+            try {
+                const url = id ? `${API_URL}/${id}` : API_URL;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (res.ok) {
+                    closeModal();
+                    fetchRecords();
+                } else {
+                    alert('儲存失敗');
+                }
+            } catch (err) {
+                alert('伺服器連線失敗');
+            }
+        };
+
+        // Initialize
+        fetchRecords();
+    </script>
+</body>
+</html>
