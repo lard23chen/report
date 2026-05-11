@@ -123,11 +123,6 @@ function setSyncState(state, text) {
   document.getElementById('sync-text').textContent = text;
 }
 
-function setReadOnly(flag) {
-  readOnly = flag;
-  document.getElementById('edit-toolbar').style.display = flag ? 'none' : 'flex';
-}
-
 async function fetchData() {
   setSyncState('loading', '載入中…');
   try {
@@ -135,7 +130,7 @@ async function fetchData() {
     var json = await res.json();
     if (!json.ok) throw new Error('API error');
     data = json.data;
-    setReadOnly(false);
+    readOnly = false;
     setSyncState('ok', '同步完成・' + new Date().toLocaleTimeString('zh-TW', { hour12: false }));
     render();
   } catch (e) {
@@ -143,11 +138,11 @@ async function fetchData() {
     try {
         var fallbackRes = await fetch('insurance_data.json');
         data = await fallbackRes.json();
-        setReadOnly(true);
+        readOnly = true;
         setSyncState('error', '唯讀模式 (雲端)');
         render();
     } catch(fErr) {
-        setReadOnly(true);
+        readOnly = true;
         setSyncState('error', '載入失敗');
         console.error(fErr);
     }
@@ -155,6 +150,7 @@ async function fetchData() {
 }
 
 async function apiPost(endpoint, body) {
+  if (readOnly) throw new Error('唯讀模式：請在本地執行 insurance_server.js 後操作');
   const res = await fetch(API_BASE + endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -342,8 +338,8 @@ window.showAddModal = function() {
     try {
       var res = await apiPost('/add', d);
       if (res.ok) { hideModal(); fetchData(); }
-      else { alert('儲存失敗'); btn.disabled = false; btn.textContent = '儲存'; }
-    } catch (e) { alert('發生錯誤'); btn.disabled = false; }
+      else { alert('儲存失敗：' + (res.error || '')); btn.disabled = false; btn.textContent = '儲存'; }
+    } catch (e) { alert(e.message || '發生錯誤'); btn.disabled = false; btn.textContent = '儲存'; }
   };
 };
 
@@ -363,8 +359,8 @@ window.showEditModal = function(id) {
     try {
       var res = await apiPost('/update', d);
       if (res.ok) { hideModal(); fetchData(); }
-      else { alert('儲存失敗'); btn.disabled = false; btn.textContent = '儲存'; }
-    } catch (e) { alert('發生錯誤'); btn.disabled = false; }
+      else { alert('儲存失敗：' + (res.error || '')); btn.disabled = false; btn.textContent = '儲存'; }
+    } catch (e) { alert(e.message || '發生錯誤'); btn.disabled = false; btn.textContent = '儲存'; }
   };
 };
 
