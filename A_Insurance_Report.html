@@ -71,6 +71,11 @@ body.edit-on .act-btn{display:inline-block}
 
   <div class="filters">
     <input type="text" id="f-search" placeholder="搜尋保單名稱…" style="width:200px">
+    <select id="f-matured" onchange="render()">
+      <option value="">是否滿期：全部</option>
+      <option value="是">是</option>
+      <option value="否">否</option>
+    </select>
     <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
   </div>
 
@@ -86,6 +91,7 @@ body.edit-on .act-btn{display:inline-block}
           <th class="num">年繳保費</th>
           <th class="num">累計繳費</th>
           <th>滿期年</th>
+          <th>是否滿期</th>
           <th class="num">滿期金</th>
           <th class="num">5年領回</th>
           <th class="num">10年領回</th>
@@ -195,14 +201,18 @@ function renderStats(rows) {
 
 function applyFilters(rows) {
   var s = document.getElementById('f-search').value.toLowerCase();
+  var m = document.getElementById('f-matured').value;
   return rows.filter(r => {
     if (s && !(r.name && r.name.toLowerCase().includes(s))) return false;
+    if (m && r.isMatured !== m) return false;
     return true;
   });
 }
 
 function resetFilters() {
-  document.getElementById('f-search').value = ''; render();
+  document.getElementById('f-search').value = '';
+  document.getElementById('f-matured').value = '';
+  render();
 }
 
 function renderTable(rows) {
@@ -219,6 +229,7 @@ function renderTable(rows) {
         <td style="text-align:right">${r.annualPremium || '-'}</td>
         <td style="text-align:right">${r.accumulatedPremium || '-'}</td>
         <td class="muted">${r.maturityYear || '-'}</td>
+        <td style="${r.isMatured === '是' ? 'color:#f87171;font-weight:700' : ''}">${r.isMatured || '-'}</td>
         <td style="text-align:right">${r.maturityAmount || '-'}</td>
         <td style="text-align:right">${r.return5yr || '-'}</td>
         <td style="text-align:right">${r.return10yr || '-'}</td>
@@ -320,6 +331,14 @@ function rowFormHtml(r, title) {
       <div class="form-group"><label>年繳保費</label><input id="f-annualPremium" value="${v('annualPremium')}"></div>
       <div class="form-group"><label>累計繳費</label><input id="f-accumulatedPremium" value="${v('accumulatedPremium')}"></div>
       <div class="form-group"><label>滿期年</label><input id="f-maturityYear" value="${v('maturityYear')}"></div>
+      <div class="form-group">
+        <label>是否滿期</label>
+        <select id="f-isMatured">
+          <option value="">-- 選擇 --</option>
+          <option value="是" ${v('isMatured')==='是'?'selected':''}>是</option>
+          <option value="否" ${v('isMatured')==='否'?'selected':''}>否</option>
+        </select>
+      </div>
       <div class="form-group"><label>滿期金</label><input id="f-maturityAmount" value="${v('maturityAmount')}"></div>
       <div class="form-group"><label>5年領回</label><input id="f-return5yr" value="${v('return5yr')}"></div>
       <div class="form-group"><label>10年領回</label><input id="f-return10yr" value="${v('return10yr')}"></div>
@@ -370,7 +389,8 @@ window.showAddModal = function() {
       name: document.getElementById('f-name').value, date: document.getElementById('f-date').value,
       policyNumber: document.getElementById('f-policyNumber').value, years: document.getElementById('f-years').value,
       annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
-      maturityYear: document.getElementById('f-maturityYear').value, maturityAmount: document.getElementById('f-maturityAmount').value,
+      maturityYear: document.getElementById('f-maturityYear').value, isMatured: document.getElementById('f-isMatured').value,
+      maturityAmount: document.getElementById('f-maturityAmount').value,
       return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
       returnNov2025: document.getElementById('f-returnNov2025').value,
       company: document.getElementById('f-company').value,
@@ -395,7 +415,8 @@ window.showEditModal = function(id) {
       _id: id, name: document.getElementById('f-name').value, date: document.getElementById('f-date').value,
       policyNumber: document.getElementById('f-policyNumber').value, years: document.getElementById('f-years').value,
       annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
-      maturityYear: document.getElementById('f-maturityYear').value, maturityAmount: document.getElementById('f-maturityAmount').value,
+      maturityYear: document.getElementById('f-maturityYear').value, isMatured: document.getElementById('f-isMatured').value,
+      maturityAmount: document.getElementById('f-maturityAmount').value,
       return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
       returnNov2025: document.getElementById('f-returnNov2025').value,
       company: document.getElementById('f-company').value,
