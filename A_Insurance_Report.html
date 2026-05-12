@@ -104,6 +104,98 @@ body.edit-on .act-btn{display:inline-block}
       <tbody id="insurance-body"></tbody>
     </table>
   </div>
+
+  <div class="section-title" style="margin-top:28px">📊 保單分析報告</div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-bottom:18px">
+    <div class="stat-card">
+      <div class="stat-label">總保單數</div>
+      <div class="stat-value">14 筆</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">總累計繳費（台幣）</div>
+      <div class="stat-value">約 664 萬元</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">另有美元保單</div>
+      <div class="stat-value">USD 15,146</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">2028 年到期金額</div>
+      <div class="stat-value" style="color:var(--accent)">~211 萬元</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-bottom:18px">
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">依保險公司分類</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:5px 8px;color:var(--muted);font-size:0.72rem">公司</th>
+            <th style="text-align:center;padding:5px 8px;color:var(--muted);font-size:0.72rem">筆數</th>
+            <th style="text-align:right;padding:5px 8px;color:var(--muted);font-size:0.72rem">累計繳費估算</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">國泰</td><td style="text-align:center;padding:6px 8px">4 筆</td><td style="text-align:right;padding:6px 8px">~213 萬（含美元）</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">中國人壽／中壽</td><td style="text-align:center;padding:6px 8px">5 筆</td><td style="text-align:right;padding:6px 8px">~87 萬（含美元）</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">富邦</td><td style="text-align:center;padding:6px 8px">2 筆</td><td style="text-align:right;padding:6px 8px">~122 萬</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">南山</td><td style="text-align:center;padding:6px 8px">1 筆</td><td style="text-align:right;padding:6px 8px">~77 萬</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">台灣人壽</td><td style="text-align:center;padding:6px 8px">1 筆</td><td style="text-align:right;padding:6px 8px">~50 萬</td></tr>
+          <tr><td style="padding:6px 8px">富利年年終身（待確認）</td><td style="text-align:center;padding:6px 8px">1 筆</td><td style="text-align:right;padding:6px 8px">~115 萬</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px;font-size:0.75rem;color:var(--muted);border-top:1px solid var(--border);padding-top:8px">⚠️ 集中度偏高：國泰佔比最大，建議留意分散風險</div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">滿期狀態</div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:var(--buy);margin-bottom:6px">已滿期（5 筆）— 需確認是否已妥善處理</div>
+      <div style="font-size:0.8rem;line-height:1.8;color:var(--text)">
+        添美利美元（2015）・南山人壽（2020）・富邦_1（2021）・富邦_2（2021）・雙好還本終身（2022）
+      </div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:var(--accent);margin:12px 0 6px">即將滿期（2 筆，2028 年）</div>
+      <div style="font-size:0.8rem;line-height:1.8;color:var(--text)">
+        添鑫終身壽險 2028/02 → <span style="color:var(--accent)">764,280 元</span><br>
+        富利年年終身 2028/02 → <span style="color:var(--accent)">1,350,780 元</span><br>
+        <span style="color:var(--muted);font-size:0.75rem">同月合計約 211 萬，建議提前規劃再投資</span>
+      </div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:var(--sell);margin:12px 0 6px">長期保障型（1 筆）</div>
+      <div style="font-size:0.8rem;color:var(--text)">
+        新呵護久久殘廢照護（2035）— 失能最高 50 年，屬保障非儲蓄
+      </div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:var(--muted);margin:12px 0 6px">已繳清、持續滋息（6 筆）</div>
+      <div style="font-size:0.8rem;color:var(--muted)">
+        台灣人壽吉順利・中壽系列（年年旺、鑫增利×2、三得利、金美好利）— 每年有增值回饋分享金持續累積
+      </div>
+    </div>
+
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:18px">
+    <div style="font-size:0.8rem;font-weight:700;color:var(--buy);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">⚠️ 三個需要注意的點</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+      <div style="background:var(--surface2);border-radius:8px;padding:12px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--buy);margin-bottom:6px">1. 富邦_1 本金無法領回</div>
+        <div style="font-size:0.8rem;color:var(--muted);line-height:1.6">期滿本金不可領回，但每年仍繳 2,487 意外險。確認是否仍需此保障，否則可評估停繳。</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--accent);margin-bottom:6px">2. 美元保單匯率風險</div>
+        <div style="font-size:0.8rem;color:var(--muted);line-height:1.6">添美利美元（已滿期）+ 中壽金美好利（2025 解約金約 USD 8,297 ≈ 台幣 27 萬）。帳面價值隨匯率浮動，可評估是否續持。</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--sell);margin-bottom:6px">3. 整體配置偏儲蓄、輕保障</div>
+        <div style="font-size:0.8rem;color:var(--muted);line-height:1.6">14 筆中保障型只有新呵護久久一筆。2028 年一波到期後，建議評估是否補強保障或轉其他配置。</div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <div id="edit-toolbar">
