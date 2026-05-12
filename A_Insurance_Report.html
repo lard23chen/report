@@ -93,8 +93,6 @@ body.edit-on .act-btn{display:inline-block}
           <th>滿期年</th>
           <th>是否滿期</th>
           <th class="num">滿期金</th>
-          <th class="num">5年領回</th>
-          <th class="num">10年領回</th>
           <th class="num">2025領回</th>
           <th>保險公司</th>
           <th>保險人</th>
@@ -231,8 +229,6 @@ function renderTable(rows) {
         <td class="muted">${r.maturityYear || '-'}</td>
         <td style="${r.isMatured === '是' ? 'color:#f87171;font-weight:700' : ''}">${r.isMatured || '-'}</td>
         <td style="text-align:right">${r.maturityAmount || '-'}</td>
-        <td style="text-align:right">${r.return5yr || '-'}</td>
-        <td style="text-align:right">${r.return10yr || '-'}</td>
         <td style="text-align:right">${r.returnNov2025 || '-'}</td>
         <td>${r.company || '-'}</td>
         <td>${r.insured || '-'}</td>
@@ -340,8 +336,6 @@ function rowFormHtml(r, title) {
         </select>
       </div>
       <div class="form-group"><label>滿期金</label><input id="f-maturityAmount" value="${v('maturityAmount')}"></div>
-      <div class="form-group"><label>5年領回</label><input id="f-return5yr" value="${v('return5yr')}"></div>
-      <div class="form-group"><label>10年領回</label><input id="f-return10yr" value="${v('return10yr')}"></div>
       <div class="form-group"><label>2025領回</label><input id="f-returnNov2025" value="${v('returnNov2025')}"></div>
       <div class="form-group">
         <label>保險公司</label>
@@ -391,7 +385,6 @@ window.showAddModal = function() {
       annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
       maturityYear: document.getElementById('f-maturityYear').value, isMatured: document.getElementById('f-isMatured').value,
       maturityAmount: document.getElementById('f-maturityAmount').value,
-      return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
       returnNov2025: document.getElementById('f-returnNov2025').value,
       company: document.getElementById('f-company').value,
       insured: document.getElementById('f-insured').value,
@@ -417,7 +410,6 @@ window.showEditModal = function(id) {
       annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
       maturityYear: document.getElementById('f-maturityYear').value, isMatured: document.getElementById('f-isMatured').value,
       maturityAmount: document.getElementById('f-maturityAmount').value,
-      return5yr: document.getElementById('f-return5yr').value, return10yr: document.getElementById('f-return10yr').value,
       returnNov2025: document.getElementById('f-returnNov2025').value,
       company: document.getElementById('f-company').value,
       insured: document.getElementById('f-insured').value,
