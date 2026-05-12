@@ -169,8 +169,21 @@ async function apiPost(endpoint, body) {
   return await res.json();
 }
 
+var COMPANY_ORDER = { '國泰': 0, '富邦': 1, '南山': 2 };
+
+function sortRows(rows) {
+  return rows.slice().sort(function(a, b) {
+    var ca = COMPANY_ORDER[a.company] !== undefined ? COMPANY_ORDER[a.company] : 3;
+    var cb = COMPANY_ORDER[b.company] !== undefined ? COMPANY_ORDER[b.company] : 3;
+    if (ca !== cb) return ca - cb;
+    var da = new Date((a.date || '').replace(/\//g, '-'));
+    var db = new Date((b.date || '').replace(/\//g, '-'));
+    return da - db;
+  });
+}
+
 function render() {
-  var filtered = applyFilters(data);
+  var filtered = sortRows(applyFilters(data));
   renderStats(filtered);
   renderTable(filtered);
 }
