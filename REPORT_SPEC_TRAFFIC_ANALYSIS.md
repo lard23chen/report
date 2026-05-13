@@ -20,7 +20,9 @@
 
 ### 資料來源
 - DB：`QwareAi` / `GA_MonthlyStats`
-- 依 `ID` 升序排列（時序）
+- MongoDB 查詢以 `ID` 升序取回，**取回後再依 `YearMonth` 字串升序重新排序**
+
+> ⚠️ 維護注意：`ID` 欄位值不保證與 `YearMonth` 時間順序一致（例如補登月份可能取得較小的 ID）。若只靠 `sort({ ID: 1 })` 會導致新月份插到陣列頭部，圖表時間軸錯亂、資料表順序錯誤、分析區間 header 顯示異常（如 `2026/04 ~ 2026/03`）。2026/05 已確認此問題並修正為 `chartData.sort((a, b) => a.month.localeCompare(b.month))`。
 
 ### 資料結構
 | 欄位 | 說明 |
