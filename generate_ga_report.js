@@ -33,6 +33,9 @@ async function generateReport() {
             };
         });
 
+        // 按 YearMonth 升序排列（避免 ID 順序不一致導致亂序）
+        chartData.sort((a, b) => a.month.localeCompare(b.month));
+
         // 計算整體數據
         let total_A = 0, total_A_M = 0;
         let total_D = 0, total_D_M = 0;
