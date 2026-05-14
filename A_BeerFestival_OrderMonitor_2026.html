@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>2026 7-ELEVEN 高雄啤酒音樂節 監控搶票訂單分析</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #1a1200; color: #f0d060; font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
@@ -281,15 +282,9 @@ var maxQIT514 = Math.max.apply(null, data514.map(function(d){ return d.domQIT; }
 document.getElementById('kpi-qit513').textContent = fmt(maxQIT513);
 document.getElementById('kpi-qit514').textContent = fmt(maxQIT514);
 
+Chart.register(ChartDataLabels);
+
 var labels = data513.map(function(d){ return d.time; });
-var chartOpts = {
-  responsive: true,
-  plugins: { legend: { display: false } },
-  scales: {
-    x: { ticks: { color: '#a08030', maxTicksLimit: 10 }, grid: { color: '#2a1800' } },
-    y: { ticks: { color: '#a08030' }, grid: { color: '#2a1800' } }
-  }
-};
 
 function makeChart(id, vals513, vals514, lbl513, lbl514) {
   new Chart(document.getElementById(id), {
@@ -297,11 +292,23 @@ function makeChart(id, vals513, vals514, lbl513, lbl514) {
     data: {
       labels: labels,
       datasets: [
-        { label: lbl513, data: vals513, borderColor: '#ff9900', backgroundColor: 'rgba(255,153,0,0.08)', borderWidth: 2, pointRadius: 0, tension: 0.3 },
-        { label: lbl514, data: vals514, borderColor: '#4dd0e1', backgroundColor: 'rgba(77,208,225,0.08)', borderWidth: 2, pointRadius: 0, tension: 0.3 }
+        { label: lbl513, data: vals513, borderColor: '#ff9900', backgroundColor: 'rgba(255,153,0,0.08)', borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, tension: 0.3,
+          datalabels: { color: '#ff9900', anchor: 'end', align: 'top', font: { size: 9 }, display: 'auto', formatter: function(v){ return v >= 100 ? v.toLocaleString() : null; } } },
+        { label: lbl514, data: vals514, borderColor: '#4dd0e1', backgroundColor: 'rgba(77,208,225,0.08)', borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, tension: 0.3,
+          datalabels: { color: '#4dd0e1', anchor: 'start', align: 'bottom', font: { size: 9 }, display: 'auto', formatter: function(v){ return v >= 100 ? v.toLocaleString() : null; } } }
       ]
     },
-    options: chartOpts
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        datalabels: { clamp: true }
+      },
+      scales: {
+        x: { ticks: { color: '#a08030', maxTicksLimit: 12 }, grid: { color: '#2a1800' } },
+        y: { ticks: { color: '#a08030' }, grid: { color: '#2a1800' } }
+      }
+    }
   });
 }
 
