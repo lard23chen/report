@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -17,8 +17,8 @@
   .kpi-card .label { font-size: 0.78rem; color: #c4a030; margin-bottom: 8px; }
   .kpi-card .val513 { font-size: 1.5rem; font-weight: bold; color: #ff9900; }
   .kpi-card .val514 { font-size: 1.5rem; font-weight: bold; color: #4dd0e1; }
-  .kpi-card .sub { font-size: 0.72rem; color: #a08020; margin-top: 2px; }
-  .kpi-day { font-size: 0.7rem; color: #888; margin-top: 3px; }
+  .kpi-card .sub { font-size: 0.72rem; color: #a08020; margin-top: 4px; }
+  .kpi-day { font-size: 0.7rem; color: #888; margin-top: 2px; }
   .section { margin-bottom: 28px; }
   .section h2 { font-size: 1.1rem; color: #ffd000; margin-bottom: 14px; border-left: 3px solid #c68000; padding-left: 10px; }
   .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
@@ -36,8 +36,7 @@
   td:first-child { text-align: center; color: #ffd000; font-weight: bold; }
   tr:nth-child(even) { background: #221500; }
   tr:hover { background: #2a1800; }
-  tr.divider { border-top: 2px solid #c68000; }
-  tr.divider td { padding-top: 10px; }
+  tr.divider td { border-top: 2px solid #c68000; }
   .scroll-box { max-height: 460px; overflow-y: auto; }
   .scroll-box::-webkit-scrollbar { width: 6px; }
   .scroll-box::-webkit-scrollbar-track { background: #1a1000; }
@@ -53,12 +52,11 @@
 </head>
 <body>
 <div class="header">
-  <h1>🍺 2026 7-ELEVEN 高雄啤酒音樂節 監控搶票訂單分析</h1>
+  <h1>&#x1F37A; 2026 7-ELEVEN 高雄啤酒音樂節 監控搶票訂單分析</h1>
   <p>資料來源：監控搶票訂單數試算表 ・ 分析時段：12:00–12:50 ・ 產製時間：2026-05-14</p>
 </div>
 <div class="container">
 
-<!-- KPI Cards -->
 <div class="kpi-grid">
   <div class="kpi-card">
     <div class="label">總 Booking 數</div>
@@ -94,7 +92,6 @@
   </div>
 </div>
 
-<!-- Charts row 1 -->
 <div class="charts-grid">
   <div class="chart-box">
     <h3>每分鐘 Booking 數比較</h3>
@@ -118,26 +115,24 @@
   </div>
 </div>
 
-<!-- 30-min segment table -->
 <div class="section seg-table">
   <h2>每30分鐘區段統計</h2>
   <table>
     <thead><tr>
       <th>區段</th>
-      <th colspan="3">5/13 Booking / 訂單 / 刷卡</th>
-      <th colspan="3">5/14 Booking / 訂單 / 刷卡</th>
+      <th>5/13 Booking</th><th>5/13 訂單</th><th>5/13 刷卡</th>
+      <th>5/14 Booking</th><th>5/14 訂單</th><th>5/14 刷卡</th>
       <th>訂單增幅</th>
     </tr></thead>
     <tbody id="segTableBody"></tbody>
   </table>
 </div>
 
-<!-- Per-minute tabs -->
 <div class="section">
   <h2>每分鐘明細表</h2>
   <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('t513')">啤酒節 5/13</button>
-    <button class="tab-btn" onclick="switchTab('t514')">啤酒節 5/14</button>
+    <button class="tab-btn active" onclick="switchTab(this,'t513')">啤酒節 5/13</button>
+    <button class="tab-btn" onclick="switchTab(this,'t514')">啤酒節 5/14</button>
   </div>
   <div id="t513" class="tab-content active">
     <div class="scroll-box"><table id="table513"></table></div>
@@ -147,10 +142,9 @@
   </div>
 </div>
 
-</div><!-- /container -->
-
+</div>
 <script>
-const data513 = [
+var data513 = [
       {time:'12:00',booking:3113,bookingCum:3113,orders:250,ordersCum:250,cards:250,cardsCum:250,domQIT:22709,domIn:1998,domMax:2000,intlQIT:540,intlIn:16,intlMax:10},
       {time:'12:01',booking:1021,bookingCum:4134,orders:276,ordersCum:526,cards:276,cardsCum:526,domQIT:24505,domIn:2000,domMax:2000,intlQIT:1194,intlIn:10,intlMax:10},
       {time:'12:02',booking:897,bookingCum:5031,orders:506,ordersCum:1032,cards:506,cardsCum:1032,domQIT:26579,domIn:1998,domMax:2000,intlQIT:1230,intlIn:6,intlMax:10},
@@ -202,170 +196,166 @@ const data513 = [
       {time:'12:48',booking:212,bookingCum:27052,orders:93,ordersCum:11552,cards:93,cardsCum:11547,domQIT:0,domIn:0,domMax:0,intlQIT:0,intlIn:0,intlMax:0},
       {time:'12:49',booking:159,bookingCum:27211,orders:54,ordersCum:11606,cards:54,cardsCum:11601,domQIT:0,domIn:0,domMax:0,intlQIT:0,intlIn:0,intlMax:0},
       {time:'12:50',booking:147,bookingCum:27358,orders:53,ordersCum:11659,cards:53,cardsCum:11654,domQIT:0,domIn:0,domMax:0,intlQIT:0,intlIn:0,intlMax:0}
-
     ];
-const data514 = [
-      {time:'12:00',booking:1051,bookingCum:1051,orders:579,ordersCum:579,cards:299,cardsCum:299,domQIT:472,domIn:3604,domMax:2000,intlQIT:2973,intlIn:7,intlMax:5},
-      {time:'12:01',booking:2189,bookingCum:3240,orders:1012,ordersCum:1591,cards:228,cardsCum:527,domQIT:33918,domIn:1997,domMax:2000,intlQIT:6853,intlIn:7,intlMax:5},
-      {time:'12:02',booking:1486,bookingCum:4726,orders:1035,ordersCum:2626,cards:599,cardsCum:1126,domQIT:35458,domIn:1963,domMax:2000,intlQIT:7305,intlIn:5,intlMax:5},
-      {time:'12:03',booking:1202,bookingCum:5928,orders:843,ordersCum:3469,cards:578,cardsCum:1704,domQIT:34584,domIn:2037,domMax:2000,intlQIT:7803,intlIn:5,intlMax:5},
-      {time:'12:04',booking:1228,bookingCum:7156,orders:897,ordersCum:4366,cards:618,cardsCum:2322,domQIT:33583,domIn:2000,domMax:2000,intlQIT:8692,intlIn:5,intlMax:5},
-      {time:'12:05',booking:826,bookingCum:7982,orders:736,ordersCum:5102,cards:550,cardsCum:2872,domQIT:33740,domIn:2000,domMax:2000,intlQIT:8892,intlIn:4,intlMax:5},
-      {time:'12:06',booking:856,bookingCum:8838,orders:575,ordersCum:5677,cards:442,cardsCum:3314,domQIT:31413,domIn:1997,domMax:2000,intlQIT:9041,intlIn:0,intlMax:5},
-      {time:'12:07',booking:934,bookingCum:9772,orders:520,ordersCum:6197,cards:437,cardsCum:3751,domQIT:32219,domIn:1921,domMax:2000,intlQIT:9682,intlIn:3,intlMax:5},
-      {time:'12:08',booking:1104,bookingCum:10876,orders:483,ordersCum:6680,cards:401,cardsCum:4152,domQIT:30268,domIn:2079,domMax:2000,intlQIT:9845,intlIn:6,intlMax:5},
-      {time:'12:09',booking:1213,bookingCum:12089,orders:517,ordersCum:7197,cards:432,cardsCum:4584,domQIT:28977,domIn:2000,domMax:2000,intlQIT:9886,intlIn:7,intlMax:5},
-      {time:'12:10',booking:995,bookingCum:13084,orders:425,ordersCum:7622,cards:353,cardsCum:4937,domQIT:27460,domIn:2000,domMax:2000,intlQIT:10526,intlIn:5,intlMax:5},
-      {time:'12:11',booking:1286,bookingCum:14370,orders:392,ordersCum:8014,cards:282,cardsCum:5219,domQIT:25355,domIn:2000,domMax:2000,intlQIT:10611,intlIn:5,intlMax:5},
-      {time:'12:12',booking:745,bookingCum:15115,orders:441,ordersCum:8455,cards:383,cardsCum:5602,domQIT:25346,domIn:2000,domMax:2000,intlQIT:11090,intlIn:5,intlMax:5},
-      {time:'12:13',booking:838,bookingCum:15953,orders:407,ordersCum:8862,cards:357,cardsCum:5959,domQIT:21684,domIn:1998,domMax:2000,intlQIT:11242,intlIn:5,intlMax:5},
-      {time:'12:14',booking:721,bookingCum:16674,orders:304,ordersCum:9166,cards:272,cardsCum:6231,domQIT:21596,domIn:2000,domMax:2000,intlQIT:12221,intlIn:5,intlMax:5},
-      {time:'12:15',booking:784,bookingCum:17458,orders:314,ordersCum:9480,cards:267,cardsCum:6498,domQIT:19020,domIn:2000,domMax:2000,intlQIT:12348,intlIn:5,intlMax:5},
-      {time:'12:16',booking:761,bookingCum:18219,orders:326,ordersCum:9806,cards:287,cardsCum:6785,domQIT:16726,domIn:2000,domMax:2000,intlQIT:12362,intlIn:2,intlMax:5},
-      {time:'12:17',booking:654,bookingCum:18873,orders:350,ordersCum:10156,cards:323,cardsCum:7108,domQIT:15750,domIn:2000,domMax:2000,intlQIT:12561,intlIn:2,intlMax:5},
-      {time:'12:18',booking:564,bookingCum:19437,orders:293,ordersCum:10449,cards:269,cardsCum:7377,domQIT:12643,domIn:2000,domMax:2000,intlQIT:12657,intlIn:6,intlMax:5},
-      {time:'12:19',booking:860,bookingCum:20297,orders:288,ordersCum:10737,cards:267,cardsCum:7644,domQIT:8303,domIn:2000,domMax:2000,intlQIT:13626,intlIn:6,intlMax:5},
-      {time:'12:20',booking:796,bookingCum:21093,orders:276,ordersCum:11013,cards:242,cardsCum:7886,domQIT:6350,domIn:1994,domMax:2000,intlQIT:13647,intlIn:5,intlMax:5},
-      {time:'12:21',booking:772,bookingCum:21865,orders:290,ordersCum:11303,cards:267,cardsCum:8153,domQIT:4858,domIn:2006,domMax:2000,intlQIT:13675,intlIn:5,intlMax:5},
-      {time:'12:22',booking:822,bookingCum:22687,orders:295,ordersCum:11598,cards:262,cardsCum:8415,domQIT:3636,domIn:2000,domMax:2000,intlQIT:13810,intlIn:5,intlMax:5},
-      {time:'12:23',booking:498,bookingCum:23185,orders:288,ordersCum:11886,cards:268,cardsCum:8683,domQIT:2780,domIn:2000,domMax:2000,intlQIT:14266,intlIn:4,intlMax:5},
-      {time:'12:24',booking:593,bookingCum:23778,orders:244,ordersCum:12130,cards:214,cardsCum:8897,domQIT:1512,domIn:2000,domMax:2000,intlQIT:15499,intlIn:2,intlMax:5},
-      {time:'12:25',booking:474,bookingCum:24252,orders:220,ordersCum:12350,cards:197,cardsCum:9094,domQIT:793,domIn:1996,domMax:2000,intlQIT:15712,intlIn:1,intlMax:5},
-      {time:'12:26',booking:447,bookingCum:24699,orders:180,ordersCum:12530,cards:171,cardsCum:9265,domQIT:907,domIn:1136,domMax:2000,intlQIT:16569,intlIn:4,intlMax:5},
-      {time:'12:27',booking:597,bookingCum:25296,orders:147,ordersCum:12677,cards:126,cardsCum:9391,domQIT:81,domIn:52,domMax:2000,intlQIT:17018,intlIn:6,intlMax:5},
-      {time:'12:28',booking:1092,bookingCum:26388,orders:268,ordersCum:12945,cards:233,cardsCum:9624,domQIT:0,domIn:1942,domMax:2000,intlQIT:17939,intlIn:3,intlMax:5},
-      {time:'12:29',booking:623,bookingCum:27011,orders:378,ordersCum:13323,cards:361,cardsCum:9985,domQIT:252,domIn:962,domMax:2000,intlQIT:18096,intlIn:6,intlMax:5},
-      {time:'12:30',booking:524,bookingCum:27535,orders:226,ordersCum:13549,cards:208,cardsCum:10193,domQIT:163,domIn:986,domMax:2000,intlQIT:18947,intlIn:1,intlMax:5},
-      {time:'12:31',booking:594,bookingCum:28129,orders:203,ordersCum:13752,cards:194,cardsCum:10387,domQIT:109,domIn:641,domMax:2000,intlQIT:19461,intlIn:2,intlMax:5},
-      {time:'12:32',booking:384,bookingCum:28513,orders:153,ordersCum:13905,cards:144,cardsCum:10531,domQIT:147,domIn:726,domMax:2000,intlQIT:20130,intlIn:4,intlMax:5},
-      {time:'12:33',booking:847,bookingCum:29360,orders:231,ordersCum:14136,cards:202,cardsCum:10733,domQIT:103,domIn:21,domMax:2000,intlQIT:20821,intlIn:1,intlMax:5},
-      {time:'12:34',booking:483,bookingCum:29843,orders:212,ordersCum:14348,cards:204,cardsCum:10937,domQIT:0,domIn:6,domMax:2000,intlQIT:22143,intlIn:6,intlMax:5},
-      {time:'12:35',booking:507,bookingCum:30350,orders:136,ordersCum:14484,cards:125,cardsCum:11062,domQIT:0,domIn:5,domMax:2000,intlQIT:22354,intlIn:2,intlMax:5},
-      {time:'12:36',booking:682,bookingCum:31032,orders:265,ordersCum:14749,cards:197,cardsCum:11259,domQIT:0,domIn:4,domMax:2000,intlQIT:23017,intlIn:4,intlMax:5},
-      {time:'12:37',booking:458,bookingCum:31490,orders:258,ordersCum:15007,cards:227,cardsCum:11486,domQIT:0,domIn:826,domMax:2000,intlQIT:23583,intlIn:5,intlMax:5},
-      {time:'12:38',booking:730,bookingCum:32220,orders:182,ordersCum:15189,cards:162,cardsCum:11648,domQIT:160,domIn:2145,domMax:2000,intlQIT:23909,intlIn:6,intlMax:5},
-      {time:'12:39',booking:529,bookingCum:32749,orders:152,ordersCum:15341,cards:125,cardsCum:11773,domQIT:1019,domIn:829,domMax:2000,intlQIT:24074,intlIn:4,intlMax:5},
-      {time:'12:40',booking:475,bookingCum:33224,orders:146,ordersCum:15487,cards:133,cardsCum:11906,domQIT:78,domIn:2082,domMax:2000,intlQIT:24142,intlIn:3,intlMax:5},
-      {time:'12:41',booking:465,bookingCum:33689,orders:140,ordersCum:15627,cards:121,cardsCum:12027,domQIT:883,domIn:1743,domMax:2000,intlQIT:24525,intlIn:3,intlMax:5},
-      {time:'12:42',booking:490,bookingCum:34179,orders:101,ordersCum:15728,cards:85,cardsCum:12112,domQIT:167,domIn:824,domMax:2000,intlQIT:24567,intlIn:5,intlMax:5},
-      {time:'12:43',booking:748,bookingCum:34927,orders:122,ordersCum:15850,cards:103,cardsCum:12215,domQIT:938,domIn:2089,domMax:2000,intlQIT:24658,intlIn:525,intlMax:5},
-      {time:'12:44',booking:395,bookingCum:35322,orders:104,ordersCum:15954,cards:93,cardsCum:12308,domQIT:40,domIn:1675,domMax:2000,intlQIT:22171,intlIn:603,intlMax:1000},
-      {time:'12:45',booking:440,bookingCum:35762,orders:92,ordersCum:16046,cards:81,cardsCum:12389,domQIT:67,domIn:1013,domMax:2000,intlQIT:16667,intlIn:322,intlMax:2000},
-      {time:'12:46',booking:324,bookingCum:36086,orders:107,ordersCum:16153,cards:94,cardsCum:12483,domQIT:190,domIn:944,domMax:2000,intlQIT:14669,intlIn:583,intlMax:2000},
-      {time:'12:47',booking:357,bookingCum:36443,orders:97,ordersCum:16250,cards:84,cardsCum:12567,domQIT:123,domIn:180,domMax:2000,intlQIT:8813,intlIn:842,intlMax:2000},
-      {time:'12:48',booking:576,bookingCum:37019,orders:202,ordersCum:16452,cards:164,cardsCum:12731,domQIT:151,domIn:2,domMax:2000,intlQIT:1826,intlIn:891,intlMax:2000},
-      {time:'12:49',booking:386,bookingCum:37405,orders:138,ordersCum:16590,cards:130,cardsCum:12861,domQIT:0,domIn:7,domMax:2000,intlQIT:0,intlIn:41,intlMax:2000},
-      {time:'12:50',booking:419,bookingCum:37824,orders:96,ordersCum:16686,cards:89,cardsCum:12950,domQIT:0,domIn:5,domMax:2000,intlQIT:0,intlIn:8,intlMax:1000}
-
+var data514 = [
+      {time:'12:00',booking:1051,bookingCum:1051,orders:579,ordersCum:579,cards:299,cardsCum:299,domQIT:472,domIn:3604,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:01',booking:2189,bookingCum:3240,orders:1012,ordersCum:1591,cards:228,cardsCum:527,domQIT:33918,domIn:1997,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:02',booking:1486,bookingCum:4726,orders:1035,ordersCum:2626,cards:599,cardsCum:1126,domQIT:35458,domIn:1963,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:03',booking:1202,bookingCum:5928,orders:843,ordersCum:3469,cards:578,cardsCum:1704,domQIT:34584,domIn:2037,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:04',booking:1228,bookingCum:7156,orders:897,ordersCum:4366,cards:618,cardsCum:2322,domQIT:33583,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:05',booking:826,bookingCum:7982,orders:736,ordersCum:5102,cards:550,cardsCum:2872,domQIT:33740,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:06',booking:856,bookingCum:8838,orders:575,ordersCum:5677,cards:442,cardsCum:3314,domQIT:31413,domIn:1997,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:07',booking:934,bookingCum:9772,orders:520,ordersCum:6197,cards:437,cardsCum:3751,domQIT:32219,domIn:1921,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:08',booking:1104,bookingCum:10876,orders:483,ordersCum:6680,cards:401,cardsCum:4152,domQIT:30268,domIn:2079,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:09',booking:1213,bookingCum:12089,orders:517,ordersCum:7197,cards:432,cardsCum:4584,domQIT:28977,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:10',booking:995,bookingCum:13084,orders:425,ordersCum:7622,cards:353,cardsCum:4937,domQIT:27460,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:11',booking:1286,bookingCum:14370,orders:392,ordersCum:8014,cards:282,cardsCum:5219,domQIT:25355,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:12',booking:745,bookingCum:15115,orders:441,ordersCum:8455,cards:383,cardsCum:5602,domQIT:25346,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:13',booking:838,bookingCum:15953,orders:407,ordersCum:8862,cards:357,cardsCum:5959,domQIT:21684,domIn:1998,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:14',booking:721,bookingCum:16674,orders:304,ordersCum:9166,cards:272,cardsCum:6231,domQIT:21596,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:15',booking:784,bookingCum:17458,orders:314,ordersCum:9480,cards:267,cardsCum:6498,domQIT:19020,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:16',booking:761,bookingCum:18219,orders:326,ordersCum:9806,cards:287,cardsCum:6785,domQIT:16726,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:17',booking:654,bookingCum:18873,orders:350,ordersCum:10156,cards:323,cardsCum:7108,domQIT:15750,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:18',booking:564,bookingCum:19437,orders:293,ordersCum:10449,cards:269,cardsCum:7377,domQIT:12643,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:19',booking:860,bookingCum:20297,orders:288,ordersCum:10737,cards:267,cardsCum:7644,domQIT:8303,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:20',booking:796,bookingCum:21093,orders:276,ordersCum:11013,cards:242,cardsCum:7886,domQIT:6350,domIn:1994,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:21',booking:772,bookingCum:21865,orders:290,ordersCum:11303,cards:267,cardsCum:8153,domQIT:4858,domIn:2006,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:22',booking:822,bookingCum:22687,orders:295,ordersCum:11598,cards:262,cardsCum:8415,domQIT:3636,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:23',booking:498,bookingCum:23185,orders:288,ordersCum:11886,cards:268,cardsCum:8683,domQIT:2780,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:24',booking:593,bookingCum:23778,orders:244,ordersCum:12130,cards:214,cardsCum:8897,domQIT:1512,domIn:2000,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:25',booking:474,bookingCum:24252,orders:220,ordersCum:12350,cards:197,cardsCum:9094,domQIT:793,domIn:1996,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:26',booking:447,bookingCum:24699,orders:180,ordersCum:12530,cards:171,cardsCum:9265,domQIT:907,domIn:1136,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:27',booking:597,bookingCum:25296,orders:147,ordersCum:12677,cards:126,cardsCum:9391,domQIT:81,domIn:52,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:28',booking:1092,bookingCum:26388,orders:268,ordersCum:12945,cards:233,cardsCum:9624,domQIT:0,domIn:1942,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:29',booking:623,bookingCum:27011,orders:378,ordersCum:13323,cards:361,cardsCum:9985,domQIT:252,domIn:962,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:30',booking:524,bookingCum:27535,orders:226,ordersCum:13549,cards:208,cardsCum:10193,domQIT:163,domIn:986,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:31',booking:594,bookingCum:28129,orders:203,ordersCum:13752,cards:194,cardsCum:10387,domQIT:109,domIn:641,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:32',booking:384,bookingCum:28513,orders:153,ordersCum:13905,cards:144,cardsCum:10531,domQIT:147,domIn:726,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:33',booking:847,bookingCum:29360,orders:231,ordersCum:14136,cards:202,cardsCum:10733,domQIT:103,domIn:21,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:34',booking:483,bookingCum:29843,orders:212,ordersCum:14348,cards:204,cardsCum:10937,domQIT:0,domIn:6,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:35',booking:507,bookingCum:30350,orders:136,ordersCum:14484,cards:125,cardsCum:11062,domQIT:0,domIn:5,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:36',booking:682,bookingCum:31032,orders:265,ordersCum:14749,cards:197,cardsCum:11259,domQIT:0,domIn:4,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:37',booking:458,bookingCum:31490,orders:258,ordersCum:15007,cards:227,cardsCum:11486,domQIT:0,domIn:826,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:38',booking:730,bookingCum:32220,orders:182,ordersCum:15189,cards:162,cardsCum:11648,domQIT:160,domIn:2145,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:39',booking:529,bookingCum:32749,orders:152,ordersCum:15341,cards:125,cardsCum:11773,domQIT:1019,domIn:829,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:40',booking:475,bookingCum:33224,orders:146,ordersCum:15487,cards:133,cardsCum:11906,domQIT:78,domIn:2082,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:41',booking:465,bookingCum:33689,orders:140,ordersCum:15627,cards:121,cardsCum:12027,domQIT:883,domIn:1743,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:42',booking:490,bookingCum:34179,orders:101,ordersCum:15728,cards:85,cardsCum:12112,domQIT:167,domIn:824,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:43',booking:748,bookingCum:34927,orders:122,ordersCum:15850,cards:103,cardsCum:12215,domQIT:938,domIn:2089,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:44',booking:395,bookingCum:35322,orders:104,ordersCum:15954,cards:93,cardsCum:12308,domQIT:40,domIn:1675,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:45',booking:440,bookingCum:35762,orders:92,ordersCum:16046,cards:81,cardsCum:12389,domQIT:67,domIn:1013,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:46',booking:324,bookingCum:36086,orders:107,ordersCum:16153,cards:94,cardsCum:12483,domQIT:190,domIn:944,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:47',booking:357,bookingCum:36443,orders:97,ordersCum:16250,cards:84,cardsCum:12567,domQIT:123,domIn:180,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:48',booking:576,bookingCum:37019,orders:202,ordersCum:16452,cards:164,cardsCum:12731,domQIT:151,domIn:2,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:49',booking:386,bookingCum:37405,orders:138,ordersCum:16590,cards:130,cardsCum:12861,domQIT:0,domIn:7,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])},
+      {time:'12:50',booking:419,bookingCum:37824,orders:96,ordersCum:16686,cards:89,cardsCum:12950,domQIT:0,domIn:5,domMax:2000,intlQIT=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[10]);IntlIn=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[11]);IntlMax=ToInt(12:50 419 37824 96 16686 89 12950 0 5 2000 0 8 1000[12])}
     ];
 
-function fmt(n) { return n.toLocaleString(); }
+function fmt(n) { return Number(n).toLocaleString(); }
 
-// KPI
-const last513 = data513[data513.length-1];
-const last514 = data514[data514.length-1];
+var last513 = data513[data513.length-1];
+var last514 = data514[data514.length-1];
 document.getElementById('kpi-booking513').textContent = fmt(last513.bookingCum);
 document.getElementById('kpi-booking514').textContent = fmt(last514.bookingCum);
-const bDiff = ((last514.bookingCum - last513.bookingCum) / last513.bookingCum * 100).toFixed(1);
-document.getElementById('kpi-booking-diff').textContent = 5/14 較 5/13 %;
+var bDiff = ((last514.bookingCum - last513.bookingCum) / last513.bookingCum * 100).toFixed(1);
+document.getElementById('kpi-booking-diff').textContent = '5/14 較 5/13 ' + (bDiff > 0 ? '+' : '') + bDiff + '%';
 document.getElementById('kpi-orders513').textContent = fmt(last513.ordersCum);
 document.getElementById('kpi-orders514').textContent = fmt(last514.ordersCum);
-const oDiff = ((last514.ordersCum - last513.ordersCum) / last513.ordersCum * 100).toFixed(1);
-document.getElementById('kpi-orders-diff').textContent = 5/14 較 5/13 +%;
+var oDiff = ((last514.ordersCum - last513.ordersCum) / last513.ordersCum * 100).toFixed(1);
+document.getElementById('kpi-orders-diff').textContent = '5/14 較 5/13 +' + oDiff + '%';
 document.getElementById('kpi-cards513').textContent = fmt(last513.cardsCum);
 document.getElementById('kpi-cards514').textContent = fmt(last514.cardsCum);
 
-const peakB513 = data513.reduce((a,b) => b.booking > a.booking ? b : a);
-const peakB514 = data514.reduce((a,b) => b.booking > a.booking ? b : a);
-document.getElementById('kpi-peakb513').textContent = ${peakB513.time} ();
-document.getElementById('kpi-peakb514').textContent = ${peakB514.time} ();
+var peakB513 = data513.reduce(function(a,b){ return b.booking > a.booking ? b : a; });
+var peakB514 = data514.reduce(function(a,b){ return b.booking > a.booking ? b : a; });
+document.getElementById('kpi-peakb513').textContent = peakB513.time + ' (' + fmt(peakB513.booking) + ')';
+document.getElementById('kpi-peakb514').textContent = peakB514.time + ' (' + fmt(peakB514.booking) + ')';
 
-const peakO513 = data513.reduce((a,b) => b.orders > a.orders ? b : a);
-const peakO514 = data514.reduce((a,b) => b.orders > a.orders ? b : a);
-document.getElementById('kpi-peako513').textContent = ${peakO513.time} ();
-document.getElementById('kpi-peako514').textContent = ${peakO514.time} ();
+var peakO513 = data513.reduce(function(a,b){ return b.orders > a.orders ? b : a; });
+var peakO514 = data514.reduce(function(a,b){ return b.orders > a.orders ? b : a; });
+document.getElementById('kpi-peako513').textContent = peakO513.time + ' (' + fmt(peakO513.orders) + ')';
+document.getElementById('kpi-peako514').textContent = peakO514.time + ' (' + fmt(peakO514.orders) + ')';
 
-const maxQIT513 = Math.max(...data513.map(d=>d.domQIT));
-const maxQIT514 = Math.max(...data514.map(d=>d.domQIT));
+var maxQIT513 = Math.max.apply(null, data513.map(function(d){ return d.domQIT; }));
+var maxQIT514 = Math.max.apply(null, data514.map(function(d){ return d.domQIT; }));
 document.getElementById('kpi-qit513').textContent = fmt(maxQIT513);
 document.getElementById('kpi-qit514').textContent = fmt(maxQIT514);
 
-// Chart config helpers
-const labels = data513.map(d=>d.time);
-const chartOpts = (title) => ({
+var labels = data513.map(function(d){ return d.time; });
+var chartOpts = {
   responsive: true,
-  plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ${ctx.dataset.label}:  } } },
+  plugins: { legend: { display: false } },
   scales: {
     x: { ticks: { color: '#a08030', maxTicksLimit: 10 }, grid: { color: '#2a1800' } },
     y: { ticks: { color: '#a08030' }, grid: { color: '#2a1800' } }
   }
-});
+};
 
-function makeChart(id, d513vals, d514vals, label513, label514) {
-  return new Chart(document.getElementById(id), {
+function makeChart(id, vals513, vals514, lbl513, lbl514) {
+  new Chart(document.getElementById(id), {
     type: 'line',
     data: {
-      labels,
+      labels: labels,
       datasets: [
-        { label: label513, data: d513vals, borderColor: '#ff9900', backgroundColor: 'rgba(255,153,0,0.08)', borderWidth: 2, pointRadius: 0, tension: 0.3 },
-        { label: label514, data: d514vals, borderColor: '#4dd0e1', backgroundColor: 'rgba(77,208,225,0.08)', borderWidth: 2, pointRadius: 0, tension: 0.3 }
+        { label: lbl513, data: vals513, borderColor: '#ff9900', backgroundColor: 'rgba(255,153,0,0.08)', borderWidth: 2, pointRadius: 0, tension: 0.3 },
+        { label: lbl514, data: vals514, borderColor: '#4dd0e1', backgroundColor: 'rgba(77,208,225,0.08)', borderWidth: 2, pointRadius: 0, tension: 0.3 }
       ]
     },
-    options: chartOpts()
+    options: chartOpts
   });
 }
 
-makeChart('chartBooking', data513.map(d=>d.booking), data514.map(d=>d.booking), '5/13 Booking','5/14 Booking');
-makeChart('chartOrders', data513.map(d=>d.orders), data514.map(d=>d.orders), '5/13 訂單','5/14 訂單');
-makeChart('chartCumOrders', data513.map(d=>d.ordersCum), data514.map(d=>d.ordersCum), '5/13 累積訂單','5/14 累積訂單');
-makeChart('chartQIT', data513.map(d=>d.domQIT), data514.map(d=>d.domQIT), '5/13 國內QIT','5/14 國內QIT');
+makeChart('chartBooking', data513.map(function(d){return d.booking;}), data514.map(function(d){return d.booking;}), '5/13 Booking', '5/14 Booking');
+makeChart('chartOrders', data513.map(function(d){return d.orders;}), data514.map(function(d){return d.orders;}), '5/13 訂單', '5/14 訂單');
+makeChart('chartCumOrders', data513.map(function(d){return d.ordersCum;}), data514.map(function(d){return d.ordersCum;}), '5/13 累積訂單', '5/14 累積訂單');
+makeChart('chartQIT', data513.map(function(d){return d.domQIT;}), data514.map(function(d){return d.domQIT;}), '5/13 國內QIT', '5/14 國內QIT');
 
-// 30-min segments
-const segs = [
+var segs = [
   { label: '12:00–12:29', start: '12:00', end: '12:29' },
   { label: '12:30–12:50', start: '12:30', end: '12:50' }
 ];
-const segBody = document.getElementById('segTableBody');
-segs.forEach(seg => {
-  const rows513 = data513.filter(d => d.time >= seg.start && d.time <= seg.end);
-  const rows514 = data514.filter(d => d.time >= seg.start && d.time <= seg.end);
-  const b513 = rows513.reduce((s,d)=>s+d.booking,0);
-  const o513 = rows513.reduce((s,d)=>s+d.orders,0);
-  const c513 = rows513.reduce((s,d)=>s+d.cards,0);
-  const b514 = rows514.reduce((s,d)=>s+d.booking,0);
-  const o514 = rows514.reduce((s,d)=>s+d.orders,0);
-  const c514 = rows514.reduce((s,d)=>s+d.cards,0);
-  const diff = o513>0 ? ((o514-o513)/o513*100).toFixed(1) : '-';
-  const cl = parseFloat(diff)>0 ? 'up' : 'down';
-  const tr = document.createElement('tr');
-  tr.innerHTML = <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class=""></td>;
+var segBody = document.getElementById('segTableBody');
+segs.forEach(function(seg) {
+  var rows513 = data513.filter(function(d){ return d.time >= seg.start && d.time <= seg.end; });
+  var rows514 = data514.filter(function(d){ return d.time >= seg.start && d.time <= seg.end; });
+  var b513 = rows513.reduce(function(s,d){return s+d.booking;}, 0);
+  var o513 = rows513.reduce(function(s,d){return s+d.orders;}, 0);
+  var c513 = rows513.reduce(function(s,d){return s+d.cards;}, 0);
+  var b514 = rows514.reduce(function(s,d){return s+d.booking;}, 0);
+  var o514 = rows514.reduce(function(s,d){return s+d.orders;}, 0);
+  var c514 = rows514.reduce(function(s,d){return s+d.cards;}, 0);
+  var diff = o513 > 0 ? ((o514-o513)/o513*100).toFixed(1) : '-';
+  var cl = parseFloat(diff) > 0 ? 'up' : 'down';
+  var diffText = diff !== '-' ? (parseFloat(diff) > 0 ? '+' : '') + diff + '%' : '-';
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td>' + seg.label + '</td><td>' + fmt(b513) + '</td><td>' + fmt(o513) + '</td><td>' + fmt(c513) + '</td><td>' + fmt(b514) + '</td><td>' + fmt(o514) + '</td><td>' + fmt(c514) + '</td><td class="' + cl + '">' + diffText + '</td>';
   segBody.appendChild(tr);
 });
 
-// Per-minute tables
-function buildTable(tableId, data, date) {
-  const t = document.getElementById(tableId);
-  const hdrs = ['時間','Booking','Booking累加','訂單張數','訂單累加','刷卡張數','刷卡累加','國內QIT等候','國內進入','國內Max','國外QIT等候','國外進入','國外Max'];
-  t.innerHTML = '<thead><tr>' + hdrs.map(h=><th></th>).join('') + '</tr></thead><tbody>';
-  const tbody = document.createElement('tbody');
-  data.forEach((d,i) => {
-    const tr = document.createElement('tr');
-    if (d.time === '12:30') tr.classList.add('divider');
-    tr.innerHTML = [d.time, fmt(d.booking), fmt(d.bookingCum), fmt(d.orders), fmt(d.ordersCum), fmt(d.cards), fmt(d.cardsCum),
-      d.domQIT||'-', d.domIn||'-', d.domMax||'-', d.intlQIT||'-', d.intlIn||'-', d.intlMax||'-']
-      .map(v=><td></td>).join('');
+function buildTable(tableId, data) {
+  var t = document.getElementById(tableId);
+  var hdrs = ['時間','Booking','Booking累加','訂單張數','訂單累加','刷卡張數','刷卡累加','國內QIT等候','國內進入','國內Max','國外QIT等候','國外進入','國外Max'];
+  var thead = '<thead><tr>' + hdrs.map(function(h){ return '<th>' + h + '</th>'; }).join('') + '</tr></thead>';
+  t.innerHTML = thead;
+  var tbody = document.createElement('tbody');
+  data.forEach(function(d) {
+    var tr = document.createElement('tr');
+    if (d.time === '12:30') tr.className = 'divider';
+    var vals = [d.time, fmt(d.booking), fmt(d.bookingCum), fmt(d.orders), fmt(d.ordersCum), fmt(d.cards), fmt(d.cardsCum),
+      d.domQIT || '-', d.domIn || '-', d.domMax || '-', d.intlQIT || '-', d.intlIn || '-', d.intlMax || '-'];
+    tr.innerHTML = vals.map(function(v){ return '<td>' + v + '</td>'; }).join('');
     tbody.appendChild(tr);
   });
   t.appendChild(tbody);
 }
-buildTable('table513', data513, '5/13');
-buildTable('table514', data514, '5/14');
+buildTable('table513', data513);
+buildTable('table514', data514);
 
-function switchTab(id) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+function switchTab(btn, id) {
+  document.querySelectorAll('.tab-content').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(el){ el.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
+  btn.classList.add('active');
 }
 </script>
 </body>
