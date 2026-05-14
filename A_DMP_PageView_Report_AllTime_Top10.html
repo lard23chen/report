@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -9,337 +8,100 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.5);
-            --glass-bg: rgba(15, 23, 42, 0.6);
-        }
-
+        :root { --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --card-border: rgba(255, 255, 255, 0.1); --text-primary: #f8fafc; --text-secondary: #94a3b8; --accent: #3b82f6; --glass-bg: rgba(15, 23, 42, 0.6); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 40px 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .header-left h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        }
-
-        .header-left p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            display: inline-block;
-        }
-        
-        .stat-card h3 {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .stat-card .value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chart-container {
-            height: 400px;
-            width: 100%;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            text-align: left;
-            padding: 16px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-            position: sticky;
-            top: 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(8px);
-        }
-
-        td {
-            padding: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: background-color 0.2s;
-        }
-
-        tbody tr:hover {
-            background-color: rgba(255, 255, 255, 0.03);
-        }
-
-        .rank {
-            display: inline-block;
-            width: 28px;
-            height: 28px;
-            line-height: 28px;
-            text-align: center;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            font-weight: bold;
-            font-size: 0.85rem;
-        }
-
-        .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
-        .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #fff; box-shadow: 0 0 10px rgba(148, 163, 184, 0.5); }
-        .rank-3 { background: linear-gradient(135deg, #b45309, #78350f); color: #fff; box-shadow: 0 0 10px rgba(180, 83, 9, 0.5); }
-
-        .btn-home {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: #fff;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 9999px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
-            transition: all 0.3s ease;
-            z-index: 50;
-        }
-
-        .btn-home:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
-        }
-
-        @media (max-width: 768px) {
-            .header { flex-direction: column; align-items: flex-start; gap: 20px; }
-            .stat-card { width: 100%; }
-        }
-        
-        .table-wrapper {
-            max-height: 600px;
-            overflow-y: auto;
-            border-radius: 8px;
-            position: relative;
-        }
-        
-        /* Custom Scrollbar */
+        body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background-color: var(--bg-color); background-image: radial-gradient(at 0% 0%, rgba(59,130,246,0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(139,92,246,0.15) 0px, transparent 50%); background-attachment: fixed; color: var(--text-primary); min-height: 100vh; padding: 40px 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--card-border); }
+        .header-left h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+        .header-left p { color: var(--text-secondary); font-size: 1.1rem; }
+        .stat-card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--card-border); border-radius: 16px; padding: 24px; display: inline-block; }
+        .stat-card h3 { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-card .value { font-size: 2.5rem; font-weight: 700; color: var(--text-primary); text-shadow: 0 0 20px rgba(59,130,246,0.3); }
+        .content-grid { display: grid; grid-template-columns: 1fr; gap: 30px; margin-bottom: 40px; }
+        .card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--card-border); border-radius: 16px; padding: 30px; }
+        .card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .chart-container { height: 400px; width: 100%; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 16px; color: var(--text-secondary); font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.1); position: sticky; top: 0; background: var(--glass-bg); backdrop-filter: blur(8px); }
+        td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        tbody tr:hover { background-color: rgba(255,255,255,0.03); }
+        .rank { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: rgba(255,255,255,0.1); font-weight: bold; font-size: 0.85rem; }
+        .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; box-shadow: 0 0 10px rgba(245,158,11,0.5); }
+        .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #fff; }
+        .rank-3 { background: linear-gradient(135deg, #b45309, #78350f); color: #fff; }
+        .btn-home { position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 9999px; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(37,99,235,0.4); z-index: 50; }
+        .btn-home:hover { transform: translateY(-3px); }
+        .table-wrapper { max-height: 600px; overflow-y: auto; border-radius: 8px; }
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        @media (max-width: 768px) { .header { flex-direction: column; align-items: flex-start; gap: 20px; } }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header">
             <div class="header-left">
                 <h1>歷史累積 Top 10 節目流量排行榜</h1>
-<!-- Data Source Header -->
-<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
-    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
-    Data Source: MongoDB (QwareAi / DMP_PageView...)</div>
                 <p>First-Party DMP 歷史所有資料總計 Page View 排行榜</p>
             </div>
             <div style="display: flex; gap: 15px; align-items: stretch;">
                 <div class="stat-card">
                     <h3>歷史總瀏覽量 (All-Time Valid Match)</h3>
-                    <div class="value">22,990,563</div>
+                    <div class="value">19,806,047</div>
                 </div>
             </div>
         </div>
-
         <div class="content-grid">
             <div class="card">
                 <div class="card-title">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
                     Top 10 熱門節目 (歷史累積)
                 </div>
-                <div class="chart-container">
-                    <canvas id="top10Chart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="top10Chart"></canvas></div>
             </div>
-
             <div class="card" style="padding: 0;">
                 <div style="padding: 30px 30px 15px;">
                     <div class="card-title" style="margin-bottom: 0;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                        節目場次瀏覽量詳情
+                        節目場次瀏覽量詳情 <span style="font-size:0.85rem;color:#94a3b8;margin-left:8px;">點擊節目名稱查看深度分析</span>
                     </div>
                 </div>
-                
                 <div class="table-wrapper">
                     <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 80px; text-align: center;">排名</th>
-                                <th>節目名稱 (Content Name)</th>
-                                <th style="width: 15%; color: #bbf7d0;">節目ID</th>
-                                <th style="text-align: right;">瀏覽量 (Page Views)</th>
-                                <th style="text-align: right; width: 120px;">歷史總佔比</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td style="text-align: center;"><span class="rank rank-1">1</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_000.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">第40屆金唱片頒獎典禮 The 40th Golden Disc Awards</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B0AENC27</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">11,942,354</td><td style="text-align: right; color: var(--text-secondary);">51.94%</td></tr><tr><td style="text-align: center;"><span class="rank rank-2">2</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_001.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">2025 Asia Artist Awards IN KAOHSIUNG</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B09QY33Y</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">2,175,321</td><td style="text-align: right; color: var(--text-secondary);">9.46%</td></tr><tr><td style="text-align: center;"><span class="rank rank-3">3</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_002.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">2025李聖傑 One Day直到那一天 世界巡迴演唱會 台北站</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B0A0TZWJ</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">1,715,095</td><td style="text-align: right; color: var(--text-secondary);">7.46%</td></tr><tr><td style="text-align: center;"><span class="rank ">4</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_003.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B0AJKPPD</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">1,700,729</td><td style="text-align: right; color: var(--text-secondary);">7.40%</td></tr><tr><td style="text-align: center;"><span class="rank ">5</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_004.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">ACON 2025 IN KAOHSIUNG</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B0AAXOCN, B09QY340</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">965,501</td><td style="text-align: right; color: var(--text-secondary);">4.20%</td></tr><tr><td style="text-align: center;"><span class="rank ">6</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_005.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">QWER 1ST WORLD TOUR ＜ROCKATION＞ in TAIPEI</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B0A42BR4</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">451,488</td><td style="text-align: right; color: var(--text-secondary);">1.96%</td></tr><tr><td style="text-align: center;"><span class="rank ">7</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_006.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">中華職棒36年Rakuten主場總冠軍賽</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B0A3620Z</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">387,452</td><td style="text-align: right; color: var(--text-secondary);">1.69%</td></tr><tr><td style="text-align: center;"><span class="rank ">8</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_007.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">2026 FTISLAND CONCERT ‘FTSODE’ in TAIPEI</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B0AHMRY9</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">303,849</td><td style="text-align: right; color: var(--text-secondary);">1.32%</td></tr><tr><td style="text-align: center;"><span class="rank ">9</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_008.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">Team Taiwan高雄澄清湖自辦練習賽</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B0AR35CL</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">249,382</td><td style="text-align: right; color: var(--text-secondary);">1.08%</td></tr><tr><td style="text-align: center;"><span class="rank ">10</span></td><td style="font-weight: 500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_009.html" target="_blank" style="color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa;">2026 tripleS Concert ＜My Secret New Zone＞ in Taipei</a></td><td style="color: #bbf7d0; font-size: 0.85rem; word-break: break-all;">B0AN3N4P</td><td style="text-align: right; color: #f8fafc; font-weight: 600;">160,547</td><td style="text-align: right; color: var(--text-secondary);">0.70%</td></tr>
-                        </tbody>
+                        <thead><tr>
+                            <th style="width:80px;text-align:center;">排名</th>
+                            <th>節目名稱 (Content Name)</th>
+                            <th style="width:15%;color:#bbf7d0;">節目ID</th>
+                            <th style="text-align:right;">瀏覽量 (Page Views)</th>
+                            <th style="text-align:right;width:120px;">歷史總佔比</th>
+                        </tr></thead>
+                        <tbody><tr><td style="text-align:center;"><span class="rank rank-1">1</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_000.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">第40屆金唱片頒獎典禮 The 40th Golden Disc Awards</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AENC27</td><td style="text-align:right;color:#f8fafc;font-weight:600;">11,942,600</td><td style="text-align:right;color:var(--text-secondary);">60.30%</td></tr><tr><td style="text-align:center;"><span class="rank rank-2">2</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_001.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AJKPPD</td><td style="text-align:right;color:#f8fafc;font-weight:600;">1,708,889</td><td style="text-align:right;color:var(--text-secondary);">8.63%</td></tr><tr><td style="text-align:center;"><span class="rank rank-3">3</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_002.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 7–ELEVEN 高雄啤酒音樂節</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0BA4VPF</td><td style="text-align:right;color:#f8fafc;font-weight:600;">1,097,689</td><td style="text-align:right;color:var(--text-secondary);">5.54%</td></tr><tr><td style="text-align:center;"><span class="rank ">4</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_003.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">中華職棒37年例行賽統一獅主場（上）</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AP9IZH</td><td style="text-align:right;color:#f8fafc;font-weight:600;">312,447</td><td style="text-align:right;color:var(--text-secondary);">1.58%</td></tr><tr><td style="text-align:center;"><span class="rank ">5</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_004.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2025 Asia Artist Awards IN KAOHSIUNG</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B09QY33Y</td><td style="text-align:right;color:#f8fafc;font-weight:600;">309,214</td><td style="text-align:right;color:var(--text-secondary);">1.56%</td></tr><tr><td style="text-align:center;"><span class="rank ">6</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_005.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 FTISLAND CONCERT ‘FTSODE’ in TAIPEI</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AHMRY9</td><td style="text-align:right;color:#f8fafc;font-weight:600;">303,890</td><td style="text-align:right;color:var(--text-secondary);">1.53%</td></tr><tr><td style="text-align:center;"><span class="rank ">7</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_006.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0ATIQKM</td><td style="text-align:right;color:#f8fafc;font-weight:600;">294,671</td><td style="text-align:right;color:var(--text-secondary);">1.49%</td></tr><tr><td style="text-align:center;"><span class="rank ">8</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_007.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">Team Taiwan高雄澄清湖自辦練習賽</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AR35CL</td><td style="text-align:right;color:#f8fafc;font-weight:600;">249,482</td><td style="text-align:right;color:var(--text-secondary);">1.26%</td></tr><tr><td style="text-align:center;"><span class="rank ">9</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_008.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">中華職棒37年Rakuten主場例行賽</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0ANR12P</td><td style="text-align:right;color:#f8fafc;font-weight:600;">229,818</td><td style="text-align:right;color:var(--text-secondary);">1.16%</td></tr><tr><td style="text-align:center;"><span class="rank ">10</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_009.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">deca joins 2026 world tour － 在這裡停一下</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AQDNY9</td><td style="text-align:right;color:#f8fafc;font-weight:600;">166,880</td><td style="text-align:right;color:var(--text-secondary);">0.84%</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-
     <a href="report_index.html" class="btn-home">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-        </svg>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         回首頁
     </a>
-
     <script>
-        const top10Labels = ["第40屆金唱片頒獎典禮 The 40th Golden Disc Awards","2025 Asia Artist Awards IN KAOHSIUNG","2025李聖傑 One Day直到那一天 世界巡迴演唱會 台北站","2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL","ACON 2025 IN KAOHSIUNG","QWER 1ST WORLD TOUR ＜ROCKATION＞ in TAIPEI","中華職棒36年Rakuten主場總冠軍賽","2026 FTISLAND CONCERT ‘FTSODE’ in TAIPEI","Team Taiwan高雄澄清湖自辦練習賽","2026 tripleS Concert ＜My Secret New Zone＞ in Taipei"];
-        const top10Data = [11942354,2175321,1715095,1700729,965501,451488,387452,303849,249382,160547];
-
-        // Initialize Chart
+        const top10Labels = ["第40屆金唱片頒獎典禮 The 40th Golden Disc Awards","2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL","2026 7–ELEVEN 高雄啤酒音樂節","中華職棒37年例行賽統一獅主場（上）","2025 Asia Artist Awards IN KAOHSIUNG","2026 FTISLAND CONCERT ‘FTSODE’ in TAIPEI","國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場","Team Taiwan高雄澄清湖自辦練習賽","中華職棒37年Rakuten主場例行賽","deca joins 2026 world tour － 在這裡停一下"];
+        const top10Data = [11942600,1708889,1097689,312447,309214,303890,294671,249482,229818,166880];
         Chart.register(ChartDataLabels);
-        const ctx = document.getElementById('top10Chart').getContext('2d');
-        
-        // Trim labels if they are too long
-        const formattedLabels = top10Labels.map(label => label.length > 20 ? label.substring(0, 20) + '...' : label);
-
-        new Chart(ctx, {
+        const formattedLabels = top10Labels.map(l => l.length > 20 ? l.substring(0, 20) + '...' : l);
+        new Chart(document.getElementById('top10Chart').getContext('2d'), {
             type: 'bar',
-            data: {
-                labels: formattedLabels,
-                datasets: [{
-                    label: 'Page Views',
-                    data: top10Data,
-                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                    borderColor: '#3b82f6',
-                    borderWidth: 1,
-                    borderRadius: 6,
-                    hoverBackgroundColor: 'rgba(96, 165, 250, 0.9)'
-                }]
-            },
+            data: { labels: formattedLabels, datasets: [{ label: 'Page Views', data: top10Data, backgroundColor: 'rgba(59,130,246,0.7)', borderColor: '#3b82f6', borderWidth: 1, borderRadius: 6, hoverBackgroundColor: 'rgba(96,165,250,0.9)' }] },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        titleFont: { size: 14, family: 'Outfit' },
-                        bodyFont: { size: 14, family: 'Outfit' },
-                        padding: 12,
-                        callbacks: {
-                            title: function(context) { return top10Labels[context[0].dataIndex]; },
-                            label: function(context) { return 'Views: ' + context.parsed.y.toLocaleString(); }
-                        }
-                    },
-                    datalabels: {
-                        color: '#f8fafc',
-                        anchor: 'end',
-                        align: 'top',
-                        formatter: function(value) { return value.toLocaleString(); },
-                        font: { weight: 'bold', size: 11 }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#94a3b8', font: { family: 'Outfit' } },
-                        border: { display: false }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { 
-                            color: '#94a3b8',
-                            font: { family: 'Noto Sans TC' },
-                            maxRotation: 45,
-                            minRotation: 45
-                        },
-                        border: { color: 'rgba(255, 255, 255, 0.1)' }
-                    }
-                },
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15,23,42,0.9)', titleFont: { size: 14 }, bodyFont: { size: 14 }, padding: 12, callbacks: { title: ctx => top10Labels[ctx[0].dataIndex], label: ctx => 'Views: ' + ctx.parsed.y.toLocaleString() } }, datalabels: { color: '#f8fafc', anchor: 'end', align: 'top', formatter: v => v.toLocaleString(), font: { weight: 'bold', size: 11 } } },
+                scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, border: { display: false } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { family: 'Noto Sans TC' }, maxRotation: 45, minRotation: 45 }, border: { color: 'rgba(255,255,255,0.1)' } } },
                 layout: { padding: { top: 30 } }
             }
         });
     </script>
-
-
 </body>
 </html>
-        

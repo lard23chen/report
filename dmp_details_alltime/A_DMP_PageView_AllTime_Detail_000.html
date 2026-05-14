@@ -1,118 +1,129 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>第40屆金唱片頒獎典禮 The 40th Golden Disc Awards - DMP 流量詳情</title>
+    <title>第40屆金唱片頒獎典禮 The 40th Golden Disc Awards - DMP 流量深度分析</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.1);
-        }
-        body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background: var(--bg-color); color: #f8fafc; padding: 40px 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
+        :root { --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --card-border: rgba(255, 255, 255, 0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background: var(--bg-color); background-image: radial-gradient(at 0% 0%, rgba(59,130,246,0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(139,92,246,0.15) 0px, transparent 50%); background-attachment: fixed; color: #f8fafc; padding: 40px 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
         .header { margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; }
-        .header h1 { font-size: 2rem; color: #60a5fa; margin-bottom: 10px; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 1px solid var(--card-border); }
+        .header h1 { font-size: 1.8rem; color: #60a5fa; margin-bottom: 10px; font-weight: 700; }
+        .header p { color: #94a3b8; font-size: 1rem; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--card-border); backdrop-filter: blur(10px); }
         .chart-container { height: 300px; width: 100%; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; text-align: center; backdrop-filter: blur(10px); }
+        .stat-box .label { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .stat-box .value { font-size: 1.8rem; font-weight: 700; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; color: #94a3b8; border-bottom: 2px solid rgba(255,255,255,0.1); }
-        th:nth-child(2), th:nth-child(3) { text-align: right; }
-        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        th { text-align: left; padding: 10px 12px; color: #94a3b8; border-bottom: 2px solid rgba(255,255,255,0.1); font-size: 0.85rem; }
+        td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
         tr:hover { background-color: rgba(255,255,255,0.03); }
-        .btn-back { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; }
-        .btn-back:hover { background: rgba(255,255,255,0.2); }
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; transition: all 0.3s; }
+        .btn-back:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
+        .table-wrapper { max-height: 400px; overflow-y: auto; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="#" onclick="window.close(); return false;" class="btn-back">✖ 關閉視窗</a>
+        <a href="../A_DMP_PageView_Report_AllTime_Top10.html" class="btn-back">← 返回 Top 10 排行榜</a>
         <div class="header">
             <h1>第40屆金唱片頒獎典禮 The 40th Golden Disc Awards</h1>
-            <p>歷史每月流量趨勢 (總瀏覽量: 11,942,354)</p>
+<!-- Data Source Header -->
+<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
+    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
+    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data)
+</div>
+            <p>First-Party DMP 深度流量分析 · 排名 #1</p>
         </div>
-        <div class="card">
-            <h3 style="margin-bottom: 15px; color: #60a5fa;">每月瀏覽量趨勢</h3>
-            <div class="chart-container">
-                <canvas id="trendChart"></canvas>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="label">總瀏覽量</div>
+                <div class="value" style="color: #60a5fa;">11,942,600</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">不重複訪客</div>
+                <div class="value" style="color: #a78bfa;">213,280</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">日均瀏覽量</div>
+                <div class="value" style="color: #34d399;">78,056</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">尖峰日</div>
+                <div class="value" style="color: #fbbf24; font-size: 1.2rem;">2025-12-13<br><span style="font-size:0.85rem;color:#94a3b8;">2,506,168 views</span></div>
             </div>
         </div>
+
         <div class="card">
-            <h3 style="margin-bottom: 15px; color: #a78bfa;">每月數據明細</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 40%;">月份 (Month)</th>
-                        <th style="width: 30%;">瀏覽量 (Page Views)</th>
-                        <th style="width: 30%;">佔比</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2026-03</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">51</td>
-                            <td style="text-align: right; color: #a78bfa;">0.00%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2026-02</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">149</td>
-                            <td style="text-align: right; color: #a78bfa;">0.00%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2026-01</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">5,349,585</td>
-                            <td style="text-align: right; color: #a78bfa;">44.80%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2025-12</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">6,592,487</td>
-                            <td style="text-align: right; color: #a78bfa;">55.20%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2025-11</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">41</td>
-                            <td style="text-align: right; color: #a78bfa;">0.00%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2025-10</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">21</td>
-                            <td style="text-align: right; color: #a78bfa;">0.00%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2025-09</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">20</td>
-                            <td style="text-align: right; color: #a78bfa;">0.00%</td>
-                        </tr>
-                    
-                </tbody>
-            </table>
+            <h3 style="margin-bottom: 15px; color: #60a5fa;">📈 每日瀏覽量趨勢</h3>
+            <div class="chart-container">
+                <canvas id="dailyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <div class="card">
+                <h3 style="margin-bottom: 15px; color: #a78bfa;">📊 每月數據明細</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>月份</th><th style="text-align:right;">瀏覽量</th><th style="text-align:right;">佔比</th></tr></thead>
+                        <tbody><tr><td style="color:#94a3b8;">2026-05</td><td style="text-align:right;color:#f8fafc;font-weight:500;">98</td><td style="text-align:right;color:#a78bfa;">0.00%</td></tr><tr><td style="color:#94a3b8;">2026-04</td><td style="text-align:right;color:#f8fafc;font-weight:500;">153</td><td style="text-align:right;color:#a78bfa;">0.00%</td></tr><tr><td style="color:#94a3b8;">2026-03</td><td style="text-align:right;color:#f8fafc;font-weight:500;">101</td><td style="text-align:right;color:#a78bfa;">0.00%</td></tr><tr><td style="color:#94a3b8;">2026-02</td><td style="text-align:right;color:#f8fafc;font-weight:500;">149</td><td style="text-align:right;color:#a78bfa;">0.00%</td></tr><tr><td style="color:#94a3b8;">2026-01</td><td style="text-align:right;color:#f8fafc;font-weight:500;">5,349,585</td><td style="text-align:right;color:#a78bfa;">44.79%</td></tr><tr><td style="color:#94a3b8;">2025-12</td><td style="text-align:right;color:#f8fafc;font-weight:500;">6,592,487</td><td style="text-align:right;color:#a78bfa;">55.20%</td></tr><tr><td style="color:#94a3b8;">2025-11</td><td style="text-align:right;color:#f8fafc;font-weight:500;">27</td><td style="text-align:right;color:#a78bfa;">0.00%</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom: 15px; color: #34d399;">📱 裝置分佈</h3>
+                <div style="height: 200px; margin-bottom: 15px;"><canvas id="deviceChart"></canvas></div>
+                <table>
+                    <thead><tr><th>裝置類型</th><th style="text-align:right;">次數</th><th style="text-align:right;">佔比</th></tr></thead>
+                    <tbody><tr><td style="color:#94a3b8;">Desktop</td><td style="text-align:right;color:#f8fafc;font-weight:500;">9,751,285</td><td style="text-align:right;color:#34d399;">81.7%</td></tr><tr><td style="color:#94a3b8;">Mobile</td><td style="text-align:right;color:#f8fafc;font-weight:500;">2,191,315</td><td style="text-align:right;color:#34d399;">18.3%</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #fb923c;">🕐 時段分佈 (UTC)</h3>
+            <div class="chart-container">
+                <canvas id="hourlyChart"></canvas>
+            </div>
         </div>
     </div>
+
     <script>
-        const labels = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03"];
-        const data = [20,21,41,6592487,5349585,149,51];
         Chart.register(ChartDataLabels);
-        const ctx = document.getElementById('trendChart').getContext('2d');
-        new Chart(ctx, {
+
+        // Daily Chart
+        new Chart(document.getElementById('dailyChart').getContext('2d'), {
             type: 'line',
-            data: { labels: labels, datasets: [{ label: 'Page Views', data: data, borderColor: '#a78bfa', backgroundColor: 'rgba(167, 139, 250, 0.1)', borderWidth: 3, tension: 0.3, fill: true, pointBackgroundColor: '#a78bfa' }] },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false }, datalabels: { color: '#f8fafc', align: 'top', formatter: val => val > 0 ? val.toLocaleString() : '', font: { size: 10 } } },
-                scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font: {size: 10} } } }
-            }
+            data: { labels: ["2025-11-14","2025-11-15","2025-11-16","2025-11-17","2025-11-22","2025-11-27","2025-11-28","2025-11-30","2025-12-01","2025-12-03","2025-12-04","2025-12-05","2025-12-06","2025-12-07","2025-12-08","2025-12-09","2025-12-10","2025-12-11","2025-12-12","2025-12-13","2025-12-14","2025-12-15","2025-12-16","2025-12-17","2025-12-18","2025-12-19","2025-12-20","2025-12-21","2025-12-22","2025-12-23","2025-12-24","2025-12-25","2025-12-26","2025-12-27","2025-12-28","2025-12-29","2025-12-30","2025-12-31","2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31","2026-02-01","2026-02-02","2026-02-03","2026-02-04","2026-02-05","2026-02-06","2026-02-07","2026-02-09","2026-02-10","2026-02-11","2026-02-12","2026-02-13","2026-02-14","2026-02-15","2026-02-16","2026-02-17","2026-02-18","2026-02-21","2026-02-22","2026-02-23","2026-02-25","2026-02-26","2026-02-27","2026-03-01","2026-03-02","2026-03-03","2026-03-04","2026-03-05","2026-03-06","2026-03-07","2026-03-08","2026-03-09","2026-03-12","2026-03-13","2026-03-14","2026-03-16","2026-03-17","2026-03-19","2026-03-20","2026-03-21","2026-03-23","2026-03-24","2026-03-27","2026-03-30","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-13","2026-04-14","2026-04-15","2026-04-16","2026-04-17","2026-04-18","2026-04-19","2026-04-21","2026-04-22","2026-04-23","2026-04-24","2026-04-25","2026-04-26","2026-04-27","2026-04-28","2026-04-29","2026-04-30","2026-05-01","2026-05-02","2026-05-03","2026-05-05","2026-05-06","2026-05-07","2026-05-08","2026-05-09","2026-05-10","2026-05-11","2026-05-12","2026-05-13","2026-05-14"], datasets: [{ label: 'Page Views', data: [3,1,1,2,7,5,6,2,27,3,4,7,5,5,4,22547,22952,16976,81767,2506168,714569,573792,451362,423066,431533,363371,164626,50655,60117,34663,28699,27828,39561,28716,28436,107856,213107,200065,327079,261650,705649,514535,1671050,1422062,346128,30438,24994,36400,9382,24,8,19,17,9,13,5,7,5,10,8,8,12,23,12,6,8,3,3,18,7,5,1,2,9,12,4,4,11,7,17,23,7,2,2,1,2,2,1,2,12,6,10,2,2,18,2,3,11,5,8,3,2,8,8,1,2,3,2,15,1,1,3,1,1,12,4,1,6,7,3,6,17,1,2,7,11,2,12,10,5,4,4,1,6,8,4,5,2,4,8,2,1,1,4,3,3,3,4,8,3,11,27,28], borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)', borderWidth: 2, tension: 0.2, fill: true, pointRadius: 1 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, interaction: { mode: 'index', intersect: false }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 12, maxRotation: 45, font: { size: 10 } } } } }
+        });
+
+        // Device Doughnut
+        new Chart(document.getElementById('deviceChart').getContext('2d'), {
+            type: 'doughnut',
+            data: { labels: ["Desktop","Mobile"], datasets: [{ data: [9751285,2191315], backgroundColor: ['#a78bfa', '#34d399', '#fb923c', '#60a5fa'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#e2e8f0', font: { size: 12 } } }, datalabels: { color: '#fff', formatter: (val, ctx) => { const t = ctx.dataset.data.reduce((a,b)=>a+b,0); return ((val/t)*100).toFixed(1)+'%'; }, font: { weight: 'bold', size: 13 } } } }
+        });
+
+        // Hourly Bar
+        new Chart(document.getElementById('hourlyChart').getContext('2d'), {
+            type: 'bar',
+            data: { labels: ["0:00","1:00","2:00","3:00","4:00","5:00","6:00","7:00","8:00","9:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"], datasets: [{ label: 'Views', data: [297129,438597,674636,847280,1166182,657999,615877,750753,775937,724433,716059,545473,433528,392270,380529,376958,366395,323147,270276,248832,239208,230693,229997,240412], backgroundColor: 'rgba(251,146,60,0.6)', borderColor: '#fb923c', borderWidth: 1, borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
         });
     </script>
 </body>

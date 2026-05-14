@@ -1,112 +1,129 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025李聖傑 One Day直到那一天 世界巡迴演唱會 台北站 - DMP 流量詳情</title>
+    <title>2026 7–ELEVEN 高雄啤酒音樂節 - DMP 流量深度分析</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.1);
-        }
-        body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background: var(--bg-color); color: #f8fafc; padding: 40px 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
+        :root { --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --card-border: rgba(255, 255, 255, 0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background: var(--bg-color); background-image: radial-gradient(at 0% 0%, rgba(59,130,246,0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(139,92,246,0.15) 0px, transparent 50%); background-attachment: fixed; color: #f8fafc; padding: 40px 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
         .header { margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; }
-        .header h1 { font-size: 2rem; color: #60a5fa; margin-bottom: 10px; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 1px solid var(--card-border); }
+        .header h1 { font-size: 1.8rem; color: #60a5fa; margin-bottom: 10px; font-weight: 700; }
+        .header p { color: #94a3b8; font-size: 1rem; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--card-border); backdrop-filter: blur(10px); }
         .chart-container { height: 300px; width: 100%; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; text-align: center; backdrop-filter: blur(10px); }
+        .stat-box .label { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .stat-box .value { font-size: 1.8rem; font-weight: 700; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; color: #94a3b8; border-bottom: 2px solid rgba(255,255,255,0.1); }
-        th:nth-child(2), th:nth-child(3) { text-align: right; }
-        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        th { text-align: left; padding: 10px 12px; color: #94a3b8; border-bottom: 2px solid rgba(255,255,255,0.1); font-size: 0.85rem; }
+        td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
         tr:hover { background-color: rgba(255,255,255,0.03); }
-        .btn-back { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; }
-        .btn-back:hover { background: rgba(255,255,255,0.2); }
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; transition: all 0.3s; }
+        .btn-back:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
+        .table-wrapper { max-height: 400px; overflow-y: auto; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="#" onclick="window.close(); return false;" class="btn-back">✖ 關閉視窗</a>
+        <a href="../A_DMP_PageView_Report_AllTime_Top10.html" class="btn-back">← 返回 Top 10 排行榜</a>
         <div class="header">
-            <h1>2025李聖傑 One Day直到那一天 世界巡迴演唱會 台北站</h1>
-            <p>歷史每月流量趨勢 (總瀏覽量: 1,715,095)</p>
+            <h1>2026 7–ELEVEN 高雄啤酒音樂節</h1>
+<!-- Data Source Header -->
+<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
+    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
+    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data)
+</div>
+            <p>First-Party DMP 深度流量分析 · 排名 #3</p>
         </div>
-        <div class="card">
-            <h3 style="margin-bottom: 15px; color: #60a5fa;">每月瀏覽量趨勢</h3>
-            <div class="chart-container">
-                <canvas id="trendChart"></canvas>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="label">總瀏覽量</div>
+                <div class="value" style="color: #60a5fa;">1,097,689</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">不重複訪客</div>
+                <div class="value" style="color: #a78bfa;">64,587</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">日均瀏覽量</div>
+                <div class="value" style="color: #34d399;">84,549</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">尖峰日</div>
+                <div class="value" style="color: #fbbf24; font-size: 1.2rem;">2026-05-14<br><span style="font-size:0.85rem;color:#94a3b8;">558,384 views</span></div>
             </div>
         </div>
+
         <div class="card">
-            <h3 style="margin-bottom: 15px; color: #a78bfa;">每月數據明細</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 40%;">月份 (Month)</th>
-                        <th style="width: 30%;">瀏覽量 (Page Views)</th>
-                        <th style="width: 30%;">佔比</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2026-02</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">1</td>
-                            <td style="text-align: right; color: #a78bfa;">0.00%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2026-01</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">1</td>
-                            <td style="text-align: right; color: #a78bfa;">0.00%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2025-12</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">124,478</td>
-                            <td style="text-align: right; color: #a78bfa;">7.26%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2025-11</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">24,854</td>
-                            <td style="text-align: right; color: #a78bfa;">1.45%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2025-10</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">1,555,562</td>
-                            <td style="text-align: right; color: #a78bfa;">90.70%</td>
-                        </tr>
-                    
-                        <tr>
-                            <td style="color: #94a3b8;">2025-09</td>
-                            <td style="text-align: right; color: #f8fafc; font-weight: 500;">10,199</td>
-                            <td style="text-align: right; color: #a78bfa;">0.59%</td>
-                        </tr>
-                    
-                </tbody>
-            </table>
+            <h3 style="margin-bottom: 15px; color: #60a5fa;">📈 每日瀏覽量趨勢</h3>
+            <div class="chart-container">
+                <canvas id="dailyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <div class="card">
+                <h3 style="margin-bottom: 15px; color: #a78bfa;">📊 每月數據明細</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>月份</th><th style="text-align:right;">瀏覽量</th><th style="text-align:right;">佔比</th></tr></thead>
+                        <tbody><tr><td style="color:#94a3b8;">2026-05</td><td style="text-align:right;color:#f8fafc;font-weight:500;">1,098,285</td><td style="text-align:right;color:#a78bfa;">100.00%</td></tr><tr><td style="color:#94a3b8;">2026-04</td><td style="text-align:right;color:#f8fafc;font-weight:500;">8</td><td style="text-align:right;color:#a78bfa;">0.00%</td></tr><tr><td style="color:#94a3b8;">2026-03</td><td style="text-align:right;color:#f8fafc;font-weight:500;">1</td><td style="text-align:right;color:#a78bfa;">0.00%</td></tr><tr><td style="color:#94a3b8;">2026-02</td><td style="text-align:right;color:#f8fafc;font-weight:500;">3</td><td style="text-align:right;color:#a78bfa;">0.00%</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom: 15px; color: #34d399;">📱 裝置分佈</h3>
+                <div style="height: 200px; margin-bottom: 15px;"><canvas id="deviceChart"></canvas></div>
+                <table>
+                    <thead><tr><th>裝置類型</th><th style="text-align:right;">次數</th><th style="text-align:right;">佔比</th></tr></thead>
+                    <tbody><tr><td style="color:#94a3b8;">Mobile</td><td style="text-align:right;color:#f8fafc;font-weight:500;">597,565</td><td style="text-align:right;color:#34d399;">54.3%</td></tr><tr><td style="color:#94a3b8;">Desktop</td><td style="text-align:right;color:#f8fafc;font-weight:500;">502,521</td><td style="text-align:right;color:#34d399;">45.7%</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #fb923c;">🕐 時段分佈 (UTC)</h3>
+            <div class="chart-container">
+                <canvas id="hourlyChart"></canvas>
+            </div>
         </div>
     </div>
+
     <script>
-        const labels = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03"];
-        const data = [10199,1555562,24854,124478,1,1,0];
         Chart.register(ChartDataLabels);
-        const ctx = document.getElementById('trendChart').getContext('2d');
-        new Chart(ctx, {
+
+        // Daily Chart
+        new Chart(document.getElementById('dailyChart').getContext('2d'), {
             type: 'line',
-            data: { labels: labels, datasets: [{ label: 'Page Views', data: data, borderColor: '#a78bfa', backgroundColor: 'rgba(167, 139, 250, 0.1)', borderWidth: 3, tension: 0.3, fill: true, pointBackgroundColor: '#a78bfa' }] },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false }, datalabels: { color: '#f8fafc', align: 'top', formatter: val => val > 0 ? val.toLocaleString() : '', font: { size: 10 } } },
-                scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font: {size: 10} } } }
-            }
+            data: { labels: ["2026-02-11","2026-02-14","2026-03-11","2026-04-05","2026-04-06","2026-04-28","2026-05-05","2026-05-07","2026-05-08","2026-05-11","2026-05-12","2026-05-13","2026-05-14"], datasets: [{ label: 'Page Views', data: [2,1,1,1,2,5,47,2,6,20,20657,520011,558384], borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)', borderWidth: 2, tension: 0.2, fill: true, pointRadius: 1 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, interaction: { mode: 'index', intersect: false }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 12, maxRotation: 45, font: { size: 10 } } } } }
+        });
+
+        // Device Doughnut
+        new Chart(document.getElementById('deviceChart').getContext('2d'), {
+            type: 'doughnut',
+            data: { labels: ["Mobile","Desktop"], datasets: [{ data: [597565,502521], backgroundColor: ['#a78bfa', '#34d399', '#fb923c', '#60a5fa'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#e2e8f0', font: { size: 12 } } }, datalabels: { color: '#fff', formatter: (val, ctx) => { const t = ctx.dataset.data.reduce((a,b)=>a+b,0); return ((val/t)*100).toFixed(1)+'%'; }, font: { weight: 'bold', size: 13 } } } }
+        });
+
+        // Hourly Bar
+        new Chart(document.getElementById('hourlyChart').getContext('2d'), {
+            type: 'bar',
+            data: { labels: ["0:00","1:00","2:00","3:00","4:00","5:00","6:00","7:00","8:00","9:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"], datasets: [{ label: 'Views', data: [5557,10242,22490,503616,284549,82076,50333,36569,27155,19651,5186,7954,7205,7558,7741,7631,5142,2916,1822,1218,920,426,979,2310], backgroundColor: 'rgba(251,146,60,0.6)', borderColor: '#fb923c', borderWidth: 1, borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
         });
     </script>
 </body>
