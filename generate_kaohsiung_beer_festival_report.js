@@ -185,7 +185,7 @@ async function generateReport() {
 
     <!-- Peak Analysis -->
     <div class="chart-card" style="min-height:0; margin-bottom:30px">
-        <h3>開賣尖峰時段分析 (2026-05-13 08:00 – 10:00)</h3>
+        <h3>開賣尖峰時段分析 (2026-05-13 12:00 – 13:00)</h3>
         <div class="peak-table-container">
             <table id="peakTable">
                 <thead><tr><th>時間</th><th class="text-right">當分鐘張數</th><th class="text-right">累計張數</th><th class="text-right">信用卡</th><th class="text-right">ATM</th><th class="text-right">累計轉換率</th></tr></thead>
@@ -334,17 +334,17 @@ function init() {
         chBody.appendChild(tr);
     });
 
-    // Peak Analysis - 2026-05-13 08:00-10:00
+    // Peak Analysis - 2026-05-13 12:00-13:00
     const peakDate = '2026-05-13';
     const peakStats = {};
-    for (let h = 8; h <= 9; h++) {
+    for (let h = 12; h <= 12; h++) {
         for (let m = 0; m < 60; m++) {
             const key = (h<10?'0'+h:h) + ':' + (m<10?'0'+m:m);
             peakStats[key] = { t: 0, c: 0, a: 0 };
         }
     }
-    // Add 10:00
-    peakStats['10:00'] = { t: 0, c: 0, a: 0 };
+    // Add 13:00
+    peakStats['13:00'] = { t: 0, c: 0, a: 0 };
 
     valid.forEach(o => {
         if (o['交易時間'] && o['交易時間'].startsWith(peakDate)) {
