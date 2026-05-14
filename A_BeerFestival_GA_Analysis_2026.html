@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 7-ELEVEN 高雄啤酒音樂節 GA 流量分析 5/13 vs 5/14</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #1a1200; --card: #2a1f00; --text: #fff8e1; --sub: #ffcc80;
+    --gold: #ffb300; --gold2: #ff8f00; --blue: #38bdf8; --green: #4ade80; --red: #f87171;
+    --shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; }
+body { font-family: 'Outfit','Noto Sans TC',sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 24px; }
+.container { max-width: 1500px; margin: 0 auto; }
+header { background: linear-gradient(135deg,#3e2800,#1a1200); padding: 32px 40px; border-radius: 20px; border-bottom: 4px solid var(--gold); margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-end; box-shadow: var(--shadow); }
+.title { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg,#ffb300,#ff6f00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { color: var(--gold); font-size: 0.95rem; margin-top: 6px; }
+.meta { text-align: right; font-size: 0.85rem; color: var(--sub); }
+.kpi-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 16px; margin-bottom: 28px; }
+.kpi { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,179,0,0.15); }
+.kpi h4 { margin: 0 0 8px; font-size: 0.75rem; text-transform: uppercase; color: var(--sub); letter-spacing: 0.5px; }
+.kpi .val { font-size: 1.6rem; font-weight: 700; color: var(--gold); }
+.kpi .diff { font-size: 0.8rem; margin-top: 4px; }
+.up { color: var(--green); } .dn { color: var(--red); }
+.card { background: var(--card); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); border: 1px solid rgba(255,179,0,0.1); margin-bottom: 28px; }
+.card h3 { border-left: 5px solid var(--gold); padding-left: 14px; margin: 0 0 20px; font-size: 1.05rem; color: var(--text); }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+thead th { color: var(--gold); font-weight: 600; font-size: 0.78rem; padding: 10px 12px; border-bottom: 2px solid rgba(255,179,0,0.3); white-space: nowrap; text-align: right; }
+thead th:first-child { text-align: left; }
+tbody td { padding: 8px 12px; border-bottom: 1px solid rgba(255,179,0,0.06); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+tbody td:first-child { text-align: left; font-weight: 600; color: var(--sub); }
+tbody tr:hover td { background: rgba(255,179,0,0.05); }
+.seg-table thead th { font-size: 0.82rem; }
+.seg-table tbody td { padding: 12px 14px; font-size: 0.9rem; }
+.peak-badge { display: inline-block; background: rgba(255,179,0,0.18); color: var(--gold); border-radius: 6px; padding: 1px 7px; font-size: 0.78rem; font-weight: 700; }
+.highlight { background: rgba(255,179,0,0.12) !important; }
+.highlight td { color: #fff !important; font-weight: 700; }
+.divider-row td { background: rgba(255,179,0,0.08) !important; font-weight: 800; color: var(--gold) !important; font-size: 0.8rem; letter-spacing: 1px; text-align: center !important; }
+.chart-wrap { position: relative; height: 340px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <div>
+        <div class="title">2026 7-ELEVEN 高雄啤酒音樂節 GA 流量分析</div>
+        <div class="subtitle">ActivityID 39590 ｜ 台灣時間 11:30–13:00 ｜ 5/13（開賣首日）vs 5/14（次日）</div>
+    </div>
+    <div class="meta">報表生成: 2026/5/14 下午1:17:24<br>資料來源: QwareTrafficSession / QwareTrafficGAReadTime</div>
+</header>
+
+<!-- KPI -->
+<div class="kpi-grid">
+    <div class="kpi"><h4>5/13 Total Sessions</h4><div class="val">115,217</div><div class="diff">基準日</div></div>
+    <div class="kpi"><h4>5/13 D-Min</h4><div class="val">722,813</div><div class="diff">瀏覽人次</div></div>
+    <div class="kpi"><h4>5/13 A-Min</h4><div class="val">161,126</div><div class="diff">主動操作人次</div></div>
+    <div class="kpi"><h4>5/14 Total Sessions</h4><div class="val">162,480</div><div class="diff up">↑ +41.0% vs 5/13</div></div>
+    <div class="kpi"><h4>5/14 D-Min</h4><div class="val">811,835</div><div class="diff up">↑ +12.3% vs 5/13</div></div>
+    <div class="kpi"><h4>5/14 A-Min</h4><div class="val">288,429</div><div class="diff up">↑ +79.0% vs 5/13</div></div>
+</div>
+
+<!-- Charts -->
+<div class="two-col">
+    <div class="card"><h3>每分鐘 Sessions 對比</h3><div class="chart-wrap"><canvas id="sessionChart"></canvas></div></div>
+    <div class="card"><h3>每分鐘 A-Min（主動操作）對比</h3><div class="chart-wrap"><canvas id="aminChart"></canvas></div></div>
+</div>
+<div class="card"><h3>每分鐘 D-Min（頁面瀏覽人次）對比</h3><div class="chart-wrap" style="height:260px"><canvas id="dminChart"></canvas></div></div>
+
+<!-- 30-min segment table -->
+<div class="card">
+<h3>每 30 分鐘分段彙整</h3>
+<table class="seg-table">
+<thead><tr>
+    <th>時段</th>
+    <th>5/13 Sessions</th><th>5/13 D-Min</th><th>5/13 A-Min</th><th>5/13 峰值</th>
+    <th>5/14 Sessions</th><th>5/14 D-Min</th><th>5/14 A-Min</th><th>5/14 峰值</th>
+    <th>Sessions Δ</th><th>A-Min Δ</th>
+</tr></thead>
+<tbody>
+<tr>
+    <td>11:30–11:59</td>
+    <td>12,829</td><td>139,627</td><td>2,558</td>
+    <td><span class="peak-badge">11:47（1,466）</span></td>
+    <td>4,112</td><td>114,418</td><td>2,186</td>
+    <td><span class="peak-badge">11:45（373）</span></td>
+    <td class="dn">↓ 67.9%</td>
+    <td class="dn">↓ 14.5%</td>
+</tr><tr>
+    <td>12:00–12:29</td>
+    <td>50,764</td><td>374,175</td><td>93,467</td>
+    <td><span class="peak-badge">12:02（3,538）</span></td>
+    <td>84,204</td><td>459,330</td><td>163,795</td>
+    <td><span class="peak-badge">12:10（3,883）</span></td>
+    <td class="up">↑ 65.9%</td>
+    <td class="up">↑ 75.2%</td>
+</tr><tr>
+    <td>12:30–12:59</td>
+    <td>51,624</td><td>209,011</td><td>65,101</td>
+    <td><span class="peak-badge">12:46（2,572）</span></td>
+    <td>74,164</td><td>238,087</td><td>122,448</td>
+    <td><span class="peak-badge">12:40（3,718）</span></td>
+    <td class="up">↑ 43.7%</td>
+    <td class="up">↑ 88.1%</td>
+</tr>
+<tr class="highlight">
+    <td>合計</td>
+    <td>115,217</td><td>722,813</td><td>161,126</td><td>–</td>
+    <td>162,480</td><td>811,835</td><td>288,429</td><td>–</td>
+    <td class="up">↑ +41.0%</td>
+    <td class="up">↑ +79.0%</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Per-minute detail -->
+<div class="card">
+<h3>每分鐘詳細對照表</h3>
+<table id="minTable">
+<thead><tr>
+    <th>時間</th>
+    <th>5/13 Session</th><th>5/13 D-Min</th><th>5/13 A-Min</th>
+    <th>5/14 Session</th><th>5/14 D-Min</th><th>5/14 A-Min</th>
+    <th>Session Δ</th><th>A-Min Δ</th>
+</tr></thead>
+<tbody>
+<tr>
+        <td>11:30</td>
+        <td>45</td><td>1,228</td><td>71</td>
+        <td>50</td><td>851</td><td>48</td>
+        <td class="up">↑11.1%</td>
+        <td class="dn">↓32.4%</td>
+    </tr><tr>
+        <td>11:31</td>
+        <td>66</td><td>1,386</td><td>87</td>
+        <td>45</td><td>1,620</td><td>39</td>
+        <td class="dn">↓31.8%</td>
+        <td class="dn">↓55.2%</td>
+    </tr><tr>
+        <td>11:32</td>
+        <td>48</td><td>1,403</td><td>71</td>
+        <td>88</td><td>1,700</td><td>74</td>
+        <td class="up">↑83.3%</td>
+        <td class="up">↑4.2%</td>
+    </tr><tr>
+        <td>11:33</td>
+        <td>79</td><td>1,391</td><td>84</td>
+        <td>51</td><td>1,777</td><td>67</td>
+        <td class="dn">↓35.4%</td>
+        <td class="dn">↓20.2%</td>
+    </tr><tr>
+        <td>11:34</td>
+        <td>59</td><td>1,416</td><td>91</td>
+        <td>57</td><td>947</td><td>58</td>
+        <td class="dn">↓3.4%</td>
+        <td class="dn">↓36.3%</td>
+    </tr><tr>
+        <td>11:35</td>
+        <td>57</td><td>1,430</td><td>59</td>
+        <td>70</td><td>986</td><td>53</td>
+        <td class="up">↑22.8%</td>
+        <td class="dn">↓10.2%</td>
+    </tr><tr>
+        <td>11:36</td>
+        <td>61</td><td>2,746</td><td>61</td>
+        <td>43</td><td>1,109</td><td>58</td>
+        <td class="dn">↓29.5%</td>
+        <td class="dn">↓4.9%</td>
+    </tr><tr>
+        <td>11:37</td>
+        <td>200</td><td>2,897</td><td>54</td>
+        <td>52</td><td>1,982</td><td>59</td>
+        <td class="dn">↓74%</td>
+        <td class="up">↑9.3%</td>
+    </tr><tr>
+        <td>11:38</td>
+        <td>61</td><td>1,601</td><td>76</td>
+        <td>49</td><td>1,090</td><td>58</td>
+        <td class="dn">↓19.7%</td>
+        <td class="dn">↓23.7%</td>
+    </tr><tr>
+        <td>11:39</td>
+        <td>65</td><td>1,725</td><td>96</td>
+        <td>51</td><td>1,267</td><td>56</td>
+        <td class="dn">↓21.5%</td>
+        <td class="dn">↓41.7%</td>
+    </tr><tr>
+        <td>11:40</td>
+        <td>73</td><td>1,795</td><td>88</td>
+        <td>59</td><td>2,243</td><td>49</td>
+        <td class="dn">↓19.2%</td>
+        <td class="dn">↓44.3%</td>
+    </tr><tr>
+        <td>11:41</td>
+        <td>71</td><td>2,018</td><td>83</td>
+        <td>76</td><td>2,335</td><td>57</td>
+        <td class="up">↑7%</td>
+        <td class="dn">↓31.3%</td>
+    </tr><tr>
+        <td>11:42</td>
+        <td>63</td><td>3,775</td><td>85</td>
+        <td>67</td><td>1,381</td><td>59</td>
+        <td class="up">↑6.3%</td>
+        <td class="dn">↓30.6%</td>
+    </tr><tr>
+        <td>11:43</td>
+        <td>75</td><td>2,218</td><td>73</td>
+        <td>75</td><td>1,575</td><td>78</td>
+        <td class="up">↑0%</td>
+        <td class="up">↑6.8%</td>
+    </tr><tr>
+        <td>11:44</td>
+        <td>80</td><td>2,457</td><td>97</td>
+        <td>94</td><td>1,609</td><td>47</td>
+        <td class="up">↑17.5%</td>
+        <td class="dn">↓51.5%</td>
+    </tr><tr>
+        <td>11:45</td>
+        <td>87</td><td>4,689</td><td>77</td>
+        <td>373</td><td>1,758</td><td>38</td>
+        <td class="up">↑328.7%</td>
+        <td class="dn">↓50.6%</td>
+    </tr><tr>
+        <td>11:46</td>
+        <td>259</td><td>5,191</td><td>80</td>
+        <td>333</td><td>3,479</td><td>55</td>
+        <td class="up">↑28.6%</td>
+        <td class="dn">↓31.3%</td>
+    </tr><tr class="highlight">
+        <td>11:47</td>
+        <td>1,466</td><td>5,691</td><td>88</td>
+        <td>94</td><td>3,795</td><td>70</td>
+        <td class="dn">↓93.6%</td>
+        <td class="dn">↓20.5%</td>
+    </tr><tr>
+        <td>11:48</td>
+        <td>1,140</td><td>3,305</td><td>79</td>
+        <td>285</td><td>2,322</td><td>83</td>
+        <td class="dn">↓75%</td>
+        <td class="up">↑5.1%</td>
+    </tr><tr>
+        <td>11:49</td>
+        <td>1,097</td><td>3,468</td><td>60</td>
+        <td>285</td><td>4,242</td><td>106</td>
+        <td class="dn">↓74%</td>
+        <td class="up">↑76.7%</td>
+    </tr><tr>
+        <td>11:50</td>
+        <td>1,201</td><td>3,703</td><td>76</td>
+        <td>194</td><td>4,668</td><td>103</td>
+        <td class="dn">↓83.8%</td>
+        <td class="up">↑35.5%</td>
+    </tr><tr>
+        <td>11:51</td>
+        <td>833</td><td>4,182</td><td>68</td>
+        <td>147</td><td>3,134</td><td>99</td>
+        <td class="dn">↓82.4%</td>
+        <td class="up">↑45.6%</td>
+    </tr><tr>
+        <td>11:52</td>
+        <td>816</td><td>5,063</td><td>87</td>
+        <td>229</td><td>6,055</td><td>166</td>
+        <td class="dn">↓71.9%</td>
+        <td class="up">↑90.8%</td>
+    </tr><tr>
+        <td>11:53</td>
+        <td>1,289</td><td>8,761</td><td>272</td>
+        <td>130</td><td>4,230</td><td>114</td>
+        <td class="dn">↓89.9%</td>
+        <td class="dn">↓58.1%</td>
+    </tr><tr>
+        <td>11:54</td>
+        <td>769</td><td>5,530</td><td>90</td>
+        <td>113</td><td>7,707</td><td>107</td>
+        <td class="dn">↓85.3%</td>
+        <td class="up">↑18.9%</td>
+    </tr><tr>
+        <td>11:55</td>
+        <td>702</td><td>6,135</td><td>112</td>
+        <td>138</td><td>5,766</td><td>70</td>
+        <td class="dn">↓80.3%</td>
+        <td class="dn">↓37.5%</td>
+    </tr><tr>
+        <td>11:56</td>
+        <td>386</td><td>7,385</td><td>85</td>
+        <td>136</td><td>10,392</td><td>80</td>
+        <td class="dn">↓64.8%</td>
+        <td class="dn">↓5.9%</td>
+    </tr><tr>
+        <td>11:57</td>
+        <td>454</td><td>13,525</td><td>76</td>
+        <td>181</td><td>7,763</td><td>81</td>
+        <td class="dn">↓60.1%</td>
+        <td class="up">↑6.6%</td>
+    </tr><tr>
+        <td>11:58</td>
+        <td>606</td><td>15,404</td><td>74</td>
+        <td>281</td><td>13,899</td><td>68</td>
+        <td class="dn">↓53.6%</td>
+        <td class="dn">↓8.1%</td>
+    </tr><tr>
+        <td>11:59</td>
+        <td>621</td><td>18,109</td><td>58</td>
+        <td>266</td><td>12,736</td><td>86</td>
+        <td class="dn">↓57.2%</td>
+        <td class="up">↑48.3%</td>
+    </tr><tr class="divider-row"><td colspan="9">── 12:00 開賣衝擊區 ──</td></tr><tr>
+        <td>12:00</td>
+        <td>525</td><td>17,980</td><td>46</td>
+        <td>2,412</td><td>21,636</td><td>200</td>
+        <td class="up">↑359.4%</td>
+        <td class="up">↑334.8%</td>
+    </tr><tr class="highlight">
+        <td>12:01</td>
+        <td>2,509</td><td>36,295</td><td>1,456</td>
+        <td>2,565</td><td>36,680</td><td>434</td>
+        <td class="up">↑2.2%</td>
+        <td class="dn">↓70.2%</td>
+    </tr><tr class="highlight">
+        <td>12:02</td>
+        <td>3,538</td><td>12,632</td><td>2,265</td>
+        <td>3,699</td><td>40,143</td><td>1,939</td>
+        <td class="up">↑4.6%</td>
+        <td class="dn">↓14.4%</td>
+    </tr><tr>
+        <td>12:03</td>
+        <td>3,217</td><td>11,345</td><td>3,141</td>
+        <td>3,187</td><td>8,395</td><td>2,879</td>
+        <td class="dn">↓0.9%</td>
+        <td class="dn">↓8.3%</td>
+    </tr><tr>
+        <td>12:04</td>
+        <td>3,136</td><td>16,027</td><td>3,136</td>
+        <td>3,141</td><td>13,236</td><td>3,236</td>
+        <td class="up">↑0.2%</td>
+        <td class="up">↑3.2%</td>
+    </tr><tr>
+        <td>12:05</td>
+        <td>2,636</td><td>11,573</td><td>3,709</td>
+        <td>3,394</td><td>13,980</td><td>3,962</td>
+        <td class="up">↑28.8%</td>
+        <td class="up">↑6.8%</td>
+    </tr><tr>
+        <td>12:06</td>
+        <td>3,405</td><td>12,096</td><td>4,377</td>
+        <td>2,729</td><td>14,304</td><td>4,465</td>
+        <td class="dn">↓19.9%</td>
+        <td class="up">↑2%</td>
+    </tr><tr>
+        <td>12:07</td>
+        <td>2,573</td><td>11,829</td><td>4,410</td>
+        <td>3,242</td><td>11,201</td><td>4,619</td>
+        <td class="up">↑26%</td>
+        <td class="up">↑4.7%</td>
+    </tr><tr>
+        <td>12:08</td>
+        <td>3,398</td><td>16,423</td><td>4,831</td>
+        <td>3,215</td><td>11,501</td><td>5,422</td>
+        <td class="dn">↓5.4%</td>
+        <td class="up">↑12.2%</td>
+    </tr><tr>
+        <td>12:09</td>
+        <td>2,826</td><td>16,133</td><td>4,990</td>
+        <td>2,389</td><td>15,795</td><td>5,003</td>
+        <td class="dn">↓15.5%</td>
+        <td class="up">↑0.3%</td>
+    </tr><tr>
+        <td>12:10</td>
+        <td>1,872</td><td>11,827</td><td>3,889</td>
+        <td>3,883</td><td>12,202</td><td>5,964</td>
+        <td class="up">↑107.4%</td>
+        <td class="up">↑53.4%</td>
+    </tr><tr>
+        <td>12:11</td>
+        <td>1,646</td><td>15,408</td><td>5,034</td>
+        <td>3,082</td><td>16,415</td><td>6,722</td>
+        <td class="up">↑87.2%</td>
+        <td class="up">↑33.5%</td>
+    </tr><tr>
+        <td>12:12</td>
+        <td>1,481</td><td>10,955</td><td>6,187</td>
+        <td>3,274</td><td>16,876</td><td>7,533</td>
+        <td class="up">↑121.1%</td>
+        <td class="up">↑21.8%</td>
+    </tr><tr>
+        <td>12:13</td>
+        <td>1,320</td><td>14,135</td><td>6,090</td>
+        <td>3,082</td><td>16,792</td><td>7,002</td>
+        <td class="up">↑133.5%</td>
+        <td class="up">↑15%</td>
+    </tr><tr>
+        <td>12:14</td>
+        <td>1,319</td><td>13,063</td><td>5,173</td>
+        <td>2,950</td><td>16,999</td><td>7,733</td>
+        <td class="up">↑123.7%</td>
+        <td class="up">↑49.5%</td>
+    </tr><tr>
+        <td>12:15</td>
+        <td>1,246</td><td>10,043</td><td>5,070</td>
+        <td>3,204</td><td>13,023</td><td>7,435</td>
+        <td class="up">↑157.1%</td>
+        <td class="up">↑46.6%</td>
+    </tr><tr>
+        <td>12:16</td>
+        <td>1,219</td><td>9,697</td><td>2,973</td>
+        <td>2,647</td><td>13,274</td><td>7,530</td>
+        <td class="up">↑117.1%</td>
+        <td class="up">↑153.3%</td>
+    </tr><tr class="highlight">
+        <td>12:17</td>
+        <td>1,025</td><td>9,537</td><td>2,364</td>
+        <td>2,780</td><td>13,324</td><td>7,839</td>
+        <td class="up">↑171.2%</td>
+        <td class="up">↑231.6%</td>
+    </tr><tr>
+        <td>12:18</td>
+        <td>905</td><td>12,365</td><td>2,623</td>
+        <td>3,036</td><td>16,794</td><td>7,290</td>
+        <td class="up">↑235.5%</td>
+        <td class="up">↑177.9%</td>
+    </tr><tr>
+        <td>12:19</td>
+        <td>839</td><td>12,107</td><td>2,258</td>
+        <td>3,842</td><td>12,644</td><td>5,980</td>
+        <td class="up">↑357.9%</td>
+        <td class="up">↑164.8%</td>
+    </tr><tr>
+        <td>12:20</td>
+        <td>821</td><td>11,511</td><td>2,564</td>
+        <td>2,961</td><td>12,156</td><td>5,633</td>
+        <td class="up">↑260.7%</td>
+        <td class="up">↑119.7%</td>
+    </tr><tr>
+        <td>12:21</td>
+        <td>797</td><td>11,341</td><td>1,789</td>
+        <td>2,826</td><td>11,578</td><td>5,975</td>
+        <td class="up">↑254.6%</td>
+        <td class="up">↑234%</td>
+    </tr><tr>
+        <td>12:22</td>
+        <td>822</td><td>7,499</td><td>1,833</td>
+        <td>2,738</td><td>15,185</td><td>5,445</td>
+        <td class="up">↑233.1%</td>
+        <td class="up">↑197.1%</td>
+    </tr><tr>
+        <td>12:23</td>
+        <td>698</td><td>10,405</td><td>1,699</td>
+        <td>2,215</td><td>14,638</td><td>6,005</td>
+        <td class="up">↑217.3%</td>
+        <td class="up">↑253.4%</td>
+    </tr><tr>
+        <td>12:24</td>
+        <td>1,298</td><td>10,124</td><td>1,918</td>
+        <td>2,315</td><td>10,837</td><td>6,801</td>
+        <td class="up">↑78.4%</td>
+        <td class="up">↑254.6%</td>
+    </tr><tr>
+        <td>12:25</td>
+        <td>1,034</td><td>6,762</td><td>1,722</td>
+        <td>2,409</td><td>10,977</td><td>4,846</td>
+        <td class="up">↑133%</td>
+        <td class="up">↑181.4%</td>
+    </tr><tr>
+        <td>12:26</td>
+        <td>1,159</td><td>9,598</td><td>1,622</td>
+        <td>1,999</td><td>11,162</td><td>6,941</td>
+        <td class="up">↑72.5%</td>
+        <td class="up">↑327.9%</td>
+    </tr><tr>
+        <td>12:27</td>
+        <td>985</td><td>9,525</td><td>1,893</td>
+        <td>1,766</td><td>13,752</td><td>5,146</td>
+        <td class="up">↑79.3%</td>
+        <td class="up">↑171.8%</td>
+    </tr><tr>
+        <td>12:28</td>
+        <td>1,348</td><td>6,637</td><td>1,584</td>
+        <td>1,824</td><td>10,648</td><td>5,838</td>
+        <td class="up">↑35.3%</td>
+        <td class="up">↑268.6%</td>
+    </tr><tr>
+        <td>12:29</td>
+        <td>1,167</td><td>9,303</td><td>2,821</td>
+        <td>1,398</td><td>13,183</td><td>7,978</td>
+        <td class="up">↑19.8%</td>
+        <td class="up">↑182.8%</td>
+    </tr><tr class="divider-row"><td colspan="9">── 12:30 持續購票區 ──</td></tr><tr>
+        <td>12:30</td>
+        <td>1,993</td><td>6,461</td><td>2,887</td>
+        <td>2,455</td><td>10,570</td><td>8,270</td>
+        <td class="up">↑23.2%</td>
+        <td class="up">↑186.5%</td>
+    </tr><tr>
+        <td>12:31</td>
+        <td>1,568</td><td>8,012</td><td>2,721</td>
+        <td>1,722</td><td>10,363</td><td>4,849</td>
+        <td class="up">↑9.8%</td>
+        <td class="up">↑78.2%</td>
+    </tr><tr>
+        <td>12:32</td>
+        <td>1,744</td><td>11,311</td><td>2,328</td>
+        <td>1,300</td><td>9,947</td><td>6,023</td>
+        <td class="dn">↓25.5%</td>
+        <td class="up">↑158.7%</td>
+    </tr><tr>
+        <td>12:33</td>
+        <td>1,725</td><td>12,246</td><td>3,309</td>
+        <td>1,932</td><td>12,000</td><td>4,598</td>
+        <td class="up">↑12%</td>
+        <td class="up">↑39%</td>
+    </tr><tr>
+        <td>12:34</td>
+        <td>1,430</td><td>8,736</td><td>4,674</td>
+        <td>2,246</td><td>11,762</td><td>6,923</td>
+        <td class="up">↑57.1%</td>
+        <td class="up">↑48.1%</td>
+    </tr><tr>
+        <td>12:35</td>
+        <td>1,037</td><td>8,489</td><td>4,115</td>
+        <td>1,186</td><td>9,215</td><td>5,656</td>
+        <td class="up">↑14.4%</td>
+        <td class="up">↑37.4%</td>
+    </tr><tr>
+        <td>12:36</td>
+        <td>1,056</td><td>10,414</td><td>2,546</td>
+        <td>1,187</td><td>8,673</td><td>3,249</td>
+        <td class="up">↑12.4%</td>
+        <td class="up">↑27.6%</td>
+    </tr><tr>
+        <td>12:37</td>
+        <td>1,522</td><td>10,076</td><td>1,907</td>
+        <td>1,469</td><td>10,675</td><td>5,784</td>
+        <td class="dn">↓3.5%</td>
+        <td class="up">↑203.3%</td>
+    </tr><tr>
+        <td>12:38</td>
+        <td>1,325</td><td>7,567</td><td>2,408</td>
+        <td>2,034</td><td>8,173</td><td>5,682</td>
+        <td class="up">↑53.5%</td>
+        <td class="up">↑136%</td>
+    </tr><tr>
+        <td>12:39</td>
+        <td>1,511</td><td>7,226</td><td>3,508</td>
+        <td>1,823</td><td>9,872</td><td>4,550</td>
+        <td class="up">↑20.6%</td>
+        <td class="up">↑29.7%</td>
+    </tr><tr>
+        <td>12:40</td>
+        <td>1,442</td><td>7,122</td><td>3,408</td>
+        <td>3,718</td><td>7,568</td><td>4,854</td>
+        <td class="up">↑157.8%</td>
+        <td class="up">↑42.4%</td>
+    </tr><tr>
+        <td>12:41</td>
+        <td>1,158</td><td>8,947</td><td>3,913</td>
+        <td>1,354</td><td>9,356</td><td>3,808</td>
+        <td class="up">↑16.9%</td>
+        <td class="dn">↓2.7%</td>
+    </tr><tr>
+        <td>12:42</td>
+        <td>1,199</td><td>6,804</td><td>1,998</td>
+        <td>3,109</td><td>9,356</td><td>4,700</td>
+        <td class="up">↑159.3%</td>
+        <td class="up">↑135.2%</td>
+    </tr><tr>
+        <td>12:43</td>
+        <td>1,775</td><td>8,549</td><td>1,998</td>
+        <td>2,834</td><td>9,201</td><td>4,737</td>
+        <td class="up">↑59.7%</td>
+        <td class="up">↑137.1%</td>
+    </tr><tr>
+        <td>12:44</td>
+        <td>2,387</td><td>6,481</td><td>1,752</td>
+        <td>3,027</td><td>7,019</td><td>3,402</td>
+        <td class="up">↑26.8%</td>
+        <td class="up">↑94.2%</td>
+    </tr><tr>
+        <td>12:45</td>
+        <td>2,421</td><td>8,282</td><td>1,854</td>
+        <td>2,771</td><td>6,901</td><td>2,545</td>
+        <td class="up">↑14.5%</td>
+        <td class="up">↑37.3%</td>
+    </tr><tr>
+        <td>12:46</td>
+        <td>2,572</td><td>6,061</td><td>1,851</td>
+        <td>3,165</td><td>6,774</td><td>3,421</td>
+        <td class="up">↑23.1%</td>
+        <td class="up">↑84.8%</td>
+    </tr><tr>
+        <td>12:47</td>
+        <td>1,866</td><td>5,631</td><td>1,232</td>
+        <td>3,196</td><td>6,676</td><td>3,986</td>
+        <td class="up">↑71.3%</td>
+        <td class="up">↑223.5%</td>
+    </tr><tr>
+        <td>12:48</td>
+        <td>2,011</td><td>5,383</td><td>1,173</td>
+        <td>3,151</td><td>6,373</td><td>3,709</td>
+        <td class="up">↑56.7%</td>
+        <td class="up">↑216.2%</td>
+    </tr><tr>
+        <td>12:49</td>
+        <td>2,331</td><td>5,141</td><td>2,467</td>
+        <td>2,771</td><td>8,006</td><td>4,142</td>
+        <td class="up">↑18.9%</td>
+        <td class="up">↑67.9%</td>
+    </tr><tr>
+        <td>12:50</td>
+        <td>1,995</td><td>5,190</td><td>1,404</td>
+        <td>2,982</td><td>6,177</td><td>2,426</td>
+        <td class="up">↑49.5%</td>
+        <td class="up">↑72.8%</td>
+    </tr><tr>
+        <td>12:51</td>
+        <td>2,056</td><td>5,080</td><td>1,309</td>
+        <td>2,779</td><td>6,034</td><td>2,164</td>
+        <td class="up">↑35.2%</td>
+        <td class="up">↑65.3%</td>
+    </tr><tr>
+        <td>12:52</td>
+        <td>1,845</td><td>4,950</td><td>1,127</td>
+        <td>3,263</td><td>5,872</td><td>3,432</td>
+        <td class="up">↑76.9%</td>
+        <td class="up">↑204.5%</td>
+    </tr><tr>
+        <td>12:53</td>
+        <td>2,031</td><td>4,639</td><td>952</td>
+        <td>2,751</td><td>5,624</td><td>2,643</td>
+        <td class="up">↑35.5%</td>
+        <td class="up">↑177.6%</td>
+    </tr><tr>
+        <td>12:54</td>
+        <td>2,137</td><td>4,451</td><td>2,268</td>
+        <td>2,845</td><td>7,138</td><td>3,250</td>
+        <td class="up">↑33.1%</td>
+        <td class="up">↑43.3%</td>
+    </tr><tr>
+        <td>12:55</td>
+        <td>1,538</td><td>4,547</td><td>1,241</td>
+        <td>2,689</td><td>5,390</td><td>2,368</td>
+        <td class="up">↑74.8%</td>
+        <td class="up">↑90.8%</td>
+    </tr><tr>
+        <td>12:56</td>
+        <td>1,489</td><td>5,849</td><td>888</td>
+        <td>2,477</td><td>6,734</td><td>2,098</td>
+        <td class="up">↑66.4%</td>
+        <td class="up">↑136.3%</td>
+    </tr><tr>
+        <td>12:57</td>
+        <td>1,666</td><td>4,239</td><td>1,364</td>
+        <td>2,448</td><td>5,144</td><td>2,938</td>
+        <td class="up">↑46.9%</td>
+        <td class="up">↑115.4%</td>
+    </tr><tr>
+        <td>12:58</td>
+        <td>1,386</td><td>5,564</td><td>879</td>
+        <td>2,677</td><td>5,078</td><td>2,800</td>
+        <td class="up">↑93.1%</td>
+        <td class="up">↑218.5%</td>
+    </tr><tr>
+        <td>12:59</td>
+        <td>1,408</td><td>5,563</td><td>1,620</td>
+        <td>2,803</td><td>6,416</td><td>3,441</td>
+        <td class="up">↑99.1%</td>
+        <td class="up">↑112.4%</td>
+    </tr>
+</tbody>
+</table>
+</div>
+
+</div><!-- /container -->
+
+<script>
+const labels = ["11:30","11:31","11:32","11:33","11:34","11:35","11:36","11:37","11:38","11:39","11:40","11:41","11:42","11:43","11:44","11:45","11:46","11:47","11:48","11:49","11:50","11:51","11:52","11:53","11:54","11:55","11:56","11:57","11:58","11:59","12:00","12:01","12:02","12:03","12:04","12:05","12:06","12:07","12:08","12:09","12:10","12:11","12:12","12:13","12:14","12:15","12:16","12:17","12:18","12:19","12:20","12:21","12:22","12:23","12:24","12:25","12:26","12:27","12:28","12:29","12:30","12:31","12:32","12:33","12:34","12:35","12:36","12:37","12:38","12:39","12:40","12:41","12:42","12:43","12:44","12:45","12:46","12:47","12:48","12:49","12:50","12:51","12:52","12:53","12:54","12:55","12:56","12:57","12:58","12:59"];
+const s13 = [45,66,48,79,59,57,61,200,61,65,73,71,63,75,80,87,259,1466,1140,1097,1201,833,816,1289,769,702,386,454,606,621,525,2509,3538,3217,3136,2636,3405,2573,3398,2826,1872,1646,1481,1320,1319,1246,1219,1025,905,839,821,797,822,698,1298,1034,1159,985,1348,1167,1993,1568,1744,1725,1430,1037,1056,1522,1325,1511,1442,1158,1199,1775,2387,2421,2572,1866,2011,2331,1995,2056,1845,2031,2137,1538,1489,1666,1386,1408];
+const s14 = [50,45,88,51,57,70,43,52,49,51,59,76,67,75,94,373,333,94,285,285,194,147,229,130,113,138,136,181,281,266,2412,2565,3699,3187,3141,3394,2729,3242,3215,2389,3883,3082,3274,3082,2950,3204,2647,2780,3036,3842,2961,2826,2738,2215,2315,2409,1999,1766,1824,1398,2455,1722,1300,1932,2246,1186,1187,1469,2034,1823,3718,1354,3109,2834,3027,2771,3165,3196,3151,2771,2982,2779,3263,2751,2845,2689,2477,2448,2677,2803];
+const d13 = [1228,1386,1403,1391,1416,1430,2746,2897,1601,1725,1795,2018,3775,2218,2457,4689,5191,5691,3305,3468,3703,4182,5063,8761,5530,6135,7385,13525,15404,18109,17980,36295,12632,11345,16027,11573,12096,11829,16423,16133,11827,15408,10955,14135,13063,10043,9697,9537,12365,12107,11511,11341,7499,10405,10124,6762,9598,9525,6637,9303,6461,8012,11311,12246,8736,8489,10414,10076,7567,7226,7122,8947,6804,8549,6481,8282,6061,5631,5383,5141,5190,5080,4950,4639,4451,4547,5849,4239,5564,5563];
+const d14 = [851,1620,1700,1777,947,986,1109,1982,1090,1267,2243,2335,1381,1575,1609,1758,3479,3795,2322,4242,4668,3134,6055,4230,7707,5766,10392,7763,13899,12736,21636,36680,40143,8395,13236,13980,14304,11201,11501,15795,12202,16415,16876,16792,16999,13023,13274,13324,16794,12644,12156,11578,15185,14638,10837,10977,11162,13752,10648,13183,10570,10363,9947,12000,11762,9215,8673,10675,8173,9872,7568,9356,9356,9201,7019,6901,6774,6676,6373,8006,6177,6034,5872,5624,7138,5390,6734,5144,5078,6416];
+const a13 = [71,87,71,84,91,59,61,54,76,96,88,83,85,73,97,77,80,88,79,60,76,68,87,272,90,112,85,76,74,58,46,1456,2265,3141,3136,3709,4377,4410,4831,4990,3889,5034,6187,6090,5173,5070,2973,2364,2623,2258,2564,1789,1833,1699,1918,1722,1622,1893,1584,2821,2887,2721,2328,3309,4674,4115,2546,1907,2408,3508,3408,3913,1998,1998,1752,1854,1851,1232,1173,2467,1404,1309,1127,952,2268,1241,888,1364,879,1620];
+const a14 = [48,39,74,67,58,53,58,59,58,56,49,57,59,78,47,38,55,70,83,106,103,99,166,114,107,70,80,81,68,86,200,434,1939,2879,3236,3962,4465,4619,5422,5003,5964,6722,7533,7002,7733,7435,7530,7839,7290,5980,5633,5975,5445,6005,6801,4846,6941,5146,5838,7978,8270,4849,6023,4598,6923,5656,3249,5784,5682,4550,4854,3808,4700,4737,3402,2545,3421,3986,3709,4142,2426,2164,3432,2643,3250,2368,2098,2938,2800,3441];
+
+const chartOpts = (title) => ({
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#ffcc80', font: { size: 12 } } }, datalabels: { display: false } },
+    scales: {
+        x: { ticks: { color: '#ffcc80', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(255,179,0,0.07)' } },
+        y: { ticks: { color: '#ffcc80' }, grid: { color: 'rgba(255,179,0,0.07)' } }
+    }
+});
+
+new Chart(document.getElementById('sessionChart'), {
+    type: 'line', plugins: [ChartDataLabels],
+    data: { labels, datasets: [
+        { label: '5/13', data: s13, borderColor: '#ffb300', backgroundColor: 'rgba(255,179,0,0.1)', tension: 0.3, pointRadius: 0, fill: true },
+        { label: '5/14', data: s14, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.1)', tension: 0.3, pointRadius: 0, fill: true }
+    ]}, options: chartOpts('Sessions')
+});
+new Chart(document.getElementById('aminChart'), {
+    type: 'line', plugins: [ChartDataLabels],
+    data: { labels, datasets: [
+        { label: '5/13', data: a13, borderColor: '#ffb300', backgroundColor: 'rgba(255,179,0,0.1)', tension: 0.3, pointRadius: 0, fill: true },
+        { label: '5/14', data: a14, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.1)', tension: 0.3, pointRadius: 0, fill: true }
+    ]}, options: chartOpts('A-Min')
+});
+new Chart(document.getElementById('dminChart'), {
+    type: 'bar', plugins: [ChartDataLabels],
+    data: { labels, datasets: [
+        { label: '5/13', data: d13, backgroundColor: 'rgba(255,179,0,0.6)', borderRadius: 2 },
+        { label: '5/14', data: d14, backgroundColor: 'rgba(56,189,248,0.6)', borderRadius: 2 }
+    ]}, options: { ...chartOpts('D-Min'), scales: { x: { stacked: false, ticks: { color: '#ffcc80', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(255,179,0,0.07)' } }, y: { ticks: { color: '#ffcc80' }, grid: { color: 'rgba(255,179,0,0.07)' } } } }
+});
+</script>
+</body>
+</html>
