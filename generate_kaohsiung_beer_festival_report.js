@@ -53,73 +53,55 @@ async function generateReport() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026 7-ELEVEN 高雄啤酒音樂節 - 專案分析報表</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"><\/script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #1a1200;
-            --card-bg: #2a1f00;
-            --text-primary: #fff8e1;
-            --text-secondary: #ffcc80;
-            --accent-color: #ffb300;
-            --accent-secondary: #ff8f00;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-            --success: #66bb6a;
-            --danger: #ef5350;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-secondary: #0ea5e9;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            --success: #22c55e;
+            --danger: #ef4444;
         }
         body { font-family: 'Outfit', 'Noto Sans TC', sans-serif; background-color: var(--bg-color); color: var(--text-primary); margin: 0; padding: 30px; }
         .container { max-width: 1400px; margin: 0 auto; }
-        header {
-            margin-bottom: 40px;
-            display: flex; justify-content: space-between; align-items: flex-end;
-            background: linear-gradient(135deg, #3e2800 0%, #1a1200 60%, #0d0800 100%);
-            padding: 40px; border-radius: 24px; box-shadow: var(--shadow);
-            border-bottom: 4px solid var(--accent-color);
-            position: relative; overflow: hidden;
-        }
-        header::before {
-            content: '🍺';
-            position: absolute; right: 200px; top: 10px;
-            font-size: 6rem; opacity: 0.08;
-        }
-        .logo-text { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, #ffb300, #ff6f00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
-        .logo-sub { font-size: 1rem; color: var(--accent-color); margin-top: 8px; font-weight: 600; }
-        .meta { text-align: right; font-size: 0.9rem; color: var(--text-secondary); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .card { background: var(--card-bg); border-radius: 20px; padding: 25px; box-shadow: var(--shadow); border: 1px solid rgba(255, 179, 0, 0.15); transition: all 0.3s; }
-        .card:hover { border-color: var(--accent-color); transform: translateY(-4px); }
-        .card h3 { margin: 0 0 12px 0; font-size: 0.8em; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; }
-        .card .value { font-size: 2em; font-weight: 700; color: var(--accent-color); }
-        .card .sub { font-size: 0.82em; color: #795548; margin-top: 6px; }
-        .chart-card { background: var(--card-bg); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); min-height: 380px; border: 1px solid rgba(255, 179, 0, 0.1); margin-bottom: 30px; }
-        .chart-card h3 { border-left: 5px solid var(--accent-color); padding-left: 15px; margin-bottom: 25px; font-size: 1.15rem; }
-        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
-        .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .main-content { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
-        th, td { padding: 11px 14px; border-bottom: 1px solid rgba(255, 179, 0, 0.08); }
-        th { color: var(--accent-color); font-weight: 600; font-size: 0.82rem; white-space: nowrap; }
+        header { margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end; background: linear-gradient(to right, #1e293b, #0f172a); padding: 40px; border-radius: 24px; box-shadow: var(--shadow); border-bottom: 4px solid var(--accent-color); }
+        .logo-text { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; letter-spacing: -1px; }
+        .logo-sub { font-size: 1.1rem; color: var(--accent-color); margin-top: 8px; font-weight: 600; }
+        .meta { text-align: right; font-size: 0.95rem; color: var(--text-secondary); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .card { background: var(--card-bg); border-radius: 20px; padding: 25px; box-shadow: var(--shadow); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s; }
+        .card:hover { border-color: var(--accent-color); transform: translateY(-5px); }
+        .card h3 { margin: 0 0 15px 0; font-size: 0.85em; text-transform: uppercase; color: var(--text-secondary); }
+        .card .value { font-size: 2.2em; font-weight: 700; color: var(--accent-color); }
+        .card .sub { font-size: 0.85em; color: #64748b; margin-top: 8px; }
+        .chart-card { background: var(--card-bg); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); min-height: 400px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 30px; }
+        .chart-card h3 { border-left: 5px solid var(--accent-color); padding-left: 15px; margin-bottom: 25px; font-size: 1.25rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+        th, td { padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        th { color: var(--accent-color); font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
         td { white-space: nowrap; }
-        tr:hover td { background: rgba(255,179,0,0.05); }
+        tr:hover td { background: rgba(56, 189, 248, 0.05); }
         .text-right { text-align: right; }
-        .show-card { background: var(--card-bg); border-radius: 20px; padding: 25px; border: 1px solid rgba(255,179,0,0.2); }
-        .show-card .show-date { font-size: 1.1rem; font-weight: 700; color: var(--accent-color); margin-bottom: 10px; }
-        .show-card .show-count { font-size: 2rem; font-weight: 800; color: #fff; }
-        .show-card .show-pct { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
-        .progress-bar { background: rgba(255,255,255,0.06); width: 100%; border-radius: 8px; height: 6px; margin-top: 8px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #ffb300, #ff6f00); border-radius: 8px; }
-        .peak-table-container { overflow-x: auto; border: 1px solid rgba(255,179,0,0.15); border-radius: 16px; background: rgba(26,18,0,0.6); }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.75em; font-weight: 600; }
-        .badge-gold { background: rgba(255,179,0,0.2); color: #ffb300; }
+        .peak-table-container { overflow-x: auto; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; background: rgba(15, 23, 42, 0.5); }
+        .main-content { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 30px; }
+        .demo-content { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
+        .show-split { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 25px; margin-bottom: 30px; }
+        .progress-bar { background: rgba(255,255,255,0.05); width: 100%; border-radius: 10px; height: 8px; margin-top: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent-color); border-radius: 10px; }
     </style>
 </head>
 <body>
 <div class="container">
     <header>
         <div>
-            <div class="logo-text">2026 7-ELEVEN 高雄啤酒音樂節</div>
-            <div class="logo-sub">專案銷售分析報表 ｜ ${TARGET}</div>
+            <div class="logo-text">2026 高雄啤酒音樂節</div>
+            <div class="logo-sub">7-ELEVEN 高雄啤酒音樂節 專案銷售分析報表</div>
         </div>
         <div class="meta">報表生成: ${reportTime}<br>銷售紀錄: ${data.length.toLocaleString()} 筆<br>節目代碼: B0BA4VPF</div>
     </header>
@@ -136,7 +118,7 @@ async function generateReport() {
 
     <!-- Show Split -->
     <h2 style="color: var(--accent-color); margin-bottom: 16px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">🎵 場次銷售概況</h2>
-    <div class="three-col" id="showCards"></div>
+    <div class="show-split" id="showCards"></div>
 
     <!-- Trend + Nationality -->
     <div class="main-content">
@@ -148,19 +130,19 @@ async function generateReport() {
     </div>
 
     <!-- Daily by Session -->
-    <div class="chart-card" style="margin-bottom:30px">
+    <div class="chart-card" style="min-height:0">
         <h3>每日各場次購票趨勢 (Daily Sales by Session)</h3>
         <canvas id="sessionTrendChart" style="max-height:380px;"></canvas>
     </div>
 
     <!-- Gender + Age -->
-    <div class="two-col">
+    <div class="demo-content">
         <div class="chart-card"><h3>性別分佈</h3><canvas id="genderChart"></canvas></div>
         <div class="chart-card"><h3>年齡分佈</h3><canvas id="ageChart"></canvas></div>
     </div>
 
     <!-- City + Payment -->
-    <div class="two-col">
+    <div class="demo-content">
         <div class="chart-card"><h3>城市分佈 Top 10</h3><canvas id="cityChart"></canvas></div>
         <div class="chart-card" style="min-height:0">
             <h3>付款方式</h3>
@@ -172,7 +154,7 @@ async function generateReport() {
     </div>
 
     <!-- Ticket Type + Price -->
-    <div class="two-col">
+    <div class="demo-content">
         <div class="chart-card" style="min-height:0">
             <h3>票別分析</h3>
             <table id="ticketTypeTable"><thead><tr><th>票別</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">占比</th></tr></thead><tbody></tbody></table>
@@ -184,13 +166,13 @@ async function generateReport() {
     </div>
 
     <!-- Sales Channel -->
-    <div class="chart-card" style="min-height:0; margin-bottom:30px">
+    <div class="chart-card" style="min-height:0">
         <h3>銷售點分析 Top 20</h3>
         <table id="channelTable"><thead><tr><th>銷售點</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">占比</th></tr></thead><tbody></tbody></table>
     </div>
 
     <!-- Peak Analysis -->
-    <div class="chart-card" style="min-height:0; margin-bottom:30px">
+    <div class="chart-card" style="min-height:0">
         <h3>開賣尖峰時段分析 (2026-05-13 12:00 – 13:00)</h3>
         <div class="peak-table-container">
             <table id="peakTable">
@@ -232,8 +214,8 @@ function init() {
     shows.forEach(s => {
         const cnt = valid.filter(d => d['演出時間/規格'] && d['演出時間/規格'].includes(s.date)).length;
         const div = document.createElement('div');
-        div.className = 'show-card';
-        div.innerHTML = \`<div class="show-date">\${s.label}</div><div class="show-count">\${cnt.toLocaleString()} 張</div><div class="show-pct">\${pct(cnt, valid.length)} 占比</div><div class="progress-bar"><div class="progress-fill" style="width:\${valid.length > 0 ? cnt/valid.length*100 : 0}%"></div></div>\`;
+        div.className = 'card';
+        div.innerHTML = \`<h3>\${s.label}</h3><div class="value">\${cnt.toLocaleString()} 張</div><div class="sub">\${pct(cnt, valid.length)} 占比</div><div class="progress-bar"><div class="progress-fill" style="width:\${valid.length > 0 ? cnt/valid.length*100 : 0}%"></div></div>\`;
         showContainer.appendChild(div);
     });
 
@@ -244,15 +226,15 @@ function init() {
     new Chart(document.getElementById('trendChart'), {
         type: 'bar',
         plugins: [ChartDataLabels],
-        data: { labels: sortedDays, datasets: [{ label: '張數', data: sortedDays.map(d => tStats[d]), backgroundColor: '#ffb300', borderRadius: 6 }] },
-        options: { plugins: { legend: { display: false }, datalabels: { color: '#ffcc80', anchor: 'end', align: 'top', font: { size: 11 } } }, scales: { y: { ticks: { color: '#ffcc80' } }, x: { ticks: { color: '#ffcc80' } } } }
+        data: { labels: sortedDays, datasets: [{ label: '張數', data: sortedDays.map(d => tStats[d]), backgroundColor: '#38bdf8', borderRadius: 6 }] },
+        options: { plugins: { legend: { display: false }, datalabels: { color: '#94a3b8', anchor: 'end', align: 'top', font: { size: 11 } } }, scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
     });
 
     // Daily by Session Chart
     const sessionShows = [
-        { date: '2026-07-03', label: '7/3 (六) Day 1', color: '#ffb300' },
-        { date: '2026-07-04', label: '7/4 (日) Day 2', color: '#ff6f00' },
-        { date: '2026-07-05', label: '7/5 (一) Day 3', color: '#ef5350' }
+        { date: '2026-07-03', label: '7/3 (六) Day 1', color: '#38bdf8' },
+        { date: '2026-07-04', label: '7/4 (日) Day 2', color: '#818cf8' },
+        { date: '2026-07-05', label: '7/5 (一) Day 3', color: '#fb7185' }
     ];
     const sessionDailyMap = {};
     valid.forEach(o => {
@@ -282,13 +264,13 @@ function init() {
         options: {
             responsive: true,
             plugins: {
-                legend: { labels: { color: '#ffcc80' } },
+                legend: { labels: { color: '#94a3b8' } },
                 datalabels: { display: false },
                 tooltip: { mode: 'index', intersect: false }
             },
             scales: {
-                x: { ticks: { color: '#ffcc80' } },
-                y: { ticks: { color: '#ffcc80' }, beginAtZero: true }
+                x: { ticks: { color: '#94a3b8' } },
+                y: { ticks: { color: '#94a3b8' }, beginAtZero: true }
             }
         }
     });
@@ -300,7 +282,7 @@ function init() {
         type: 'doughnut',
         data: { labels: Object.keys(gStats), datasets: [{ data: Object.values(gStats), backgroundColor: ['#38bdf8','#fb7185','#94a3b8','#a78bfa'] }] },
         plugins: [ChartDataLabels],
-        options: { plugins: { datalabels: { color: 'white', font: { weight: 'bold' }, formatter: (v, ctx) => { const t = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0); return Math.round(v/t*100)+'%'; } }, legend: { labels: { color: '#ffcc80' } } } }
+        options: { plugins: { datalabels: { color: 'white', font: { weight: 'bold' }, formatter: (v, ctx) => { const t = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0); return Math.round(v/t*100)+'%'; } }, legend: { labels: { color: '#94a3b8' } } } }
     });
 
     // Age Chart
@@ -310,8 +292,8 @@ function init() {
     const ageLabels = ageOrder.filter(k => ageStats[k]);
     new Chart(document.getElementById('ageChart'), {
         type: 'bar',
-        data: { labels: ageLabels, datasets: [{ data: ageLabels.map(k => ageStats[k]), backgroundColor: ['#ffb300','#ffa000','#ff8f00','#ff6f00','#e65100','#78909c'], borderRadius: 6 }] },
-        options: { plugins: { legend: { display: false }, datalabels: { color: '#fff8e1', anchor: 'end', align: 'top' } }, scales: { y: { ticks: { color: '#ffcc80' } }, x: { ticks: { color: '#ffcc80' } } } }
+        data: { labels: ageLabels, datasets: [{ data: ageLabels.map(k => ageStats[k]), backgroundColor: '#38bdf8', borderRadius: 6 }] },
+        options: { plugins: { legend: { display: false }, datalabels: { color: '#94a3b8', anchor: 'end', align: 'top' } }, scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
     });
 
     // City Chart
@@ -320,8 +302,8 @@ function init() {
     const topCities = Object.entries(cityStats).sort((a,b) => b[1]-a[1]).slice(0, 10);
     new Chart(document.getElementById('cityChart'), {
         type: 'bar',
-        data: { labels: topCities.map(c=>c[0]), datasets: [{ data: topCities.map(c=>c[1]), backgroundColor: '#ff8f00', borderRadius: 4 }] },
-        options: { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { color: '#fff8e1', anchor: 'end', align: 'right' } }, scales: { y: { ticks: { color: '#ffcc80' } }, x: { ticks: { color: '#ffcc80' } } } }
+        data: { labels: topCities.map(c=>c[0]), datasets: [{ data: topCities.map(c=>c[1]), backgroundColor: '#818cf8', borderRadius: 4 }] },
+        options: { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { color: '#f8fafc', anchor: 'end', align: 'right' } }, scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
     });
 
     // Nationality
@@ -388,13 +370,10 @@ function init() {
     // Peak Analysis - 2026-05-13 12:00-13:00
     const peakDate = '2026-05-13';
     const peakStats = {};
-    for (let h = 12; h <= 12; h++) {
-        for (let m = 0; m < 60; m++) {
-            const key = (h<10?'0'+h:h) + ':' + (m<10?'0'+m:m);
-            peakStats[key] = { t: 0, c: 0, a: 0 };
-        }
+    for (let m = 0; m < 60; m++) {
+        const key = '12:' + (m<10?'0'+m:m);
+        peakStats[key] = { t: 0, c: 0, a: 0 };
     }
-    // Add 13:00
     peakStats['13:00'] = { t: 0, c: 0, a: 0 };
 
     valid.forEach(o => {
@@ -416,12 +395,12 @@ function init() {
         cum += s.t;
         const tr = document.createElement('tr');
         tr.innerHTML = \`<td>\${k}</td><td class="text-right">\${s.t}</td><td class="text-right">\${cum}</td><td class="text-right">\${s.c}</td><td class="text-right">\${s.a}</td><td class="text-right">\${valid.length > 0 ? (cum/valid.length*100).toFixed(1)+'%' : '0%'}</td>\`;
-        if (s.t > 0) tr.style.background = 'rgba(255,179,0,0.07)';
+        if (s.t > 0) tr.style.background = 'rgba(56,189,248,0.06)';
         peakBody.appendChild(tr);
     });
 }
 init();
-</script>
+<\/script>
 </body>
 </html>`;
 
