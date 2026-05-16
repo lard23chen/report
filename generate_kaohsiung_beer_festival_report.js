@@ -45,6 +45,18 @@ async function generateReport() {
             });
         });
 
+        // Fetch page views (daily traffic by date)
+        const pageViews = await db.collection('Qware_A_Traffic_session_data').find({
+            '節目名稱': { $regex: '高雄啤酒', $options: 'i' }
+        }).toArray();
+        console.log(`Fetched ${pageViews.length} page view records.`);
+
+        // Fetch GA sessions by minute as fallback (opening days)
+        const gaSessions = await db.collection('QwareTrafficSession').find({
+            CreateTime: { $gte: new Date('2026-05-13T00:00:00Z'), $lte: new Date('2026-05-14T23:59:59Z') }
+        }).toArray();
+        console.log(`Fetched ${gaSessions.length} GA session records.`);
+
         const reportTime = new Date().toLocaleString('zh-TW');
 
         const htmlContent = `<!DOCTYPE html>
@@ -116,6 +128,35 @@ async function generateReport() {
         <div class="card"><h3>淨營收 (Net)</h3><div class="value" id="val-net-revenue" style="color:var(--success)">--</div></div>
     </div>
 
+    <!-- Show Breakdown Table -->
+    <div class="main-content" style="grid-template-columns: 1fr;">
+        <div class="chart-card" style="min-height:0">
+            <h3>各場次銷售概覽 (Show Breakdown)</h3>
+            <table id="showBreakdownTable">
+                <thead><tr>
+                    <th>場次</th>
+                    <th class="text-right">成交金額</th>
+                    <th class="text-right">銷售張數</th>
+                    <th class="text-right">平均客單價 (AOV)</th>
+                    <th class="text-right">淨營收</th>
+                    <th class="text-right">淨銷售張數</th>
+                    <th class="text-right">退票金額</th>
+                    <th class="text-right">退票張數</th>
+                    <th class="text-right">退票手續費</th>
+                </tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Sessions by Date -->
+    <div class="main-content" style="grid-template-columns: 1fr;">
+        <div class="chart-card" style="min-height:0">
+            <h3>網站流量趨勢 (Sessions by Date)</h3>
+            <div style="position: relative; height: 260px;"><canvas id="viewChart"></canvas></div>
+        </div>
+    </div>
+
     <!-- Show Split -->
     <h2 style="color: var(--accent-color); margin-bottom: 16px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">🎵 場次銷售概況</h2>
     <div class="show-split" id="showCards"></div>
@@ -185,6 +226,8 @@ async function generateReport() {
 
 <script>
 const dbData = ${JSON.stringify(data)};
+const pageViews = ${JSON.stringify(pageViews)};
+const gaSessions = ${JSON.stringify(gaSessions)};
 
 function fmt(n) { return Math.round(n).toLocaleString(); }
 function fmtMoney(n) { return '$' + fmt(n); }
@@ -203,6 +246,98 @@ function init() {
     document.getElementById('val-aov').innerText = fmtMoney(orders > 0 ? rev / orders : 0);
     document.getElementById('val-refund-tickets').innerText = fmt(refund.length);
     document.getElementById('val-net-revenue').innerText = fmtMoney(rev - refAmt);
+
+    // Show Breakdown Table
+    const showDates = [...new Set(dbData.map(o => (o['演出時間/規格'] || '').substring(0, 10)).filter(d => d && d.match(/^\d{4}/)))].sort();
+    const sbTbody = document.querySelector('#showBreakdownTable tbody');
+    let grandRev = 0, grandTix = 0, grandNet = 0, grandNetTix = 0, grandRefAmt = 0, grandRefTix = 0, grandRefFees = 0;
+    showDates.forEach(showDate => {
+        const sv = valid.filter(o => (o['演出時間/規格'] || '').startsWith(showDate));
+        const sr = refund.filter(o => (o['演出時間/規格'] || '').startsWith(showDate));
+        const sRev = sv.reduce((a, c) => a + (c['售價'] || 0), 0);
+        const sTix = sv.length;
+        const sRefAmt = sr.reduce((a, c) => a + (c['實退金額'] || 0), 0);
+        const sRefTix = sr.length;
+        const sRefFees = sr.reduce((a, c) => a + (c['手續費'] || 0), 0);
+        const sOrdSet = new Set(); sv.forEach(o => { if(o['訂單編號']) sOrdSet.add(o['訂單編號'].split('_')[0]); });
+        const sAov = sOrdSet.size > 0 ? Math.round(sRev / sOrdSet.size) : 0;
+        const sNet = sRev - sRefAmt;
+        const sNetTix = sTix - sRefTix;
+        const fullSpec = (dbData.find(o => (o['演出時間/規格'] || '').startsWith(showDate)) || {})['演出時間/規格'] || showDate;
+        const timeLabel = fullSpec.length >= 16 ? fullSpec.substring(0, 16) : fullSpec;
+        const tr = document.createElement('tr');
+        tr.innerHTML = \`<td style="font-weight:600; color:var(--accent-color); white-space:nowrap;">\${timeLabel}</td>
+            <td class="text-right">\${fmtMoney(sRev)}</td>
+            <td class="text-right" style="font-weight:600;">\${fmt(sTix)}</td>
+            <td class="text-right" style="color:#ffd700;">\${fmtMoney(sAov)}</td>
+            <td class="text-right" style="color:var(--success);">\${fmtMoney(sNet)}</td>
+            <td class="text-right" style="color:var(--success);">\${fmt(sNetTix)}</td>
+            <td class="text-right" style="color:var(--danger);">\${fmtMoney(sRefAmt)}</td>
+            <td class="text-right" style="color:var(--danger);">\${fmt(sRefTix)}</td>
+            <td class="text-right">\${fmtMoney(sRefFees)}</td>\`;
+        sbTbody.appendChild(tr);
+        grandRev += sRev; grandTix += sTix; grandNet += sNet; grandNetTix += sNetTix;
+        grandRefAmt += sRefAmt; grandRefTix += sRefTix; grandRefFees += sRefFees;
+    });
+    const totalOrdSet = new Set(); valid.forEach(o => { if(o['訂單編號']) totalOrdSet.add(o['訂單編號'].split('_')[0]); });
+    const grandAov = totalOrdSet.size > 0 ? Math.round(grandRev / totalOrdSet.size) : 0;
+    const totalTr = document.createElement('tr');
+    totalTr.style.cssText = 'background:rgba(56,189,248,0.08); border-top:2px solid rgba(56,189,248,0.4); font-weight:700;';
+    totalTr.innerHTML = \`<td style="color:var(--accent-color);">總計 (TOTAL)</td>
+        <td class="text-right">\${fmtMoney(grandRev)}</td>
+        <td class="text-right" style="font-weight:700;">\${fmt(grandTix)}</td>
+        <td class="text-right" style="color:#ffd700;">\${fmtMoney(grandAov)}</td>
+        <td class="text-right" style="color:var(--success);">\${fmtMoney(grandNet)}</td>
+        <td class="text-right" style="color:var(--success);">\${fmt(grandNetTix)}</td>
+        <td class="text-right" style="color:var(--danger);">\${fmtMoney(grandRefAmt)}</td>
+        <td class="text-right" style="color:var(--danger);">\${fmt(grandRefTix)}</td>
+        <td class="text-right">\${fmtMoney(grandRefFees)}</td>\`;
+    sbTbody.appendChild(totalTr);
+
+    // Sessions by Date Chart
+    const salesByDate = {}, viewsByDate = {};
+    valid.forEach(o => {
+        if (!o['交易時間']) return;
+        const date = o['交易時間'].split(' ')[0];
+        salesByDate[date] = (salesByDate[date] || 0) + 1;
+    });
+    if (pageViews.length > 0) {
+        pageViews.forEach(p => {
+            if (!p['瀏覽日期']) return;
+            const date = p['瀏覽日期'].substring(0, 10);
+            viewsByDate[date] = (viewsByDate[date] || 0) + (p['瀏覽量'] || 0);
+        });
+    } else {
+        gaSessions.forEach(s => {
+            if (!s.SessionDate) return;
+            const sd = String(s.SessionDate);
+            const date = sd.slice(0,4) + '-' + sd.slice(4,6) + '-' + sd.slice(6,8);
+            viewsByDate[date] = (viewsByDate[date] || 0) + (s.SessionCount || 0);
+        });
+    }
+    const allDatesSet = new Set([...Object.keys(salesByDate), ...Object.keys(viewsByDate)]);
+    const allDates = Array.from(allDatesSet).sort();
+    const dailyViews = allDates.map(d => viewsByDate[d] || 0);
+
+    new Chart(document.getElementById('viewChart'), {
+        type: 'line',
+        data: {
+            labels: allDates,
+            datasets: [{ label: 'Session Count (Daily)', data: dailyViews, borderColor: '#42A5F5', backgroundColor: 'rgba(66,165,245,0.1)', tension: 0.3, fill: true, pointRadius: 4, pointHoverRadius: 6 }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                datalabels: { color: '#eee', align: 'top', font: { weight: 'bold', size: 10 }, formatter: v => v === 0 ? '' : (v >= 1000 ? (v/1000).toFixed(1)+'k' : Math.round(v)) }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#42A5F5', callback: v => v >= 1000 ? v/1000+'k' : v }, beginAtZero: true }
+            }
+        }
+    });
 
     // Show Cards
     const shows = [
