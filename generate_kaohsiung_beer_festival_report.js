@@ -265,14 +265,18 @@ function init() {
     });
     const sessionDays = Object.keys(sessionDailyMap).sort();
     new Chart(document.getElementById('sessionTrendChart'), {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: sessionDays,
             datasets: sessionShows.map(s => ({
                 label: s.label,
                 data: sessionDays.map(d => sessionDailyMap[d][s.date] || 0),
-                backgroundColor: s.color,
-                borderRadius: 4
+                borderColor: s.color,
+                backgroundColor: s.color + '33',
+                fill: false,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6
             }))
         },
         options: {
@@ -283,8 +287,8 @@ function init() {
                 tooltip: { mode: 'index', intersect: false }
             },
             scales: {
-                x: { stacked: true, ticks: { color: '#ffcc80' } },
-                y: { stacked: true, ticks: { color: '#ffcc80' }, beginAtZero: true }
+                x: { ticks: { color: '#ffcc80' } },
+                y: { ticks: { color: '#ffcc80' }, beginAtZero: true }
             }
         }
     });
