@@ -265,7 +265,14 @@ function init() {
             responsive: true,
             plugins: {
                 legend: { labels: { color: '#94a3b8' } },
-                datalabels: { display: false },
+                datalabels: {
+                    display: true,
+                    align: 'top',
+                    anchor: 'center',
+                    font: { size: 10, weight: '600' },
+                    color: (ctx) => ctx.dataset.borderColor,
+                    formatter: (v) => v > 0 ? v.toLocaleString() : ''
+                },
                 tooltip: { mode: 'index', intersect: false }
             },
             scales: {
