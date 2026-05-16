@@ -147,6 +147,12 @@ async function generateReport() {
         </div>
     </div>
 
+    <!-- Daily by Session -->
+    <div class="chart-card" style="margin-bottom:30px">
+        <h3>每日各場次購票趨勢 (Daily Sales by Session)</h3>
+        <canvas id="sessionTrendChart" style="max-height:380px;"></canvas>
+    </div>
+
     <!-- Gender + Age -->
     <div class="two-col">
         <div class="chart-card"><h3>性別分佈</h3><canvas id="genderChart"></canvas></div>
@@ -240,6 +246,47 @@ function init() {
         plugins: [ChartDataLabels],
         data: { labels: sortedDays, datasets: [{ label: '張數', data: sortedDays.map(d => tStats[d]), backgroundColor: '#ffb300', borderRadius: 6 }] },
         options: { plugins: { legend: { display: false }, datalabels: { color: '#ffcc80', anchor: 'end', align: 'top', font: { size: 11 } } }, scales: { y: { ticks: { color: '#ffcc80' } }, x: { ticks: { color: '#ffcc80' } } } }
+    });
+
+    // Daily by Session Chart
+    const sessionShows = [
+        { date: '2026-07-03', label: '7/3 (六) Day 1', color: '#ffb300' },
+        { date: '2026-07-04', label: '7/4 (日) Day 2', color: '#ff6f00' },
+        { date: '2026-07-05', label: '7/5 (一) Day 3', color: '#ef5350' }
+    ];
+    const sessionDailyMap = {};
+    valid.forEach(o => {
+        const purchaseDate = o['交易時間'] ? o['交易時間'].split(' ')[0] : null;
+        if (!purchaseDate) return;
+        if (!sessionDailyMap[purchaseDate]) sessionDailyMap[purchaseDate] = {};
+        const matchedShow = sessionShows.find(s => o['演出時間/規格'] && o['演出時間/規格'].includes(s.date));
+        const showKey = matchedShow ? matchedShow.date : '其他';
+        sessionDailyMap[purchaseDate][showKey] = (sessionDailyMap[purchaseDate][showKey] || 0) + 1;
+    });
+    const sessionDays = Object.keys(sessionDailyMap).sort();
+    new Chart(document.getElementById('sessionTrendChart'), {
+        type: 'bar',
+        data: {
+            labels: sessionDays,
+            datasets: sessionShows.map(s => ({
+                label: s.label,
+                data: sessionDays.map(d => sessionDailyMap[d][s.date] || 0),
+                backgroundColor: s.color,
+                borderRadius: 4
+            }))
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#ffcc80' } },
+                datalabels: { display: false },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { stacked: true, ticks: { color: '#ffcc80' } },
+                y: { stacked: true, ticks: { color: '#ffcc80' }, beginAtZero: true }
+            }
+        }
     });
 
     // Gender Chart
