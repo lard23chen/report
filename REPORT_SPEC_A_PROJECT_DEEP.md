@@ -1,7 +1,7 @@
 # A 系統專案深度評估報表 通用技術規範說明
 
 本文件定義所有「演唱會 / 專案深度評估」類報表的共通規範。
-目前涵蓋：金唱片頒獎典禮、李聖傑演唱會、統一獅例行賽、韋禮安演唱會。
+目前涵蓋：金唱片頒獎典禮、李聖傑演唱會、統一獅例行賽、韋禮安演唱會、高雄啤酒音樂節。
 
 ---
 
@@ -22,6 +22,7 @@
 | A_SamLee_Report_2025_Taipei.html | generate_sam_lee_report.js | Qware_Ticket_Data |
 | A_UniformLions_Order_Analysis_20260309.html | generate_lions_order_report.js | Qware_A_Ticket_data_Daily |
 | A_WeiBird_Report_2026.html | generate_weibird_report.js | Qware_A_Ticket_data_Daily |
+| A_KaohsiungBeerFestival_2026.html | generate_kaohsiung_beer_festival_report.js | Qware_A_Ticket_data_Daily + Qware_Member_data |
 
 ---
 
@@ -58,14 +59,25 @@
 
 ## 4. 視覺樣式
 
-深色主題，與 A 系統月度報表一致。
+**標準格式（WeiBird 格式，2026/05 起統一採用）：**
 
-| CSS 變數 | 值 |
-|---|---|
-| `--bg-color` | `#121212` |
-| `--card-bg` | `#1e1e1e` |
-| `--text-primary` | `#e0e0e0` |
-| `--accent-color` | 依場次主色調（金唱片用金色、李聖傑用藍色等） |
+| CSS 變數 | 值 | 說明 |
+|---|---|---|
+| `--bg-color` | `#0f172a` | 深海軍藍背景 |
+| `--card-bg` | `#1e293b` | 卡片背景 |
+| `--text-primary` | `#f8fafc` | 主要文字 |
+| `--text-secondary` | `#94a3b8` | 次要文字、軸線標籤 |
+| `--accent-color` | `#38bdf8` | 天空藍強調色（圖表主色） |
+| `--success` | `#22c55e` | 淨營收正值 |
+| `--danger` | `#ef4444` | 退票、負值 |
+
+- 字型：`'Outfit', 'Noto Sans TC'`（同 WeiBird）
+- Header：`linear-gradient(to right, #1e293b, #0f172a)`，底部 4px accent 線
+- Logo 文字：`linear-gradient(135deg, #38bdf8, #818cf8)` clip-text
+- 卡片 hover：`border-color: var(--accent-color); transform: translateY(-5px)`
+- 版面格線：`.stats-grid`（KPI）、`.show-split`（1fr×場次數）、`.main-content`（2fr 1fr）、`.demo-content`（1fr 1fr）
+
+> 舊報表（金唱片、李聖傑等）各有獨立主色調，尚未統一至此格式。
 
 ---
 
@@ -89,6 +101,27 @@
 - 篩選條件：`節目/商品名稱 === '國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場'`
 - ActivityID：`39484`
 - GA 節目名稱（查流量用）：`'國泰世華銀行 2026 韋禮安 韋，您好 HI WE1巡迴演唱會'`
+
+### 高雄啤酒音樂節（A_KaohsiungBeerFestival_2026）
+- 篩選條件：`節目/商品名稱 === '2026 7–ELEVEN 高雄啤酒音樂節'`（注意破折號為全形 `–`）
+- 節目代碼：`B0BA4VPF`
+- 場次：3 場（`演出時間/規格` 含日期判斷）
+  - `2026-07-03`：7/3 (六) 15:00 Day 1
+  - `2026-07-04`：7/4 (日) 15:00 Day 2
+  - `2026-07-05`：7/5 (一) 16:00 Day 3
+- 聯查集合：`Qware_A_Ticket_data_Daily`（票券主資料）+ `Qware_Member_data`（國籍 / 縣市）
+- 開賣尖峰：`2026-05-13 12:00–13:00`（逐分鐘分析）
+- 圖表清單：
+  - KPI 卡片（6 張）：總成交金額、總銷售張數、總訂單筆數、客單價、退票張數、淨營收
+  - 場次銷售概況（`.show-split` 3 欄卡片）
+  - 每日銷售趨勢（bar chart）
+  - **每日各場次購票趨勢（line chart，3 場次各一條線，天空藍 / 靛紫 / 玫瑰）**
+  - 性別分佈（doughnut）、年齡分佈（bar）
+  - 城市 Top 10（橫向 bar）、付款方式 + 取票方式（table）
+  - 票別分析、票價分析（table + progress bar）
+  - 銷售點 Top 20（table）
+  - 開賣尖峰分析（table，逐分鐘張數 / 累計 / 信用卡 / ATM / 轉換率）
+- 視覺格式：**WeiBird 格式**（navy 主題，見第 4 節）
 
 ---
 
