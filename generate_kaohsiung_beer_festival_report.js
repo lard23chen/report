@@ -51,9 +51,9 @@ async function generateReport() {
         }).toArray();
         console.log(`Fetched ${pageViews.length} page view records.`);
 
-        // Fetch GA sessions by minute as fallback (opening days)
+        // Fetch GA sessions by ActivityID 39590 (Beer Festival) — all dates
         const gaSessions = await db.collection('QwareTrafficSession').find({
-            CreateTime: { $gte: new Date('2026-05-13T00:00:00Z'), $lte: new Date('2026-05-14T23:59:59Z') }
+            ActivityID: 39590
         }).toArray();
         console.log(`Fetched ${gaSessions.length} GA session records.`);
 
@@ -248,7 +248,7 @@ function init() {
     document.getElementById('val-net-revenue').innerText = fmtMoney(rev - refAmt);
 
     // Show Breakdown Table
-    const showDates = [...new Set(dbData.map(o => (o['演出時間/規格'] || '').substring(0, 10)).filter(d => d && d.match(/^\d{4}/)))].sort();
+    const showDates = [...new Set(dbData.map(o => (o['演出時間/規格'] || '').substring(0, 10)).filter(d => d && d.startsWith('20')))].sort();
     const sbTbody = document.querySelector('#showBreakdownTable tbody');
     let grandRev = 0, grandTix = 0, grandNet = 0, grandNetTix = 0, grandRefAmt = 0, grandRefTix = 0, grandRefFees = 0;
     showDates.forEach(showDate => {
@@ -309,9 +309,10 @@ function init() {
         });
     } else {
         gaSessions.forEach(s => {
-            if (!s.SessionDate) return;
-            const sd = String(s.SessionDate);
-            const date = sd.slice(0,4) + '-' + sd.slice(4,6) + '-' + sd.slice(6,8);
+            if (!s.CreateTime) return;
+            const dt = new Date(s.CreateTime);
+            dt.setHours(dt.getHours() + 8); // UTC → Taiwan time
+            const date = dt.toISOString().substring(0, 10);
             viewsByDate[date] = (viewsByDate[date] || 0) + (s.SessionCount || 0);
         });
     }
