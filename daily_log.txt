@@ -1243,3 +1243,147 @@ Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.211.33:27017
   }
 }
 [2026/05/14 ¶g¥| 11:02:10.50] Update Completed. 
+To https://github.com/lard23chen/report.git
+   c618fdc..d5f1f09  main -> main
+[2026/05/17 ¶g¤é  8:00:02.24] Starting Daily Report Update... 
+Connecting to MongoDB...
+Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.211.33:27017
+    at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
+    at async Topology._connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:220:28)
+    at async Topology.connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:171:13)
+    at async topologyConnect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\mongo_client.js:258:17)
+    at async MongoClient._connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\mongo_client.js:271:13)
+    at async MongoClient.connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\mongo_client.js:196:13)
+    at async generateDailyReport (D:\2025\AI\MongoDB\generate_a_daily_report.js:20:9) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'for-aws-loadtest-shard-00-00.f0fpg.mongodb.net:27017' => [ServerDescription],
+      'for-aws-loadtest-shard-00-01.f0fpg.mongodb.net:27017' => [ServerDescription],
+      'for-aws-loadtest-shard-00-02.f0fpg.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-bwu1b7-shard-0',
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkError: connect ETIMEDOUT 159.143.211.33:27017
+      at TLSSocket.<anonymous> (D:\2025\AI\MongoDB\node_modules\mongodb\lib\cmap\connect.js:297:44)
+      at Object.onceWrapper (node:events:623:26)
+      at TLSSocket.emit (node:events:508:28)
+      at emitErrorNT (node:internal/streams/destroy:170:8)
+      at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errorLabelSet: Set(3) { 'SystemOverloadedError', 'RetryableError', 'ResetPool' },
+    beforeHandshake: false,
+    [cause]: Error: connect ETIMEDOUT 159.143.211.33:27017
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+      errno: -4039,
+      code: 'ETIMEDOUT',
+      syscall: 'connect',
+      address: '159.143.211.33',
+      port: 27017
+    }
+  }
+}
+Connecting to MongoDB...
+Error generating report: MongoServerSelectionError: connect ETIMEDOUT 159.143.211.33:27017
+    at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
+    at async Topology._connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:220:28)
+    at async Topology.connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:171:13)
+    at async topologyConnect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\mongo_client.js:258:17)
+    at async MongoClient._connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\mongo_client.js:271:13)
+    at async MongoClient.connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\mongo_client.js:196:13)
+    at async generateReport (D:\2025\AI\MongoDB\generate_golden_disc_report.js:19:9) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'for-aws-loadtest-shard-00-00.f0fpg.mongodb.net:27017' => [ServerDescription],
+      'for-aws-loadtest-shard-00-01.f0fpg.mongodb.net:27017' => [ServerDescription],
+      'for-aws-loadtest-shard-00-02.f0fpg.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-bwu1b7-shard-0',
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkError: connect ETIMEDOUT 159.143.211.33:27017
+      at TLSSocket.<anonymous> (D:\2025\AI\MongoDB\node_modules\mongodb\lib\cmap\connect.js:297:44)
+      at Object.onceWrapper (node:events:623:26)
+      at TLSSocket.emit (node:events:508:28)
+      at emitErrorNT (node:internal/streams/destroy:170:8)
+      at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errorLabelSet: Set(3) { 'SystemOverloadedError', 'RetryableError', 'ResetPool' },
+    beforeHandshake: false,
+    [cause]: Error: connect ETIMEDOUT 159.143.211.33:27017
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+      errno: -4039,
+      code: 'ETIMEDOUT',
+      syscall: 'connect',
+      address: '159.143.211.33',
+      port: 27017
+    }
+  }
+}
+Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.212.22:27017
+    at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
+    at async Topology._connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:220:28)
+    at async Topology.connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:171:13)
+    at async topologyConnect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\mongo_client.js:258:17)
+    at async MongoClient._connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\mongo_client.js:271:13)
+    at async MongoClient.connect (D:\2025\AI\MongoDB\node_modules\mongodb\lib\mongo_client.js:196:13)
+    at async run (D:\2025\AI\MongoDB\generate_expense_report.js:9:9) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'for-aws-loadtest-shard-00-02.f0fpg.mongodb.net:27017' => [ServerDescription],
+      'for-aws-loadtest-shard-00-00.f0fpg.mongodb.net:27017' => [ServerDescription],
+      'for-aws-loadtest-shard-00-01.f0fpg.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-bwu1b7-shard-0',
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkError: connect ETIMEDOUT 159.143.212.22:27017
+      at TLSSocket.<anonymous> (D:\2025\AI\MongoDB\node_modules\mongodb\lib\cmap\connect.js:297:44)
+      at Object.onceWrapper (node:events:623:26)
+      at TLSSocket.emit (node:events:508:28)
+      at emitErrorNT (node:internal/streams/destroy:170:8)
+      at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errorLabelSet: Set(3) { 'SystemOverloadedError', 'RetryableError', 'ResetPool' },
+    beforeHandshake: false,
+    [cause]: Error: connect ETIMEDOUT 159.143.212.22:27017
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+      errno: -4039,
+      code: 'ETIMEDOUT',
+      syscall: 'connect',
+      address: '159.143.212.22',
+      port: 27017
+    }
+  }
+}
+[2026/05/17 ¶g¤é  8:01:41.10] Update Completed. 
