@@ -215,7 +215,7 @@
             <div class="logo-sub">會員資料庫深度分析</div>
         </div>
         <div class="meta">
-            Generated: 2026/4/21 上午11:13:21<br>
+            Generated: 2026/5/18 下午1:28:32<br>
             Total Members: 3,047,237
         </div>
     </header>
@@ -253,15 +253,15 @@
                 <tbody>
                     
                         <tr>
-                            <td>男</td>
-                            <td>1,090,793</td>
-                            <td>35.8%</td>
-                        </tr>
-                    
-                        <tr>
                             <td>女</td>
                             <td>1,956,444</td>
                             <td>64.2%</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>男</td>
+                            <td>1,090,793</td>
+                            <td>35.8%</td>
                         </tr>
                     
                 </tbody>
@@ -347,15 +347,6 @@
             <h3>會員增長趨勢 (Monthly Growth Trend - Last 12 Months)</h3>
             <div style="height: 350px;">
                 <canvas id="growthChart"></canvas>
-            </div>
-            <div style="margin-top:24px;">
-                <h4 style="color:#BB86FC;font-size:1rem;margin-bottom:10px;">最近月份趨勢分析 (MoM Analysis)</h4>
-                <div style="background:#252525;border-radius:10px;padding:14px 18px;border-left:3px solid #66BB6A;max-width:640px;line-height:1.8;font-size:0.92rem;color:#ccc;">
-                    <div style="font-weight:700;margin-bottom:6px;color:#fff;">2026/03 較上月(2026/02)</div>
-                    <div>📈 <b style="color:#fff;">增長趨勢：</b>3月新增會員 12.4 萬人，較 2 月（15.8 萬）減少約 3.4 萬（-21.7%），但仍遠高於 1 月（4.2 萬），整體維持高活躍區間。</div>
-                    <div>🌐 <b style="color:#fff;">來源分布：</b>Google（32.9%）與 OP（31.4%）為最大來源，合計達 64.3%；LINE（18.3%）居第三，FB（9.5%）次之，Apple（2.1%）佔比最低。</div>
-                    <div>🔍 <b style="color:#fff;">補充觀察：</b>社群授權登入（Google／LINE／FB／Apple）合計約 62.8%，自有帳號（OP＋MAJOR）約 37.2%，社群登入為主要註冊管道。</div>
-                </div>
             </div>
         </div>
     </div>
@@ -452,13 +443,13 @@
 
 <script>
     // Data Preparation
-    const genderData = {"男":1090793,"女":1956444};
+    const genderData = {"女":1956444,"男":1090793};
     const ageData = {"<18":53564,"18-24":552241,"25-34":1184946,"35-44":762088,"45-54":393285,"55-64":85404,"65+":15706,"Unknown":3};
     const socialData = [{"name":"GOOGLE","count":1001583},{"name":"OP","count":957112},{"name":"LINE","count":556259},{"name":"FB","count":288910},{"name":"MAJOR","count":179952},{"name":"APPLE","count":63421}];
     const countryData = [{"name":"台灣","count":2941489},{"name":"其他","count":70534},{"name":"日本","count":20757},{"name":"韓國","count":8314},{"name":"中國","count":6143}]; // Top 15
     const cityData = [{"name":"格式不符","count":665892},{"name":"新北市","count":471507},{"name":"高雄市","count":328884},{"name":"臺北市","count":282851},{"name":"臺中市","count":257271},{"name":"桃園市","count":225996},{"name":"臺南市","count":217026},{"name":"彰化縣","count":79355},{"name":"屏東縣","count":61989},{"name":"新竹縣","count":55153},{"name":"新竹市","count":47841},{"name":"雲林縣","count":37095},{"name":"苗栗縣","count":35424},{"name":"基隆市","count":33518},{"name":"宜蘭縣","count":31256},{"name":"嘉義縣","count":28112},{"name":"南投縣","count":25492},{"name":"嘉義市","count":21868},{"name":"花蓮縣","count":17362},{"name":"臺東縣","count":10791},{"name":"澎湖縣","count":3776},{"name":"金門縣","count":2629},{"name":"連江縣","count":401}];
     const taiwanTotal = 2941489;
-    const monthlyGrowthData = [{"month":"2025-03","count":1286},{"month":"2025-04","count":39400},{"month":"2025-05","count":84527},{"month":"2025-06","count":67325},{"month":"2025-07","count":51767},{"month":"2025-08","count":56810},{"month":"2025-09","count":127973},{"month":"2025-10","count":110799},{"month":"2025-11","count":43616},{"month":"2025-12","count":148278},{"month":"2026-01","count":42326},{"month":"2026-02","count":157813},{"month":"2026-03","count":123511}];
+    const monthlyGrowthData = [{"month":"2025-04","count":1257},{"month":"2025-05","count":84527},{"month":"2025-06","count":67325},{"month":"2025-07","count":51767},{"month":"2025-08","count":56810},{"month":"2025-09","count":127973},{"month":"2025-10","count":110799},{"month":"2025-11","count":43616},{"month":"2025-12","count":148278},{"month":"2026-01","count":42326},{"month":"2026-02","count":157813},{"month":"2026-03","count":123511}];
     const blacklistData = {"Yes":27190,"No":3020047};
     const disabilityData = {"Yes":15280,"No":3031957};
     const zodiacData = {"牡羊座 (Aries)":{"男":82768,"女":149281},"金牛座 (Taurus)":{"男":85351,"女":154313},"雙子座 (Gemini)":{"男":85796,"女":156055},"巨蟹座 (Cancer)":{"男":93657,"女":169800},"獅子座 (Leo)":{"男":92154,"女":169331},"處女座 (Virgo)":{"男":97208,"女":173955},"天秤座 (Libra)":{"男":98756,"女":175331},"天蠍座 (Scorpio)":{"男":98593,"女":175292},"射手座 (Sagittarius)":{"男":94272,"女":165314},"摩羯座 (Capricorn)":{"男":86955,"女":155481},"水瓶座 (Aquarius)":{"男":86439,"女":154882},"雙魚座 (Pisces)":{"男":88844,"女":157405}};
