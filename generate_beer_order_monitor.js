@@ -152,12 +152,8 @@ const html = `<!DOCTYPE html>
 
 </div>
 <script>
-var data513 = [
-      ${js513}
-    ];
-var data514 = [
-      ${js514}
-    ];
+var data513 = ${js513};
+var data514 = ${js514};
 
 function fmt(n) { return Number(n).toLocaleString(); }
 
