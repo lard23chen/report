@@ -446,8 +446,9 @@ function init() {
     const topCities = Object.entries(cityStats).sort((a,b) => b[1]-a[1]).slice(0, 10);
     new Chart(document.getElementById('cityChart'), {
         type: 'bar',
+        plugins: [ChartDataLabels],
         data: { labels: topCities.map(c=>c[0]), datasets: [{ data: topCities.map(c=>c[1]), backgroundColor: '#818cf8', borderRadius: 4 }] },
-        options: { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { color: '#f8fafc', anchor: 'end', align: 'right' } }, scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
+        options: { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { color: '#f8fafc', anchor: 'end', align: 'right', font: { size: 11, weight: '600' }, formatter: v => v.toLocaleString() } }, scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
     });
 
     // Nationality
