@@ -124,7 +124,7 @@ const html = `<!DOCTYPE html>
 </div>
 
 <div class="section seg-table">
-  <h2>每30分鐘區段統計</h2>
+  <h2>每5分鐘區段統計</h2>
   <table>
     <thead><tr>
       <th>區段</th>
@@ -224,10 +224,15 @@ makeChart('chartOrders', data513.map(function(d){return d.orders;}), data514.map
 makeChart('chartCumOrders', data513.map(function(d){return d.ordersCum;}), data514.map(function(d){return d.ordersCum;}), '5/13 累積訂單', '5/14 累積訂單');
 makeChart('chartQIT', data513.map(function(d){return d.domQIT;}), data514.map(function(d){return d.domQIT;}), '5/13 國內QIT', '5/14 國內QIT');
 
-var segs = [
-  { label: '12:00–12:29', start: '12:00', end: '12:29' },
-  { label: '12:30–12:50', start: '12:30', end: '12:50' }
-];
+var segs = (function() {
+  var result = [];
+  for (var t = 0; t <= 50; t += 5) {
+    var s = '12:' + (t < 10 ? '0' : '') + t;
+    var e = '12:' + (Math.min(t + 4, 50) < 10 ? '0' : '') + Math.min(t + 4, 50);
+    result.push({ label: s + '–' + e, start: s, end: e });
+  }
+  return result;
+})();
 var segBody = document.getElementById('segTableBody');
 segs.forEach(function(seg) {
   var rows513 = data513.filter(function(d){ return d.time >= seg.start && d.time <= seg.end; });
