@@ -436,8 +436,9 @@ function init() {
     const ageLabels = ageOrder.filter(k => ageStats[k]);
     new Chart(document.getElementById('ageChart'), {
         type: 'bar',
+        plugins: [ChartDataLabels],
         data: { labels: ageLabels, datasets: [{ data: ageLabels.map(k => ageStats[k]), backgroundColor: '#38bdf8', borderRadius: 6 }] },
-        options: { plugins: { legend: { display: false }, datalabels: { color: '#94a3b8', anchor: 'end', align: 'top' } }, scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
+        options: { plugins: { legend: { display: false }, datalabels: { color: '#94a3b8', anchor: 'end', align: 'top', font: { size: 11, weight: '600' }, formatter: v => v.toLocaleString() } }, scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
     });
 
     // City Chart
