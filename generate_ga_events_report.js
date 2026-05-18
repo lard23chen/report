@@ -565,10 +565,9 @@ async function main() {
         })();
         document.getElementById('valTimeSub').innerText = "總數據點數: " + d.data.length;
 
-        // Update Table — show from 10 rows before peak session onwards
+        // Update Table — show all data
         const tbody = document.querySelector('#dataTable tbody');
-        const peakIdx = d.data.findIndex(item => item.session === d.maxSession);
-        const displayData = peakIdx >= 0 ? d.data.slice(Math.max(0, peakIdx - 10)) : d.data;
+        const displayData = d.data;
         tbody.innerHTML = displayData.map(item => {
             const isMax = item.session === d.maxSession && d.maxSession > 0;
             const bg = isMax ? ' style="background: rgba(59, 130, 246, 0.2);"' : '';
