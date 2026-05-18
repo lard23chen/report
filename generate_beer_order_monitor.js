@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const tmpData = JSON.parse(fs.readFileSync(path.join(__dirname, 'tmp_beer_data.json'), 'utf8'));
-const js513 = tmpData.data513;
-const js514 = tmpData.data514;
+const js513 = JSON.stringify(tmpData.data513);
+const js514 = JSON.stringify(tmpData.data514);
 
 const html = `<!DOCTYPE html>
 <html lang="zh-TW">
