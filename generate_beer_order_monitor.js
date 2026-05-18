@@ -97,6 +97,11 @@ const html = `<!DOCTYPE html>
     <div class="val514" id="kpi-cards514">-</div><div class="kpi-day">5/14</div>
   </div>
   <div class="kpi-card">
+    <div class="label">5/14 ibon 付現張數</div>
+    <div class="val514" id="kpi-ibon514">-</div><div class="kpi-day">5/14</div>
+    <div class="sub" id="kpi-ibon-pct"></div>
+  </div>
+  <div class="kpi-card">
     <div class="label">Booking 尖峰分鐘</div>
     <div class="val513" id="kpi-peakb513">-</div><div class="kpi-day">5/13</div>
     <div class="val514" id="kpi-peakb514">-</div><div class="kpi-day">5/14</div>
@@ -142,7 +147,7 @@ const html = `<!DOCTYPE html>
     <thead><tr>
       <th>區段</th>
       <th>5/13 Booking</th><th>5/13 訂單</th><th>5/13 刷卡</th>
-      <th>5/14 Booking</th><th>5/14 訂單</th><th>5/14 刷卡</th>
+      <th>5/14 Booking</th><th>5/14 訂單</th><th>5/14 刷卡</th><th>5/14 ibon付現</th>
       <th>訂單增幅</th>
     </tr></thead>
     <tbody id="segTableBody"></tbody>
@@ -182,6 +187,8 @@ var oDiff = ((last514.ordersCum - last513.ordersCum) / last513.ordersCum * 100).
 document.getElementById('kpi-orders-diff').textContent = '5/14 較 5/13 +' + oDiff + '%';
 document.getElementById('kpi-cards513').textContent = fmt(last513.cardsCum);
 document.getElementById('kpi-cards514').textContent = fmt(last514.cardsCum);
+document.getElementById('kpi-ibon514').textContent = fmt(last514.ibonCum);
+document.getElementById('kpi-ibon-pct').textContent = 'ibon占5/14訂單 ' + ((last514.ibonCum / last514.ordersCum) * 100).toFixed(1) + '%';
 
 var peakB513 = data513.reduce(function(a,b){ return b.booking > a.booking ? b : a; });
 var peakB514 = data514.reduce(function(a,b){ return b.booking > a.booking ? b : a; });
@@ -252,32 +259,40 @@ segs.forEach(function(seg) {
   var b514 = rows514.reduce(function(s,d){return s+d.booking;}, 0);
   var o514 = rows514.reduce(function(s,d){return s+d.orders;}, 0);
   var c514 = rows514.reduce(function(s,d){return s+d.cards;}, 0);
+  var i514 = rows514.reduce(function(s,d){return s+(d.ibon||0);}, 0);
   var diff = o513 > 0 ? ((o514-o513)/o513*100).toFixed(1) : '-';
   var cl = parseFloat(diff) > 0 ? 'up' : 'down';
   var diffText = diff !== '-' ? (parseFloat(diff) > 0 ? '+' : '') + diff + '%' : '-';
   var tr = document.createElement('tr');
-  tr.innerHTML = '<td>' + seg.label + '</td><td>' + fmt(b513) + '</td><td>' + fmt(o513) + '</td><td>' + fmt(c513) + '</td><td>' + fmt(b514) + '</td><td>' + fmt(o514) + '</td><td>' + fmt(c514) + '</td><td class="' + cl + '">' + diffText + '</td>';
+  tr.innerHTML = '<td>' + seg.label + '</td><td>' + fmt(b513) + '</td><td>' + fmt(o513) + '</td><td>' + fmt(c513) + '</td><td>' + fmt(b514) + '</td><td>' + fmt(o514) + '</td><td>' + fmt(c514) + '</td><td style="color:#a78bfa;">' + fmt(i514) + '</td><td class="' + cl + '">' + diffText + '</td>';
   segBody.appendChild(tr);
 });
 
-function buildTable(tableId, data) {
+function buildTable(tableId, data, hasIbon) {
   var t = document.getElementById(tableId);
-  var hdrs = ['時間','Booking','Booking累加','訂單張數','訂單累加','刷卡張數','刷卡累加','國內QIT等候','國內進入','國內Max','國外QIT等候','國外進入','國外Max'];
+  var hdrs = ['時間','Booking','Booking累加','訂單張數','訂單累加','刷卡張數','刷卡累加'];
+  if (hasIbon) hdrs.push('ibon付現','ibon累加');
+  hdrs = hdrs.concat(['國內QIT等候','國內進入','國內Max','國外QIT等候','國外進入','國外Max']);
   var thead = '<thead><tr>' + hdrs.map(function(h){ return '<th>' + h + '</th>'; }).join('') + '</tr></thead>';
   t.innerHTML = thead;
   var tbody = document.createElement('tbody');
   data.forEach(function(d) {
     var tr = document.createElement('tr');
     if (d.time === '12:30') tr.className = 'divider';
-    var vals = [d.time, fmt(d.booking), fmt(d.bookingCum), fmt(d.orders), fmt(d.ordersCum), fmt(d.cards), fmt(d.cardsCum),
-      d.domQIT || '-', d.domIn || '-', d.domMax || '-', d.intlQIT || '-', d.intlIn || '-', d.intlMax || '-'];
+    var vals = [d.time, fmt(d.booking), fmt(d.bookingCum), fmt(d.orders), fmt(d.ordersCum), fmt(d.cards), fmt(d.cardsCum)];
+    if (hasIbon) {
+      var ibonVal = d.ibon != null ? d.ibon : (d.orders - d.cards);
+      var ibonCumVal = d.ibonCum != null ? d.ibonCum : 0;
+      vals.push('<span style="color:#a78bfa;">' + fmt(ibonVal) + '</span>', '<span style="color:#a78bfa;">' + fmt(ibonCumVal) + '</span>');
+    }
+    vals = vals.concat([d.domQIT || '-', d.domIn || '-', d.domMax || '-', d.intlQIT || '-', d.intlIn || '-', d.intlMax || '-']);
     tr.innerHTML = vals.map(function(v){ return '<td>' + v + '</td>'; }).join('');
     tbody.appendChild(tr);
   });
   t.appendChild(tbody);
 }
-buildTable('table513', data513);
-buildTable('table514', data514);
+buildTable('table513', data513, false);
+buildTable('table514', data514, true);
 
 function switchTab(btn, id) {
   document.querySelectorAll('.tab-content').forEach(function(el){ el.classList.remove('active'); });
