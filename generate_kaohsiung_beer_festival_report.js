@@ -384,6 +384,7 @@ function init() {
     const sessionDays = Object.keys(sessionDailyMap).sort();
     new Chart(document.getElementById('sessionTrendChart'), {
         type: 'line',
+        plugins: [ChartDataLabels],
         data: {
             labels: sessionDays,
             datasets: sessionShows.map(s => ({
@@ -404,7 +405,7 @@ function init() {
                 datalabels: {
                     display: true,
                     align: 'top',
-                    anchor: 'center',
+                    anchor: 'end',
                     font: { size: 10, weight: '600' },
                     color: (ctx) => ctx.dataset.borderColor,
                     formatter: (v) => v > 0 ? v.toLocaleString() : ''
