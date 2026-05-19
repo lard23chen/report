@@ -216,7 +216,7 @@ async function generateReport() {
         const gStats = {}; valid.forEach(o => { const g = o['性別']; if(g && g !== '-') gStats[g] = (gStats[g]||0)+1; });
         new Chart(document.getElementById('genderChart'), {
             type: 'doughnut',
-            data: { labels: Object.keys(gStats), datasets: [{ data: Object.values(gStats), backgroundColor: ['#38bdf8', '#fb7185', '#94a3b8'] }] },
+            data: { labels: Object.keys(gStats), datasets: [{ data: Object.values(gStats), backgroundColor: ['#fb7185', '#38bdf8', '#94a3b8'] }] },
             plugins: [ChartDataLabels],
             options: { plugins: { datalabels: { color: 'white', formatter: (v, ctx) => Math.round(v/ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)*100)+'%' } } }
         });

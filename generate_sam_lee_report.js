@@ -703,7 +703,7 @@ async function generateReport() {
                 labels: Object.keys(genderStats),
                 datasets: [{
                     data: Object.values(genderStats),
-                    backgroundColor: ['#42A5F5', '#EC407A', '#BDBDBD'],
+                    backgroundColor: ['#EC407A', '#42A5F5', '#BDBDBD'],
                     borderWidth: 0
                 }]
             },
@@ -1067,7 +1067,7 @@ async function generateReport() {
                 labels: Object.keys(genderStats),
                 datasets: [{
                     data: Object.values(genderStats),
-                    backgroundColor: ['#42A5F5', '#EC407A', '#BDBDBD'],
+                    backgroundColor: ['#EC407A', '#42A5F5', '#BDBDBD'],
                     borderWidth: 0
                 }]
             },
