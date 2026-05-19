@@ -43,11 +43,11 @@ async function generateReport() {
             });
         });
 
-        // Fetch GA sessions by ActivityID 39356
-        const gaSessions = await db.collection('QwareTrafficSession').find({
-            ActivityID: 39356
+        // Fetch page views from Qware_A_Traffic_session_data
+        const pageViews = await db.collection('Qware_A_Traffic_session_data').find({
+            '節目名稱': { $regex: '高雄櫻花', $options: 'i' }
         }).toArray();
-        console.log(`Fetched ${gaSessions.length} GA session records.`);
+        console.log(`Fetched ${pageViews.length} page view records.`);
 
         const reportTime = new Date().toLocaleString('zh-TW');
 
@@ -218,7 +218,7 @@ async function generateReport() {
 
 <script>
 const dbData = ${JSON.stringify(data)};
-const gaSessions = ${JSON.stringify(gaSessions)};
+const pageViews = ${JSON.stringify(pageViews)};
 
 function fmt(n) { return Math.round(n).toLocaleString(); }
 function fmtMoney(n) { return '$' + fmt(n); }
@@ -285,14 +285,13 @@ function init() {
         <td class="text-right">\${fmtMoney(grandRefFees)}</td>\`;
     sbTbody.appendChild(totalTr);
 
-    // Sessions by Date Chart (GA)
+    // Sessions by Date Chart (Qware_A_Traffic_session_data)
     const viewsByDate = {};
-    gaSessions.forEach(s => {
-        if (!s.CreateTime) return;
-        const dt = new Date(s.CreateTime);
-        dt.setHours(dt.getHours() + 8);
-        const date = dt.toISOString().substring(0, 10);
-        viewsByDate[date] = (viewsByDate[date] || 0) + (s.SessionCount || 0);
+    pageViews.forEach(p => {
+        if (!p['瀏覽日期']) return;
+        const dStr = typeof p['瀏覽日期'] === 'string' ? p['瀏覽日期'] : new Date(p['瀏覽日期']).toISOString();
+        const date = dStr.substring(0, 10);
+        viewsByDate[date] = (viewsByDate[date] || 0) + (parseInt(p['瀏覽量']) || 0);
     });
     const salesByDate = {};
     valid.forEach(o => {
@@ -301,14 +300,14 @@ function init() {
         salesByDate[date] = (salesByDate[date] || 0) + 1;
     });
     const allDatesSet = new Set([...Object.keys(salesByDate), ...Object.keys(viewsByDate)]);
-    const allDates = Array.from(allDatesSet).sort();
+    const allDates = Array.from(allDatesSet).sort().filter(d => d >= '2025-12-23');
     const dailyViews = allDates.map(d => viewsByDate[d] || 0);
 
     new Chart(document.getElementById('viewChart'), {
         type: 'line',
         data: {
             labels: allDates,
-            datasets: [{ label: 'Session Count (Daily)', data: dailyViews, borderColor: '#f472b6', backgroundColor: 'rgba(244,114,182,0.1)', tension: 0.3, fill: true, pointRadius: 4, pointHoverRadius: 6 }]
+            datasets: [{ label: '每日瀏覽量 (Page Views)', data: dailyViews, borderColor: '#f472b6', backgroundColor: 'rgba(244,114,182,0.1)', tension: 0.3, fill: true, pointRadius: 4, pointHoverRadius: 6 }]
         },
         plugins: [ChartDataLabels],
         options: {
