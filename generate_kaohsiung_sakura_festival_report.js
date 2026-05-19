@@ -300,7 +300,7 @@ function init() {
         salesByDate[date] = (salesByDate[date] || 0) + 1;
     });
     const allDatesSet = new Set([...Object.keys(salesByDate), ...Object.keys(viewsByDate)]);
-    const allDates = Array.from(allDatesSet).sort().filter(d => d >= '2025-12-23' && d <= '2026-03-16');
+    const allDates = Array.from(allDatesSet).sort().filter(d => d >= '2025-12-23' && d <= '2026-02-28');
     const dailyViews = allDates.map(d => viewsByDate[d] || 0);
 
     new Chart(document.getElementById('viewChart'), {
