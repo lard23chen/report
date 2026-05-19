@@ -45,11 +45,11 @@ async function generateReport() {
             });
         });
 
-        // Fetch GA sessions by ActivityID 38969 (2025 Beer Festival)
-        const gaSessions = await db.collection('QwareTrafficSession').find({
-            ActivityID: 38969
+        // Fetch page views from Qware_A_Traffic_session_data
+        const pageViews = await db.collection('Qware_A_Traffic_session_data').find({
+            '節目名稱': { $regex: '高雄啤酒', $options: 'i' }
         }).toArray();
-        console.log(`Fetched ${gaSessions.length} GA session records.`);
+        console.log(`Fetched ${pageViews.length} page view records.`);
 
         const reportTime = new Date().toLocaleString('zh-TW');
 
@@ -227,7 +227,7 @@ async function generateReport() {
 
 <script>
 const dbData = ${JSON.stringify(data)};
-const gaSessions = ${JSON.stringify(gaSessions)};
+const pageViews = ${JSON.stringify(pageViews)};
 
 function fmt(n) { return Math.round(n).toLocaleString(); }
 function fmtMoney(n) { return '$' + fmt(n); }
@@ -297,28 +297,28 @@ function init() {
         <td class="text-right">\${fmtMoney(grandRefFees)}\`;
     sbTbody.appendChild(totalTr);
 
-    // Sessions by Date Chart (GA sessions stored in local time)
+    // Sessions by Date Chart (Qware_A_Traffic_session_data)
     const salesByDate = {}, viewsByDate = {};
     valid.forEach(o => {
         if (!o['交易時間']) return;
         const date = o['交易時間'].split(' ')[0];
         salesByDate[date] = (salesByDate[date] || 0) + 1;
     });
-    gaSessions.forEach(s => {
-        if (!s.CreateTime) return;
-        // CreateTime stored in local Taiwan time (string format)
-        const date = String(s.CreateTime).substring(0, 10);
-        viewsByDate[date] = (viewsByDate[date] || 0) + (s.SessionCount || 0);
+    pageViews.forEach(p => {
+        if (!p['瀏覽日期']) return;
+        const dStr = typeof p['瀏覽日期'] === 'string' ? p['瀏覽日期'] : new Date(p['瀏覽日期']).toISOString();
+        const date = dStr.substring(0, 10);
+        viewsByDate[date] = (viewsByDate[date] || 0) + (parseInt(p['瀏覽量']) || 0);
     });
     const allDatesSet = new Set([...Object.keys(salesByDate), ...Object.keys(viewsByDate)]);
-    const allDates = Array.from(allDatesSet).sort();
+    const allDates = Array.from(allDatesSet).sort().filter(d => d >= '2025-05-23');
     const dailyViews = allDates.map(d => viewsByDate[d] || 0);
 
     new Chart(document.getElementById('viewChart'), {
         type: 'line',
         data: {
             labels: allDates,
-            datasets: [{ label: 'Session Count (Daily)', data: dailyViews, borderColor: '#42A5F5', backgroundColor: 'rgba(66,165,245,0.1)', tension: 0.3, fill: true, pointRadius: 4, pointHoverRadius: 6 }]
+            datasets: [{ label: '每日瀏覽量 (Page Views)', data: dailyViews, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.1)', tension: 0.3, fill: true, pointRadius: 4, pointHoverRadius: 6 }]
         },
         plugins: [ChartDataLabels],
         options: {
@@ -329,7 +329,7 @@ function init() {
             },
             scales: {
                 x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#42A5F5', callback: v => v >= 1000 ? v/1000+'k' : v }, beginAtZero: true }
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#38bdf8', callback: v => v >= 1000 ? v/1000+'k' : v }, beginAtZero: true }
             }
         }
     });
