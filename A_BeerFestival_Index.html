@@ -3,323 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高雄啤酒音樂節 - 專案報表目錄</title>
+    <title>🍺 高雄啤酒音樂節 - 報表目錄</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #1a1200;
-            --card-bg: #2a1a00;
-            --card-hover: #362200;
-            --border: #c68000;
-            --gold: #ffd000;
-            --orange: #ff9900;
-            --teal: #4dd0e1;
-            --text: #f5e6c0;
-            --text-muted: #a08040;
-            --shadow: 0 8px 24px rgba(0,0,0,0.5);
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #ffd000;
+            --accent-green: #4CAF50;
+            --accent-gold: #ffd700;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 40px 24px;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 40px;
         }
-        .container { max-width: 1100px; margin: 0 auto; }
-
-        /* Header */
-        header {
-            background: linear-gradient(135deg, #2d1a00, #4a2800, #2d1a00);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 40px 48px;
-            margin-bottom: 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow);
-        }
-        .header-left h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--gold);
-            letter-spacing: -0.5px;
-        }
-        .header-left p {
-            color: var(--text-muted);
-            margin-top: 8px;
-            font-size: 0.95rem;
-        }
-        .header-icon { font-size: 4rem; line-height: 1; }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.88rem;
-            margin-bottom: 20px;
-            transition: color 0.2s;
-        }
-        .back-link:hover { color: var(--gold); }
-
-        /* Section title */
-        .section-title {
-            font-size: 0.78rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-muted);
-            padding: 0 4px;
-            margin-bottom: 16px;
-            margin-top: 36px;
-        }
-        .section-title:first-of-type { margin-top: 0; }
-
-        /* Cards grid */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 12px;
-        }
-        .card {
-            background: var(--card-bg);
-            border: 1px solid rgba(198, 128, 0, 0.3);
-            border-radius: 16px;
-            padding: 28px;
-            transition: all 0.25s;
-            position: relative;
-            overflow: hidden;
-        }
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-        }
-        .card.orange::before { background: var(--orange); }
-        .card.teal::before { background: var(--teal); }
-        .card.gold::before { background: var(--gold); }
-        .card:hover {
-            background: var(--card-hover);
-            border-color: var(--border);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow);
-        }
-        .card-icon { font-size: 1.8rem; margin-bottom: 14px; }
-        .card-year {
-            display: inline-block;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            padding: 2px 10px;
-            border-radius: 20px;
-            margin-bottom: 10px;
-        }
-        .year-2026 { background: rgba(255,153,0,0.15); color: var(--orange); }
-        .year-2025 { background: rgba(77,208,225,0.12); color: var(--teal); }
-        .card h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text);
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
             margin-bottom: 8px;
-            line-height: 1.4;
+            color: var(--accent-color);
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
         }
-        .card p {
-            font-size: 0.88rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        .card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .btn-report {
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 8px;
-            font-size: 0.88rem;
-            font-weight: 700;
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 32px;
+            color: #a0a0a0;
             text-decoration: none;
-            transition: opacity 0.2s;
+            font-size: 0.9rem;
         }
-        .btn-report:hover { opacity: 0.85; }
-        .btn-orange { background: var(--orange); color: #1a1200; }
-        .btn-teal { background: var(--teal); color: #1a1200; }
-        .btn-gold { background: var(--gold); color: #1a1200; }
-        .btn-spec {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .btn-spec:hover { color: var(--gold); }
-
-        /* Data source tag */
-        .datasource {
-            display: inline-block;
-            font-size: 0.72rem;
-            color: #704000;
-            background: rgba(198,128,0,0.08);
-            border: 1px solid rgba(198,128,0,0.2);
-            border-radius: 6px;
-            padding: 2px 8px;
-            margin-top: 6px;
-        }
-
-        /* Generator scripts table */
-        .scripts-table {
+        .back-link:hover { color: var(--accent-color); }
+        table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.88rem;
             background: var(--card-bg);
-            border: 1px solid rgba(198,128,0,0.2);
             border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            margin-bottom: 50px;
         }
-        .scripts-table th {
-            background: rgba(198,128,0,0.12);
-            color: var(--gold);
-            font-weight: 600;
-            padding: 12px 16px;
+        th, td {
+            padding: 16px 20px;
             text-align: left;
+            border-bottom: 1px solid #333;
         }
-        .scripts-table td {
-            padding: 11px 16px;
-            border-top: 1px solid rgba(198,128,0,0.1);
-            color: var(--text-muted);
-            font-family: 'Consolas', monospace;
-            font-size: 0.83rem;
+        th {
+            background-color: #2c2c2c;
+            color: var(--accent-gold);
+            font-weight: 600;
+            font-size: 1.1rem;
+            white-space: nowrap;
         }
-        .scripts-table tr:hover td { background: rgba(255,153,0,0.04); }
-        .script-desc { font-family: 'Outfit', sans-serif; font-size: 0.85rem; }
-
-        footer {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.82rem;
-            margin-top: 48px;
-            padding-top: 24px;
-            border-top: 1px solid rgba(198,128,0,0.15);
+        tr:hover { background-color: #2a2a2a; }
+        a {
+            color: #42A5F5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        a:hover { text-decoration: underline; color: #64b5f6; }
+        .sys-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #121212;
+        }
+        .sys-a    { background-color: var(--accent-gold); }
+        .sys-other { background-color: #e91e63; }
+        .table-name {
+            font-family: monospace;
+            background: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ff9800;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .update-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .spec-link {
+            font-size: 0.85rem;
+            color: #ffccbc;
+            border: 1px solid #ff5722;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .spec-link:hover {
+            background: #ff5722;
+            color: white;
+            text-decoration: none;
+        }
+        .section-row td {
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <a href="HTML_Report_Catalog.html" class="back-link">← 回報表總目錄</a>
 
-    <header>
-        <div class="header-left">
-            <h1>🍺 高雄啤酒音樂節</h1>
-            <p>7-ELEVEN 高雄啤酒音樂節 ── 歷年報表總覽（銷售 / GA 流量 / 訂單監控）</p>
-        </div>
-        <div class="header-icon">🍻</div>
-    </header>
+    <h1>🍺 高雄啤酒音樂節 報表目錄</h1>
+    <a href="HTML_Report_Catalog.html" class="back-link">← 回 Qware 報表總目錄</a>
 
-    <!-- 2026 Reports -->
-    <div class="section-title">2026 年度報表</div>
-    <div class="grid">
-
-        <div class="card orange">
-            <div class="card-icon">📊</div>
-            <span class="card-year year-2026">2026</span>
-            <h3>專案銷售分析報表</h3>
-            <p>3 場次（7/3–7/5）完整銷售分析：票價／票別／城市／付款方式／開賣尖峰時段。共 36,202 筆銷售記錄。</p>
-            <div class="datasource">Qware_A_Ticket_data_Daily</div>
-            <div class="card-footer" style="margin-top:16px;">
-                <a href="A_KaohsiungBeerFestival_2026.html" class="btn-report btn-orange" target="_blank">查看報表</a>
-                <a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_A_PROJECT_DEEP.md" class="btn-spec" target="_blank">📄 規範文檔</a>
-            </div>
-        </div>
-
-        <div class="card orange">
-            <div class="card-icon">📈</div>
-            <span class="card-year year-2026">2026</span>
-            <h3>GA 流量分析報表</h3>
-            <p>開賣日 5/13 vs 5/14 每分鐘 GA Session 比較（Session / D-Min / A-Min），含 30 分鐘分段彙整與走勢圖。</p>
-            <div class="datasource">QwareTrafficSession / QwareTrafficGAReadTime</div>
-            <div class="card-footer" style="margin-top:16px;">
-                <a href="A_BeerFestival_GA_Analysis_2026.html" class="btn-report btn-orange" target="_blank">查看報表</a>
-                <a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_GA_EVENTS_TRAFFIC.md" class="btn-spec" target="_blank">📄 規範文檔</a>
-            </div>
-        </div>
-
-        <div class="card orange">
-            <div class="card-icon">🎫</div>
-            <span class="card-year year-2026">2026</span>
-            <h3>監控搶票訂單分析報表</h3>
-            <p>5/13 vs 5/14 開賣期間每分鐘 Booking／訂單／刷卡張數，含 QIT 等候室壅塞情形與 30 分鐘分段彙整。</p>
-            <div class="datasource">Google Sheets 監控搶票訂單數</div>
-            <div class="card-footer" style="margin-top:16px;">
-                <a href="A_BeerFestival_OrderMonitor_2026.html" class="btn-report btn-orange" target="_blank">查看報表</a>
-                <a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_BEER_ORDER_MONITOR.md" class="btn-spec" target="_blank">📄 規範文檔</a>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- 2025 Reports -->
-    <div class="section-title">2025 年度報表</div>
-    <div class="grid">
-
-        <div class="card teal">
-            <div class="card-icon">📊</div>
-            <span class="card-year year-2025">2025</span>
-            <h3>專案銷售分析報表</h3>
-            <p>3 場次（7/4–7/6）完整銷售分析，開賣日 2025-05-23，含因雨退票分析。完整歷史年度數據。</p>
-            <div class="datasource">Qware_Ticket_Data</div>
-            <div class="card-footer" style="margin-top:16px;">
-                <a href="A_KaohsiungBeerFestival_2025.html" class="btn-report btn-teal" target="_blank">查看報表</a>
-                <a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_A_PROJECT_DEEP.md" class="btn-spec" target="_blank">📄 規範文檔</a>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Generator Scripts -->
-    <div class="section-title">產出腳本 (Generator Scripts)</div>
-    <table class="scripts-table">
+    <table>
         <thead>
             <tr>
-                <th>腳本檔案</th>
-                <th>產出報表</th>
-                <th>資料來源</th>
+                <th>編號</th>
+                <th>系統</th>
+                <th>更新時間</th>
+                <th>檔名 (超連結)</th>
+                <th>內容說明</th>
+                <th>視覺規範與功能組件</th>
+                <th>資料表 (Sources)</th>
+                <th>排程</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>generate_kaohsiung_beer_festival_report.js</td>
-                <td class="script-desc">A_KaohsiungBeerFestival_2026.html</td>
-                <td class="script-desc">MongoDB Qware_A_Ticket_data_Daily</td>
+            <!-- 2026 -->
+            <tr class="section-row" style="background: rgba(255, 153, 0, 0.1);">
+                <td colspan="8" style="color: #ff9900;">🍺 2026 7-ELEVEN 高雄啤酒音樂節</td>
             </tr>
             <tr>
-                <td>generate_kaohsiung_beer_festival_2025_report.js</td>
-                <td class="script-desc">A_KaohsiungBeerFestival_2025.html</td>
-                <td class="script-desc">MongoDB Qware_Ticket_Data</td>
+                <td>1</td>
+                <td><span class="sys-badge sys-a">A系統</span></td>
+                <td class="update-time">2026/05/19</td>
+                <td><a href="https://lard23chen.github.io/report/A_KaohsiungBeerFestival_2026.html" target="_blank">A_KaohsiungBeerFestival_2026.html</a></td>
+                <td>2026 7-ELEVEN 高雄啤酒音樂節 專案銷售分析（3場次 7/3–7/5、開賣日 2026-05-13、開賣尖峰、票價/票別/城市/付款分析）</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_A_PROJECT_DEEP.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
+                <td><span class="table-name">Qware_A_Ticket_data_Daily</span></td>
+                <td>手動</td>
             </tr>
             <tr>
-                <td>generate_beer_festival_ga_report.js</td>
-                <td class="script-desc">A_BeerFestival_GA_Analysis_2026.html</td>
-                <td class="script-desc">MongoDB QwareTrafficSession / QwareTrafficGAReadTime</td>
+                <td>2</td>
+                <td><span class="sys-badge sys-other">流量</span></td>
+                <td class="update-time">2026/05/14 13:00</td>
+                <td><a href="https://lard23chen.github.io/report/A_BeerFestival_GA_Analysis_2026.html" target="_blank">A_BeerFestival_GA_Analysis_2026.html</a></td>
+                <td>2026 7-ELEVEN 高雄啤酒音樂節 GA 流量分析（5/13 vs 5/14，每分鐘 Session / D-Min / A-Min，含 30 分鐘分段彙整與走勢圖）</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_GA_EVENTS_TRAFFIC.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
+                <td><span class="table-name">QwareTrafficSession / QwareTrafficGAReadTime</span></td>
+                <td>手動</td>
             </tr>
             <tr>
-                <td>generate_beer_order_monitor.js</td>
-                <td class="script-desc">A_BeerFestival_OrderMonitor_2026.html</td>
-                <td class="script-desc">Google Sheets 監控搶票訂單數</td>
+                <td>3</td>
+                <td><span class="sys-badge sys-other">流量</span></td>
+                <td class="update-time">2026/05/14 13:00</td>
+                <td><a href="https://lard23chen.github.io/report/A_BeerFestival_OrderMonitor_2026.html" target="_blank">A_BeerFestival_OrderMonitor_2026.html</a></td>
+                <td>2026 7-ELEVEN 高雄啤酒音樂節 監控搶票訂單分析（5/13 vs 5/14，每分鐘 Booking / 訂單 / 刷卡 / QIT 等候室，含 30 分鐘分段彙整與走勢圖）</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_BEER_ORDER_MONITOR.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
+                <td><span class="table-name">Google Sheets 監控搶票訂單數</span></td>
+                <td>手動</td>
+            </tr>
+
+            <!-- 2025 -->
+            <tr class="section-row" style="background: rgba(77, 208, 225, 0.08);">
+                <td colspan="8" style="color: #4dd0e1;">🍺 2025 7-ELEVEN 高雄啤酒音樂節</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td><span class="sys-badge sys-a">A系統</span></td>
+                <td class="update-time">2026/05/18</td>
+                <td><a href="https://lard23chen.github.io/report/A_KaohsiungBeerFestival_2025.html" target="_blank">A_KaohsiungBeerFestival_2025.html</a></td>
+                <td>2025 7-ELEVEN 高雄啤酒音樂節 專案銷售分析（3場次 7/4–7/6、開賣日 2025-05-23、含因雨退票分析）</td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_A_PROJECT_DEEP.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
+                <td><span class="table-name">Qware_Ticket_Data</span></td>
+                <td>手動</td>
             </tr>
         </tbody>
     </table>
 
-    <footer>
-        高雄啤酒音樂節 專案報表目錄 ── Qware AI Dashboard
-    </footer>
-</div>
 </body>
 </html>
