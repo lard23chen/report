@@ -311,7 +311,7 @@ function init() {
         viewsByDate[date] = (viewsByDate[date] || 0) + (parseInt(p['瀏覽量']) || 0);
     });
     const allDatesSet = new Set([...Object.keys(salesByDate), ...Object.keys(viewsByDate)]);
-    const allDates = Array.from(allDatesSet).sort().filter(d => d >= '2025-05-23');
+    const allDates = Array.from(allDatesSet).sort().filter(d => d >= '2025-05-23' && d <= '2025-05-31');
     const dailyViews = allDates.map(d => viewsByDate[d] || 0);
 
     new Chart(document.getElementById('viewChart'), {
