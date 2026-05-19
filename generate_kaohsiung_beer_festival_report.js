@@ -51,11 +51,6 @@ async function generateReport() {
         }).toArray();
         console.log(`Fetched ${pageViews.length} page view records.`);
 
-        // Fetch GA sessions by ActivityID 39590 (Beer Festival) — all dates
-        const gaSessions = await db.collection('QwareTrafficSession').find({
-            ActivityID: 39590
-        }).toArray();
-        console.log(`Fetched ${gaSessions.length} GA session records.`);
 
         const reportTime = new Date().toLocaleString('zh-TW');
 
@@ -227,7 +222,6 @@ async function generateReport() {
 <script>
 const dbData = ${JSON.stringify(data)};
 const pageViews = ${JSON.stringify(pageViews)};
-const gaSessions = ${JSON.stringify(gaSessions)};
 
 function fmt(n) { return Math.round(n).toLocaleString(); }
 function fmtMoney(n) { return '$' + fmt(n); }
@@ -301,21 +295,12 @@ function init() {
         const date = o['交易時間'].split(' ')[0];
         salesByDate[date] = (salesByDate[date] || 0) + 1;
     });
-    if (pageViews.length > 0) {
-        pageViews.forEach(p => {
-            if (!p['瀏覽日期']) return;
-            const date = p['瀏覽日期'].substring(0, 10);
-            viewsByDate[date] = (viewsByDate[date] || 0) + (p['瀏覽量'] || 0);
-        });
-    } else {
-        gaSessions.forEach(s => {
-            if (!s.CreateTime) return;
-            const dt = new Date(s.CreateTime);
-            dt.setHours(dt.getHours() + 8); // UTC → Taiwan time
-            const date = dt.toISOString().substring(0, 10);
-            viewsByDate[date] = (viewsByDate[date] || 0) + (s.SessionCount || 0);
-        });
-    }
+    pageViews.forEach(p => {
+        if (!p['瀏覽日期']) return;
+        const dStr = typeof p['瀏覽日期'] === 'string' ? p['瀏覽日期'] : new Date(p['瀏覽日期']).toISOString();
+        const date = dStr.substring(0, 10);
+        viewsByDate[date] = (viewsByDate[date] || 0) + (parseInt(p['瀏覽量']) || 0);
+    });
     const allDatesSet = new Set([...Object.keys(salesByDate), ...Object.keys(viewsByDate)]);
     const allDates = Array.from(allDatesSet).sort();
     const dailyViews = allDates.map(d => viewsByDate[d] || 0);
@@ -324,7 +309,7 @@ function init() {
         type: 'line',
         data: {
             labels: allDates,
-            datasets: [{ label: 'Session Count (Daily)', data: dailyViews, borderColor: '#42A5F5', backgroundColor: 'rgba(66,165,245,0.1)', tension: 0.3, fill: true, pointRadius: 4, pointHoverRadius: 6 }]
+            datasets: [{ label: '每日瀏覽量 (Page Views)', data: dailyViews, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.1)', tension: 0.3, fill: true, pointRadius: 4, pointHoverRadius: 6 }]
         },
         plugins: [ChartDataLabels],
         options: {
@@ -335,7 +320,7 @@ function init() {
             },
             scales: {
                 x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#42A5F5', callback: v => v >= 1000 ? v/1000+'k' : v }, beginAtZero: true }
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#38bdf8', callback: v => v >= 1000 ? v/1000+'k' : v }, beginAtZero: true }
             }
         }
     });
