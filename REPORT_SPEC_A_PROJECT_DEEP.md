@@ -1,7 +1,7 @@
 # A 系統專案深度評估報表 通用技術規範說明
 
 本文件定義所有「演唱會 / 專案深度評估」類報表的共通規範。
-目前涵蓋：金唱片頒獎典禮、李聖傑演唱會、統一獅例行賽、韋禮安演唱會、高雄啤酒音樂節。
+目前涵蓋：金唱片頒獎典禮、李聖傑演唱會、統一獅例行賽、韋禮安演唱會、高雄啤酒音樂節 2025/2026、高雄櫻花季 2025/2026。
 
 ---
 
@@ -22,7 +22,10 @@
 | A_SamLee_Report_2025_Taipei.html | generate_sam_lee_report.js | Qware_Ticket_Data |
 | A_UniformLions_Order_Analysis_20260309.html | generate_lions_order_report.js | Qware_A_Ticket_data_Daily |
 | A_WeiBird_Report_2026.html | generate_weibird_report.js | Qware_A_Ticket_data_Daily |
+| A_KaohsiungBeerFestival_2025.html | generate_kaohsiung_beer_festival_2025_report.js | Qware_Ticket_Data + Qware_Member_data |
 | A_KaohsiungBeerFestival_2026.html | generate_kaohsiung_beer_festival_report.js | Qware_A_Ticket_data_Daily + Qware_Member_data |
+| A_KaohsiungSakuraFestival_2025.html | generate_kaohsiung_sakura_festival_2025_report.js | Qware_Ticket_Data + Qware_Member_data |
+| A_KaohsiungSakuraFestival_2026.html | generate_kaohsiung_sakura_festival_report.js | Qware_Ticket_Data + Qware_Member_data |
 
 ---
 
@@ -34,9 +37,9 @@
 |------|------|
 | `Qware_Ticket_Data` 或 `Qware_A_Ticket_data_Daily` | 訂單/票券主資料（依事件時效選擇） |
 | `Qware_A_Section_number` | 場次座位區資料（依節目名稱查） |
-| `QwareTrafficSession` | GA 即時 session 數（依 ActivityID） |
-| `QwareTrafficGAReadTime` | GA 即時 active users（依 ActivityID） |
-| `Qware_A_Traffic_session_data` | 頁面瀏覽量（依節目名稱） |
+| `QwareTrafficSession` | GA 即時 session 數（依 ActivityID，僅 GA 專用報表使用） |
+| `QwareTrafficGAReadTime` | GA 即時 active users（依 ActivityID，僅 GA 專用報表使用） |
+| `Qware_A_Traffic_session_data` | 每日頁面瀏覽量（依 `節目名稱` regex 查詢，欄位：`瀏覽日期`、`瀏覽量`）**啤酒節 / 櫻花季流量趨勢圖主要資料來源** |
 | `Qware_Member_data` | 會員國籍與縣市（依會員編號批次查） |
 
 ---
@@ -77,6 +80,16 @@
 - 卡片 hover：`border-color: var(--accent-color); transform: translateY(-5px)`
 - 版面格線：`.stats-grid`（KPI）、`.show-split`（1fr×場次數）、`.main-content`（2fr 1fr）、`.demo-content`（1fr 1fr）
 
+**性別分佈圖顏色（2026/05 對調統一）：**
+
+| 報表類型 | 顏色陣列（index 0 先，index 1 後）|
+|---|---|
+| 啤酒節 2025/2026 | `['#fb7185', '#38bdf8', '#94a3b8', '#a78bfa']`（玫瑰/天藍） |
+| 櫻花季 2025/2026 | `['#c084fc', '#f472b6', '#94a3b8', '#fb923c']`（紫/粉） |
+| 金唱片、李聖傑、韋禮安、Deca Joins | `['#EC407A', '#42A5F5', '#BDBDBD']`（桃/藍） |
+
+> 顏色順序為對調後的狀態；顏色與性別標籤的對應取決於資料中 `Object.keys(gStats)` 的出現順序。
+
 > 舊報表（金唱片、李聖傑等）各有獨立主色調，尚未統一至此格式。
 
 ---
@@ -102,7 +115,15 @@
 - ActivityID：`39484`
 - GA 節目名稱（查流量用）：`'國泰世華銀行 2026 韋禮安 韋，您好 HI WE1巡迴演唱會'`
 
-### 高雄啤酒音樂節（A_KaohsiungBeerFestival_2026）
+### 高雄啤酒音樂節 2025（A_KaohsiungBeerFestival_2025）
+- 篩選條件：`節目/商品名稱 === '2025 7-ELEVEN高雄啤酒音樂節'`
+- 場次：3 場（2025-07-04 / 2025-07-05 / 2025-07-06）
+- 聯查集合：`Qware_Ticket_Data` + `Qware_Member_data`
+- 開賣尖峰：`2025-05-23 12:00–13:00`
+- **流量趨勢圖**：`Qware_A_Traffic_session_data`（節目名稱 regex `高雄啤酒`），顯示範圍 `>= 2025-05-23`
+- 特殊說明：含天候退票分析（退票率偏高，notice box 提示）
+
+### 高雄啤酒音樂節 2026（A_KaohsiungBeerFestival_2026）
 - 篩選條件：`節目/商品名稱 === '2026 7–ELEVEN 高雄啤酒音樂節'`（注意破折號為全形 `–`）
 - 節目代碼：`B0BA4VPF`
 - 場次：3 場（`演出時間/規格` 含日期判斷）
@@ -111,6 +132,7 @@
   - `2026-07-05`：7/5 (一) 16:00 Day 3
 - 聯查集合：`Qware_A_Ticket_data_Daily`（票券主資料）+ `Qware_Member_data`（國籍 / 縣市）
 - 開賣尖峰：`2026-05-13 12:00–13:00`（逐分鐘分析）
+- **流量趨勢圖**：`Qware_A_Traffic_session_data`（節目名稱 regex `高雄啤酒`），顯示範圍 `>= 2026-05-13`
 - 圖表清單：
   - KPI 卡片（6 張）：總成交金額、總銷售張數、總訂單筆數、客單價、退票張數、淨營收
   - 場次銷售概況（`.show-split` 3 欄卡片）
@@ -122,6 +144,23 @@
   - 銷售點 Top 20（table）
   - 開賣尖峰分析（table，逐分鐘張數 / 累計 / 信用卡 / ATM / 轉換率）
 - 視覺格式：**WeiBird 格式**（navy 主題，見第 4 節）
+
+### 高雄櫻花季 2025（A_KaohsiungSakuraFestival_2025）
+- 篩選條件：`節目/商品名稱 === '2025 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL'`
+- 場次：3 場（2025-03-28 / 2025-03-29 / 2025-03-30）
+- 聯查集合：`Qware_Ticket_Data` + `Qware_Member_data`
+- 開賣日：**2025-01-04**（Day 1）、**2025-01-05**（Day 2）— 雙開賣日尖峰分析
+- 流量趨勢圖：未接 `Qware_A_Traffic_session_data`（無此資料）
+- 特殊說明：含大量退票 notice box（天候因素）
+
+### 高雄櫻花季 2026（A_KaohsiungSakuraFestival_2026）
+- 篩選條件：`節目/商品名稱 === '2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL'`
+- 節目代碼：`B0AJKPPD`
+- 場次：3 場（2026-03-13 / 2026-03-14 / 2026-03-15）
+- 聯查集合：`Qware_Ticket_Data` + `Qware_Member_data`
+- 開賣尖峰：`2025-12-23 12:00–13:00`
+- **流量趨勢圖**：`Qware_A_Traffic_session_data`（節目名稱 regex `高雄櫻花`），顯示範圍 `2025-12-23 ~ 2026-02-01`
+- 視覺格式：粉紫主題（`--accent-color: #f472b6`）
 
 ---
 
