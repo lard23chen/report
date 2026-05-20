@@ -50,10 +50,10 @@
 | `Date` | `date` | 日期（字串，格式 `YYYY/MM/DD`） |
 | `ASys` | `sysA` | A系統費用 |
 | `DSysAWS` | `sysD` | D系統(AWS)費用 |
-| `ESys` | `sysE` | E系統費用 |
+| ~~`ESys`~~ | ~~`sysE`~~ | **E系統費用 — 不納入成本計算，表格不顯示** |
 | `Shared` | `shared` | 共用費用 |
 | `Member` | `member` | 會員系統費用 |
-| `TotalRevenue` | `total` | 總計（未稅） |
+| — | `total` | **sysA + sysD + shared + member**（不使用 `TotalRevenue`，已排除 E系統） |
 | `Activity` | `activity` | 主要活動說明 |
 | `Note` | `notes` | 備註 |
 

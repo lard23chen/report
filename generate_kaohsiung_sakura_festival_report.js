@@ -53,17 +53,19 @@ async function generateReport() {
         const costRaw = await db.collection('AzureMonthlyCost_Daily').find({
             Date: { $in: ['2025/12/23', '2025/12/24'] }
         }).sort({ Date: 1 }).toArray();
-        const costData = costRaw.map(d => ({
-            date: d.Date,
-            sysA: parseFloat(d.ASys) || 0,
-            sysD: parseFloat(d.DSysAWS) || 0,
-            sysE: parseFloat(d.ESys) || 0,
-            shared: parseFloat(d.Shared) || 0,
-            member: parseFloat(d.Member) || 0,
-            total: parseFloat(d.TotalRevenue) || 0,
-            activity: d.Activity || '',
-            notes: d.Note || ''
-        }));
+        const costData = costRaw.map(d => {
+            const sysA = parseFloat(d.ASys) || 0;
+            const sysD = parseFloat(d.DSysAWS) || 0;
+            const shared = parseFloat(d.Shared) || 0;
+            const member = parseFloat(d.Member) || 0;
+            return {
+                date: d.Date,
+                sysA, sysD, shared, member,
+                total: sysA + sysD + shared + member,
+                activity: d.Activity || '',
+                notes: d.Note || ''
+            };
+        });
         console.log(`Fetched ${costData.length} cloud cost records.`);
 
         const reportTime = new Date().toLocaleString('zh-TW');
@@ -241,10 +243,9 @@ async function generateReport() {
                     <th>日期</th>
                     <th class="text-right">A系統</th>
                     <th class="text-right">D系統(AWS)</th>
-                    <th class="text-right">E系統</th>
                     <th class="text-right">共用</th>
                     <th class="text-right">會員</th>
-                    <th class="text-right" style="color:var(--accent-color)">總計(未稅)</th>
+                    <th class="text-right" style="color:var(--accent-color)">總計(未稅,不含E)</th>
                     <th>主要活動</th>
                     <th>備註</th>
                 </tr>
@@ -565,7 +566,6 @@ function init() {
         tr.innerHTML = \`<td style="font-weight:600; color:var(--accent-color);">\${d.date}</td>
             <td class="text-right">\${d.sysA.toFixed(2)}</td>
             <td class="text-right">\${d.sysD.toFixed(2)}</td>
-            <td class="text-right">\${d.sysE.toFixed(2)}</td>
             <td class="text-right">\${d.shared.toFixed(2)}</td>
             <td class="text-right">\${d.member.toFixed(2)}</td>
             <td class="text-right" style="font-weight:700; color:var(--accent-color);">$\${d.total.toFixed(2)}</td>
@@ -577,7 +577,7 @@ function init() {
         const totalTr = document.createElement('tr');
         totalTr.style.cssText = 'background:rgba(244,114,182,0.08); border-top:2px solid rgba(244,114,182,0.4); font-weight:700;';
         totalTr.innerHTML = \`<td style="color:var(--accent-color);">合計</td>
-            <td class="text-right"></td><td class="text-right"></td><td class="text-right"></td>
+            <td class="text-right"></td><td class="text-right"></td>
             <td class="text-right"></td><td class="text-right"></td>
             <td class="text-right" style="color:var(--accent-color);">$\${totalCost.toFixed(2)}</td>
             <td></td><td></td>\`;
