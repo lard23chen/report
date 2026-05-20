@@ -49,6 +49,23 @@ async function generateReport() {
         }).toArray();
         console.log(`Fetched ${pageViews.length} page view records.`);
 
+        // Fetch Azure cloud cost for sale launch days (2025-12-23 & 2025-12-24)
+        const costRaw = await db.collection('AzureMonthlyCost_Daily').find({
+            Date: { $in: ['2025/12/23', '2025/12/24'] }
+        }).sort({ Date: 1 }).toArray();
+        const costData = costRaw.map(d => ({
+            date: d.Date,
+            sysA: parseFloat(d.ASys) || 0,
+            sysD: parseFloat(d.DSysAWS) || 0,
+            sysE: parseFloat(d.ESys) || 0,
+            shared: parseFloat(d.Shared) || 0,
+            member: parseFloat(d.Member) || 0,
+            total: parseFloat(d.TotalRevenue) || 0,
+            activity: d.Activity || '',
+            notes: d.Note || ''
+        }));
+        console.log(`Fetched ${costData.length} cloud cost records.`);
+
         const reportTime = new Date().toLocaleString('zh-TW');
 
         const htmlContent = `<!DOCTYPE html>
@@ -214,11 +231,33 @@ async function generateReport() {
             </table>
         </div>
     </div>
+
+    <!-- Cloud Cost Analysis -->
+    <div class="chart-card" style="min-height:0">
+        <h3>☁️ 開賣日雲端費用成本 (2025-12-23 & 12-24)</h3>
+        <table id="costTable">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th class="text-right">A系統</th>
+                    <th class="text-right">D系統(AWS)</th>
+                    <th class="text-right">E系統</th>
+                    <th class="text-right">共用</th>
+                    <th class="text-right">會員</th>
+                    <th class="text-right" style="color:var(--accent-color)">總計(未稅)</th>
+                    <th>主要活動</th>
+                    <th>備註</th>
+                </tr>
+            </thead>
+            <tbody id="costTableBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
 const dbData = ${JSON.stringify(data)};
 const pageViews = ${JSON.stringify(pageViews)};
+const costData = ${JSON.stringify(costData)};
 
 function fmt(n) { return Math.round(n).toLocaleString(); }
 function fmtMoney(n) { return '$' + fmt(n); }
@@ -517,6 +556,33 @@ function init() {
         if (s.t > 0) tr.style.background = 'rgba(244,114,182,0.06)';
         peakBody.appendChild(tr);
     });
+    // Cloud Cost Table
+    const costBody = document.getElementById('costTableBody');
+    let totalCost = 0;
+    costData.forEach(d => {
+        totalCost += d.total;
+        const tr = document.createElement('tr');
+        tr.innerHTML = \`<td style="font-weight:600; color:var(--accent-color);">\${d.date}</td>
+            <td class="text-right">\${d.sysA.toFixed(2)}</td>
+            <td class="text-right">\${d.sysD.toFixed(2)}</td>
+            <td class="text-right">\${d.sysE.toFixed(2)}</td>
+            <td class="text-right">\${d.shared.toFixed(2)}</td>
+            <td class="text-right">\${d.member.toFixed(2)}</td>
+            <td class="text-right" style="font-weight:700; color:var(--accent-color);">$\${d.total.toFixed(2)}</td>
+            <td style="color:#94a3b8; font-size:0.9em;">\${d.activity}</td>
+            <td style="color:#64748b; font-size:0.85em;">\${d.notes}</td>\`;
+        costBody.appendChild(tr);
+    });
+    if (costData.length > 0) {
+        const totalTr = document.createElement('tr');
+        totalTr.style.cssText = 'background:rgba(244,114,182,0.08); border-top:2px solid rgba(244,114,182,0.4); font-weight:700;';
+        totalTr.innerHTML = \`<td style="color:var(--accent-color);">合計</td>
+            <td class="text-right"></td><td class="text-right"></td><td class="text-right"></td>
+            <td class="text-right"></td><td class="text-right"></td>
+            <td class="text-right" style="color:var(--accent-color);">$\${totalCost.toFixed(2)}</td>
+            <td></td><td></td>\`;
+        costBody.appendChild(totalTr);
+    }
 }
 init();
 <\/script>
