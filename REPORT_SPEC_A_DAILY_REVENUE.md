@@ -132,7 +132,7 @@ git push origin main
 | 費用計算 | `sysA + sysD + shared + member`（**排除 E系統**，不使用 `TotalRevenue`） |
 | 圖表類型 | Line chart（填色），天空藍 `#38bdf8` |
 | 節點標記 | `chartjs-plugin-datalabels`，每點顯示 `$XX.XX`，0 值不顯示 |
-| 位置 | 退票趨勢圖之後、國籍分佈之前 |
+| 位置 | **每日營收趨勢圖（trendChart）之後、退票趨勢圖之前**（透過 uiTemplate 字串替換插入） |
 
 ### 6.2 summaryData 新增欄位
 

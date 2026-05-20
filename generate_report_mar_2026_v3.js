@@ -220,7 +220,11 @@ async function generateReport() {
             .replace(/\\n/g, '\n')
             .replace(/\$\{dateTitle\}/g, dateTitle)
             .replace(/\$\{reportTime\}/g, reportTime)
-            .replace("${logoBase64 ? logoBase64 : 'https://ticket.ibon.com.tw/assets/img/logo.png'}", logoBase64 || 'https://ticket.ibon.com.tw/assets/img/logo.png');
+            .replace("${logoBase64 ? logoBase64 : 'https://ticket.ibon.com.tw/assets/img/logo.png'}", logoBase64 || 'https://ticket.ibon.com.tw/assets/img/logo.png')
+            .replace(
+                /(<div class="charts-row">\s*<div class="chart-container" style="flex:100%;">\s*<canvas id="trendChart"><\/canvas>\s*<\/div>\s*<\/div>)/,
+                `$1\n\n    <!-- Cloud Cost Trend Chart -->\n    <div class="charts-row">\n        <div class="chart-container" style="flex:100%; border-left:4px solid #38bdf8; padding-left:16px;">\n            <h3 style="margin:0 0 12px; font-size:1rem; color:#0369a1; border-left:none; padding-left:0;">☁️ 每日雲端費用趨勢 (Cloud Cost Trend, 不含E系統)</h3>\n            <canvas id="costTrendChart"></canvas>\n        </div>\n    </div>`
+            );
 
         const uiPart = uiTemplate.split("    const dbData = '__DB_DATA_PLACEHOLDER__';")[0];
 
@@ -404,13 +408,6 @@ async function generateReport() {
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-
-<div style="max-width:1400px; margin:0 auto 30px; padding:0 30px;">
-    <h2 style="font-size:1.1rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; border-left:4px solid #38bdf8; padding-left:10px; margin-bottom:20px;">☁️ 每日雲端費用趨勢 (Cloud Cost Trend, 不含E系統)</h2>
-    <div style="background:var(--card-bg); border-radius:16px; padding:25px; box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.08);">
-        <div style="height:300px;"><canvas id="costTrendChart"></canvas></div>
-    </div>
-</div>
 
 <div style="max-width:1400px; margin:0 auto 40px; padding:0 30px;">
     <h2 style="font-size:1.1rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; border-left:4px solid var(--accent-color); padding-left:10px; margin-bottom:20px;">訂單國籍占比 (Order Nationality)</h2>
