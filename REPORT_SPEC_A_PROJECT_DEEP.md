@@ -41,6 +41,21 @@
 | `QwareTrafficGAReadTime` | GA 即時 active users（依 ActivityID，僅 GA 專用報表使用） |
 | `Qware_A_Traffic_session_data` | 每日頁面瀏覽量（依 `節目名稱` regex 查詢，欄位：`瀏覽日期`、`瀏覽量`）**啤酒節 / 櫻花季流量趨勢圖主要資料來源** |
 | `Qware_Member_data` | 會員國籍與縣市（依會員編號批次查） |
+| `AzureMonthlyCost_Daily` | 每日雲端費用成本（依 `Date` 欄位精確查詢，格式為 `YYYY/MM/DD`）**開賣日雲端費用成本區塊資料來源** |
+
+### AzureMonthlyCost_Daily 欄位對應
+
+| MongoDB 欄位 | JS 對應屬性 | 說明 |
+|---|---|---|
+| `Date` | `date` | 日期（字串，格式 `YYYY/MM/DD`） |
+| `ASys` | `sysA` | A系統費用 |
+| `DSysAWS` | `sysD` | D系統(AWS)費用 |
+| `ESys` | `sysE` | E系統費用 |
+| `Shared` | `shared` | 共用費用 |
+| `Member` | `member` | 會員系統費用 |
+| `TotalRevenue` | `total` | 總計（未稅） |
+| `Activity` | `activity` | 主要活動說明 |
+| `Note` | `notes` | 備註 |
 
 ---
 
@@ -100,6 +115,8 @@
 - 篩選條件：`節目/商品名稱 === '第40屆金唱片頒獎典禮 The 40th Golden Disc Awards'`
 - ActivityID：`39311`
 - 特色：加入 GA 流量分析（session + active users）、會員國籍地圖
+- **開賣日雲端費用成本**：查詢 `AzureMonthlyCost_Daily`，Date `$in ['2025/12/13', '2025/12/14']`，顯示於報表最底部（金色主題表格，含合計列）
+- 注意：`售價`、`原價`、`實退金額`、`手續費` 欄位須在 server 端做 `$numberDecimal` 正規化（`parseFloat(d[f].$numberDecimal)`），否則瀏覽器端計算結果為 NaN
 
 ### 李聖傑演唱會（A_SamLee_Report）
 - 篩選條件：`節目/商品名稱 === '2025李聖傑 One Day直到那一天 世界巡迴演唱會 台北站'`
@@ -160,6 +177,7 @@
 - 聯查集合：`Qware_Ticket_Data` + `Qware_Member_data`
 - 開賣尖峰：`2025-12-23 12:00–13:00`
 - **流量趨勢圖**：`Qware_A_Traffic_session_data`（節目名稱 regex `高雄櫻花`），顯示範圍 `2025-12-23 ~ 2026-02-01`
+- **開賣日雲端費用成本**：查詢 `AzureMonthlyCost_Daily`，Date `$in ['2025/12/23', '2025/12/24']`，顯示於報表最底部（粉紫主題表格，含合計列）
 - 視覺格式：粉紫主題（`--accent-color: #f472b6`）
 
 ---
