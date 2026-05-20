@@ -56,16 +56,15 @@ async function generateReport() {
         // Attach nationality and city to ticket data
         data.forEach(d => {
             const memberId = d['會員編號'];
-            if (memberId && memberNatMap[memberId]) {
-                d['國籍'] = memberNatMap[memberId];
-            } else {
-                d['國籍'] = '未知';
-            }
-            if (memberId && memberCityMap[memberId]) {
-                d['縣市別'] = memberCityMap[memberId];
-            } else {
-                d['縣市別'] = '未知';
-            }
+            d['國籍'] = (memberId && memberNatMap[memberId]) ? memberNatMap[memberId] : '未知';
+            d['縣市別'] = (memberId && memberCityMap[memberId]) ? memberCityMap[memberId] : '未知';
+
+            // Normalize MongoDB Decimal128 numeric fields to plain numbers
+            ['售價', '原價', '實退金額', '手續費'].forEach(f => {
+                if (d[f] && d[f].$numberDecimal) d[f] = parseFloat(d[f].$numberDecimal);
+                else if (d[f]) d[f] = parseFloat(d[f]);
+                else d[f] = 0;
+            });
         });
 
         // Current Time
