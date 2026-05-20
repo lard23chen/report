@@ -168,9 +168,24 @@ async function generateReport() {
         const paymentList = Object.entries(payMap).map(([name, s]) => ({ name, revenue: s.revenue, tickets: s.tickets, orderCount: s.orders.size, share: (s.revenue/totalRevenue*100).toFixed(1) })).sort((a,b) => b.revenue - a.revenue);
         const spList = Object.entries(pointMap).map(([name, s]) => ({ name, revenue: s.revenue, tickets: s.tickets, orderCount: s.orders.size, share: (s.revenue/totalRevenue*100).toFixed(1) })).sort((a,b) => b.revenue - a.revenue);
 
+        // --- 5. Azure Cloud Cost Trend (March 2026, excluding E系統) ---
+        const costRaw = await db.collection('AzureMonthlyCost_Daily').find({
+            Date: { $regex: '^2026/03' }
+        }).sort({ Date: 1 }).toArray();
+        const costTrendDates = costRaw.map(d => d.Date);
+        const costTrendValues = costRaw.map(d => {
+            const sysA = parseFloat(d.ASys) || 0;
+            const sysD = parseFloat(d.DSysAWS) || 0;
+            const shared = parseFloat(d.Shared) || 0;
+            const member = parseFloat(d.Member) || 0;
+            return parseFloat((sysA + sysD + shared + member).toFixed(2));
+        });
+        console.log(`Fetched ${costRaw.length} cloud cost records for March 2026.`);
+
         const summaryData = {
             totalRevenue, totalTickets, orderCount, aov, totalRefundTickets: totalRefundedTickets, totalRefundedValue, totalRefundFees,
             trendDates, trendSales, peakAnnotations, refundDates, refundAmounts,
+            costTrendDates, costTrendValues,
             topByRevenue, topByTickets, topByRefunds, paymentList, spList,
             eventSummaryMap: Object.fromEntries(eventList.map(e => [e.name, e])),
             nationalityList,
@@ -301,6 +316,42 @@ async function generateReport() {
             data: { labels: s.refundDates, datasets: [{ label: '每日退票金額', data: s.refundAmounts, borderColor: '#757575', fill: false }] },
             options: { responsive: true, maintainAspectRatio: false }
         });
+
+        new Chart(document.getElementById('costTrendChart'), {
+            type: 'line',
+            data: {
+                labels: s.costTrendDates,
+                datasets: [{
+                    label: '每日雲端費用(不含E系統)',
+                    data: s.costTrendValues,
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56,189,248,0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#555' } },
+                    datalabels: {
+                        color: '#0369a1',
+                        align: 'top',
+                        anchor: 'end',
+                        font: { weight: 'bold', size: 10 },
+                        formatter: v => v > 0 ? '$' + v.toFixed(2) : ''
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#888' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    y: { ticks: { color: '#38bdf8', callback: v => '$' + v.toFixed(0) }, grid: { color: 'rgba(0,0,0,0.05)' }, beginAtZero: true }
+                }
+            }
+        });
     });
 
     function analyzeEvent(eventName) {
@@ -353,6 +404,13 @@ async function generateReport() {
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+<div style="max-width:1400px; margin:0 auto 30px; padding:0 30px;">
+    <h2 style="font-size:1.1rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; border-left:4px solid #38bdf8; padding-left:10px; margin-bottom:20px;">☁️ 每日雲端費用趨勢 (Cloud Cost Trend, 不含E系統)</h2>
+    <div style="background:var(--card-bg); border-radius:16px; padding:25px; box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.08);">
+        <div style="height:300px;"><canvas id="costTrendChart"></canvas></div>
+    </div>
+</div>
 
 <div style="max-width:1400px; margin:0 auto 40px; padding:0 30px;">
     <h2 style="font-size:1.1rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; border-left:4px solid var(--accent-color); padding-left:10px; margin-bottom:20px;">訂單國籍占比 (Order Nationality)</h2>

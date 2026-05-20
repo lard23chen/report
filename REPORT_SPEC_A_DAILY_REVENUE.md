@@ -111,3 +111,37 @@ git push origin main
 ```
 
 更新頻率：**每日 08:00**（自動排程）
+
+---
+
+## 6. 月度分析報表（A_Qware_Revenue_Report_YYYY年MM月_分析報表）
+
+月度報表與每日報表為不同系列，各月份有獨立腳本。
+
+| 月份 | 腳本 |
+|------|------|
+| 2026年03月 | `generate_report_mar_2026_v3.js` |
+
+### 6.1 月度報表特有元件
+
+月度報表在每日營收趨勢圖、退票趨勢圖之後，**額外新增「每日雲端費用趨勢圖」**：
+
+| 項目 | 規格 |
+|------|------|
+| 資料來源 | `AzureMonthlyCost_Daily`，篩選 `Date` regex `^YYYY/MM` |
+| 費用計算 | `sysA + sysD + shared + member`（**排除 E系統**，不使用 `TotalRevenue`） |
+| 圖表類型 | Line chart（填色），天空藍 `#38bdf8` |
+| 節點標記 | `chartjs-plugin-datalabels`，每點顯示 `$XX.XX`，0 值不顯示 |
+| 位置 | 退票趨勢圖之後、國籍分佈之前 |
+
+### 6.2 summaryData 新增欄位
+
+```js
+costTrendDates  // string[]  日期陣列（YYYY/MM/DD）
+costTrendValues // number[]  對應每日費用（排除E系統，已四捨五入至小數點後2位）
+```
+
+### 6.3 注意事項
+
+- 月度報表 UI template 從 `generate_report_feb_2026.js` 動態抽取，修改 HTML 元件時需同步更新該檔案
+- `ChartDataLabels` 已在 template 中透過 `<script>` 引入，費用圖可直接使用 `plugins: [ChartDataLabels]`
