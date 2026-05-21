@@ -91,6 +91,18 @@ Collection：`QwareAi.AzureMonthlyCost`
 - 表格底部顯示區間加總列
 - 資料以月份倒序（最新在上）顯示
 
+### 4.3.1 最近月份趨勢分析 (MoM Analysis)
+
+位於每月詳細數據表格正下方，由 `generate_azure_cost_report.js` 在 Node.js 層以 `latestDoc` / `prevDoc` 產生，**不得手動寫死在 HTML**（下次執行腳本會整頁覆蓋）。
+
+- **格式**：三行文字摘要：
+  - 💰 總費用（▲/▼百分比 + 絕對差 + 當月金額）
+  - 🖥️ 各系統（A/D/E 各自 ▲/▼百分比 + 絕對差）
+  - 📦 其他（共用 + 會員各自 ▲/▼，若前月無 `SystemHuiwan_Cost` 則略去會員行）
+- **顏色語意**：費用**上升**為紅色 `#ef5350`（壞），**下降**為綠色 `#66BB6A`（好），與交易量報表相反
+- **樣式**：深灰背景 `#252525`、左側 `3px solid var(--accent-color)` Azure Blue 飾條、`max-width:820px`，h4 使用 `var(--accent-color)`
+- **資料來源**：`latestDoc`（最後一筆）與 `prevDoc`（`allDocs` 中前一月）
+
 ### 4.4 年度費用匯總表格
 
 欄位：年份、月份數、A系統、D系統、E系統、共用、會員、年度總費用、YoY 變化
@@ -159,4 +171,13 @@ node generate_azure_cost_report.js
 
 ---
 
-*最後更新日期：2026/04/20*
+### ⚠️ 維護注意：HTML 與 Generator 必須同步
+
+`Azure_Cost_Analysis_Report.html` 由 `generate_azure_cost_report.js` **完整覆蓋產生**。凡修改 HTML 中任何邏輯，必須同步修改 generator 對應位置。
+
+受影響的功能（歷史上曾被覆蓋過）：
+- MoM Analysis 區塊 — 2026/05/21 新增，已同步至 generator（`momSection` 變數直接嵌入模板字串，使用 server-side 已計算的 `latestDoc` / `prevDoc`）
+
+---
+
+*最後更新日期：2026/05/21*

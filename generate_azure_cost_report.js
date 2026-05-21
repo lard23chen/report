@@ -55,6 +55,37 @@ async function generateReport() {
 
         const reportTime = new Date().toLocaleString('zh-TW');
 
+        // Build MoM analysis block (uses latestDoc & prevDoc already computed above)
+        let momSection = '';
+        if (latestDoc && prevDoc) {
+            const pct = (c, p) => p ? ((c - p) / p * 100).toFixed(1) : null;
+            const itemHtml = (label, color, cVal, pVal) => {
+                const p = pct(cVal, pVal);
+                if (p === null) return '';
+                const v = parseFloat(p);
+                const clr = v >= 0 ? '#ef5350' : '#66BB6A'; // cost: up=bad(red), down=good(green)
+                const arrow = v >= 0 ? '▲' : '▼';
+                const diff = Math.abs(cVal - pVal).toLocaleString();
+                return `<b style="color:${color};">${label}</b> <span style="color:${clr};">${arrow} ${Math.abs(v)}%</span>（${v >= 0 ? '+' : '-'}${diff}）　`;
+            };
+            const totalPct = parseFloat(pct(latestDoc.QWARE_Ticket_TotalCost || 0, prevDoc.QWARE_Ticket_TotalCost || 0));
+            const totalClr = totalPct >= 0 ? '#ef5350' : '#66BB6A';
+            const totalArrow = totalPct >= 0 ? '▲' : '▼';
+            const totalDiff = Math.abs((latestDoc.QWARE_Ticket_TotalCost || 0) - (prevDoc.QWARE_Ticket_TotalCost || 0)).toLocaleString();
+            const huiwanRow = (prevDoc.SystemHuiwan_Cost !== undefined)
+                ? itemHtml('會員', '#F06292', latestDoc.SystemHuiwan_Cost || 0, prevDoc.SystemHuiwan_Cost || 0)
+                : '';
+            momSection = `<div style="margin-top:24px;">
+        <h4 style="color:var(--accent-color);font-size:1rem;margin-bottom:10px;">最近月份趨勢分析 (MoM Analysis)</h4>
+        <div style="background:#252525;border-radius:10px;padding:14px 18px;border-left:3px solid var(--accent-color);max-width:820px;line-height:1.9;font-size:0.92rem;">
+            <div style="font-weight:700;margin-bottom:6px;color:var(--text-primary);">${latestDoc.YearMonth} 較上月(${prevDoc.YearMonth})</div>
+            <div style="color:var(--text-secondary);">💰 <b style="color:var(--text-primary);">總費用：</b><span style="color:${totalClr};">${totalArrow} ${Math.abs(totalPct)}%</span>（${totalPct >= 0 ? '+' : '-'}${totalDiff}），達 $${(latestDoc.QWARE_Ticket_TotalCost || 0).toLocaleString()}。</div>
+            <div style="color:var(--text-secondary);">🖥️ <b style="color:var(--text-primary);">各系統：</b>${itemHtml('A系統', 'var(--color-a)', latestDoc.SystemA_Cost || 0, prevDoc.SystemA_Cost || 0)}${itemHtml('D系統', 'var(--color-d)', latestDoc.SystemD_Cost || 0, prevDoc.SystemD_Cost || 0)}${itemHtml('E系統', 'var(--color-e)', latestDoc.SystemE_Cost || 0, prevDoc.SystemE_Cost || 0)}。</div>
+            <div style="color:var(--text-secondary);">📦 <b style="color:var(--text-primary);">其他：</b>${itemHtml('共用', '#AB47BC', latestDoc.Common_Cost || 0, prevDoc.Common_Cost || 0)}${huiwanRow}。</div>
+        </div>
+    </div>`;
+        }
+
         const htmlContent = `
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -355,6 +386,7 @@ async function generateReport() {
                     <!-- Total will be injected via JS -->
                 </tfoot>
             </table>
+            ${momSection}
         </div>
     </div>
 
