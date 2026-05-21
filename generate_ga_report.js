@@ -51,6 +51,49 @@ async function generateReport() {
 
         const reportTime = new Date().toLocaleString('zh-TW');
 
+        // Build MoM analysis block (latest month vs previous)
+        let momSection = '';
+        if (chartData.length >= 2) {
+            const cur = chartData[chartData.length - 1];
+            const prev = chartData[chartData.length - 2];
+            const pct = (c, p) => p ? ((c - p) / p * 100).toFixed(1) : '0';
+            const arrowHtml = (pctStr, diff) => {
+                const v = parseFloat(pctStr);
+                const color = v >= 0 ? '#66BB6A' : '#ef5350';
+                const arrow = v >= 0 ? '▲' : '▼';
+                return `<span style="color:${color};">${arrow} ${Math.abs(v)}%</span>（${v >= 0 ? '+' : '-'}${diff}）`;
+            };
+            const ppHtml = (ppStr) => {
+                const v = parseFloat(ppStr);
+                const color = v >= 0 ? '#66BB6A' : '#ef5350';
+                return `<span style="color:${color};">(${v >= 0 ? '+' : ''}${ppStr}pp)</span>`;
+            };
+            const mobRate = (tot, mob) => tot ? ((mob / tot) * 100).toFixed(1) : '0';
+            const dPct = pct(cur.D.total, prev.D.total);
+            const aPct = pct(cur.A.total, prev.A.total);
+            const ePct = pct(cur.E.total, prev.E.total);
+            const dDiff = Math.abs(cur.D.total - prev.D.total).toLocaleString();
+            const aDiff = Math.abs(cur.A.total - prev.A.total).toLocaleString();
+            const eDiff = Math.abs(cur.E.total - prev.E.total).toLocaleString();
+            const dMob = mobRate(cur.D.total, cur.D.mobile);
+            const aMob = mobRate(cur.A.total, cur.A.mobile);
+            const eMob = mobRate(cur.E.total, cur.E.mobile);
+            const dMobPrev = mobRate(prev.D.total, prev.D.mobile);
+            const aMobPrev = mobRate(prev.A.total, prev.A.mobile);
+            const eMobPrev = mobRate(prev.E.total, prev.E.mobile);
+            const dMobPp = (parseFloat(dMob) - parseFloat(dMobPrev)).toFixed(1);
+            const aMobPp = (parseFloat(aMob) - parseFloat(aMobPrev)).toFixed(1);
+            const eMobPp = (parseFloat(eMob) - parseFloat(eMobPrev)).toFixed(1);
+            momSection = `<div style="margin-top:24px;">
+        <h4 style="color:var(--accent-color);font-size:1rem;margin-bottom:10px;">最近月份趨勢分析 (MoM Analysis)</h4>
+        <div style="background:#252525;border-radius:10px;padding:14px 18px;border-left:3px solid var(--accent-color);max-width:780px;line-height:1.8;font-size:0.92rem;">
+            <div style="font-weight:700;margin-bottom:6px;color:var(--text-primary);">${cur.month} 較上月(${prev.month})</div>
+            <div style="color:var(--text-secondary);">📊 <b style="color:var(--text-primary);">流量：</b>D系統 ${arrowHtml(dPct, dDiff)}、A系統 ${arrowHtml(aPct, aDiff)}、E系統 ${arrowHtml(ePct, eDiff)}。</div>
+            <div style="color:var(--text-secondary);">📱 <b style="color:var(--text-primary);">Mobile 佔比：</b>D系統 ${dMob}% ${ppHtml(dMobPp)}、A系統 ${aMob}% ${ppHtml(aMobPp)}、E系統 ${eMob}% ${ppHtml(eMobPp)}。</div>
+        </div>
+    </div>`;
+        }
+
         const htmlContent = `
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -324,6 +367,7 @@ async function generateReport() {
         }).join('')}
                 </tbody>
             </table>
+            ${momSection}
         </div>
     </div>
 

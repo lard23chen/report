@@ -48,8 +48,13 @@
 
 ### 關鍵組件
 1. **KPI 卡片**：A/D/E 各系統總流量 + 手機佔比
-2. **趨勢折線圖**：多系統月度流量疊加（Chart.js）
-3. **手機佔比長條圖**：各系統手機 vs 桌機比例
+2. **每月詳細數據表**：新到舊排列，每列含各系統流量 + MoM 箭頭 + Mobile 佔比
+3. **最近月份趨勢分析 (MoM Analysis)**：數據表正下方，由 `generate_ga_report.js` 動態產生，**不得手動寫死在 HTML**（下次執行腳本會整頁覆蓋）。
+    *   **格式**：二行文字摘要：📊 流量（三系統各自 ▲/▼ 百分比 + 絕對差）、📱 Mobile 佔比（各系統當月佔比 + 與上月 pp 差）
+    *   **樣式**：深灰背景 `#252525`、左側 `3px solid var(--accent-color)` 青綠飾條、`max-width:780px`，h4 使用 `var(--accent-color)` 青綠色
+    *   **資料來源**：`chartData` 升序排列後，取最後兩筆（`chartData[length-1]` = 當月、`chartData[length-2]` = 上月）
+4. **趨勢折線圖**：多系統月度流量疊加（Chart.js）
+5. **手機佔比長條圖**：各系統手機 vs 桌機比例
 
 ---
 
@@ -114,6 +119,17 @@
 ---
 
 ## 6. 更新方式
+
+### ⚠️ 維護注意：HTML 與 Generator 必須同步
+
+`A_GA_Traffic_Analysis_Report.html` 由 `generate_ga_report.js` **完整覆蓋產生**（整頁重新生成，非局部替換）。
+
+**凡修改 HTML 中的任何邏輯，必須同步修改 `generate_ga_report.js` 對應位置，否則下次排程執行將整頁覆蓋，修改遺失。**
+
+受影響的功能（歷史上曾被覆蓋過）：
+- 最近月份趨勢分析區塊 — 2026/05/21 新增，已同步至 generator（直接嵌入 `momSection` 變數至模板字串）
+
+---
 
 ```bash
 # GA 月度（固定排程）
