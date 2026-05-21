@@ -19,15 +19,14 @@ async function generateReport() {
         await client.connect();
         const db = client.db("QwareAi");
         
-        // Using Daily collection as the event is current
-        const collection = db.collection('Qware_A_Ticket_data_Daily');
+        const collection = db.collection('Qware_Ticket_Data');
 
+        const ACTIVITY_CODE = 'B0ATIQKM';
         const TARGET_NAME = '國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場';
         const TARGET_NAME_GA = '國泰世華銀行 2026 韋禮安 韋，您好 HI WE1巡迴演唱會';
-        const TARGET_FIELD = '節目/商品名稱';
 
-        console.log(`Fetching data for: ${TARGET_NAME}...`);
-        const data = await collection.find({ [TARGET_FIELD]: TARGET_NAME }).toArray();
+        console.log(`Fetching ticket data for ActivityCode: ${ACTIVITY_CODE}...`);
+        const data = await collection.find({ '節目代碼': ACTIVITY_CODE }).toArray();
         console.log(`Fetched ${data.length} records.`);
 
         // Sections data - if empty, we'll handle gracefully
