@@ -86,6 +86,78 @@ async function generateReport() {
     </div>`;
         }
 
+        // 2026 機器等級統計 — 資料來源：機器監控排班表 (Google Sheets gid=1883089838)
+        // 每次人工更新 Google Sheets 後請同步更新此陣列
+        const monitoringStats2026 = [
+            { month: '1月', total: 14, small: 7, medium: 1, large: 4, largeEvents: [
+                { date: '01/19', name: '斯巴達台南三色周末', hasE: true },
+                { date: '01/19', name: '斯巴達Kids小勇士賽', hasE: true },
+                { date: '01/22', name: 'King＆Prince台北快閃店', hasE: true },
+                { date: '01/23', name: 'Fujisaki Hikari簽名會', hasE: true }
+            ]},
+            { month: '2月', total: 27, small: 24, medium: 1, large: 2, largeEvents: [
+                { date: '02/13', name: 'i-dle CITY of SENSE（一般票全面開賣）', hasE: true },
+                { date: '02/23', name: 'i-dle CITY of SENSE（信用卡優先購）', hasE: true }
+            ]},
+            { month: '3月', total: 42, small: 23, medium: 13, large: 6, largeEvents: [
+                { date: '03/06', name: 'i-dle CITY of SENSE（第二階段）', hasE: true },
+                { date: '03/10', name: 'A.C.F 秋葉原動漫祭見面會', hasE: true },
+                { date: '03/12', name: 'A.C.F Rollout 悸動祭', hasE: true },
+                { date: '03/12', name: 'A.C.F Rollout 共鳴祭', hasE: true },
+                { date: '03/12', name: 'A.C.F Rollout 傳奇祭', hasE: true },
+                { date: '03/27', name: 'i-dle CITY of SENSE（加場全面開賣）', hasE: true }
+            ]},
+            { month: '4月', total: 36, small: 33, medium: 3, large: 0, largeEvents: [] },
+            { month: '5月', total: 29, small: 18, medium: 8, large: 3, largeEvents: [
+                { date: '05/13', name: '7-ELEVEN 高雄啤酒音樂節（中信卡優先購）', hasE: false },
+                { date: '05/14', name: '7-ELEVEN 高雄啤酒音樂節', hasE: false },
+                { date: '05/14', name: '角頭GATAO唱演會（員訓）', hasE: false }
+            ]},
+            { month: '6月', total: 1, small: 1, medium: 0, large: 0, largeEvents: [] },
+            { month: '7月', total: 1, small: 1, medium: 0, large: 0, largeEvents: [] }
+        ];
+        const monitoringTableRows = monitoringStats2026.map(m => {
+            const notes = m.largeEvents.length > 0
+                ? m.largeEvents.map(e => e.date + ' ' + e.name + (e.hasE ? '<span style="color:#66BB6A;font-weight:700;">(E)</span>' : '')).join('、')
+                : '—';
+            const largeColor = m.large > 0 ? '#ef5350' : 'var(--text-secondary)';
+            const largeWeight = m.large > 0 ? '700' : '400';
+            return '<tr>' +
+                '<td>' + m.month + '</td>' +
+                '<td style="text-align:center">' + m.total + '</td>' +
+                '<td style="text-align:center">' + m.small + '</td>' +
+                '<td style="text-align:center;color:#FBC02D;">' + m.medium + '</td>' +
+                '<td style="text-align:center;color:' + largeColor + ';font-weight:' + largeWeight + '">' + m.large + '</td>' +
+                '<td style="font-size:0.85em;line-height:1.8;">' + notes + '</td>' +
+                '</tr>';
+        }).join('');
+        const monTotals = monitoringStats2026.reduce((a, m) => ({
+            total: a.total + m.total, small: a.small + m.small,
+            medium: a.medium + m.medium, large: a.large + m.large
+        }), { total: 0, small: 0, medium: 0, large: 0 });
+        const monitoringTableHtml =
+            '<div class="main-content"><div class="chart-card full-width">' +
+            '<h3 style="border-left-color:#50E6FF;">2026 機器等級統計 (Machine Level by Month)</h3>' +
+            '<div style="font-size:0.82em;color:var(--text-secondary);margin-bottom:12px;">資料來源：機器監控排班表 (Google Sheets) ｜ 最後同步：' + reportTime + '</div>' +
+            '<table><thead><tr>' +
+            '<th>月份</th>' +
+            '<th style="text-align:center">總場次</th>' +
+            '<th style="text-align:center">機器-小</th>' +
+            '<th style="text-align:center">機器-中</th>' +
+            '<th style="text-align:center">機器-大</th>' +
+            '<th>機器-大 節目備註</th>' +
+            '</tr></thead>' +
+            '<tbody>' + monitoringTableRows + '</tbody>' +
+            '<tfoot><tr style="border-top:2px solid var(--accent-color);font-weight:700;">' +
+            '<td>合計</td>' +
+            '<td style="text-align:center">' + monTotals.total + '</td>' +
+            '<td style="text-align:center">' + monTotals.small + '</td>' +
+            '<td style="text-align:center;color:#FBC02D;">' + monTotals.medium + '</td>' +
+            '<td style="text-align:center;color:#ef5350;">' + monTotals.large + '</td>' +
+            '<td></td>' +
+            '</tr></tfoot></table>' +
+            '</div></div>';
+
         const htmlContent = `
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -431,7 +503,7 @@ async function generateReport() {
         </div>
     </div>
 
-
+${monitoringTableHtml}
 
 </div>
 

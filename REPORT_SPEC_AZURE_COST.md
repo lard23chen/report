@@ -111,6 +111,25 @@ Collection：`QwareAi.AzureMonthlyCost`
 - 底部顯示全期總計列
 - YoY 計算：`(當年總費用 - 去年總費用) / 去年總費用 × 100%`
 
+### 4.4.2 2026 機器等級統計表 (Machine Level by Month)
+
+位於系統費用堆疊長條圖正下方，由 `generate_azure_cost_report.js` 在 Node.js 層靜態嵌入，**不得手動修改 HTML**（下次執行腳本會整頁覆蓋）。
+
+- **資料來源**：機器監控排班表 Google Sheets（`gid=1883089838`）
+- **更新方式**：人工更新 Google Sheets 後，同步修改 `generate_azure_cost_report.js` 中 `monitoringStats2026` 陣列，再執行 `node generate_azure_cost_report.js` 重新產出
+- **欄位**：月份 / 總場次 / 機器-小 / 機器-中 / 機器-大 / 機器-大節目備註
+- **備註欄格式**：`MM/DD 節目名稱(E)`（若 E系統有負責人則加 `(E)` 綠字標記，否則不加）
+- **顏色**：機器-大欄位 > 0 時顯示紅色 `#ef5350`；機器-中欄位顯示黃色 `#FBC02D`
+- **合計列**：tfoot 顯示區間加總，邊框 `2px solid var(--accent-color)`
+- **同步時間**：顯示 `reportTime`（產生當下的 `new Date().toLocaleString('zh-TW')`）
+
+#### 更新 SOP
+
+1. 確認 Google Sheets 中新月份資料已填完
+2. 對照 Google Sheets，修改 `generate_azure_cost_report.js` 中 `monitoringStats2026` 陣列（新增月份物件）
+3. 執行 `node generate_azure_cost_report.js` 重新產出 HTML
+4. `git add generate_azure_cost_report.js Azure_Cost_Analysis_Report.html && git commit && git push`
+
 ### 4.5 圖表 (Charts)
 
 - **每月費用趨勢折線圖**：Chart.js `line`，顯示 A/D/E 三系統趨勢，帶數值標籤（`chartjs-plugin-datalabels`），千位縮寫（如 `1,200k`）
@@ -180,4 +199,4 @@ node generate_azure_cost_report.js
 
 ---
 
-*最後更新日期：2026/05/21*
+*最後更新日期：2026/05/21（新增 4.4.2 機器等級統計表）*
