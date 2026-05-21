@@ -23,6 +23,8 @@
 *   **顯示欄位**: 月份、購票筆數、購票張數、購票金額、退票筆數、退票張數、退票手續費。
 *   **MoM 成長分析**: 自動計算與前一個月的百分比差異，並以箭頭與色塊顯示 (▲ 綠色 / ▼ 紅色)。
 *   **最近月份趨勢分析區塊**: 統計表下方自動產生最新月與上月的文字摘要（交易量、收入、退票三行），由 `update_e_index_stats.js` 動態生成，**不得手動寫死在 HTML**，否則下次更新會被覆蓋。
+    *   **格式**: 三行文字，依序為 📊 交易量（購票筆數/張數絕對差 + 百分比）、💰 收入（購票金額差額 + 達到金額）、🔻 退票（筆數/張數/手續費百分比）。
+    *   **樣式**: 深灰背景 `#252525`、左側 `3px solid #66BB6A` 綠色飾條、`max-width:640px`，`h4` 使用 `var(--accent-color)` 紅色。
 *   **自動化更新**: 透過 `update_e_index_stats.js` 定期從 MongoDB 聚合數據並注入 HTML 標記 `<!-- STATS_START -->` 之間。
 
 #### B. 營收趨勢圖 (Revenue Trend Chart)
@@ -56,6 +58,7 @@
 
 受影響的功能（歷史上曾被覆蓋過）：
 - 最近月份趨勢分析區塊 — 2026/05/08 被更新覆蓋，已修復並同步至 generator（以 `MOM_ANALYSIS_PLACEHOLDER` 動態替換）
+- 最近月份趨勢分析區塊 — 2026/05/21 再次遺失：根本原因是 generator 對 `template` 做 `MOM_ANALYSIS_PLACEHOLDER` 替換後，緊接著的 stats block regex 替換又用含有原始 placeholder 的 `statsHtml` 覆蓋整個區塊。**正確做法：在寫入 stats block 前，先對 `statsHtml` 做 `.replace('MOM_ANALYSIS_PLACEHOLDER', momHtml)` 得到 `statsHtmlFinal`，再嵌入 regex 替換的模板字串中。**
 
 ---
-*Last Updated: 2026/05/08*
+*Last Updated: 2026/05/21*

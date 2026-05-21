@@ -278,15 +278,16 @@ async function main() {
                 + '</div></div>';
         }
 
-        // Replace Placeholder
-        const newHtml = template.replace('MOM_ANALYSIS_PLACEHOLDER', momHtml).replace(
+        // Embed MoM analysis into statsHtml before writing (replacing in template would be overwritten by the stats block replacement below)
+        const statsHtmlFinal = statsHtml.replace('MOM_ANALYSIS_PLACEHOLDER', momHtml);
+        const newHtml = template.replace(
             /<!-- STATS_START -->[\s\S]*?<!-- Tabs Navigation -->/,
             () => `<!-- STATS_START -->
             <div class="stats-section" style="margin-bottom: 3rem; background: var(--card-bg); border-radius: 16px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
-                ${statsHtml}
+                ${statsHtmlFinal}
             </div>
             <!-- STATS_END -->
-            
+
             <!-- Tabs Navigation -->`
         );
 
