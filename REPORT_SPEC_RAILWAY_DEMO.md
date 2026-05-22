@@ -1,3 +1,5 @@
+> ⚠️ **存取限制** — 本規範對應的報表已設有 IP 白名單，僅限授權網路存取。
+
 # Railway 專案展示系統 (Railway Project Demo)
 ## 視覺規範 (Visual Specifications)
 

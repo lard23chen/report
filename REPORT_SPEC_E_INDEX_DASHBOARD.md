@@ -1,3 +1,5 @@
+> ⚠️ **存取限制** — 本規範對應的報表已設有 IP 白名單，僅限授權網路存取。
+
 # 視覺規範與功能組件：分析報表中心 (E系統) 
 ## `E_report_index.html` Specification Document
 

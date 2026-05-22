@@ -1,3 +1,5 @@
+> ⚠️ **存取限制** — 本規範對應的報表已設有 IP 白名單，僅限授權網路存取。
+
 # 股票投資組合管理系統 (Stock Portfolio Management System)
 ## 視覺規範 (Visual Specifications)
 

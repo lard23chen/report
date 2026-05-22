@@ -1,3 +1,5 @@
+> ⚠️ **存取限制** — 本規範對應的報表已設有 IP 白名單，僅限授權網路存取。
+
 # Railway 管理後台系統 (Railway Admin Dashboard)
 ## 視覺規範 (Visual Specifications)
 

@@ -1,3 +1,5 @@
+> ⚠️ **存取限制** — 本規範對應的報表已設有 IP 白名單，僅限授權網路存取。
+
 # 2026 旅遊票券統計與管理系統 (Travel Tickets Overview 2026)
 ## 視覺規範 (Visual Specifications)
 
