@@ -114,7 +114,18 @@ function generateHTML(data) {
                     labels: dat.map(d => d.date.substring(5)),
                     datasets: [
                         { label: '總計', data: dat.map(d=>d.total), borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.1)', fill: true, tension: 0.3, borderWidth: 4, pointRadius: 5,
-                          datalabels: { display: false } },
+                          datalabels: {
+                            display: (ctx) => showLabels,
+                            align: 'top',
+                            anchor: 'end',
+                            offset: 4,
+                            color: '#60a5fa',
+                            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                            borderRadius: 4,
+                            padding: { top: 3, bottom: 3, left: 6, right: 6 },
+                            font: { size: 10, weight: 'bold' },
+                            formatter: (v) => '$' + Math.round(v).toLocaleString()
+                          } },
                         { label: 'A系統', data: dat.map(d=>d.sysA), borderColor: '#a78bfa', fill: false, tension: 0.3,
                           pointRadius: dat.map(d => d.activity ? 6 : 2),
                           pointBackgroundColor: dat.map(d => d.activity ? '#a78bfa' : 'transparent'),
