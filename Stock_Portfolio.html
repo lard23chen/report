@@ -4,39 +4,89 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>股票交易記錄 (MongoDB)</title>
-    <!-- IP Allowlist: internal network only -->
-    <style>html { visibility: hidden; }</style>
+    <!-- Password Protection -->
+    <style>
+        #pw-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0a0a0a;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #pw-box {
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            padding: 48px 40px;
+            background: #1e1e1e;
+            border-radius: 16px;
+            border: 1px solid #333;
+            min-width: 320px;
+        }
+        #pw-box .icon { font-size: 4rem; margin-bottom: 16px; }
+        #pw-box h2 { color: #9c27b0; margin: 0 0 8px; font-size: 1.6rem; }
+        #pw-box p  { color: #94a3b8; margin: 0 0 24px; font-size: 0.9rem; }
+        #pw-input {
+            width: 100%; box-sizing: border-box;
+            padding: 12px 16px; font-size: 1.1rem;
+            background: #121212; color: #e0e0e0;
+            border: 2px solid #444; border-radius: 8px;
+            outline: none; letter-spacing: 0.15em;
+            margin-bottom: 14px;
+            transition: border-color 0.2s;
+        }
+        #pw-input:focus { border-color: #9c27b0; }
+        #pw-input.shake {
+            animation: shake 0.35s ease;
+            border-color: #ef4444;
+        }
+        @keyframes shake {
+            0%,100%{transform:translateX(0)}
+            20%{transform:translateX(-8px)}
+            40%{transform:translateX(8px)}
+            60%{transform:translateX(-6px)}
+            80%{transform:translateX(6px)}
+        }
+        #pw-btn {
+            width: 100%; padding: 12px;
+            background: #9c27b0; color: #fff;
+            border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: background 0.2s;
+        }
+        #pw-btn:hover { background: #7b1fa2; }
+        #pw-err { color: #ef4444; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+    </style>
     <script>
         (function () {
-            var ALLOWED = [
-                '211.75.181.109', '211.75.181.110',
-                '220.130.6.196',  '220.130.6.197',  '220.130.6.198',
-                '220.130.134.238','220.130.134.239', '220.130.134.240'
-            ];
-            function deny(ip) {
-                document.documentElement.style.visibility = 'visible';
-                document.body.style.cssText = 'margin:0;padding:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh;';
-                document.body.innerHTML =
-                    '<div style="text-align:center;font-family:Outfit,sans-serif;padding:40px">' +
-                    '<div style="font-size:5rem;margin-bottom:20px">🔒</div>' +
-                    '<h1 style="color:#ef4444;font-size:2rem;margin:0 0 14px">存取被拒絕</h1>' +
-                    '<p style="color:#94a3b8;margin:0 0 8px">您目前的 IP 位址：' +
-                    '<code style="background:#1e293b;padding:2px 10px;border-radius:4px;color:#f472b6">' + ip + '</code></p>' +
-                    '<p style="color:#64748b;font-size:0.88rem">此頁面僅限內部網路存取 &middot; Access restricted to internal network only</p>' +
-                    '</div>';
+            var KEY = 'alex_life_auth';
+            function unlock() {
+                var el = document.getElementById('pw-overlay');
+                if (el) el.remove();
             }
-            var timer = setTimeout(function () { deny('timeout'); }, 6000);
-            fetch('https://api.ipify.org?format=json')
-                .then(function (r) { return r.json(); })
-                .then(function (d) {
-                    clearTimeout(timer);
-                    if (ALLOWED.indexOf(d.ip) !== -1) {
-                        document.documentElement.style.visibility = 'visible';
-                    } else {
-                        deny(d.ip);
-                    }
-                })
-                .catch(function () { clearTimeout(timer); deny('unknown'); });
+            function verify(pw) {
+                return pw === atob('MDkxODIxNjAwMQ==');
+            }
+            function trySubmit() {
+                var pw = document.getElementById('pw-input').value;
+                if (verify(pw)) {
+                    sessionStorage.setItem(KEY, '1');
+                    unlock();
+                } else {
+                    var inp = document.getElementById('pw-input');
+                    inp.classList.remove('shake');
+                    void inp.offsetWidth;
+                    inp.classList.add('shake');
+                    document.getElementById('pw-err').textContent = '密碼錯誤，請再試一次';
+                    inp.value = '';
+                    inp.focus();
+                }
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+                if (sessionStorage.getItem(KEY) === '1') { unlock(); return; }
+                document.getElementById('pw-input').addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') trySubmit();
+                });
+                document.getElementById('pw-btn').addEventListener('click', trySubmit);
+                document.getElementById('pw-input').focus();
+            });
         })();
     </script>
 <style>
@@ -117,6 +167,17 @@ body.edit-on .act-btn{display:inline-block}
 </style>
 </head>
 <body>
+    <!-- Password overlay -->
+    <div id="pw-overlay">
+        <div id="pw-box">
+            <div class="icon">🏠</div>
+            <h2>ALEX 生活管理</h2>
+            <p>請輸入密碼以繼續</p>
+            <input id="pw-input" type="password" placeholder="密碼" autocomplete="off">
+            <button id="pw-btn">進入</button>
+            <div id="pw-err"></div>
+        </div>
+    </div>
 <header>
   <h1>📈 股票交易記錄</h1>
   <span id="hdr-sub">2018 – 2026 (MongoDB)</span>
