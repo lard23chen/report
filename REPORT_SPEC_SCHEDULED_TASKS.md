@@ -33,9 +33,8 @@
 ### 2.2 執行步驟
 
 ```bat
-node generate_a_daily_report.js      → A_Qware_Revenue_Report_Daily.html
-node generate_golden_disc_report.js  → A_GoldenDisc_Report_2026-02-06.html
-node generate_expense_report.js      → daily_expense_report.html
+node generate_a_daily_report.js                    → A_Qware_Revenue_Report_Daily.html
+node generate_kaohsiung_beer_festival_report.js    → A_KaohsiungBeerFestival_2026.html
 git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin main
 ```
 
@@ -44,8 +43,7 @@ git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin m
 | 腳本 | 產出 HTML | 資料來源 | 說明 |
 |------|----------|---------|------|
 | `generate_a_daily_report.js` | `A_Qware_Revenue_Report_Daily.html` | MongoDB `Qware_A_Ticket_data_Daily` | A 系統每日營業快訊 |
-| `generate_golden_disc_report.js` | `A_GoldenDisc_Report_2026-02-06.html` | MongoDB `Qware_A_Ticket_data_Daily` | 第40屆金唱片深度評估 |
-| `generate_expense_report.js` | `daily_expense_report.html` | MongoDB `AzureMonthlyCost_Daily` | Azure 每日雲端費用明細 |
+| `generate_kaohsiung_beer_festival_report.js` | `A_KaohsiungBeerFestival_2026.html` | MongoDB `Qware_A_Ticket_data_Daily` + `Qware_A_Traffic_session_data` | 2026 高雄啤酒音樂節專案分析 |
 
 ### 2.4 Log 輸出
 

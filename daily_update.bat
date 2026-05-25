@@ -5,11 +5,8 @@ echo [%date% %time%] Starting Daily Report Update... >> daily_log.txt
 echo Running generate_a_daily_report.js...
 "D:\nodejs\node.exe" generate_a_daily_report.js >> daily_log.txt 2>&1
 
-echo Running generate_golden_disc_report.js...
-"D:\nodejs\node.exe" generate_golden_disc_report.js >> daily_log.txt 2>&1
-
-echo Running generate_expense_report.js...
-"D:\nodejs\node.exe" generate_expense_report.js >> daily_log.txt 2>&1
+echo Running generate_kaohsiung_beer_festival_report.js...
+"D:\nodejs\node.exe" generate_kaohsiung_beer_festival_report.js >> daily_log.txt 2>&1
 
 echo [%date% %time%] Update Completed. >> daily_log.txt
 
