@@ -29,9 +29,6 @@ k4.metric("今日筆數", today_n)
 
 st.divider()
 
-# ── 新增表單 ───────────────────────────────────────────────
-st.subheader("📝 新增消費")
-
 def compress_image(img_file, max_px=1024, quality=72):
     from PIL import Image
     img = Image.open(img_file).convert("RGB")
