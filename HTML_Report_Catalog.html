@@ -201,6 +201,7 @@
             text-decoration: none;
         }
         .sys-chk { background-color: #26c6da; }
+        .sys-sch { background-color: #7e57c2; }
     </style>
 </head>
 
@@ -568,6 +569,98 @@
                 <td><a href="https://github.com/lard23chen/report/blob/main/RAILWAY_SYSTEM_ARCHITECTURE.md" class="spec-link" target="_blank">🌐 檢視專案架構與流程圖</a></td>
                 <td><span class="table-name">ibon_QA_DB</span></td>
                 <td>即時</td>
+            </tr>
+
+            <!-- Section: 自動排程程式 -->
+            <tr style="background: rgba(126, 87, 194, 0.1);">
+                <td colspan="8" style="font-weight: bold; color: #b39ddb;">⏰ 自動排程程式</td>
+            </tr>
+            <tr>
+                <td>S1</td>
+                <td><span class="sys-badge sys-sch">排程</span></td>
+                <td class="update-time">
+                    2026/05/25 08:51
+                    <div class="run-info">
+                        <span class="run-status success">✓ Final 成功</span>
+                    </div>
+                    <div class="run-info">
+                        <span class="run-status error">⚠ Base 錯誤</span>
+                    </div>
+                </td>
+                <td>
+                    <a href="https://github.com/lard23chen/report/blob/main/daily_update.bat" target="_blank">daily_update.bat</a><br>
+                    <small style="color:#9e9e9e;">排程：Qware_Daily_Report_Update<br>Qware_Daily_Report_Update_Final<br>Qware_Monthly_Report_Update</small>
+                </td>
+                <td>
+                    每日 08:00 自動更新三份報表並 git push：<br>
+                    ① <a href="https://lard23chen.github.io/report/A_Qware_Revenue_Report_Daily.html" target="_blank">A_Qware_Revenue_Report_Daily.html</a><br>
+                    ② <a href="https://lard23chen.github.io/report/A_GoldenDisc_Report_2026-02-06.html" target="_blank">A_GoldenDisc_Report_2026-02-06.html</a><br>
+                    ③ <a href="https://lard23chen.github.io/report/daily_expense_report.html" target="_blank">daily_expense_report.html</a>（Azure 費用）
+                </td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_SCHEDULED_TASKS.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
+                <td>
+                    <span class="table-name">Qware_A_Ticket_data_Daily</span><br>
+                    <span class="table-name">AzureMonthlyCost_Daily</span>
+                </td>
+                <td>每日 08:00（日常）<br>每月 1 日 08:30（月報）
+                    <div class="run-info">
+                        <span class="run-time">Next: 05/26 08:00</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>S2</td>
+                <td><span class="sys-badge sys-sch">排程</span></td>
+                <td class="update-time">
+                    2026/05/25 08:51
+                    <div class="run-info">
+                        <span class="run-status error">⚠ 0800 錯誤</span>
+                    </div>
+                    <div class="run-info">
+                        <span class="run-status success">⏳ 1500 待執行</span>
+                    </div>
+                </td>
+                <td>
+                    <a href="https://github.com/lard23chen/report/blob/main/update_ga_report.bat" target="_blank">update_ga_report.bat</a><br>
+                    <small style="color:#9e9e9e;">排程：Update_GA_Report_0800<br>Update_GA_Report_1500</small>
+                </td>
+                <td>
+                    每日 08:00 & 15:00 更新 GA 流量報表：<br>
+                    ① <a href="https://lard23chen.github.io/report/A_GA_Events_Traffic_Report.html" target="_blank">A_GA_Events_Traffic_Report.html</a>
+                </td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_SCHEDULED_TASKS.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
+                <td><span class="table-name">Qware_A_Traffic_session_data</span></td>
+                <td>每日 08:00 / 15:00
+                    <div class="run-info">
+                        <span class="run-time">Next 1500: 今日 15:00</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>S3</td>
+                <td><span class="sys-badge sys-trv">旅遊</span></td>
+                <td class="update-time">
+                    2026/05/25 08:51
+                    <div class="run-info">
+                        <span class="run-status success">✓ 成功</span>
+                    </div>
+                </td>
+                <td>
+                    <a href="https://github.com/lard23chen/report/blob/main/travel/auto_update.bat" target="_blank">travel/auto_update.bat</a><br>
+                    <small style="color:#9e9e9e;">排程：TravelExpenseUpdate</small>
+                </td>
+                <td>
+                    每日 06:00 從 Google Sheets 下載 CSV 並重生成旅遊報表：<br>
+                    ① travel/expense_report.html（旅遊花費）<br>
+                    ② travel/shopping_report.html（購物消費）
+                </td>
+                <td><a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_SCHEDULED_TASKS.md" class="spec-link" target="_blank">📄 規範文檔 (MD)</a></td>
+                <td><span class="table-name">Google Sheets（旅遊花費 / 購物清單）</span></td>
+                <td>每日 06:00
+                    <div class="run-info">
+                        <span class="run-time">Next: 05/26 06:00</span>
+                    </div>
+                </td>
             </tr>
 
             <!-- Section: AI 工具 -->
