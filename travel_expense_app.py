@@ -64,5 +64,13 @@ if submitted:
 
 st.divider()
 
-# ── 查看明細按鈕 ───────────────────────────────────────────
-st.page_link("pages/detail.py", label="📋 查看消費明細", use_container_width=True)
+# ── 查看明細按鈕（另開新分頁）─────────────────────────────
+st.markdown("""
+<a href="https://report-kql5mwjfdwxmzdg5n5gd7u.streamlit.app/detail" target="_blank"
+   style="display:block;text-align:center;padding:13px;margin-top:4px;
+   background:linear-gradient(135deg,#00d4aa,#0096ff);
+   color:#000;font-weight:700;border-radius:10px;text-decoration:none;font-size:1rem;
+   font-family:sans-serif;">
+   📋 查看消費明細
+</a>
+""", unsafe_allow_html=True)
