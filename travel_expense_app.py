@@ -3,7 +3,6 @@ import base64
 import io
 from datetime import date, datetime
 from travel_db import get_col, CATEGORIES, PAY_METHODS, PAYERS, CURRENCIES, strip_emoji, COMMON_CSS
-from PIL import Image
 
 st.set_page_config(page_title="✈️ 旅遊記帳", page_icon="✈️", layout="centered")
 st.markdown(COMMON_CSS, unsafe_allow_html=True)
@@ -34,6 +33,7 @@ st.divider()
 st.subheader("📝 新增消費")
 
 def compress_image(img_file, max_px=1024, quality=72):
+    from PIL import Image
     img = Image.open(img_file).convert("RGB")
     img.thumbnail((max_px, max_px), Image.LANCZOS)
     buf = io.BytesIO()
