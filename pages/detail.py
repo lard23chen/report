@@ -1,5 +1,6 @@
 import streamlit as st
 from bson import ObjectId
+from datetime import date, timedelta
 import base64
 import pandas as pd
 from travel_db import get_col, CATEGORIES, PAYERS, CURRENCIES, CAT_EMOJI, PAYER_COLOR, strip_emoji, COMMON_CSS
@@ -14,19 +15,41 @@ hd, back = st.columns([5, 1])
 hd.title("📋 消費明細")
 back.page_link("travel_expense_app.py", label="＋ 新增消費", use_container_width=True)
 
-# ── Load ──────────────────────────────────────────────────
-data = list(col.find().sort([("date", -1), ("createdAt", -1)]))
-for d in data:
+# ── Load all ──────────────────────────────────────────────
+all_data = list(col.find().sort([("date", -1), ("createdAt", -1)]))
+for d in all_data:
     d["_id"] = str(d["_id"])
 
-if not data:
+if not all_data:
     st.info("還沒有消費記錄，回到新增頁面開始記帳。")
     st.stop()
 
-# ── KPI ───────────────────────────────────────────────────
-total  = sum(d.get("amount", 0) for d in data)
-alex   = sum(d.get("amount", 0) for d in data if d.get("payer") == "ALEX")
-mark   = sum(d.get("amount", 0) for d in data if d.get("payer") == "MARK")
+# ── Date range filter ─────────────────────────────────────
+dates_sorted = sorted([d.get("date","") for d in all_data if d.get("date")])
+min_date = date.fromisoformat(dates_sorted[0])
+max_date = date.today()
+
+dr1, dr2 = st.columns([3, 5])
+date_range = dr1.date_input(
+    "📅 時間區間",
+    value=(min_date, max_date),
+    min_value=min_date,
+    max_value=max_date + timedelta(days=1),
+    format="YYYY/MM/DD",
+)
+
+# 等待用戶選完兩個日期
+if len(date_range) == 2:
+    start_str, end_str = date_range[0].isoformat(), date_range[1].isoformat()
+else:
+    start_str, end_str = date_range[0].isoformat(), date_range[0].isoformat()
+
+data = [d for d in all_data if start_str <= d.get("date", "") <= end_str]
+
+# ── KPI（依時間區間）─────────────────────────────────────
+total = sum(d.get("amount", 0) for d in data)
+alex  = sum(d.get("amount", 0) for d in data if d.get("payer") == "ALEX")
+mark  = sum(d.get("amount", 0) for d in data if d.get("payer") == "MARK")
 
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("總消費金額", f"{total:,.0f}", f"{len(data)} 筆")
@@ -49,7 +72,7 @@ filtered = [
     and (fur == "全部" or d.get("currency") == fur)
 ]
 
-st.caption(f"顯示 {len(filtered)} / {len(data)} 筆")
+st.caption(f"顯示 {len(filtered)} / {len(all_data)} 筆")
 
 # ── List ──────────────────────────────────────────────────
 if not filtered:
@@ -59,7 +82,6 @@ else:
     for d in filtered:
         by_date.setdefault(d.get("date", "未知"), []).append(d)
 
-    from datetime import date
     today_str = date.today().isoformat()
 
     for day in sorted(by_date.keys(), reverse=True):
@@ -92,7 +114,7 @@ else:
 
 st.divider()
 
-# ── Stats ─────────────────────────────────────────────────
+# ── Stats（依時間區間）────────────────────────────────────
 st.subheader("📊 統計分析")
 s1, s2 = st.columns(2)
 
@@ -123,6 +145,6 @@ with s2:
         )
         st.dataframe(df, use_container_width=True, hide_index=True)
 
-st.caption(f"共 {len(data)} 筆　· 點擊 🔄 重新整理")
+st.caption(f"共 {len(all_data)} 筆　· 點擊 🔄 重新整理")
 if st.button("🔄 重新整理"):
     st.rerun()
