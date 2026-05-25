@@ -19,61 +19,31 @@ def strip_emoji(s):
 
 COMMON_CSS = """
 <style>
-/* ── Base ─────────────────────────────────────────────── */
-.stApp { background-color: #071426; }
+/* layout */
 .block-container { padding-top: 1.5rem; max-width: 960px; }
 
-/* ── Global text (dark bg needs explicit light text) ──── */
-.stApp p, .stApp span, .stApp div,
-.stApp li, .stApp td, .stApp th { color: #cbd5e1; }
-
-/* ── Headings ─────────────────────────────────────────── */
-h1, h2, h3, h4,
-[data-testid="stHeadingWithActionElements"] h1,
-[data-testid="stHeadingWithActionElements"] h2,
-[data-testid="stHeadingWithActionElements"] h3 { color: #00d4aa !important; }
-
-/* ── Metric cards ─────────────────────────────────────── */
-[data-testid="stMetric"] {
-    background: #0d1f3c;
-    border-radius: 12px;
-    padding: 12px 16px;
-    border: 1px solid rgba(0,212,170,.15);
-}
-[data-testid="stMetricValue"],
-[data-testid="stMetricValue"] > div,
-[data-testid="stMetricValue"] label { color: #00d4aa !important; font-weight: 800; }
-[data-testid="stMetricLabel"],
-[data-testid="stMetricLabel"] > div,
-[data-testid="stMetricLabel"] label { color: #6a8eaa !important; }
-[data-testid="stMetricDelta"] { color: #94a3b8 !important; }
-
-/* ── Form card ────────────────────────────────────────── */
+/* form card border */
 [data-testid="stForm"] {
-    background: #0d1f3c !important;
-    border-radius: 16px; padding: 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(0,212,170,.25);
+    padding: 20px;
+}
+
+/* metric card border */
+[data-testid="stMetric"] {
+    border-radius: 12px;
     border: 1px solid rgba(0,212,170,.15);
+    padding: 12px 16px;
 }
 
-/* ── Buttons ──────────────────────────────────────────── */
-.stButton > button, [data-testid="stFormSubmitButton"] > button {
+/* button gradient */
+.stButton > button,
+[data-testid="stFormSubmitButton"] > button {
     background: linear-gradient(135deg, #00d4aa, #0096ff) !important;
-    color: #000 !important; font-weight: 700; border: none;
-    border-radius: 10px; transition: opacity .2s;
+    color: #000 !important;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
 }
-.stButton > button:hover { opacity: .85; }
-
-/* ── Widget labels ────────────────────────────────────── */
-.stSelectbox label, .stTextInput label, .stNumberInput label,
-.stDateInput label, .stRadio label, .stRadio > label,
-[data-testid="stWidgetLabel"] p,
-[data-testid="stWidgetLabel"] {
-    color: #6a8eaa !important; font-size: .78rem;
-    text-transform: uppercase; letter-spacing: .05em;
-}
-
-/* ── Radio horizontal ─────────────────────────────────── */
-.row-widget.stRadio > div,
-[data-testid="stRadio"] > div { flex-direction: row; flex-wrap: wrap; gap: 8px; }
 </style>
 """
