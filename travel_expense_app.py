@@ -13,21 +13,6 @@ col = get_col()
 st.title("✈️ 旅遊記帳助手")
 st.caption("AlexLIFE DB · TravelExpense Collection")
 
-# ── 快速 KPI ──────────────────────────────────────────────
-data = list(col.find({}, {"amount":1, "payer":1, "date":1}).sort("createdAt", -1))
-today_str = date.today().isoformat()
-total  = sum(d.get("amount", 0) for d in data)
-alex   = sum(d.get("amount", 0) for d in data if d.get("payer") == "ALEX")
-mark   = sum(d.get("amount", 0) for d in data if d.get("payer") == "MARK")
-today_n = sum(1 for d in data if d.get("date") == today_str)
-
-k1, k2, k3, k4 = st.columns(4)
-k1.metric("總消費", f"{total:,.0f}", f"{len(data)} 筆")
-k2.metric("🤴 ALEX", f"{alex:,.0f}")
-k3.metric("👨 MARK", f"{mark:,.0f}")
-k4.metric("今日筆數", today_n)
-
-st.divider()
 
 def compress_image(img_file, max_px=1024, quality=72):
     from PIL import Image
