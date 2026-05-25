@@ -11,8 +11,7 @@ col = get_col()
 # ── Header ────────────────────────────────────────────────
 hd, back = st.columns([5, 1])
 hd.title("📋 消費明細")
-if back.button("＋ 新增消費", use_container_width=True):
-    st.switch_page("travel_expense_app.py")
+back.page_link("travel_expense_app.py", label="＋ 新增消費", use_container_width=True)
 
 # ── Load ──────────────────────────────────────────────────
 data = list(col.find().sort([("date", -1), ("createdAt", -1)]))

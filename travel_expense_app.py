@@ -65,5 +65,4 @@ if submitted:
 st.divider()
 
 # ── 查看明細按鈕 ───────────────────────────────────────────
-if st.button("📋 查看消費明細", use_container_width=True):
-    st.switch_page("pages/detail.py")
+st.page_link("pages/detail.py", label="📋 查看消費明細", use_container_width=True)
