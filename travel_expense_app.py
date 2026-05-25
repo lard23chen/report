@@ -41,7 +41,9 @@ st.markdown("""
 # ── MongoDB ──────────────────────────────────────────────
 @st.cache_resource
 def get_col():
-    uri = st.secrets.get("MONGO_URI", "mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/")
+    # On Streamlit Cloud: set MONGO_URI in App Settings → Secrets
+    # Local: create .streamlit/secrets.toml with MONGO_URI = "..."
+    uri = st.secrets["MONGO_URI"]
     client = MongoClient(uri)
     return client["AlexLIFE"]["TravelExpense"]
 

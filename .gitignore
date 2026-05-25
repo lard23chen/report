@@ -1,3 +1,5 @@
 .env
 *.env
 node_modules/
+.streamlit/secrets.toml
+requirements_travel.txt
