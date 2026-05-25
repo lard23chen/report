@@ -106,6 +106,38 @@ app.get('/api/dashboard-data', async (req, res) => {
     }
 });
 
+// Travel Expense CRUD
+app.get('/api/travel-expense', async (req, res) => {
+    try {
+        if (!alexDb) return res.status(503).json({ ok: false, error: 'DB not connected' });
+        const data = await alexDb.collection('TravelExpense').find({}).sort({ date: -1, createdAt: -1 }).toArray();
+        res.json({ ok: true, data });
+    } catch (err) {
+        res.status(500).json({ ok: false, error: err.message });
+    }
+});
+
+app.post('/api/travel-expense', async (req, res) => {
+    try {
+        if (!alexDb) return res.status(503).json({ ok: false, error: 'DB not connected' });
+        const doc = { ...req.body, createdAt: new Date() };
+        const result = await alexDb.collection('TravelExpense').insertOne(doc);
+        res.json({ ok: true, id: result.insertedId });
+    } catch (err) {
+        res.status(500).json({ ok: false, error: err.message });
+    }
+});
+
+app.delete('/api/travel-expense/:id', async (req, res) => {
+    try {
+        if (!alexDb) return res.status(503).json({ ok: false, error: 'DB not connected' });
+        await alexDb.collection('TravelExpense').deleteOne({ _id: new ObjectId(req.params.id) });
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ ok: false, error: err.message });
+    }
+});
+
 app.get('/api/prompt-log', (req, res) => {
     const logPath = 'C:\\Users\\alexchen\\.claude\\prompt-log.txt';
     fs.readFile(logPath, 'utf8', (err, data) => {

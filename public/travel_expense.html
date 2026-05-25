@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✈️ 旅遊記帳助手</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #071426;
+            --card: #0d1f3c;
+            --card2: #122b50;
+            --border: rgba(0,212,170,0.15);
+            --accent: #00d4aa;
+            --blue: #4da6ff;
+            --gold: #ffc106;
+            --purple: #ce93d8;
+            --danger: #ff5252;
+            --text: #d4eeff;
+            --muted: #6a8eaa;
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit','Noto Sans TC',sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        /* Header */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, #0d1f3c 0%, #0a3060 100%);
+            border-radius: 20px; padding: 28px 36px; margin-bottom: 24px;
+            border-bottom: 3px solid var(--accent); box-shadow: var(--shadow);
+        }
+        header h1 { font-size: 2rem; font-weight: 800; color: var(--accent); }
+        header .sub { color: var(--muted); margin-top: 4px; font-size: 0.88rem; }
+        .live-pill {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3);
+            border-radius: 20px; padding: 8px 16px; font-size: 0.85rem; color: var(--accent);
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: blink 1.5s infinite; }
+        @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.8)} }
+
+        /* KPI */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi { background: var(--card); border-radius: 16px; padding: 20px 22px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .kpi h4 { font-size: 0.72rem; text-transform: uppercase; color: var(--muted); letter-spacing:.06em; margin-bottom: 10px; }
+        .kpi .val { font-size: 1.85rem; font-weight: 800; line-height: 1; }
+        .kpi .sub2 { font-size: 0.75rem; color: var(--muted); margin-top: 5px; }
+        .c-teal { color: var(--accent); } .c-blue { color: var(--blue); } .c-gold { color: var(--gold); } .c-pur { color: var(--purple); }
+
+        /* Layout */
+        .main-grid { display: grid; grid-template-columns: 400px 1fr; gap: 22px; margin-bottom: 22px; }
+        @media(max-width:900px){ .main-grid { grid-template-columns: 1fr; } }
+
+        /* Card */
+        .card { background: var(--card); border-radius: 20px; padding: 26px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .card-title { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .badge-live { font-size: 0.62rem; background: var(--accent); color: #000; padding: 2px 7px; border-radius: 10px; font-weight: 800; letter-spacing: .05em; }
+
+        /* Form */
+        .fg { margin-bottom: 16px; }
+        .fg label { display: block; font-size: 0.72rem; text-transform: uppercase; color: var(--muted); letter-spacing: .06em; margin-bottom: 7px; }
+        input[type=date], input[type=number], input[type=text], select {
+            width: 100%; background: var(--card2); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text); padding: 10px 13px;
+            font-size: 0.93rem; font-family: inherit; outline: none; transition: border-color .2s;
+        }
+        input:focus, select:focus { border-color: var(--accent); }
+        input[type=date]::-webkit-calendar-picker-indicator { filter: invert(.6); }
+        .row2 { display: flex; gap: 10px; }
+        .row2 input { flex: 1; }
+        .row2 select { width: 88px; flex-shrink: 0; }
+
+        /* Category grid */
+        .cat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+        .btn-cat {
+            padding: 11px 6px; border-radius: 12px; background: var(--card2);
+            border: 1px solid var(--border); color: var(--text); cursor: pointer;
+            font-family: inherit; text-align: center; transition: all .15s;
+            display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: .78rem;
+        }
+        .btn-cat .ce { font-size: 1.45rem; }
+        .btn-cat:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .btn-cat.sel { background: rgba(0,212,170,.18); border-color: var(--accent); font-weight: 600; }
+
+        /* Toggle groups */
+        .tg { display: flex; flex-wrap: wrap; gap: 7px; }
+        .btn-tg {
+            padding: 8px 13px; border-radius: 9px; background: var(--card2);
+            border: 1px solid var(--border); color: var(--text); cursor: pointer;
+            font-size: .84rem; font-family: inherit; transition: all .15s; white-space: nowrap;
+        }
+        .btn-tg:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-tg.sel { background: rgba(0,212,170,.18); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+        /* Submit */
+        .btn-submit {
+            width: 100%; padding: 13px; border-radius: 12px;
+            background: linear-gradient(135deg, #00d4aa, #0096ff);
+            border: none; color: #000; font-size: .97rem; font-weight: 700;
+            font-family: inherit; cursor: pointer; transition: all .2s; margin-top: 4px;
+        }
+        .btn-submit:hover { opacity: .9; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,212,170,.3); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+        /* List */
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .filter-bar select { width: auto; font-size: .8rem; padding: 6px 10px; }
+        .list-scroll { max-height: 540px; overflow-y: auto; }
+        .list-scroll::-webkit-scrollbar { width: 4px; }
+        .list-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .exp-item {
+            display: flex; align-items: center; gap: 11px;
+            padding: 11px 13px; border-radius: 12px;
+            background: var(--card2); margin-bottom: 7px;
+            border: 1px solid transparent; transition: all .15s;
+            animation: slideIn .25s ease;
+        }
+        @keyframes slideIn { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:none} }
+        .exp-item:hover { border-color: rgba(0,212,170,.2); }
+        .cat-ico { font-size: 1.5rem; width: 34px; text-align: center; flex-shrink: 0; }
+        .exp-info { flex: 1; min-width: 0; }
+        .exp-name { font-weight: 600; font-size: .92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .exp-meta { font-size: .75rem; color: var(--muted); margin-top: 2px; display: flex; gap: 7px; flex-wrap: wrap; }
+        .exp-right { text-align: right; flex-shrink: 0; }
+        .exp-amt { font-size: 1.05rem; font-weight: 700; }
+        .exp-curr { font-size: .72rem; color: var(--muted); font-weight: 400; }
+        .p-badge { font-size: .68rem; padding: 2px 7px; border-radius: 8px; font-weight: 600; display: inline-block; margin-top: 3px; }
+        .p-alex { background: rgba(77,166,255,.15); color: var(--blue); }
+        .p-mark { background: rgba(255,193,6,.15); color: var(--gold); }
+        .p-other { background: rgba(206,147,216,.15); color: var(--purple); }
+        .btn-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 4px; transition: color .15s; flex-shrink: 0; line-height: 1; }
+        .btn-del:hover { color: var(--danger); }
+
+        .date-sep { text-align: center; font-size: .72rem; color: var(--muted); padding: 8px 0 3px; position: relative; }
+        .date-sep::before, .date-sep::after { content:''; position:absolute; top:50%; width:33%; height:1px; background:var(--border); }
+        .date-sep::before { left:0; } .date-sep::after { right:0; }
+
+        .empty { text-align: center; padding: 44px 20px; color: var(--muted); }
+        .empty .ei { font-size: 2.8rem; margin-bottom: 10px; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+        @media(max-width:700px){ .stats-grid { grid-template-columns: 1fr; } }
+        .stat-row { display: flex; align-items: center; padding: 10px 12px; border-radius: 10px; margin-bottom: 6px; background: var(--card2); gap: 10px; }
+        .stat-row:last-child { margin-bottom: 0; }
+        .stat-lbl { min-width: 72px; font-size: .88rem; display: flex; align-items: center; gap: 6px; }
+        .stat-bar-w { flex: 1; height: 5px; background: rgba(255,255,255,.05); border-radius: 3px; overflow: hidden; }
+        .stat-bar-f { height: 5px; border-radius: 3px; background: var(--accent); transition: width .5s ease; }
+        .stat-amt { font-size: .88rem; font-weight: 700; white-space: nowrap; text-align: right; min-width: 72px; }
+        .stat-pct { font-size: .7rem; color: var(--muted); margin-left: 4px; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 22px; right: 22px;
+            background: var(--accent); color: #000;
+            padding: 11px 18px; border-radius: 12px; font-weight: 600; font-size: .88rem;
+            box-shadow: 0 8px 24px rgba(0,212,170,.4);
+            transform: translateY(70px); opacity: 0; transition: all .28s; z-index: 999;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .ts-last { font-size: .72rem; color: var(--muted); }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <div>
+            <h1>✈️ 旅遊記帳助手</h1>
+            <p class="sub">MongoDB 即時同步 · AlexLIFE DB · TravelExpense Collection</p>
+        </div>
+        <div class="live-pill"><span class="dot"></span>即時同步中</div>
+    </header>
+
+    <div class="kpi-grid">
+        <div class="kpi"><h4>總消費金額</h4><div class="val c-teal" id="kTotal">—</div><div class="sub2" id="kTotalSub">— 筆</div></div>
+        <div class="kpi"><h4>🤴 ALEX 負擔</h4><div class="val c-blue" id="kAlex">—</div><div class="sub2" id="kAlexSub">—</div></div>
+        <div class="kpi"><h4>👨‍🎤 MARK 負擔</h4><div class="val c-gold" id="kMark">—</div><div class="sub2" id="kMarkSub">—</div></div>
+        <div class="kpi"><h4>今日消費筆數</h4><div class="val c-pur" id="kToday">—</div><div class="sub2" id="kTodaySub">今日金額 —</div></div>
+    </div>
+
+    <div class="main-grid">
+
+        <!-- Form -->
+        <div class="card">
+            <p class="card-title">📝 新增消費</p>
+            <form id="expForm" autocomplete="off">
+
+                <div class="fg">
+                    <label>消費類別</label>
+                    <div class="cat-grid" id="catGrid">
+                        <button type="button" class="btn-cat" data-v="餐飲"><span class="ce">🍽️</span>餐飲</button>
+                        <button type="button" class="btn-cat" data-v="交通"><span class="ce">🚗</span>交通</button>
+                        <button type="button" class="btn-cat" data-v="住宿"><span class="ce">🏨</span>住宿</button>
+                        <button type="button" class="btn-cat" data-v="購物"><span class="ce">🛍️</span>購物</button>
+                        <button type="button" class="btn-cat" data-v="景點"><span class="ce">🎫</span>景點</button>
+                        <button type="button" class="btn-cat" data-v="SPA"><span class="ce">💆</span>SPA</button>
+                        <button type="button" class="btn-cat" data-v="飲品"><span class="ce">🧋</span>飲品</button>
+                        <button type="button" class="btn-cat" data-v="其他"><span class="ce">💬</span>其他</button>
+                    </div>
+                    <input type="hidden" id="fCat">
+                </div>
+
+                <div class="fg">
+                    <label>消費項目</label>
+                    <input type="text" id="fItem" placeholder="例：晚餐 / BTS 票 / 按摩" required>
+                </div>
+
+                <div class="fg">
+                    <label>金額</label>
+                    <div class="row2">
+                        <input type="number" id="fAmt" placeholder="0" min="0" step="any" required>
+                        <select id="fCur">
+                            <option value="TWD">TWD</option>
+                            <option value="THB">THB</option>
+                            <option value="JPY">JPY</option>
+                            <option value="USD">USD</option>
+                            <option value="HKD">HKD</option>
+                            <option value="KRW">KRW</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fg">
+                    <label>付款方式</label>
+                    <div class="tg" id="payGrp">
+                        <button type="button" class="btn-tg" data-v="現金">💵 現金</button>
+                        <button type="button" class="btn-tg" data-v="信用卡">💳 信用卡</button>
+                        <button type="button" class="btn-tg" data-v="Scan to pay">📱 Scan to pay</button>
+                        <button type="button" class="btn-tg" data-v="其他">💰 其他</button>
+                    </div>
+                    <input type="hidden" id="fPay">
+                </div>
+
+                <div class="fg">
+                    <label>付款人</label>
+                    <div class="tg" id="payerGrp">
+                        <button type="button" class="btn-tg" data-v="ALEX">🤴 ALEX</button>
+                        <button type="button" class="btn-tg" data-v="MARK">👨‍🎤 MARK</button>
+                        <button type="button" class="btn-tg" data-v="泰國帳戶">🏦 泰國帳戶</button>
+                        <button type="button" class="btn-tg" data-v="其他">💰 其他</button>
+                    </div>
+                    <input type="hidden" id="fPayer">
+                </div>
+
+                <div class="fg">
+                    <label>日期</label>
+                    <input type="date" id="fDate" required>
+                </div>
+
+                <div class="fg">
+                    <label>備注 <span style="color:var(--muted);font-size:.72rem;text-transform:none;">(選填)</span></label>
+                    <input type="text" id="fNote" placeholder="額外說明...">
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmit">✅ 確認送出</button>
+            </form>
+        </div>
+
+        <!-- Live List -->
+        <div class="card" style="display:flex;flex-direction:column;">
+            <div class="list-header">
+                <p class="card-title" style="margin:0;">📋 消費明細 <span class="badge-live">LIVE</span></p>
+                <span class="ts-last" id="tsLast">—</span>
+            </div>
+            <div class="filter-bar">
+                <select id="flPayer" onchange="applyFilter()">
+                    <option value="">全部付款人</option>
+                    <option value="ALEX">🤴 ALEX</option>
+                    <option value="MARK">👨‍🎤 MARK</option>
+                    <option value="泰國帳戶">🏦 泰國帳戶</option>
+                    <option value="其他">其他</option>
+                </select>
+                <select id="flCat" onchange="applyFilter()">
+                    <option value="">全部類別</option>
+                    <option value="餐飲">🍽️ 餐飲</option>
+                    <option value="交通">🚗 交通</option>
+                    <option value="住宿">🏨 住宿</option>
+                    <option value="購物">🛍️ 購物</option>
+                    <option value="景點">🎫 景點</option>
+                    <option value="SPA">💆 SPA</option>
+                    <option value="飲品">🧋 飲品</option>
+                    <option value="其他">💬 其他</option>
+                </select>
+                <select id="flCur" onchange="applyFilter()">
+                    <option value="">全部幣別</option>
+                    <option value="TWD">TWD</option>
+                    <option value="THB">THB</option>
+                    <option value="JPY">JPY</option>
+                    <option value="USD">USD</option>
+                    <option value="HKD">HKD</option>
+                </select>
+            </div>
+            <div class="list-scroll" id="listEl"></div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="card"><p class="card-title">🗂️ 類別統計</p><div id="catStats"></div></div>
+        <div class="card"><p class="card-title">👤 付款人統計</p><div id="payerStats"></div></div>
+    </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+    var all = [];
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('fDate').value = today;
+
+    var CE = { 餐飲:'🍽️', 交通:'🚗', 住宿:'🏨', 購物:'🛍️', 景點:'🎫', SPA:'💆', 飲品:'🧋', 其他:'💬' };
+    var PC = { ALEX:'p-alex', MARK:'p-mark' };
+
+    // --- Toggle groups ---
+    function initTg(groupId, hiddenId) {
+        document.getElementById(groupId).querySelectorAll('.btn-tg').forEach(function(b) {
+            b.addEventListener('click', function() {
+                document.getElementById(groupId).querySelectorAll('.btn-tg').forEach(function(x){ x.classList.remove('sel'); });
+                b.classList.add('sel');
+                document.getElementById(hiddenId).value = b.dataset.v;
+            });
+        });
+    }
+    initTg('payGrp', 'fPay');
+    initTg('payerGrp', 'fPayer');
+
+    document.getElementById('catGrid').querySelectorAll('.btn-cat').forEach(function(b) {
+        b.addEventListener('click', function() {
+            document.querySelectorAll('.btn-cat').forEach(function(x){ x.classList.remove('sel'); });
+            b.classList.add('sel');
+            document.getElementById('fCat').value = b.dataset.v;
+        });
+    });
+
+    // --- API ---
+    function loadAll() {
+        fetch('/api/travel-expense').then(function(r){ return r.json(); }).then(function(j) {
+            if (j.ok) {
+                all = j.data;
+                renderAll();
+                document.getElementById('tsLast').textContent = '更新：' + new Date().toLocaleTimeString('zh-TW');
+            }
+        }).catch(function(){});
+    }
+
+    // --- Form Submit ---
+    document.getElementById('expForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var cat = document.getElementById('fCat').value;
+        var pay = document.getElementById('fPay').value;
+        var payer = document.getElementById('fPayer').value;
+        if (!cat)   { toast('請選擇消費類別', 1); return; }
+        if (!pay)   { toast('請選擇付款方式', 1); return; }
+        if (!payer) { toast('請選擇付款人', 1); return; }
+
+        var btn = document.getElementById('btnSubmit');
+        btn.disabled = true; btn.textContent = '送出中...';
+
+        var doc = {
+            date: document.getElementById('fDate').value,
+            category: cat,
+            item: document.getElementById('fItem').value.trim(),
+            amount: parseFloat(document.getElementById('fAmt').value) || 0,
+            currency: document.getElementById('fCur').value,
+            paymentMethod: pay,
+            payer: payer,
+            note: document.getElementById('fNote').value.trim()
+        };
+
+        fetch('/api/travel-expense', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(doc)
+        }).then(function(r){ return r.json(); }).then(function(j) {
+            if (j.ok) {
+                toast('✅ 已新增：' + (doc.item || doc.category));
+                document.getElementById('fItem').value = '';
+                document.getElementById('fAmt').value = '';
+                document.getElementById('fNote').value = '';
+                document.querySelectorAll('.btn-cat').forEach(function(x){ x.classList.remove('sel'); });
+                document.getElementById('fCat').value = '';
+                loadAll();
+            }
+        }).catch(function(){ toast('❌ 送出失敗', 1); })
+        .finally(function(){ btn.disabled = false; btn.textContent = '✅ 確認送出'; });
+    });
+
+    // --- Delete ---
+    window.delExp = function(id) {
+        if (!confirm('確定要刪除這筆記錄？')) return;
+        fetch('/api/travel-expense/' + id, { method: 'DELETE' })
+            .then(function(r){ return r.json(); })
+            .then(function(j){ if (j.ok) { toast('🗑️ 已刪除'); loadAll(); } })
+            .catch(function(){ toast('❌ 刪除失敗', 1); });
+    };
+
+    // --- Render ---
+    function applyFilter() {
+        var fp = document.getElementById('flPayer').value;
+        var fc = document.getElementById('flCat').value;
+        var fu = document.getElementById('flCur').value;
+        var filtered = all.filter(function(e){
+            return (!fp || e.payer === fp) && (!fc || e.category === fc) && (!fu || e.currency === fu);
+        });
+        renderList(filtered);
+    }
+
+    function renderAll() { applyFilter(); renderKPI(); renderStats(); }
+
+    function renderList(items) {
+        var el = document.getElementById('listEl');
+        if (!items.length) {
+            el.innerHTML = '<div class="empty"><div class="ei">✈️</div><p>沒有符合條件的記錄</p></div>';
+            return;
+        }
+        var byDate = {};
+        items.forEach(function(e) {
+            var d = e.date || '未知';
+            if (!byDate[d]) byDate[d] = [];
+            byDate[d].push(e);
+        });
+        var dates = Object.keys(byDate).sort(function(a,b){ return b.localeCompare(a); });
+        var html = '';
+        dates.forEach(function(d) {
+            var dayTotal = byDate[d].reduce(function(s,e){ return s + (e.amount||0); }, 0);
+            html += '<div class="date-sep">' + fmtDate(d) + ' · 小計 ' + dayTotal.toLocaleString() + '</div>';
+            byDate[d].forEach(function(e) {
+                var pc = PC[e.payer] || 'p-other';
+                html += '<div class="exp-item">' +
+                    '<span class="cat-ico">' + (CE[e.category]||'💬') + '</span>' +
+                    '<div class="exp-info">' +
+                        '<div class="exp-name">' + esc(e.item||'—') + '</div>' +
+                        '<div class="exp-meta"><span>' + esc(e.category||'') + '</span><span>' + esc(e.paymentMethod||'') + '</span>' +
+                        (e.note ? '<span>' + esc(e.note) + '</span>' : '') + '</div>' +
+                    '</div>' +
+                    '<div class="exp-right">' +
+                        '<div class="exp-amt">' + (e.amount||0).toLocaleString() + ' <span class="exp-curr">' + esc(e.currency||'') + '</span></div>' +
+                        '<span class="p-badge ' + pc + '">' + esc(e.payer||'') + '</span>' +
+                    '</div>' +
+                    '<button class="btn-del" onclick="delExp(\'' + e._id + '\')" title="刪除">🗑️</button>' +
+                '</div>';
+            });
+        });
+        el.innerHTML = html;
+    }
+
+    function renderKPI() {
+        var tot = all.reduce(function(s,e){ return s+e.amount; }, 0);
+        var aList = all.filter(function(e){ return e.payer==='ALEX'; });
+        var mList = all.filter(function(e){ return e.payer==='MARK'; });
+        var tList = all.filter(function(e){ return e.date===today; });
+        var aTot = aList.reduce(function(s,e){ return s+e.amount; }, 0);
+        var mTot = mList.reduce(function(s,e){ return s+e.amount; }, 0);
+        var tTot = tList.reduce(function(s,e){ return s+e.amount; }, 0);
+
+        document.getElementById('kTotal').textContent = tot.toLocaleString();
+        document.getElementById('kTotalSub').textContent = all.length + ' 筆記錄';
+        document.getElementById('kAlex').textContent = aTot.toLocaleString();
+        document.getElementById('kAlexSub').textContent = aList.length + ' 筆';
+        document.getElementById('kMark').textContent = mTot.toLocaleString();
+        document.getElementById('kMarkSub').textContent = mList.length + ' 筆';
+        document.getElementById('kToday').textContent = tList.length;
+        document.getElementById('kTodaySub').textContent = '今日 ' + tTot.toLocaleString();
+    }
+
+    function renderStats() {
+        var catMap = {}, payerMap = {};
+        all.forEach(function(e){
+            catMap[e.category] = (catMap[e.category]||0) + e.amount;
+            payerMap[e.payer] = (payerMap[e.payer]||0) + e.amount;
+        });
+        var maxC = Math.max.apply(null, Object.values(catMap).concat([1]));
+        var maxP = Math.max.apply(null, Object.values(payerMap).concat([1]));
+        var tot = all.reduce(function(s,e){ return s+e.amount; }, 0) || 1;
+        var pColors = { ALEX:'var(--blue)', MARK:'var(--gold)', '泰國帳戶':'var(--accent)' };
+
+        var cRows = Object.entries(catMap).sort(function(a,b){ return b[1]-a[1]; });
+        document.getElementById('catStats').innerHTML = cRows.length ?
+            cRows.map(function(x){
+                return '<div class="stat-row"><div class="stat-lbl"><span>' + (CE[x[0]]||'💬') + '</span><span>' + esc(x[0]) + '</span></div>' +
+                    '<div class="stat-bar-w"><div class="stat-bar-f" style="width:' + Math.round(x[1]/maxC*100) + '%"></div></div>' +
+                    '<div class="stat-amt">' + x[1].toLocaleString() + '</div></div>';
+            }).join('') : '<div style="color:var(--muted);text-align:center;padding:20px;font-size:.85rem;">尚無資料</div>';
+
+        var pRows = Object.entries(payerMap).sort(function(a,b){ return b[1]-a[1]; });
+        document.getElementById('payerStats').innerHTML = pRows.length ?
+            pRows.map(function(x){
+                var col = pColors[x[0]] || 'var(--purple)';
+                return '<div class="stat-row"><div class="stat-lbl">' + esc(x[0]) + '</div>' +
+                    '<div class="stat-bar-w"><div class="stat-bar-f" style="width:' + Math.round(x[1]/maxP*100) + '%;background:' + col + '"></div></div>' +
+                    '<div class="stat-amt">' + x[1].toLocaleString() + '<span class="stat-pct">(' + Math.round(x[1]/tot*100) + '%)</span></div></div>';
+            }).join('') : '<div style="color:var(--muted);text-align:center;padding:20px;font-size:.85rem;">尚無資料</div>';
+    }
+
+    // --- Utils ---
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function fmtDate(d) { if (!d) return '—'; var p=d.split('-'); return p[0]+'/'+p[1]+'/'+p[2]; }
+    function toast(msg, isErr) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.background = isErr ? 'var(--danger)' : 'var(--accent)';
+        t.style.color = isErr ? '#fff' : '#000';
+        t.classList.add('show');
+        setTimeout(function(){ t.classList.remove('show'); }, 2500);
+    }
+
+    // --- Start ---
+    loadAll();
+    setInterval(loadAll, 5000);
+</script>
+</body>
+</html>
