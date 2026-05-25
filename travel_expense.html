@@ -154,6 +154,18 @@
         .stat-amt { font-size: .88rem; font-weight: 700; white-space: nowrap; text-align: right; min-width: 72px; }
         .stat-pct { font-size: .7rem; color: var(--muted); margin-left: 4px; }
 
+        /* Server warning */
+        .server-warn {
+            background: rgba(255,82,82,0.12); border: 1px solid rgba(255,82,82,0.4);
+            border-radius: 16px; padding: 24px 28px; margin-bottom: 22px;
+            display: none;
+        }
+        .server-warn h3 { color: var(--danger); margin-bottom: 10px; font-size: 1.1rem; }
+        .server-warn p { color: var(--text); font-size: .9rem; line-height: 1.7; }
+        .server-warn code { background: #0a1628; color: #00d4aa; padding: 2px 8px; border-radius: 5px; font-size: .88rem; }
+        .server-warn.show { display: block; }
+        .form-disabled { opacity: .35; pointer-events: none; }
+
         /* Toast */
         .toast {
             position: fixed; bottom: 22px; right: 22px;
@@ -176,6 +188,13 @@
         </div>
         <div class="live-pill"><span class="dot"></span>即時同步中</div>
     </header>
+
+    <div class="server-warn" id="serverWarn">
+        <h3>⚠️ 無法連線至本地 Server</h3>
+        <p>此工具需要本地 <code>server.js</code> 才能讀寫 MongoDB 資料。</p>
+        <p style="margin-top:8px;">請在終端機執行：<code>node server.js</code><br>
+        然後透過 <code><a href="http://localhost:3000/travel_expense.html" style="color:#00d4aa;">http://localhost:3000/travel_expense.html</a></code> 存取。</p>
+    </div>
 
     <div class="kpi-grid">
         <div class="kpi"><h4>總消費金額</h4><div class="val c-teal" id="kTotal">—</div><div class="sub2" id="kTotalSub">— 筆</div></div>
@@ -314,6 +333,27 @@
     var today = new Date().toISOString().split('T')[0];
     document.getElementById('fDate').value = today;
 
+    // API base URL: always point to localhost:3000 regardless of where page is hosted
+    var API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? '' : 'http://localhost:3000';
+
+    function checkServer() {
+        fetch(API + '/api/travel-expense', { signal: AbortSignal.timeout(4000) })
+            .then(function(r){ return r.json(); })
+            .then(function(j){
+                if (j.ok !== undefined) {
+                    document.getElementById('serverWarn').classList.remove('show');
+                    document.getElementById('expForm').classList.remove('form-disabled');
+                }
+            })
+            .catch(function(){
+                document.getElementById('serverWarn').classList.add('show');
+                document.getElementById('expForm').classList.add('form-disabled');
+                document.getElementById('kTotal').textContent = '—';
+                document.getElementById('listEl').innerHTML = '<div class="empty"><div class="ei">🔌</div><p>Server 未啟動</p></div>';
+            });
+    }
+
     var CE = { 餐飲:'🍽️', 交通:'🚗', 住宿:'🏨', 購物:'🛍️', 景點:'🎫', SPA:'💆', 飲品:'🧋', 其他:'💬' };
     var PC = { ALEX:'p-alex', MARK:'p-mark' };
 
@@ -340,7 +380,7 @@
 
     // --- API ---
     function loadAll() {
-        fetch('/api/travel-expense').then(function(r){ return r.json(); }).then(function(j) {
+        fetch(API + '/api/travel-expense').then(function(r){ return r.json(); }).then(function(j) {
             if (j.ok) {
                 all = j.data;
                 renderAll();
@@ -373,7 +413,7 @@
             note: document.getElementById('fNote').value.trim()
         };
 
-        fetch('/api/travel-expense', {
+        fetch(API + '/api/travel-expense', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(doc)
@@ -386,15 +426,17 @@
                 document.querySelectorAll('.btn-cat').forEach(function(x){ x.classList.remove('sel'); });
                 document.getElementById('fCat').value = '';
                 loadAll();
+            } else {
+                toast('❌ ' + (j.error || '送出失敗'), 1);
             }
-        }).catch(function(){ toast('❌ 送出失敗', 1); })
+        }).catch(function(err){ toast('❌ 無法連線 server', 1); console.error(err); })
         .finally(function(){ btn.disabled = false; btn.textContent = '✅ 確認送出'; });
     });
 
     // --- Delete ---
     window.delExp = function(id) {
         if (!confirm('確定要刪除這筆記錄？')) return;
-        fetch('/api/travel-expense/' + id, { method: 'DELETE' })
+        fetch(API + '/api/travel-expense/' + id, { method: 'DELETE' })
             .then(function(r){ return r.json(); })
             .then(function(j){ if (j.ok) { toast('🗑️ 已刪除'); loadAll(); } })
             .catch(function(){ toast('❌ 刪除失敗', 1); });
@@ -511,6 +553,7 @@
     }
 
     // --- Start ---
+    checkServer();
     loadAll();
     setInterval(loadAll, 5000);
 </script>
