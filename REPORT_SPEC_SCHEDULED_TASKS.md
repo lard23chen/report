@@ -147,6 +147,12 @@ git add . && git commit -m "Auto-update GA Traffic Reports: ..." && git push
 
 ## 6. 相關連結
 
+### 視覺化儀表板
+
+- **HTML 儀表板**：[Scheduled_Tasks_Dashboard.html](https://lard23chen.github.io/report/Scheduled_Tasks_Dashboard.html) — 排程狀態總覽、BAT 執行流程、錯誤排查指南
+
+### 相關規範文檔
+
 - 每日營業報表規範：`REPORT_SPEC_A_DAILY_REVENUE.md`
 - GA 流量報表規範：`REPORT_SPEC_GA_EVENTS_TRAFFIC.md`
 - Azure 費用報表規範：`REPORT_SPEC_AZURE_DAILY.md`
