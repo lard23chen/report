@@ -26,7 +26,7 @@ with st.form("add_form", clear_on_submit=True):
     category   = st.radio("消費類別", CATEGORIES, horizontal=True)
     item       = st.text_input("消費項目", placeholder="例：晚餐 / BTS 票 / 按摩")
     c1, c2     = st.columns([3, 1])
-    amount     = c1.number_input("金額", min_value=0.0, step=1.0, format="%.0f")
+    amount     = c1.number_input("金額", min_value=0.0, step=1.0, format="%.0f", value=None, placeholder="0")
     currency   = c2.selectbox("幣別", CURRENCIES)
     pay_method = st.radio("付款方式", PAY_METHODS, horizontal=True)
     payer      = st.radio("付款人",   PAYERS,      horizontal=True)
@@ -43,7 +43,7 @@ with st.form("add_form", clear_on_submit=True):
 if submitted:
     if not item.strip():
         st.error("請填寫消費項目")
-    elif amount <= 0:
+    elif not amount or amount <= 0:
         st.error("請填寫金額")
     else:
         receipt_src = receipt_cam or receipt_file
