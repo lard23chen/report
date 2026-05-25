@@ -1,5 +1,6 @@
 import streamlit as st
 from bson import ObjectId
+import base64
 import pandas as pd
 from travel_db import get_col, CATEGORIES, PAYERS, CURRENCIES, CAT_EMOJI, PAYER_COLOR, strip_emoji, COMMON_CSS
 
@@ -72,13 +73,18 @@ else:
                 r1, r2 = st.columns([8, 1])
                 with r1:
                     note_str = f"　📝 _{d['note']}_" if d.get("note") else ""
+                    receipt_badge = "　🧾" if d.get("receiptImage") else ""
                     st.markdown(
                         f"{emoji} **{d.get('item','—')}**　"
                         f"`{d.get('amount',0):,.0f} {d.get('currency','')}`　"
                         f"{pc} {d.get('payer','')}　"
                         f"_{d.get('paymentMethod','')}_"
-                        f"{note_str}"
+                        f"{note_str}{receipt_badge}"
                     )
+                    if d.get("receiptImage"):
+                        with st.expander("🧾 查看收據"):
+                            img_bytes = base64.b64decode(d["receiptImage"])
+                            st.image(img_bytes, use_container_width=True)
                 with r2:
                     if st.button("🗑️", key=f"del_{d['_id']}", help="刪除此筆"):
                         col.delete_one({"_id": ObjectId(d["_id"])})

@@ -1,6 +1,9 @@
 import streamlit as st
+import base64
+import io
 from datetime import date, datetime
 from travel_db import get_col, CATEGORIES, PAY_METHODS, PAYERS, CURRENCIES, strip_emoji, COMMON_CSS
+from PIL import Image
 
 st.set_page_config(page_title="✈️ 旅遊記帳", page_icon="✈️", layout="centered")
 st.markdown(COMMON_CSS, unsafe_allow_html=True)
@@ -30,6 +33,13 @@ st.divider()
 # ── 新增表單 ───────────────────────────────────────────────
 st.subheader("📝 新增消費")
 
+def compress_image(img_file, max_px=1024, quality=72):
+    img = Image.open(img_file).convert("RGB")
+    img.thumbnail((max_px, max_px), Image.LANCZOS)
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=quality)
+    return base64.b64encode(buf.getvalue()).decode(), "image/jpeg"
+
 with st.form("add_form", clear_on_submit=True):
     category   = st.radio("消費類別", CATEGORIES, horizontal=True)
     item       = st.text_input("消費項目", placeholder="例：晚餐 / BTS 票 / 按摩")
@@ -40,7 +50,13 @@ with st.form("add_form", clear_on_submit=True):
     payer      = st.radio("付款人",   PAYERS,      horizontal=True)
     exp_date   = st.date_input("日期", value=date.today())
     note       = st.text_input("備注", placeholder="選填")
-    submitted  = st.form_submit_button("✅ 確認送出", use_container_width=True)
+
+    st.markdown("<p style='color:#6a8eaa;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px'>📸 收據憑證（選填）</p>", unsafe_allow_html=True)
+    ri1, ri2 = st.columns(2)
+    receipt_cam  = ri1.camera_input("拍攝收據", label_visibility="collapsed")
+    receipt_file = ri2.file_uploader("上傳圖片", type=["jpg","jpeg","png","heic"], label_visibility="collapsed")
+
+    submitted = st.form_submit_button("✅ 確認送出", use_container_width=True)
 
 if submitted:
     if not item.strip():
@@ -48,7 +64,15 @@ if submitted:
     elif amount <= 0:
         st.error("請填寫金額")
     else:
-        col.insert_one({
+        receipt_src = receipt_cam or receipt_file
+        receipt_b64, receipt_type = (None, None)
+        if receipt_src:
+            try:
+                receipt_b64, receipt_type = compress_image(receipt_src)
+            except Exception:
+                pass
+
+        doc = {
             "date":          exp_date.isoformat(),
             "category":      strip_emoji(category),
             "item":          item.strip(),
@@ -58,8 +82,13 @@ if submitted:
             "payer":         strip_emoji(payer),
             "note":          note.strip(),
             "createdAt":     datetime.utcnow(),
-        })
-        st.success(f"✅ 已新增：{item.strip()}　{amount:,.0f} {currency}")
+        }
+        if receipt_b64:
+            doc["receiptImage"] = receipt_b64
+            doc["receiptType"]  = receipt_type
+
+        col.insert_one(doc)
+        st.success(f"✅ 已新增：{item.strip()}　{amount:,.0f} {currency}" + ("　🧾" if receipt_b64 else ""))
         st.rerun()
 
 st.divider()
