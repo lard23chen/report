@@ -244,6 +244,18 @@ body.edit-on .act-btn{display:inline-block}
     </table>
   </div>
   <div class="pagination" id="pagination"></div>
+
+  <div class="section-title" style="margin-top:28px">💰 歷年股利收入彙總</div>
+  <div class="table-wrap" style="max-width:480px;margin-bottom:40px">
+    <table id="div-history-table">
+      <thead><tr>
+        <th>年度</th>
+        <th class="num">股利收入</th>
+        <th class="num">筆數</th>
+      </tr></thead>
+      <tbody id="div-history-body"></tbody>
+    </table>
+  </div>
 </main>
 
 <div id="edit-toolbar">
@@ -425,6 +437,7 @@ function render(){
   if(curPage>pages)curPage=pages;
   renderTable(filtered.slice((curPage-1)*perPage, curPage*perPage));
   renderPagination(total,pages);
+  renderDividendHistory();
 }
 
 function renderStats(rows){
@@ -566,6 +579,32 @@ function renderPagination(total,pages){
   document.getElementById('pagination').innerHTML=html;
 }
 function goPage(p){ curPage=p; render(); }
+
+function renderDividendHistory(){
+  var divs = data.filter(r => r.type === '股利');
+  var yearMap = {};
+  divs.forEach(r => {
+    var y = formatDate(r.date).split('/')[0];
+    if(!y || y === '—') return;
+    if(!yearMap[y]) yearMap[y] = { count:0, total:0 };
+    yearMap[y].count++;
+    yearMap[y].total += Number(r.income)||0;
+  });
+  var years = Object.keys(yearMap).sort((a,b) => Number(a)-Number(b));
+  var grandTotal = years.reduce((s,y) => s + yearMap[y].total, 0);
+  var grandCount = divs.length;
+  var html = years.map(y => `<tr>
+    <td style="font-weight:600">${y}</td>
+    <td class="num pos">$${fmt(yearMap[y].total)}</td>
+    <td class="num muted">${yearMap[y].count} 筆</td>
+  </tr>`).join('');
+  html += `<tr style="background:var(--surface2);font-weight:700">
+    <td style="color:var(--accent)">合計</td>
+    <td class="num" style="color:var(--accent)">$${fmt(grandTotal)}</td>
+    <td class="num muted">${grandCount} 筆</td>
+  </tr>`;
+  document.getElementById('div-history-body').innerHTML = html;
+}
 
 window.toggleEditMode=function(){
   if(editOn){ editOn=false; document.body.classList.remove('edit-on'); document.getElementById('edit-toolbar').classList.remove('on'); document.getElementById('edit-toggle').textContent='✏️ 編輯'; }
