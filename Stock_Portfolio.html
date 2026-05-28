@@ -580,6 +580,20 @@ function renderPagination(total,pages){
 }
 function goPage(p){ curPage=p; render(); }
 
+function filterDivYear(y){
+  document.getElementById('f-year').value = y;
+  document.getElementById('f-type').value = '股利';
+  document.getElementById('f-person').value = '';
+  document.getElementById('f-code').value = '';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-search').value = '';
+  activePerson = '';
+  document.querySelectorAll('.ptab').forEach(b => b.classList.toggle('active', b.dataset.p===''));
+  curPage = 1;
+  render();
+  document.querySelector('.section-title').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
 function renderDividendHistory(){
   var divs = data.filter(r => r.type === '股利');
   var yearMap = {};
@@ -594,12 +608,12 @@ function renderDividendHistory(){
   var grandTotal = years.reduce((s,y) => s + yearMap[y].total, 0);
   var grandCount = divs.length;
   var html = years.map(y => `<tr>
-    <td style="font-weight:600">${y}</td>
+    <td><a href="#" onclick="filterDivYear('${y}');return false;" style="color:var(--accent);font-weight:600;text-decoration:none;border-bottom:1px dotted var(--accent)" title="點擊查看 ${y} 年股利明細">${y}</a></td>
     <td class="num pos">$${fmt(yearMap[y].total)}</td>
     <td class="num muted">${yearMap[y].count} 筆</td>
   </tr>`).join('');
   html += `<tr style="background:var(--surface2);font-weight:700">
-    <td style="color:var(--accent)">合計</td>
+    <td><a href="#" onclick="filterDivYear('');document.getElementById('f-type').value='股利';curPage=1;render();return false;" style="color:var(--accent);text-decoration:none" title="顯示全部年度股利">合計</a></td>
     <td class="num" style="color:var(--accent)">$${fmt(grandTotal)}</td>
     <td class="num muted">${grandCount} 筆</td>
   </tr>`;
