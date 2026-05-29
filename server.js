@@ -138,6 +138,18 @@ app.delete('/api/travel-expense/:id', async (req, res) => {
     }
 });
 
+// USA Stock — 即時讀取 AlexLIFE/USA_Stock
+app.get('/api/usa-stock', async (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    try {
+        if (!alexDb) return res.status(503).json({ ok: false, error: 'DB not connected' });
+        const data = await alexDb.collection('USA_Stock').find({}, { projection: { _id: 0 } }).sort({ dateObj: 1 }).toArray();
+        res.json({ ok: true, count: data.length, data });
+    } catch (err) {
+        res.status(500).json({ ok: false, error: err.message });
+    }
+});
+
 app.get('/api/prompt-log', (req, res) => {
     const logPath = 'C:\\Users\\alexchen\\.claude\\prompt-log.txt';
     fs.readFile(logPath, 'utf8', (err, data) => {
