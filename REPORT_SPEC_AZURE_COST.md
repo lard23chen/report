@@ -135,6 +135,15 @@ Collection：`QwareAi.AzureMonthlyCost`
 
 ### 4.5 圖表 (Charts)
 
+- **D系統 Azure vs AWS 費用比較圖**（頁面最頂端，filter 篩選器之前）：Chart.js `line`，顯示 D系統在平台遷移前後的費用趨勢
+  - 資料範圍：`2024/11` 至最新月份
+  - 藍線（`#42A5F5`）`Azure D系統`：`YearMonth < '2025/11'` 時顯示 `SystemD_Cost`，之後為 `null`
+  - 橘線（`#FF9800`）`AWS D系統`：`YearMonth >= '2025/11'` 時顯示 `SystemD_Cost`，之前為 `null`
+  - 自訂 Chart.js plugin `migLine`：在 `2025/11` 處畫金色虛線 + "⚡ 移至 AWS" 標籤
+  - `spanGaps: false` 確保斷點分隔兩條線
+  - Canvas ID：`dSystemCompareChart`
+  - 由 generator 中 `allData` 注入後的 IIFE 立即執行（位於 `const allData = ...` 之後，`let trendChart, stackedChart;` 之前）
+  - **維護注意**：`SystemD_Cost` 在 2025/11 前為 Azure 費用，2025/11 起為 AWS 費用（同一欄位，分界在 2025/11）
 - **每月費用趨勢折線圖**：Chart.js `line`，顯示 A/D/E 三系統趨勢，帶數值標籤（`chartjs-plugin-datalabels`），千位縮寫（如 `1,200k`）
 - **系統費用堆疊長條圖**：Chart.js `bar`（stacked），顯示 A/D/E/共用四層，篩選器聯動更新
 
@@ -199,7 +208,8 @@ node generate_azure_cost_report.js
 
 受影響的功能（歷史上曾被覆蓋過）：
 - MoM Analysis 區塊 — 2026/05/21 新增，已同步至 generator（`momSection` 變數直接嵌入模板字串，使用 server-side 已計算的 `latestDoc` / `prevDoc`）
+- D系統 Azure vs AWS 比較圖 — 2026/05/29 新增，已同步至 generator（IIFE 嵌入模板字串，位於 `const allData = ...` 之後）
 
 ---
 
-*最後更新日期：2026/05/21（新增 4.4.2 機器等級統計表）*
+*最後更新日期：2026/05/29（新增 D系統 Azure vs AWS 費用比較圖說明）*

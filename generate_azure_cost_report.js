@@ -421,6 +421,23 @@ async function generateReport() {
         </div>
     </header>
 
+    <div class="main-content" style="margin-bottom:25px;">
+        <div class="chart-card full-width" style="border-left:4px solid var(--color-d);">
+            <h3 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <span style="color:var(--color-d);">D 系統平台費用比較</span>
+                <span style="font-size:0.7rem;font-weight:400;background:#252525;padding:4px 12px;border-radius:20px;color:#a0a0a0;">Azure → AWS 遷移分析 · 2024/11 起</span>
+            </h3>
+            <div style="display:flex;gap:20px;margin-bottom:14px;font-size:0.82rem;flex-wrap:wrap;align-items:center;">
+                <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:24px;height:3px;background:#42A5F5;border-radius:2px;"></span> Azure D系統（2024/11 – 2025/10）</span>
+                <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:24px;height:3px;background:#FF9800;border-radius:2px;"></span> AWS D系統（2025/11 起）</span>
+                <span style="margin-left:auto;background:rgba(251,192,45,0.12);border:1px solid rgba(251,192,45,0.4);padding:3px 12px;border-radius:8px;color:#FBC02D;font-size:0.78rem;">⚡ 2025/11 正式移至 AWS</span>
+            </div>
+            <div style="height:400px;width:100%;">
+                <canvas id="dSystemCompareChart"></canvas>
+            </div>
+        </div>
+    </div>
+
     <div class="filter-container">
         <div>
             <label>開始月份 (From):</label>
@@ -544,7 +561,68 @@ ${monitoringTableHtml}
 
 <script>
     const allData = ${JSON.stringify(allDocs)};
-    
+
+    // ── D系統 Azure vs AWS 比較圖 ─────────────────────────────────────────
+    (function(){
+        const MIGRATE='2025/11';
+        const rows=allData.filter(d=>d.YearMonth>='2024/11');
+        const labels=rows.map(d=>d.YearMonth);
+        const migIdx=labels.indexOf(MIGRATE);
+        const azureData=rows.map(d=>d.YearMonth<MIGRATE?(d.SystemD_Cost||0):null);
+        const awsData=rows.map(d=>d.YearMonth>=MIGRATE?(d.SystemD_Cost||0):null);
+        const fmtY=v=>v>=1000000?'+'+(v/1000000).toFixed(1)+'M':v>=1000?'+'+Math.round(v/1000)+'K':''+v;
+        const migLinePlugin={
+            id:'migLine',
+            afterDraw(chart){
+                if(migIdx<0)return;
+                const{ctx,scales:{x,y}}=chart;
+                const xPx=x.getPixelForValue(migIdx);
+                ctx.save();
+                ctx.beginPath();ctx.setLineDash([5,5]);
+                ctx.strokeStyle='rgba(251,192,45,0.75)';ctx.lineWidth=2;
+                ctx.moveTo(xPx,y.top);ctx.lineTo(xPx,y.bottom);ctx.stroke();
+                ctx.setLineDash([]);
+                const lbl='⚡ 移至 AWS';
+                ctx.font='bold 11px Outfit,sans-serif';
+                const tw=ctx.measureText(lbl).width;
+                const bx=xPx-tw/2-8,by=y.top+6,bw=tw+16,bh=20;
+                ctx.fillStyle='rgba(251,192,45,0.15)';
+                ctx.beginPath();ctx.roundRect(bx,by,bw,bh,4);ctx.fill();
+                ctx.strokeStyle='rgba(251,192,45,0.7)';ctx.lineWidth=1;ctx.stroke();
+                ctx.fillStyle='#FBC02D';ctx.textAlign='center';
+                ctx.fillText(lbl,xPx,by+14);
+                ctx.restore();
+            }
+        };
+        new Chart(document.getElementById('dSystemCompareChart'),{
+            type:'line',
+            data:{
+                labels,
+                datasets:[
+                    {label:'Azure D系統',data:azureData,borderColor:'#42A5F5',backgroundColor:'rgba(66,165,245,0.08)',fill:true,borderWidth:2.5,pointRadius:4,pointHoverRadius:7,pointBackgroundColor:'#42A5F5',tension:0.3,spanGaps:false},
+                    {label:'AWS D系統',data:awsData,borderColor:'#FF9800',backgroundColor:'rgba(255,152,0,0.08)',fill:true,borderWidth:2.5,pointRadius:4,pointHoverRadius:7,pointBackgroundColor:'#FF9800',tension:0.3,spanGaps:false}
+                ]
+            },
+            options:{
+                responsive:true,maintainAspectRatio:false,
+                interaction:{mode:'index',intersect:false},
+                plugins:{
+                    legend:{labels:{color:'#e0e0e0',font:{family:'Outfit',size:13},boxWidth:20,boxHeight:3}},
+                    datalabels:{display:false},
+                    tooltip:{
+                        backgroundColor:'rgba(20,20,20,0.9)',titleColor:'#e0e0e0',bodyColor:'#a0a0a0',borderColor:'#333',borderWidth:1,
+                        callbacks:{label:c=>c.parsed.y!=null?\`\${c.dataset.label}: \${c.parsed.y.toLocaleString()}\`:null}
+                    }
+                },
+                scales:{
+                    x:{ticks:{color:'#a0a0a0',maxRotation:45,font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},
+                    y:{ticks:{color:'#a0a0a0',callback:fmtY,font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}
+                }
+            },
+            plugins:[migLinePlugin]
+        });
+    })();
+
     let trendChart, stackedChart;
     const startSelect = document.getElementById('startMonthSelect');
     const endSelect = document.getElementById('endMonthSelect');
