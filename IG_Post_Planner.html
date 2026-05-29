@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IG 貼文計畫 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface2: #242424;
+  --border: #2e2e2e;
+  --text: #e8e8e8;
+  --muted: #888;
+  --ig1: #f58529;
+  --ig2: #dd2a7b;
+  --ig3: #8134af;
+  --ig4: #515bd4;
+  --green: #4caf50;
+  --yellow: #FBC02D;
+  --blue: #42A5F5;
+  --pink: #f48fb1;
+  --teal: #4DB6AC;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #f58529 0%, #dd2a7b 40%, #8134af 70%, #515bd4 100%);
+  padding: 32px 24px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+}
+.header h1 { position: relative; font-size: 2rem; font-weight: 800; letter-spacing: 1px; }
+.header p { position: relative; margin-top: 6px; color: rgba(255,255,255,0.8); font-size: 0.9rem; }
+
+/* Nav Tabs */
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 14px 22px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  transition: all .2s;
+}
+.tab.active {
+  color: var(--text);
+  border-bottom-color: var(--ig2);
+}
+.tab:hover { color: var(--text); }
+
+/* Page */
+.page { display: none; padding: 24px 20px; max-width: 900px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* Progress Bar */
+.progress-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.progress-label { font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+.progress-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ig1), var(--ig2));
+  border-radius: 4px;
+  transition: width .4s ease;
+}
+.progress-count { font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+
+/* Calendar Grid */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.cal-header {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 6px 0;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.cal-empty { background: transparent; }
+.cal-day {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cal-day:hover { border-color: var(--ig2); transform: translateY(-1px); }
+.cal-day.done {
+  background: rgba(221,42,123,0.08);
+  border-color: rgba(221,42,123,0.4);
+}
+.cal-day.done .day-num { color: var(--ig2); }
+.day-num {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.day-weekday {
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+.day-pillar {
+  font-size: 0.7rem;
+  margin-top: 2px;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.day-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all .2s;
+}
+.cal-day.done .day-check {
+  background: var(--ig2);
+  border-color: var(--ig2);
+  color: white;
+}
+.cal-day.done .day-check::after { content: '✓'; }
+
+/* Day Detail Modal */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal h2 { font-size: 1.2rem; margin-bottom: 6px; }
+.modal-meta { font-size: 0.82rem; color: var(--muted); margin-bottom: 18px; }
+.modal-field { margin-bottom: 16px; }
+.modal-field label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+.modal-field textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+  transition: border .2s;
+}
+.modal-field textarea:focus { border-color: var(--ig2); }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all .2s;
+}
+.btn-primary { background: var(--ig2); color: white; flex: 1; }
+.btn-primary:hover { background: #c02070; }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--ig2); }
+.btn-done { background: var(--green); color: white; flex: 1; }
+.btn-done:hover { background: #388e3c; }
+
+/* Pillar Legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Templates */
+.pillar-section {
+  margin-bottom: 28px;
+}
+.pillar-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  user-select: none;
+}
+.pillar-title h3 { font-size: 1rem; flex: 1; }
+.pillar-title .arrow { color: var(--muted); transition: transform .2s; }
+.pillar-title.open .arrow { transform: rotate(180deg); }
+.pillar-body {
+  display: none;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding: 20px;
+  background: var(--surface2);
+}
+.pillar-body.open { display: block; }
+
+.template-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+  position: relative;
+}
+.template-card:last-child { margin-bottom: 0; }
+.template-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ig2);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 10px;
+}
+.template-text {
+  font-size: 0.85rem;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-line;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.copy-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .2s;
+}
+.copy-btn:hover { border-color: var(--ig2); color: var(--ig2); }
+.copy-btn.copied { background: var(--green); border-color: var(--green); color: white; }
+
+/* Checklist */
+.checklist-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.checklist-wrap h3 { font-size: 0.95rem; margin-bottom: 14px; }
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+.check-item:last-child { border-bottom: none; }
+.check-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+}
+.check-item.checked .check-box {
+  background: var(--ig2);
+  border-color: var(--ig2);
+  color: white;
+  font-size: 12px;
+}
+.check-item.checked .check-box::after { content: '✓'; }
+.check-item.checked .check-label { color: var(--muted); text-decoration: line-through; }
+.check-label { font-size: 0.88rem; }
+
+/* Stats */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-num { font-size: 2rem; font-weight: 800; }
+.stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+/* Hashtag section */
+.tag-group { margin-bottom: 16px; }
+.tag-group h4 { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all .2s;
+  color: var(--muted);
+}
+.tag:hover { border-color: var(--ig2); color: var(--ig2); }
+.tag.copied-tag { background: rgba(221,42,123,0.15); border-color: var(--ig2); color: var(--ig2); }
+
+@media (max-width: 600px) {
+  .cal-grid { grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-day { min-height: 60px; padding: 6px 4px; }
+  .day-pillar { display: none; }
+  .header h1 { font-size: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📱 IG 貼文計畫 2026</h1>
+  <p>個人生活 · 每日發文 · 增加粉絲</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('calendar')">📅 六月月曆</div>
+  <div class="tab" onclick="switchTab('templates')">✍️ 文案範本</div>
+  <div class="tab" onclick="switchTab('hashtags')">🏷️ Hashtag</div>
+  <div class="tab" onclick="switchTab('checklist')">✅ 發文清單</div>
+</div>
+
+<!-- ── CALENDAR PAGE ── -->
+<div id="page-calendar" class="page active">
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-done" style="background:linear-gradient(135deg,var(--ig1),var(--ig2));-webkit-background-clip:text;-webkit-text-fill-color:transparent">0</div>
+      <div class="stat-label">已完成</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-remain" style="color:var(--muted)">30</div>
+      <div class="stat-label">待發文</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-rate" style="color:var(--yellow)">0%</div>
+      <div class="stat-label">完成率</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-streak" style="color:var(--ig1)">0</div>
+      <div class="stat-label">連續天數 🔥</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <span class="progress-label">六月進度</span>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    <span class="progress-count" id="progress-text">0 / 30</span>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">🌅 日常記錄</div>
+    <div class="legend-item">🍜 美食探索</div>
+    <div class="legend-item">🌍 出遊足跡</div>
+    <div class="legend-item">💭 心情感悟</div>
+    <div class="legend-item">🎯 成長紀錄</div>
+  </div>
+
+  <div class="cal-grid" id="cal-grid">
+    <div class="cal-header">一</div>
+    <div class="cal-header">二</div>
+    <div class="cal-header">三</div>
+    <div class="cal-header">四</div>
+    <div class="cal-header">五</div>
+    <div class="cal-header">六</div>
+    <div class="cal-header">日</div>
+  </div>
+</div>
+
+<!-- ── TEMPLATES PAGE ── -->
+<div id="page-templates" class="page">
+  <div id="templates-container"></div>
+</div>
+
+<!-- ── HASHTAGS PAGE ── -->
+<div id="page-hashtags" class="page">
+  <p style="color:var(--muted);font-size:0.85rem;margin-bottom:20px;">點擊標籤可複製，每篇貼文搭配 15–20 個（大 3–4 個、中 8–10 個、小 4–6 個）</p>
+  <div class="tag-group">
+    <h4>🔴 大標籤（百萬以上）</h4>
+    <div class="tags" id="tags-big"></div>
+  </div>
+  <div class="tag-group">
+    <h4>🟡 中標籤（1–10 萬）</h4>
+    <div class="tags" id="tags-mid"></div>
+  </div>
+  <div class="tag-group">
+    <h4>🟢 小標籤（1 萬以下，高曝光）</h4>
+    <div class="tags" id="tags-small"></div>
+  </div>
+  <div class="tag-group">
+    <h4>🍜 美食專用</h4>
+    <div class="tags" id="tags-food"></div>
+  </div>
+  <div class="tag-group">
+    <h4>🌍 旅遊專用</h4>
+    <div class="tags" id="tags-travel"></div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:24px;">
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:8px;">已選標籤（點擊複製全部）</div>
+    <div id="selected-tags" style="font-size:0.85rem;line-height:1.8;color:var(--text);cursor:pointer;min-height:40px;" onclick="copyAllTags()">—</div>
+  </div>
+</div>
+
+<!-- ── CHECKLIST PAGE ── -->
+<div id="page-checklist" class="page">
+  <div class="checklist-wrap">
+    <h3>📋 每日發文前確認</h3>
+    <div id="pre-checklist"></div>
+  </div>
+  <div class="checklist-wrap">
+    <h3>📈 每週成長確認</h3>
+    <div id="weekly-checklist"></div>
+  </div>
+  <div class="checklist-wrap">
+    <h3>🚀 新帳號前 30 天任務</h3>
+    <div id="onboarding-checklist"></div>
+  </div>
+</div>
+
+<!-- Day Modal -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <h2 id="modal-title">6/1（週一）</h2>
+    <div class="modal-meta" id="modal-meta"></div>
+    <div class="modal-field">
+      <label>📝 文案草稿</label>
+      <textarea id="modal-draft" placeholder="在這裡寫你的貼文草稿…" rows="5"></textarea>
+    </div>
+    <div class="modal-field">
+      <label>🔗 素材連結 / 備註</label>
+      <textarea id="modal-note" placeholder="相片路徑、拍攝地點、特別備註…" rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">關閉</button>
+      <button class="btn btn-primary" onclick="saveNote()">儲存草稿</button>
+      <button class="btn btn-done" id="modal-done-btn" onclick="toggleDone()">✓ 標記完成</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const DAYS = [
+  { d:1,  w:'一', pillar:'🌅 日常', theme:'自我介紹｜這個帳號的你是誰', fmt:'單圖' },
+  { d:2,  w:'二', pillar:'💭 感悟', theme:'開始這個帳號的原因/期許', fmt:'單圖+長文' },
+  { d:3,  w:'三', pillar:'🍜 美食', theme:'最近吃過最喜歡的一家餐廳', fmt:'多圖' },
+  { d:4,  w:'四', pillar:'🎯 成長', theme:'目前在學或嘗試的一件事', fmt:'單圖' },
+  { d:5,  w:'五', pillar:'🌅 日常', theme:'工作桌/書桌/通勤場景', fmt:'多圖' },
+  { d:6,  w:'六', pillar:'🌍 出遊', theme:'最近去過的地方（週末素材）', fmt:'多圖/Reels' },
+  { d:7,  w:'日', pillar:'💭 感悟', theme:'第一週回顧，對自己說一句話', fmt:'單圖+金句' },
+  { d:8,  w:'一', pillar:'🌅 日常', theme:'週一早晨儀式/開工狀態', fmt:'單圖' },
+  { d:9,  w:'二', pillar:'💭 感悟', theme:'一句最近有共鳴的話', fmt:'單圖+金句' },
+  { d:10, w:'三', pillar:'🍜 美食', theme:'最近常去的咖啡廳或飲料店', fmt:'多圖' },
+  { d:11, w:'四', pillar:'🎯 成長', theme:'這週學到一件小事', fmt:'單圖' },
+  { d:12, w:'五', pillar:'🌅 日常', theme:'TGIF｜下班後做的第一件事', fmt:'單圖/Reels' },
+  { d:13, w:'六', pillar:'🌍 出遊', theme:'週末去哪了？城市散步記錄', fmt:'多圖/Reels' },
+  { d:14, w:'日', pillar:'💭 感悟', theme:'這週「讓你有點感觸」的事', fmt:'單圖' },
+  { d:15, w:'一', pillar:'🌅 日常', theme:'一個月的中間點，現在的狀態', fmt:'單圖' },
+  { d:16, w:'二', pillar:'💭 感悟', theme:'你現在最期待的一件事', fmt:'單圖+長文' },
+  { d:17, w:'三', pillar:'🍜 美食', theme:'自己做的料理或在家吃的日常', fmt:'多圖' },
+  { d:18, w:'四', pillar:'🎯 成長', theme:'最近看的書/課/影片心得', fmt:'單圖' },
+  { d:19, w:'五', pillar:'🌅 日常', theme:'下班路上的隨手拍', fmt:'單圖/Reels' },
+  { d:20, w:'六', pillar:'🌍 出遊', theme:'一個「很少人知道」的在地景點', fmt:'多圖/Reels' },
+  { d:21, w:'日', pillar:'💭 感悟', theme:'夏至｜一年過了一半，感受是？', fmt:'單圖+長文' },
+  { d:22, w:'一', pillar:'🌅 日常', theme:'早晨光線/窗外/今天天氣', fmt:'單圖' },
+  { d:23, w:'二', pillar:'💭 感悟', theme:'一個改變了你的小習慣', fmt:'單圖' },
+  { d:24, w:'三', pillar:'🍜 美食', theme:'新發現的隱藏版美食', fmt:'多圖' },
+  { d:25, w:'四', pillar:'🎯 成長', theme:'第三週挑戰進度回報', fmt:'單圖/多圖' },
+  { d:26, w:'五', pillar:'🌅 日常', theme:'這週最開心的一個瞬間', fmt:'單圖' },
+  { d:27, w:'六', pillar:'🌍 出遊', theme:'週末行程全紀錄', fmt:'Reels' },
+  { d:28, w:'日', pillar:'💭 感悟', theme:'六月，謝謝你｜月末回顧', fmt:'單圖+長文' },
+  { d:29, w:'一', pillar:'🌅 日常', theme:'新一週，給自己一個儀式感', fmt:'單圖' },
+  { d:30, w:'二', pillar:'💭 感悟', theme:'六月最難忘的一件事', fmt:'單圖' },
+];
+
+const TEMPLATES = [
+  { icon:'🌅', name:'日常記錄', color:'#42A5F5', templates:[
+    { name:'A｜早晨儀式', text:`今天的早晨是___的顏色。
+
+___ 點起床，窗外___，
+泡了一杯___，坐在___。
+沒有急事，就這樣讓時間慢下來。
+
+你今天的早晨從什麼開始？ ☕` },
+    { name:'B｜工作片段', text:`___ 點的我，正在___。
+
+今天___，感覺___，
+但想到___就覺得還好。
+這大概就是平凡的一天。
+
+今天你有什麼「還好有___」的瞬間嗎？` },
+    { name:'C｜夜晚收尾', text:`睡前最後一張照片，拍的是___。
+
+今天___，有點___，但也___。
+把今天好好收起來，
+明天再重新打開。
+
+今天讓你最有感的一件小事是什麼？ 🌙` },
+  ]},
+  { icon:'🍜', name:'美食探索', color:'#FF7043', templates:[
+    { name:'A｜餐廳初訪', text:`巷子裡根本不起眼，但一吃就回不去了。
+
+___（店名），點了___，
+第一口就___。
+環境___，適合___的時候來。
+
+有在___的嗎？有推薦的必點嗎？ 🍴
+📍 ___` },
+    { name:'B｜咖啡廳/飲料', text:`這杯___，值得特別記錄一下。
+
+___（描述外觀/味道），
+在___，配上___（當時做的事）。
+有時候一杯飲料就能讓一個下午完整。
+
+你最近喝到最喜歡的是什麼？ ☕` },
+    { name:'C｜自煮在家', text:`今天決定自己煮，結果___。
+
+做了___，步驟其實不難，
+就是___（趣事或心得）。
+吃著自己做的東西，有種___的感覺。
+
+你最拿手的一道菜是什麼？🍳` },
+  ]},
+  { icon:'🌍', name:'出遊足跡', color:'#66BB6A', templates:[
+    { name:'A｜景點探索', text:`走進___的瞬間，忍不住站在原地看了很久。
+
+在___，___（描述環境/氛圍）。
+沒想到___（意外發現或感受）。
+這種地方，一個人來和兩個人來，感覺完全不同。
+
+你有沒有「只去過一次但想一直回去」的地方？ 🗺️
+📍 ___` },
+    { name:'B｜週末小旅行', text:`___，一日就夠了，但我想要更多天。
+
+行程是___，吃了___，走了___。
+最讓我印象深刻的是___。
+這趟___（總結感受）。
+
+有沒有想一起去___的？ ✈️` },
+    { name:'C｜城市散步', text:`今天沒有目的地，就這樣走。
+
+走進了___，發現了___，
+停在___前面拍了好幾張。
+城市的有趣在於，你永遠可以在熟悉的地方找到陌生感。
+
+你最近一次「亂走」是在哪裡？🚶` },
+  ]},
+  { icon:'💭', name:'心情感悟', color:'#AB47BC', templates:[
+    { name:'A｜金句型', text:`「___。」
+
+最近___，讓我想起這件事。
+以前覺得___，現在覺得___。
+也許___就是這樣。
+
+你現在最有共鳴的一句話是什麼？` },
+    { name:'B｜轉折型', text:`我以為___，但其實___。
+
+___（簡短的情境）
+這讓我意識到：___。
+有時候___，反而是___。
+
+你有過類似的「原來如此」時刻嗎？ 💬` },
+    { name:'C｜週末回顧', text:`這週，我學到了___。
+
+___（具體事件），___（感受），
+原本以為___，後來___。
+每個禮拜都像是一個縮小版的人生。
+
+這週你最想留下來的一個畫面是什麼？🌿` },
+  ]},
+  { icon:'🎯', name:'成長紀錄', color:'#FBC02D', templates:[
+    { name:'A｜新嘗試', text:`我第一次___，比想像中___。
+
+決定嘗試___的原因是___。
+過程中___（遇到什麼），最後___（結果）。
+不確定會不會繼續，但很慶幸開始了。
+
+你最近有沒有「第一次」做的事情？ 🌱` },
+    { name:'B｜挑戰紀錄', text:`___天了，我還沒放棄。
+
+___（挑戰名稱）進行到第___天，
+最難的是___，但___讓我撐下去。
+沒想到___（意外收穫）。
+
+你在進行什麼挑戰或目標嗎？💪` },
+    { name:'C｜反思型', text:`以前我覺得___很難，現在我覺得___更難。
+
+___（背景故事），讓我重新思考___。
+成長好像不是「變得更好」，
+而是「更清楚自己要什麼」。
+
+你現在正在成長的一件事是什麼？ ✨` },
+  ]},
+];
+
+const HASHTAGS = {
+  big: ['#台灣', '#台灣日常', '#台灣生活', '#生活日常', '#日常紀錄', '#生活記錄', '#台北', '#台灣美食'],
+  mid: ['#台北生活', '#台北日常', '#週末生活', '#下班後', '#咖啡廳', '#台北咖啡', '#生活vlog', '#30天挑戰', '#個人成長', '#週末去哪'],
+  small: ['#早晨記錄', '#睡前碎語', '#一人生活', '#慢生活', '#每日一照', '#隨手拍', '#手機攝影', '#生活感'],
+  food: ['#台北美食', '#台北咖啡廳', '#美食紀錄', '#今天吃什麼', '#下午茶', '#咖啡', '#甜點', '#隱藏版美食', '#台北早午餐'],
+  travel: ['#台灣旅遊', '#週末出遊', '#台灣景點', '#城市散步', '#旅行記錄', '#台北景點', '#一日遊', '#台灣必去'],
+};
+
+const PRE_CHECKS = [
+  '第一行夠不夠吸引人停下來？',
+  '文末有問問題引導留言？',
+  'Hashtag 15–20 個（大中小搭配）',
+  '有標記地點（提高曝光）？',
+  '發文後 30 分鐘主動回覆留言',
+  '同步發到 Stories',
+];
+const WEEKLY_CHECKS = [
+  '看本週哪篇表現最好，找出原因',
+  '與 3–5 個同類帳號真誠互動',
+  '至少發 1 支 Reels（短影音）',
+  '檢視本週粉絲增減數',
+  '預備下週素材（拍照/文案）',
+];
+const ONBOARDING = [
+  '帳號切換為「創作者帳號」',
+  'Bio 寫清楚「你是誰/你分享什麼」',
+  '大頭貼換成清晰真實照片',
+  '前 9 篇一次發完（建立版面感）',
+  '選定固定濾鏡風格並套用',
+  '確定每天發文時間（建議晚上 7–9 點）',
+  '追蹤 20 個同類帳號並互動',
+  '開第一支 Reels',
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let state = JSON.parse(localStorage.getItem('ig-planner-2026') || '{}');
+let currentDay = null;
+let selectedTags = new Set();
+
+// ── CALENDAR ─────────────────────────────────────────────────────────────────
+function buildCalendar() {
+  const grid = document.getElementById('cal-grid');
+  // June 1, 2026 is Monday → no empty cells needed
+  DAYS.forEach(day => {
+    const key = `6/${day.d}`;
+    const done = !!(state[key] && state[key].done);
+    const el = document.createElement('div');
+    el.className = 'cal-day' + (done ? ' done' : '');
+    el.dataset.key = key;
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="day-num">${day.d}</div>
+          <div class="day-weekday">週${day.w}</div>
+        </div>
+        <div class="day-check"></div>
+      </div>
+      <div class="day-pillar">${day.pillar}</div>
+    `;
+    el.addEventListener('click', () => openModal(day));
+    grid.appendChild(el);
+  });
+  updateStats();
+}
+
+function updateStats() {
+  const done = DAYS.filter(d => state[`6/${d.d}`] && state[`6/${d.d}`].done).length;
+  const total = DAYS.length;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-remain').textContent = total - done;
+  document.getElementById('stat-rate').textContent = Math.round(done/total*100) + '%';
+  document.getElementById('progress-fill').style.width = (done/total*100) + '%';
+  document.getElementById('progress-text').textContent = `${done} / ${total}`;
+  // streak
+  let streak = 0;
+  for (let i = done > 0 ? DAYS.length-1 : -1; i >= 0; i--) {
+    if (state[`6/${DAYS[i].d}`] && state[`6/${DAYS[i].d}`].done) streak++;
+    else break;
+  }
+  document.getElementById('stat-streak').textContent = streak;
+}
+
+// ── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(day) {
+  currentDay = day;
+  const key = `6/${day.d}`;
+  const s = state[key] || {};
+  document.getElementById('modal-title').textContent = `6/${day.d}（週${day.w}）`;
+  document.getElementById('modal-meta').textContent = `${day.pillar} · ${day.theme} · 格式：${day.fmt}`;
+  document.getElementById('modal-draft').value = s.draft || '';
+  document.getElementById('modal-note').value = s.note || '';
+  const btn = document.getElementById('modal-done-btn');
+  btn.textContent = s.done ? '✓ 已完成（點擊取消）' : '✓ 標記完成';
+  btn.className = 'btn ' + (s.done ? 'btn-secondary' : 'btn-done');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('overlay')) return;
+  document.getElementById('overlay').classList.remove('open');
+  currentDay = null;
+}
+
+function saveNote() {
+  if (!currentDay) return;
+  const key = `6/${currentDay.d}`;
+  if (!state[key]) state[key] = {};
+  state[key].draft = document.getElementById('modal-draft').value;
+  state[key].note = document.getElementById('modal-note').value;
+  localStorage.setItem('ig-planner-2026', JSON.stringify(state));
+  showToast('草稿已儲存 ✓');
+}
+
+function toggleDone() {
+  if (!currentDay) return;
+  const key = `6/${currentDay.d}`;
+  if (!state[key]) state[key] = {};
+  state[key].draft = document.getElementById('modal-draft').value;
+  state[key].note = document.getElementById('modal-note').value;
+  state[key].done = !state[key].done;
+  localStorage.setItem('ig-planner-2026', JSON.stringify(state));
+  const el = document.querySelector(`.cal-day[data-key="${key}"]`);
+  if (el) el.classList.toggle('done', state[key].done);
+  updateStats();
+  const btn = document.getElementById('modal-done-btn');
+  btn.textContent = state[key].done ? '✓ 已完成（點擊取消）' : '✓ 標記完成';
+  btn.className = 'btn ' + (state[key].done ? 'btn-secondary' : 'btn-done');
+  showToast(state[key].done ? '✅ 已完成！' : '取消完成');
+}
+
+// ── TEMPLATES ────────────────────────────────────────────────────────────────
+function buildTemplates() {
+  const container = document.getElementById('templates-container');
+  TEMPLATES.forEach(pillar => {
+    const section = document.createElement('div');
+    section.className = 'pillar-section';
+    const titleEl = document.createElement('div');
+    titleEl.className = 'pillar-title';
+    titleEl.innerHTML = `<span style="font-size:1.4rem">${pillar.icon}</span><h3 style="color:${pillar.color}">${pillar.name}</h3><span class="arrow">▼</span>`;
+    const body = document.createElement('div');
+    body.className = 'pillar-body';
+    pillar.templates.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'template-card';
+      card.innerHTML = `
+        <div class="template-name">${t.name}</div>
+        <button class="copy-btn" onclick="copyTemplate(this, \`${t.text.replace(/`/g,'\\`')}\`)">複製</button>
+        <div class="template-text">${t.text}</div>
+      `;
+      body.appendChild(card);
+    });
+    titleEl.addEventListener('click', () => {
+      titleEl.classList.toggle('open');
+      body.classList.toggle('open');
+    });
+    section.appendChild(titleEl);
+    section.appendChild(body);
+    container.appendChild(section);
+  });
+}
+
+function copyTemplate(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '已複製！';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// ── HASHTAGS ─────────────────────────────────────────────────────────────────
+function buildHashtags() {
+  Object.entries(HASHTAGS).forEach(([key, tags]) => {
+    const container = document.getElementById('tags-' + key);
+    tags.forEach(tag => {
+      const el = document.createElement('span');
+      el.className = 'tag';
+      el.textContent = tag;
+      el.addEventListener('click', () => {
+        if (selectedTags.has(tag)) { selectedTags.delete(tag); el.classList.remove('copied-tag'); }
+        else { selectedTags.add(tag); el.classList.add('copied-tag'); }
+        updateSelectedTags();
+      });
+      container.appendChild(el);
+    });
+  });
+}
+
+function updateSelectedTags() {
+  const el = document.getElementById('selected-tags');
+  if (selectedTags.size === 0) { el.textContent = '—'; return; }
+  el.textContent = [...selectedTags].join(' ') + ` (${selectedTags.size}個)`;
+}
+
+function copyAllTags() {
+  if (selectedTags.size === 0) return;
+  navigator.clipboard.writeText([...selectedTags].join(' ')).then(() => showToast('已複製 ' + selectedTags.size + ' 個標籤！'));
+}
+
+// ── CHECKLIST ────────────────────────────────────────────────────────────────
+function buildChecklist(items, containerId, prefix) {
+  const container = document.getElementById(containerId);
+  items.forEach((item, i) => {
+    const key = prefix + i;
+    const done = !!(state[key]);
+    const el = document.createElement('div');
+    el.className = 'check-item' + (done ? ' checked' : '');
+    el.innerHTML = `<div class="check-box"></div><div class="check-label">${item}</div>`;
+    el.addEventListener('click', () => {
+      const isChecked = el.classList.toggle('checked');
+      if (isChecked) state[key] = true; else delete state[key];
+      localStorage.setItem('ig-planner-2026', JSON.stringify(state));
+    });
+    container.appendChild(el);
+  });
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', t.getAttribute('onclick').includes(name));
+  });
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.toggle('active', p.id === 'page-' + name);
+  });
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(30,30,30,.95);border:1px solid #444;color:#e8e8e8;padding:10px 20px;border-radius:8px;font-size:.88rem;z-index:999;transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._to);
+  t._to = setTimeout(() => { t.style.opacity = '0'; }, 2000);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+buildCalendar();
+buildTemplates();
+buildHashtags();
+buildChecklist(PRE_CHECKS, 'pre-checklist', 'pre_');
+buildChecklist(WEEKLY_CHECKS, 'weekly-checklist', 'weekly_');
+buildChecklist(ONBOARDING, 'onboarding-checklist', 'onboard_');
+</script>
+</body>
+</html>
