@@ -12,9 +12,17 @@
     {
       "src": "insurance_api.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "usa_stock_api.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "/api/usa-stock",
+      "dest": "usa_stock_api.js"
+    },
     {
       "src": "/api/stock/(.*)",
       "dest": "stock_api.js"
