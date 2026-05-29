@@ -154,7 +154,7 @@ function generateHtml() {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI 定期投資分析報告</title>
+<title>美股投資分析報告</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"><\/script>
@@ -235,7 +235,7 @@ tfoot td{background:var(--surface2);font-weight:700;padding:10px 12px;border-top
 <body>
 <div class="header">
   <div class="header-inner">
-    <h1>📊 AI 定期投資分析報告</h1>
+    <h1>📊 美股投資分析報告</h1>
     <p id="headerSub">⏳ 資料載入中，請稍候…</p>
   </div>
 </div>
@@ -380,22 +380,6 @@ function buildReport(docs){
     <div class="stat-card"><div class="label">投資年數</div><div class="value" style="color:#26c6da">\${years.length}</div><div class="sub">\${years[0]} – \${years[years.length-1]}</div></div>
     <div class="stat-card"><div class="label">標的數</div><div class="value" style="color:#ab47bc">\${codes.length}</div><div class="sub">\${codes.join(' / ')}</div></div>
   </div>\`);
-  main.insertAdjacentHTML('beforeend',\`
-  <div class="dyn-section section-title">📊 圖表分析</div>
-  <div class="dyn-section chart-row">
-    <div class="chart-card"><h3>各標的投入比重</h3><div class="chart-wrap" style="height:280px"><canvas id="pieChart"></canvas></div></div>
-    <div class="chart-card"><h3>各年度買賣金額</h3><div class="chart-wrap" style="height:280px"><canvas id="yearChart"></canvas></div></div>
-  </div>
-  <div class="dyn-section chart-row">
-    <div class="chart-card full"><h3>每月買入趨勢（USD）</h3><div class="chart-wrap" style="height:260px"><canvas id="monthChart"></canvas></div></div>
-  </div>\`);
-  if(pieChart)pieChart.destroy();
-  pieChart=new Chart(document.getElementById('pieChart'),{type:'doughnut',data:{labels:codes,datasets:[{data:codes.map(c=>stockStats[c].buyAmt),backgroundColor:codes.map(c=>COLORS[c]||'#666'),borderWidth:2,borderColor:'#1a1d27'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#e8eaf6',font:{size:11},boxWidth:12}},datalabels:{color:'#fff',font:{size:10,weight:'bold'},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t>0?(v/t*100).toFixed(1)+'%':''}}}}});
-  const sortedYears=Object.keys(yearMap).sort();
-  if(yearChart)yearChart.destroy();
-  yearChart=new Chart(document.getElementById('yearChart'),{type:'bar',data:{labels:sortedYears,datasets:[{label:'買入',data:sortedYears.map(y=>yearMap[y].buyAmt),backgroundColor:'rgba(239,83,80,0.7)',borderRadius:4},{label:'賣出',data:sortedYears.map(y=>yearMap[y].sellAmt),backgroundColor:'rgba(76,175,80,0.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#e8eaf6',font:{size:11}}},datalabels:{display:ctx=>ctx.parsed.y>0,color:'#e8eaf6',anchor:'end',align:'top',offset:2,font:{size:9},formatter:v=>v>=1000?'$'+(v/1000).toFixed(0)+'K':''}},scales:{x:{ticks:{color:'#7986cb'},grid:{color:'rgba(44,48,72,0.5)'}},y:{ticks:{color:'#7986cb',callback:v=>'$'+(v/1000).toFixed(0)+'K'},grid:{color:'rgba(44,48,72,0.5)'}}}}});
-  if(monthChart)monthChart.destroy();
-  monthChart=new Chart(document.getElementById('monthChart'),{type:'bar',data:{labels:last24,datasets:[{label:'每月買入',data:last24.map(m=>monthMap[m]||0),backgroundColor:'rgba(92,107,192,0.75)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:ctx=>ctx.parsed.y>0,color:'#7986cb',anchor:'end',align:'top',offset:2,font:{size:8},formatter:v=>v>=1000?'$'+(v/1000).toFixed(0)+'K':''}},scales:{x:{ticks:{color:'#7986cb',maxRotation:45,font:{size:9}},grid:{color:'rgba(44,48,72,0.5)'}},y:{ticks:{color:'#7986cb',callback:v=>'$'+(v/1000).toFixed(0)+'K'},grid:{color:'rgba(44,48,72,0.5)'}}}}});
   const stockOrder=['AAPL','AMD','BNDW','EWJ','TLT','LLY'];
   const orderedCodes=[...stockOrder.filter(c=>codes.includes(c)),...codes.filter(c=>!stockOrder.includes(c))];
   let cardsHtml='<div class="dyn-section section-title">🗂️ 各標的分析</div><div class="dyn-section stock-grid">';
@@ -418,21 +402,6 @@ function buildReport(docs){
   }
   cardsHtml+='</div>';
   main.insertAdjacentHTML('beforeend',cardsHtml);
-  let tByAmt=0,tSAmt=0,tFee=0,tBCnt=0,tSCnt=0,yearRows='';
-  for(const y of sortedYears){
-    const r=yearMap[y];const net=r.buyAmt-r.sellAmt;
-    tByAmt+=r.buyAmt;tSAmt+=r.sellAmt;tFee+=r.fee;tBCnt+=r.buyCnt;tSCnt+=r.sellCnt;
-    yearRows+=\`<tr><td><b>\${y}</b></td><td class="num">\${r.buyCnt}</td><td class="num">\${r.sellCnt||'—'}</td>
-      <td class="num" style="color:#ef5350">$\${fmt(r.buyAmt)}</td><td class="num" style="color:#4caf50">\${r.sellAmt>0?'$'+fmt(r.sellAmt):'—'}</td>
-      <td class="num muted">$\${fmt(r.fee)}</td><td class="num" style="color:\${net>0?'#ef5350':'#4caf50'};font-weight:700">\${net>0?'-':'+'}&nbsp;$\${fmt(Math.abs(net))}</td></tr>\`;
-  }
-  main.insertAdjacentHTML('beforeend',\`
-  <div class="dyn-section section-title">📅 年度彙總</div>
-  <div class="dyn-section table-wrap"><table>
-    <thead><tr><th>年份</th><th>買入筆數</th><th>賣出筆數</th><th class="num">買入金額</th><th class="num">賣出金額</th><th class="num">手續費</th><th class="num">淨流出</th></tr></thead>
-    <tbody>\${yearRows}</tbody>
-    <tfoot><tr><td>合計</td><td class="num">\${tBCnt}</td><td class="num">\${tSCnt}</td><td class="num" style="color:#ef5350">$\${fmt(tByAmt)}</td><td class="num" style="color:#4caf50">$\${fmt(tSAmt)}</td><td class="num">$\${fmt(tFee)}</td><td class="num" style="color:#ef5350;font-weight:700">淨投入 $\${fmt(tByAmt-tSAmt)}</td></tr></tfoot>
-  </table></div>\`);
   _allDetailDocs=[...docs].reverse();
   const allYears=[...new Set(docs.map(d=>String(d.year||'')))].filter(Boolean).sort().reverse();
   const codeOrder=['AAPL','AMD','BNDW','EWJ','TLT','LLY'];
@@ -462,15 +431,47 @@ function buildReport(docs){
       </div>
       <button class="clear-btn" onclick="clearFilters()">✕ 清除</button>
     </div>
-    <div class="result-info" id="resultInfo">共 <b>\${docs.length}</b> 筆交易記錄</div>
+    <div class="result-info" id="resultInfo">共 <b>\${docs.length}</b> 筆記錄</div>
   </div>
   <div class="dyn-section table-wrap"><table>
     <thead><tr><th>成交日期</th><th>標的</th><th>類型</th><th class="num">股數</th><th class="num">均價</th><th class="num">金額</th><th class="num">手續費</th><th class="num">淨收付</th></tr></thead>
     <tbody id="detailTbody"></tbody>
-  </table></div>
-  <div class="dyn-section footer-bar">資料來源：MongoDB AlexLIFE / USA_Stock ｜ 即時讀取，每次開啟均為最新資料</div>\`);
+  </table></div>\`);
   document.querySelectorAll('#codeChips .code-chip[data-code]').forEach(btn=>{const cc=COLORS[btn.dataset.code];if(cc){btn.addEventListener('mouseenter',()=>{if(!btn.classList.contains('active'))btn.style.borderColor=cc});btn.addEventListener('mouseleave',()=>{if(!btn.classList.contains('active'))btn.style.borderColor=''});}});
   renderDetailTbody(_allDetailDocs);
+  main.insertAdjacentHTML('beforeend',\`
+  <div class="dyn-section section-title">📊 圖表分析</div>
+  <div class="dyn-section chart-row">
+    <div class="chart-card"><h3>各標的投入比重</h3><div class="chart-wrap" style="height:280px"><canvas id="pieChart"></canvas></div></div>
+    <div class="chart-card"><h3>各年度買賣金額</h3><div class="chart-wrap" style="height:280px"><canvas id="yearChart"></canvas></div></div>
+  </div>
+  <div class="dyn-section chart-row">
+    <div class="chart-card full"><h3>每月買入趨勢（USD）</h3><div class="chart-wrap" style="height:260px"><canvas id="monthChart"></canvas></div></div>
+  </div>\`);
+  if(pieChart)pieChart.destroy();
+  pieChart=new Chart(document.getElementById('pieChart'),{type:'doughnut',data:{labels:codes,datasets:[{data:codes.map(c=>stockStats[c].buyAmt),backgroundColor:codes.map(c=>COLORS[c]||'#666'),borderWidth:2,borderColor:'#1a1d27'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#e8eaf6',font:{size:11},boxWidth:12}},datalabels:{color:'#fff',font:{size:10,weight:'bold'},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t>0?(v/t*100).toFixed(1)+'%':''}}}}});
+  const sortedYears=Object.keys(yearMap).sort();
+  if(yearChart)yearChart.destroy();
+  yearChart=new Chart(document.getElementById('yearChart'),{type:'bar',data:{labels:sortedYears,datasets:[{label:'買入',data:sortedYears.map(y=>yearMap[y].buyAmt),backgroundColor:'rgba(239,83,80,0.7)',borderRadius:4},{label:'賣出',data:sortedYears.map(y=>yearMap[y].sellAmt),backgroundColor:'rgba(76,175,80,0.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#e8eaf6',font:{size:11}}},datalabels:{display:ctx=>ctx.parsed.y>0,color:'#e8eaf6',anchor:'end',align:'top',offset:2,font:{size:9},formatter:v=>v>=1000?'$'+(v/1000).toFixed(0)+'K':''}},scales:{x:{ticks:{color:'#7986cb'},grid:{color:'rgba(44,48,72,0.5)'}},y:{ticks:{color:'#7986cb',callback:v=>'$'+(v/1000).toFixed(0)+'K'},grid:{color:'rgba(44,48,72,0.5)'}}}}});
+  if(monthChart)monthChart.destroy();
+  monthChart=new Chart(document.getElementById('monthChart'),{type:'bar',data:{labels:last24,datasets:[{label:'每月買入',data:last24.map(m=>monthMap[m]||0),backgroundColor:'rgba(92,107,192,0.75)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:ctx=>ctx.parsed.y>0,color:'#7986cb',anchor:'end',align:'top',offset:2,font:{size:8},formatter:v=>v>=1000?'$'+(v/1000).toFixed(0)+'K':''}},scales:{x:{ticks:{color:'#7986cb',maxRotation:45,font:{size:9}},grid:{color:'rgba(44,48,72,0.5)'}},y:{ticks:{color:'#7986cb',callback:v=>'$'+(v/1000).toFixed(0)+'K'},grid:{color:'rgba(44,48,72,0.5)'}}}}});
+  let tByAmt=0,tSAmt=0,tFee=0,tBCnt=0,tSCnt=0,yearRows='';
+  for(const y of sortedYears){
+    const r=yearMap[y];const net=r.buyAmt-r.sellAmt;
+    tByAmt+=r.buyAmt;tSAmt+=r.sellAmt;tFee+=r.fee;tBCnt+=r.buyCnt;tSCnt+=r.sellCnt;
+    yearRows+=\`<tr><td><b>\${y}</b></td><td class="num">\${r.buyCnt}</td><td class="num">\${r.sellCnt||'—'}</td>
+      <td class="num" style="color:#ef5350">$\${fmt(r.buyAmt)}</td><td class="num" style="color:#4caf50">\${r.sellAmt>0?'$'+fmt(r.sellAmt):'—'}</td>
+      <td class="num muted">$\${fmt(r.fee)}</td><td class="num" style="color:\${net>0?'#ef5350':'#4caf50'};font-weight:700">\${net>0?'-':'+'}&nbsp;$\${fmt(Math.abs(net))}</td></tr>\`;
+  }
+  main.insertAdjacentHTML('beforeend',\`
+  <div class="dyn-section section-title">📅 年度彙總</div>
+  <div class="dyn-section table-wrap"><table>
+    <thead><tr><th>年份</th><th>買入筆數</th><th>賣出筆數</th><th class="num">買入金額</th><th class="num">賣出金額</th><th class="num">手續費</th><th class="num">淨流出</th></tr></thead>
+    <tbody>\${yearRows}</tbody>
+    <tfoot><tr><td>合計</td><td class="num">\${tBCnt}</td><td class="num">\${tSCnt}</td><td class="num" style="color:#ef5350">$\${fmt(tByAmt)}</td><td class="num" style="color:#4caf50">$\${fmt(tSAmt)}</td><td class="num">$\${fmt(tFee)}</td><td class="num" style="color:#ef5350;font-weight:700">淨投入 $\${fmt(tByAmt-tSAmt)}</td></tr></tfoot>
+  </table></div>\`);
+  main.insertAdjacentHTML('beforeend',\`
+  <div class="dyn-section footer-bar">資料來源：MongoDB AlexLIFE / USA_Stock ｜ 即時讀取，每次開啟均為最新資料</div>\`);
 }
 init();
 <\/script>
