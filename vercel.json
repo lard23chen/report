@@ -16,9 +16,17 @@
     {
       "src": "usa_stock_api.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "stock_prices_api.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "/api/stock-prices",
+      "dest": "stock_prices_api.js"
+    },
     {
       "src": "/api/usa-stock",
       "dest": "usa_stock_api.js"

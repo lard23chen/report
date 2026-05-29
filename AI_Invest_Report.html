@@ -50,6 +50,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit','Noto Sans TC',
 .sc-val{font-size:1rem;font-weight:700}
 .sc-sub{font-size:0.72rem;color:var(--muted);margin-top:2px}
 .sc-footer{font-size:0.82rem;color:var(--muted);padding-top:10px;border-top:1px solid var(--border)}
+.sc-mv{background:rgba(38,198,218,0.07);border:1px solid rgba(38,198,218,0.18);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:0.82rem;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .table-wrap{overflow-x:auto;margin-bottom:28px}
 table{width:100%;border-collapse:collapse;font-size:0.85rem}
 thead th{background:var(--surface2);color:var(--muted);text-align:left;padding:10px 12px;font-size:0.72rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -102,6 +103,7 @@ tfoot td{background:var(--surface2);font-weight:700;padding:10px 12px;border-top
 <a class="back-btn" href="HTML_Report_Catalog.html">← 返回目錄</a>
 <script>
 const API='https://report-theta-nine.vercel.app/api/usa-stock';
+const PRICES_API='https://report-theta-nine.vercel.app/api/stock-prices';
 const COLORS={AAPL:'#a8dadc',AMD:'#e63946',BNDW:'#457b9d',EWJ:'#f4a261',TLT:'#2a9d8f',LLY:'#ab47bc'};
 const BG_COLORS={AAPL:'rgba(168,218,220,0.15)',AMD:'rgba(230,57,70,0.12)',BNDW:'rgba(69,123,157,0.12)',EWJ:'rgba(244,162,97,0.15)',TLT:'rgba(42,157,143,0.12)',LLY:'rgba(171,71,188,0.12)'};
 const SHORT_NAMES={AAPL:'蘋果',AMD:'超微半導體',BNDW:'全球債券ETF',EWJ:'日本ETF',TLT:'長期美債ETF',LLY:'禮來'};
@@ -161,24 +163,27 @@ async function init(){
   document.getElementById('errorBox').style.display='none';
   document.querySelectorAll('.dyn-section').forEach(el=>el.remove());
   try{
-    const [res,fxRes]=await Promise.all([
+    const [res,fxRes,priceRes]=await Promise.all([
       fetch(API),
-      fetch('https://open.er-api.com/v6/latest/USD').catch(()=>null)
+      fetch('https://open.er-api.com/v6/latest/USD').catch(()=>null),
+      fetch(PRICES_API).catch(()=>null)
     ]);
     if(!res.ok)throw new Error('HTTP '+res.status);
     const json=await res.json();
     if(!json.ok)throw new Error(json.error||'API error');
     const fxData=fxRes?await fxRes.json().catch(()=>null):null;
     const usdTwd=(fxData&&fxData.rates&&fxData.rates.TWD)||32;
+    const priceData=priceRes?await priceRes.json().catch(()=>null):null;
+    const stockPrices=(priceData&&priceData.ok)?priceData.prices:{};
     document.getElementById('loadingBox').style.display='none';
-    buildReport(json.data,usdTwd);
+    buildReport(json.data,usdTwd,stockPrices);
   }catch(e){
     document.getElementById('loadingBox').style.display='none';
     document.getElementById('errorBox').style.display='block';
     document.getElementById('errorMsg').textContent='錯誤：'+e.message;
   }
 }
-function buildReport(docs,usdTwd){
+function buildReport(docs,usdTwd,stockPrices){
   const fmtTWD=n=>{const t=n*(usdTwd||32);const a=Math.abs(t);return'NT$'+(a>=10000?(a/10000).toFixed(1)+'萬':Math.round(a).toLocaleString());};
   docs.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   const trades=docs.filter(d=>!d.isDividend);
@@ -213,6 +218,14 @@ function buildReport(docs,usdTwd){
     totalRealizedPnL+=realizedPnL;
     stockStats[code]={buyCnt:b.length,sellCnt:s.length,txCnt:b.length+s.length,buyAmt,buyFee,buyShares,sellAmt,sellFee,sellShares,totalCost,avgCost,netShares,realizedPnL,divNet,cleared:netShares<0.0001};
   }
+  let totalMarketValue=0;
+  for(const code of codes){
+    const s=stockStats[code];
+    const cp=stockPrices&&stockPrices[code]||0;
+    s.currentPrice=cp;
+    s.currentValue=(s.netShares>0.0001&&cp>0)?s.netShares*cp:0;
+    totalMarketValue+=s.currentValue;
+  }
   const yearMap={};
   for(const d of trades){const y=d.year||new Date(d.date).getFullYear();if(!yearMap[y])yearMap[y]={buyAmt:0,sellAmt:0,fee:0,buyCnt:0,sellCnt:0};if(d.isBuy){yearMap[y].buyAmt+=d.amount||0;yearMap[y].fee+=d.totalFee||0;yearMap[y].buyCnt++;}else{yearMap[y].sellAmt+=d.amount||0;yearMap[y].fee+=d.totalFee||0;yearMap[y].sellCnt++;}}
   const monthMap={};
@@ -230,6 +243,7 @@ function buildReport(docs,usdTwd){
     <div class="stat-card"><div class="label">總買入金額</div><div class="value" style="color:#ef5350">${fmtK(totalBuyAmt)}</div><div class="sub">USD $${fmt(totalBuyAmt)}</div><div class="sub" style="color:#ffd54f">${fmtTWD(totalBuyAmt)}</div></div>
     <div class="stat-card"><div class="label">總賣出金額</div><div class="value" style="color:#4caf50">${fmtK(totalSellAmt)}</div><div class="sub">USD $${fmt(totalSellAmt)}</div><div class="sub" style="color:#ffd54f">${fmtTWD(totalSellAmt)}</div></div>
     <div class="stat-card"><div class="label">已實現損益</div><div class="value" style="color:${pnlColor}">${pnlMark} ${fmtK(Math.abs(totalRealizedPnL))}</div><div class="sub">扣除手續費後</div><div class="sub" style="color:#ffd54f">${fmtTWD(Math.abs(totalRealizedPnL))}</div></div>
+    <div class="stat-card"><div class="label">📦 庫存市值</div><div class="value" style="color:#26c6da">${totalMarketValue>0?fmtK(totalMarketValue):'—'}</div><div class="sub">${totalMarketValue>0?'USD $'+fmt(totalMarketValue):'即時報價不可用'}</div><div class="sub" style="color:#ffd54f">${totalMarketValue>0?fmtTWD(totalMarketValue):''}</div></div>
     <div class="stat-card"><div class="label">💰 股利淨收入</div><div class="value" style="color:#FBC02D">${fmtK(totalDivNet)}</div><div class="sub">稅前 $${fmt(totalDivGross)} ｜ 稅 $${fmt(totalDivTax)}</div><div class="sub" style="color:#ffd54f">${fmtTWD(totalDivNet)}</div></div>
     <div class="stat-card"><div class="label">交易筆數</div><div class="value" style="color:#7986cb">${trades.length}</div><div class="sub">${buys.length} 買 / ${sells.length} 賣 ｜ 股利 ${divDocs.length} 筆</div></div>
     <div class="stat-card"><div class="label">投資年數</div><div class="value" style="color:#26c6da">${years.length}</div><div class="sub">${years[0]} – ${years[years.length-1]}</div></div>
@@ -250,6 +264,7 @@ function buildReport(docs,usdTwd){
         <div class="sc-item"><div class="sc-label">已實現損益</div><div class="sc-val" style="color:${hasSell?pnlC:'var(--muted)'}">
           ${hasSell?pnlM+' $'+fmt(Math.abs(s.realizedPnL)):'—'}</div><div class="sc-sub">${hasSell?'扣除手續費後':'尚未出售'}</div>${hasSell?'<div class=\"sc-sub\" style=\"color:#ffd54f\">'+fmtTWD(Math.abs(s.realizedPnL))+'</div>':''}</div>
       </div>
+      ${s.currentValue>0?'<div class=\"sc-mv\"><span style=\"color:#26c6da;font-weight:700\">📊 現行市值</span> <b style=\"color:#26c6da\">$'+fmt(s.currentValue)+'</b> <span style=\"color:#ffd54f\">('+fmtTWD(s.currentValue)+')</span> <span style=\"color:var(--muted);font-size:0.75rem\">@ $'+fmt(s.currentPrice,2)+'/股</span></div>':''}
       <div class="sc-footer" style="color:${s.cleared?'#4caf50':'var(--muted)'}">
         ${s.cleared?'✅ 已全數出清':'📦 目前持有 <b style=\"color:'+color+'\">'+s.netShares.toFixed(5)+'</b> 股'}
         ${s.divNet>0?'｜ 💰 股利淨收 <b style=\"color:#FBC02D\">+ $'+fmt(s.divNet)+'</b> <span style=\"color:#ffd54f;font-size:0.85em\">('+fmtTWD(s.divNet)+')</span>':''}</div>
