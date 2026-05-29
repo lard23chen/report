@@ -132,7 +132,6 @@ function renderDetailTbody(arr){
   tbody.innerHTML=arr.map(d=>{
     const color=COLORS[d.code]||'#999';
     if(d.isDividend){
-      // 股利列：特殊顯示
       return`<tr style="background:rgba(251,192,45,0.05)">
         <td>${d.date}</td>
         <td><span style="color:${color};font-weight:700">${d.code}</span></td>
@@ -262,7 +261,8 @@ function buildReport(docs){
           ${hasSell?pnlM+' $'+fmt(Math.abs(s.realizedPnL)):'—'}</div><div class="sc-sub">${hasSell?'扣除手續費後':'尚未出售'}</div></div>
       </div>
       <div class="sc-footer" style="color:${s.cleared?'#4caf50':'var(--muted)'}">
-        ${s.cleared?'✅ 已全數出清':'📦 目前持有 <b style=\"color:'+color+'\">'+s.netShares.toFixed(5)+'</b> 股'}</div>
+        ${s.cleared?'✅ 已全數出清':'📦 目前持有 <b style=\"color:'+color+'\">'+s.netShares.toFixed(5)+'</b> 股'}
+        ${s.divNet>0?'｜ 💰 股利淨收 <b style=\"color:#FBC02D\">+ $'+fmt(s.divNet)+'</b>':''}</div>
     </div>`;
   }
   cardsHtml+='</div>';
