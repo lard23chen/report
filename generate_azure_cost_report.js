@@ -628,7 +628,7 @@ ${monitoringTableHtml}
                     y:{ticks:{color:'#a0a0a0',callback:fmtY,font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}
                 }
             },
-            plugins:[migLinePlugin]
+            plugins:[ChartDataLabels, migLinePlugin]
         });
     })();
 
