@@ -1,7 +1,6 @@
-# send_line_notify.ps1
+﻿# send_line_notify.ps1
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File send_line_notify.ps1 -Template daily
 # Templates: daily | ga | travel
-
 param(
     [string]$Template = "daily"
 )
@@ -11,14 +10,14 @@ $token = "C899832bec63146ee4801ae43b3a3cc23"
 $now   = Get-Date -Format "yyyy/MM/dd HH:mm"
 
 $messages = @{
-    daily  = "`n`n✅ [Qware 排程] 每日報表更新完成`n執行時間：$now`n• A 系統日報`n• 高雄啤酒節報表`n已推送至 GitHub Pages 🚀"
-    ga     = "`n`n✅ [Qware 排程] GA 流量報表更新完成`n執行時間：$now`n• GA 事件流量報表`n已推送至 GitHub Pages 🚀"
-    travel = "`n`n✅ [Qware 排程] 旅遊報表更新完成`n執行時間：$now`n• 旅遊記帳報表`n• 購物清單報表`n已推送至 GitHub Pages 🚀"
+    daily  = "`n`n[Qware] A 系統日報 + 高雄啤酒節報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
+    ga     = "`n`n[Qware] GA 流量報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
+    travel = "`n`n[Qware] 旅遊記帳 + 購物清單報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
 }
 
 $msg = $messages[$Template]
 if (-not $msg) {
-    $msg = "`n`n✅ [Qware 排程] 排程任務完成`n執行時間：$now"
+    $msg = "`n`n[Qware] 排程任務完成`n執行時間：$now"
 }
 
 try {
@@ -28,7 +27,7 @@ try {
         -Headers     @{ Authorization = "Bearer $token" } `
         -Body        @{ message = $msg } `
         -ContentType "application/x-www-form-urlencoded" | Out-Null
-    Write-Host "[LINE] ✓ 通知已發送 ($Template)"
+    Write-Host "[LINE] OK: $Template"
 } catch {
-    Write-Host "[LINE] ✗ 發送失敗：$_"
+    Write-Host "[LINE] FAILED: $_"
 }
