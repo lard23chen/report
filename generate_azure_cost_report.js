@@ -609,12 +609,14 @@ ${monitoringTableHtml}
                 plugins:{
                     legend:{labels:{color:'#e0e0e0',font:{family:'Outfit',size:13},boxWidth:20,boxHeight:3}},
                     datalabels:{
-                        display: ctx => ctx.dataset.data[ctx.dataIndex] !== null,
+                        display: ctx => ctx.parsed !== null && ctx.parsed.y !== null,
                         color: ctx => ctx.dataset.borderColor,
+                        anchor: 'end',
                         align: 'top',
-                        offset: 4,
+                        offset: 2,
+                        clamp: true,
                         font: { size: 10, weight: 'bold', family: 'Outfit' },
-                        formatter: v => v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? Math.round(v/1000)+'k' : v
+                        formatter: v => v == null ? '' : v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? Math.round(v/1000)+'k' : String(v)
                     },
                     tooltip:{
                         backgroundColor:'rgba(20,20,20,0.9)',titleColor:'#e0e0e0',bodyColor:'#a0a0a0',borderColor:'#333',borderWidth:1,
