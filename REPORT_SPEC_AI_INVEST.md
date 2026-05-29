@@ -110,6 +110,8 @@
 
 ## 3. API 端點
 
+### 3.1 交易與股利資料
+
 | 項目 | 值 |
 |------|-----|
 | URL | `https://report-theta-nine.vercel.app/api/usa-stock` |
@@ -119,23 +121,80 @@
 | 排序 | `dateObj ASC` |
 | CORS | 全域允許 |
 
+### 3.2 即時股價
+
+| 項目 | 值 |
+|------|-----|
+| URL | `https://report-theta-nine.vercel.app/api/stock-prices` |
+| 實作檔 | `stock_prices_api.js` |
+| 方法 | `GET` |
+| 回傳 | `{ ok, prices: { AAPL: 182.5, ... }, fetchedAt }` |
+| 上游 | Yahoo Finance `query1.finance.yahoo.com/v8/finance/chart/{symbol}` |
+| 標的 | AAPL / AMD / BNDW / EWJ / TLT / LLY |
+| CORS | 全域允許 |
+| 說明 | 伺服器端抓取，規避瀏覽器 CORS 限制 |
+
+### 3.3 USD/TWD 匯率
+
+| 項目 | 值 |
+|------|-----|
+| URL | `https://open.er-api.com/v6/latest/USD` |
+| 直接前端呼叫 | 是（免費，無需 API key） |
+| 回傳欄位 | `rates.TWD` |
+| fallback | 32（若 API 不可用） |
+
 `vercel.json` 已加入 build + route：
 ```json
-{ "src": "usa_stock_api.js", "use": "@vercel/node" }
-{ "src": "/api/usa-stock", "dest": "usa_stock_api.js" }
+{ "src": "stock_prices_api.js", "use": "@vercel/node" }
+{ "src": "/api/stock-prices", "dest": "stock_prices_api.js" }
+{ "src": "usa_stock_api.js",   "use": "@vercel/node" }
+{ "src": "/api/usa-stock",     "dest": "usa_stock_api.js" }
 ```
 
 ---
 
-## 4. 報表頁面結構
+## 4. 前端資料載入流程
 
-報表為純靜態 HTML，開啟時從 Vercel API 動態讀取資料，所有運算在瀏覽器端完成。
+報表為純靜態 HTML，開啟時三路並行 fetch，所有運算在瀏覽器端完成。
+
+### 4.1 `init()` 三路並行 fetch
+
+```javascript
+const [res, fxRes, priceRes] = await Promise.all([
+  fetch(API),                                                  // MongoDB 資料
+  fetch('https://open.er-api.com/v6/latest/USD').catch(()=>null),  // USD/TWD 匯率
+  fetch(PRICES_API).catch(()=>null)                           // 即時股價
+]);
+const fxData   = fxRes   ? await fxRes.json().catch(()=>null)   : null;
+const usdTwd   = (fxData && fxData.rates && fxData.rates.TWD) || 32;
+const priceData = priceRes ? await priceRes.json().catch(()=>null) : null;
+const stockPrices = (priceData && priceData.ok) ? priceData.prices : {};
+buildReport(json.data, usdTwd, stockPrices);
+```
+
+### 4.2 `fmtTWD(n)` 台幣格式化
+
+`buildReport(docs, usdTwd, stockPrices)` 內定義：
+
+```javascript
+const fmtTWD = n => {
+  const t = n * (usdTwd || 32);
+  const a = Math.abs(t);
+  return 'NT$' + (a >= 10000 ? (a / 10000).toFixed(1) + '萬' : Math.round(a).toLocaleString());
+};
+```
+
+顯示規則：金額 ≥ NT$10,000 顯示為 `NT$X.X萬`；小於則顯示 `NT$X,XXX`。
+
+---
+
+## 5. 報表頁面結構
 
 ### 頁面區塊順序
 
 | 順序 | 區塊 | 說明 |
 |------|------|------|
-| 1 | 📈 投資總覽 | 7 張統計卡 |
+| 1 | 📈 投資總覽 | 8 張統計卡 |
 | 2 | 🗂️ 各標的分析 | 每支標的一張損益卡 |
 | 3 | 📋 完整交易明細 | 篩選器 + 全明細表（含股利） |
 | 4 | 📊 圖表分析 | 配置餅圖、年度柱狀、月度趨勢 |
@@ -143,35 +202,83 @@
 
 ---
 
-### 4.1 投資總覽（Stats Cards）
+### 5.1 投資總覽（Stats Cards）— 共 8 張
 
-| 卡片標題 | 數值來源 |
-|----------|---------|
-| 總買入金額 | `buys.reduce(amount)` |
-| 總賣出金額 | `sells.reduce(amount)` |
-| 已實現損益 | `(sellAmt-sellFee) - totalCost * sellRatio` |
-| 💰 股利淨收入 | `divDocs.reduce(net)`；sub 顯示稅前/稅款 |
-| 交易筆數 | `trades.length`；sub：`N 買 / N 賣 ｜ 股利 N 筆` |
-| 投資年數 | 年份 range |
-| 標的數 | 交易標的代碼列表 |
+| # | 卡片標題 | 數值來源 | TWD 換算 |
+|---|----------|---------|---------|
+| 1 | 總買入金額 | `buys.reduce(amount)` | ✅ sub 行 |
+| 2 | 總賣出金額 | `sells.reduce(amount)` | ✅ sub 行 |
+| 3 | 已實現損益 | `(sellAmt-sellFee) - totalCost × sellRatio` | ✅ sub 行 |
+| 4 | 📦 庫存市值 | `totalMarketValue = Σ netShares × currentPrice` | ✅ sub 行 |
+| 5 | 💰 股利淨收入 | `divDocs.reduce(net)`；sub 顯示稅前/稅款 | ✅ sub 行 |
+| 6 | 交易筆數 | `trades.length`；sub：`N 買 / N 賣 ｜ 股利 N 筆` | — |
+| 7 | 投資年數 | 年份 range | — |
+| 8 | 標的數 | 交易標的代碼列表 | — |
+
+**庫存市值計算邏輯**：
+
+```javascript
+let totalMarketValue = 0;
+for (const code of codes) {
+  const s = stockStats[code];
+  const cp = stockPrices && stockPrices[code] || 0;
+  s.currentPrice = cp;
+  s.currentValue = (s.netShares > 0.0001 && cp > 0) ? s.netShares * cp : 0;
+  totalMarketValue += s.currentValue;
+}
+```
+
+**Header subtitle** 顯示即時資訊：
+```
+資料期間：{dateFirst} ～ {dateLast} ｜ 即時更新自 MongoDB ｜ USD/TWD：{usdTwd} ｜ 載入：{datetime}
+```
 
 ---
 
-### 4.2 各標的分析（Stock Cards）
+### 5.2 各標的分析（Stock Cards）
 
 每支標的一張卡（依 AAPL / AMD / BNDW / EWJ / TLT / LLY 排序）：
 
-| 格子 | 說明 |
-|------|------|
-| 總買入 | 金額 + 股數 + 筆數 |
-| 均攤成本 | `totalCost / buyShares`（含手續費） |
-| 已賣出 | 金額 + 股數（無則 `—`） |
-| 已實現損益 | 扣費後 P&L |
-| sc-footer | 持有股數；若有股利則加 `💰 股利淨收 + $N` |
+| 格子 | 說明 | TWD 換算 |
+|------|------|---------|
+| 總買入 | 金額 + 股數 + 筆數 | ✅ |
+| 均攤成本 | `totalCost / buyShares`（含手續費） | ✅（/股） |
+| 已賣出 | 金額 + 股數（無則 `—`） | ✅ |
+| 已實現損益 | 扣費後 P&L | ✅ |
+| 📊 現行市值（sc-mv）| `netShares × currentPrice`（若持有中才顯示） | ✅ |
+| sc-footer | 持有股數 或 ✅ 已全數出清；若有股利則加 `💰 股利淨收` | ✅（股利） |
+
+**sc-mv 區塊**（`.sc-mv` CSS class，位於 sc-grid 與 sc-footer 之間）：
+
+```html
+<!-- 僅在 s.currentValue > 0 時渲染 -->
+<div class="sc-mv">
+  <span style="color:#26c6da;font-weight:700">📊 現行市值</span>
+  <b style="color:#26c6da">${fmtK(s.currentValue)}</b>
+  <span style="color:#ffd54f">(${fmtTWD(s.currentValue)})</span>
+  <span style="color:var(--muted);font-size:0.75rem">@ ${fmtK(s.currentPrice,2)}/股</span>
+</div>
+```
+
+**`.sc-mv` CSS**：
+```css
+.sc-mv {
+  background: rgba(38,198,218,0.07);
+  border: 1px solid rgba(38,198,218,0.18);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+```
 
 ---
 
-### 4.3 完整交易明細（Detail Table）
+### 5.3 完整交易明細（Detail Table）
 
 **篩選器列**：
 - ⏱ 時間：年份 select + 月份 select
@@ -181,9 +288,9 @@
 
 **`applyFilters()` 邏輯**：
 ```javascript
-if(_fAction==='buy')  f = f.filter(d => d.isBuy);
-if(_fAction==='sell') f = f.filter(d => !d.isBuy && !d.isDividend);
-if(_fAction==='div')  f = f.filter(d => d.isDividend);
+if (_fAction === 'buy')  f = f.filter(d => d.isBuy);
+if (_fAction === 'sell') f = f.filter(d => !d.isBuy && !d.isDividend);
+if (_fAction === 'div')  f = f.filter(d => d.isDividend);
 ```
 
 **`renderDetailTbody()` 差異**：
@@ -192,7 +299,7 @@ if(_fAction==='div')  f = f.filter(d => d.isDividend);
 
 ---
 
-### 4.4 圖表分析（Charts）
+### 5.4 圖表分析（Charts）
 
 | 圖表 | 類型 | 資料 |
 |------|------|------|
@@ -204,26 +311,29 @@ if(_fAction==='div')  f = f.filter(d => d.isDividend);
 
 ---
 
-### 4.5 年度彙總（Year Table）
+### 5.5 年度彙總（Year Table）
 
 依年份彙總交易（不含股利）：買入筆數/金額、賣出筆數/金額、手續費、淨流出。
 
 ---
 
-## 5. 技術規格
+## 6. 技術規格
 
 | 項目 | 值 |
 |------|-----|
 | Runtime（產出） | Node.js v16+ |
-| 套件 | `xlsx`（SheetJS）、`mongodb` |
+| 套件（generator） | `xlsx`（SheetJS）、`mongodb` |
+| Vercel 檔案 | `usa_stock_api.js`、`stock_prices_api.js` |
+| 上游股價 | Yahoo Finance `query1.finance.yahoo.com/v8/finance/chart/{symbol}` |
+| 匯率 API | `open.er-api.com/v6/latest/USD`（免費，無 key） |
 | 前端 Chart | Chart.js CDN v3 + chartjs-plugin-datalabels |
 | 主題 | Dark Indigo（`--bg:#0f1117`、`--accent:#5c6bc0`） |
 | 字型 | Outfit + Noto Sans TC（Google Fonts） |
-| 資料讀取 | Vercel Serverless API，瀏覽器 fetch |
+| 資料讀取 | 三路並行 fetch（MongoDB + 匯率 + 即時股價） |
 
 ---
 
-## 6. 執行方式
+## 7. 執行方式
 
 ```bash
 cd "D:\2025\AI\MongoDB"
@@ -238,14 +348,14 @@ node generate_aiinvest_report.js
 
 ---
 
-## 7. 同步規範（CLAUDE.md）
+## 8. 同步規範（CLAUDE.md）
 
 - **HTML 與 generator 必須保持同步**：直接修改 HTML 後，必須同步更新 `generate_aiinvest_report.js` 的 `generateHtml()` 模板，否則下次執行 generator 會覆蓋手動修改
 - 兩檔案任何改動後執行 `git add ... && git commit && git push`
 
 ---
 
-## 8. 部署流程
+## 9. 部署流程
 
 ```bash
 git add AI_Invest_Report.html generate_aiinvest_report.js
