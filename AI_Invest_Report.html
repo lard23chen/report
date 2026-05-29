@@ -112,8 +112,51 @@ function fmtK(n){if(Math.abs(n)>=1e6)return'$'+(n/1e6).toFixed(2)+'M';if(Math.ab
 function setCodeFilter(code){_fCode=code;document.querySelectorAll('#codeChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.code===code));applyFilters();}
 function setActionFilter(action){_fAction=action;document.querySelectorAll('#actionChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.action===action));applyFilters();}
 function clearFilters(){_fYear='';_fMonth='';_fCode='';_fAction='';document.getElementById('fYear').value='';document.getElementById('fMonth').value='';document.querySelectorAll('#codeChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.code===''));document.querySelectorAll('#actionChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.action===''));applyFilters();}
-function applyFilters(){let f=_allDetailDocs;if(_fYear)f=f.filter(d=>String(d.year||'')===_fYear);if(_fMonth)f=f.filter(d=>String(d.month||'')===_fMonth);if(_fCode)f=f.filter(d=>d.code===_fCode);if(_fAction==='buy')f=f.filter(d=>d.isBuy);if(_fAction==='sell')f=f.filter(d=>!d.isBuy);renderDetailTbody(f);const total=_allDetailDocs.length,matched=f.length,isFiltered=matched!==total;document.getElementById('resultInfo').innerHTML=isFiltered?'篩選結果：<b class="matched">'+matched+'</b> 筆 / 共 <b>'+total+'</b> 筆':'共 <b>'+total+'</b> 筆交易記錄';}
-function renderDetailTbody(arr){const tbody=document.getElementById('detailTbody');if(!arr.length){tbody.innerHTML='<tr><td colspan="8" class="no-result">🔍 無符合條件的交易記錄</td></tr>';return;}tbody.innerHTML=arr.map(d=>{const color=COLORS[d.code]||'#999';const isBuy=d.isBuy;return`<tr><td>${d.date}</td><td><span style="color:${color};font-weight:700">${d.code}</span></td><td><span style="color:${isBuy?'#ef5350':'#4caf50'}">${d.action||''}</span></td><td class="num">${(d.shares||0).toFixed(4)}</td><td class="num">$${fmt(d.price||0,4)}</td><td class="num" style="color:${isBuy?'#ef5350':'#4caf50'}">${isBuy?'- ':'+ '}$${fmt(d.amount||0)}</td><td class="num muted">$${fmt(d.totalFee||0)}</td><td class="num" style="color:${isBuy?'#ef5350':'#4caf50'}">$${fmt(isBuy?(d.amount+d.totalFee):Math.abs(d.amount-d.totalFee)||0)}</td></tr>`;}).join('');}
+function applyFilters(){
+  let f=_allDetailDocs;
+  if(_fYear)   f=f.filter(d=>String(d.year||'')===_fYear);
+  if(_fMonth)  f=f.filter(d=>String(d.month||'')===_fMonth);
+  if(_fCode)   f=f.filter(d=>d.code===_fCode);
+  if(_fAction==='buy')  f=f.filter(d=>d.isBuy);
+  if(_fAction==='sell') f=f.filter(d=>!d.isBuy&&!d.isDividend);
+  if(_fAction==='div')  f=f.filter(d=>d.isDividend);
+  renderDetailTbody(f);
+  const total=_allDetailDocs.length,matched=f.length,isFiltered=matched!==total;
+  document.getElementById('resultInfo').innerHTML=isFiltered
+    ?'篩選結果：<b class="matched">'+matched+'</b> 筆 / 共 <b>'+total+'</b> 筆'
+    :'共 <b>'+total+'</b> 筆記錄';
+}
+function renderDetailTbody(arr){
+  const tbody=document.getElementById('detailTbody');
+  if(!arr.length){tbody.innerHTML='<tr><td colspan="8" class="no-result">🔍 無符合條件的記錄</td></tr>';return;}
+  tbody.innerHTML=arr.map(d=>{
+    const color=COLORS[d.code]||'#999';
+    if(d.isDividend){
+      // 股利列：特殊顯示
+      return`<tr style="background:rgba(251,192,45,0.05)">
+        <td>${d.date}</td>
+        <td><span style="color:${color};font-weight:700">${d.code}</span></td>
+        <td><span style="color:#FBC02D;font-weight:600">💰 現金股利</span></td>
+        <td class="num muted">${(d.shares||0).toFixed(4)} 股</td>
+        <td class="num muted">$${fmt(d.price||0,5)}/股</td>
+        <td class="num" style="color:#FBC02D">+ $${fmt(d.amount||0)}</td>
+        <td class="num muted" style="color:#ef5350">稅 $${fmt(d.totalFee||0)}</td>
+        <td class="num" style="color:#FBC02D;font-weight:700">淨 $${fmt(d.net||0)}</td>
+      </tr>`;
+    }
+    const isBuy=d.isBuy;
+    return`<tr>
+      <td>${d.date}</td>
+      <td><span style="color:${color};font-weight:700">${d.code}</span></td>
+      <td><span style="color:${isBuy?'#ef5350':'#4caf50'}">${d.action||''}</span></td>
+      <td class="num">${(d.shares||0).toFixed(4)}</td>
+      <td class="num">$${fmt(d.price||0,4)}</td>
+      <td class="num" style="color:${isBuy?'#ef5350':'#4caf50'}">${isBuy?'- ':'+ '}$${fmt(d.amount||0)}</td>
+      <td class="num muted">$${fmt(d.totalFee||0)}</td>
+      <td class="num" style="color:${isBuy?'#ef5350':'#4caf50'}">$${fmt(isBuy?(d.amount+d.totalFee):Math.abs(d.amount-d.totalFee)||0)}</td>
+    </tr>`;
+  }).join('');
+}
 async function init(){
   document.getElementById('loadingBox').style.display='flex';
   document.getElementById('errorBox').style.display='none';
@@ -133,18 +176,24 @@ async function init(){
 }
 function buildReport(docs){
   docs.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const trades=docs.filter(d=>!d.isDividend);
+  const divDocs=docs.filter(d=>d.isDividend);
   const buys=docs.filter(d=>d.isBuy);
-  const sells=docs.filter(d=>!d.isBuy);
+  const sells=docs.filter(d=>!d.isBuy&&!d.isDividend);
   const totalBuyAmt=buys.reduce((s,d)=>s+(d.amount||0),0);
   const totalSellAmt=sells.reduce((s,d)=>s+(d.amount||0),0);
-  const totalFeeAll=docs.reduce((s,d)=>s+(d.totalFee||0),0);
+  const totalTradeFee=trades.reduce((s,d)=>s+(d.totalFee||0),0);
+  const totalDivGross=divDocs.reduce((s,d)=>s+(d.amount||0),0);
+  const totalDivTax=divDocs.reduce((s,d)=>s+(d.totalFee||0),0);
+  const totalDivNet=divDocs.reduce((s,d)=>s+(d.net||0),0);
   const years=[...new Set(docs.map(d=>d.year||''))].filter(Boolean).sort();
-  const codes=[...new Set(docs.map(d=>d.code))].filter(Boolean).sort();
+  const codes=[...new Set(trades.map(d=>d.code))].filter(Boolean).sort();
   let totalRealizedPnL=0;
   const stockStats={};
   for(const code of codes){
-    const b=docs.filter(d=>d.code===code&&d.isBuy);
-    const s=docs.filter(d=>d.code===code&&!d.isBuy);
+    const b=trades.filter(d=>d.code===code&&d.isBuy);
+    const s=trades.filter(d=>d.code===code&&!d.isBuy);
+    const divNet=divDocs.filter(d=>d.code===code).reduce((a,d)=>a+(d.net||0),0);
     const buyAmt=b.reduce((a,d)=>a+(d.amount||0),0);
     const buyFee=b.reduce((a,d)=>a+(d.totalFee||0),0);
     const buyShares=b.reduce((a,d)=>a+(d.shares||0),0);
@@ -157,10 +206,10 @@ function buildReport(docs){
     const sellRatio=buyShares>0?sellShares/buyShares:0;
     const realizedPnL=sellShares>0?(sellAmt-sellFee)-totalCost*sellRatio:0;
     totalRealizedPnL+=realizedPnL;
-    stockStats[code]={buyCnt:b.length,sellCnt:s.length,txCnt:b.length+s.length,buyAmt,buyFee,buyShares,sellAmt,sellFee,sellShares,totalCost,avgCost,netShares,realizedPnL,cleared:netShares<0.0001};
+    stockStats[code]={buyCnt:b.length,sellCnt:s.length,txCnt:b.length+s.length,buyAmt,buyFee,buyShares,sellAmt,sellFee,sellShares,totalCost,avgCost,netShares,realizedPnL,divNet,cleared:netShares<0.0001};
   }
   const yearMap={};
-  for(const d of docs){const y=d.year||new Date(d.date).getFullYear();if(!yearMap[y])yearMap[y]={buyAmt:0,sellAmt:0,fee:0,buyCnt:0,sellCnt:0};if(d.isBuy){yearMap[y].buyAmt+=d.amount||0;yearMap[y].fee+=d.totalFee||0;yearMap[y].buyCnt++;}else{yearMap[y].sellAmt+=d.amount||0;yearMap[y].fee+=d.totalFee||0;yearMap[y].sellCnt++;}}
+  for(const d of trades){const y=d.year||new Date(d.date).getFullYear();if(!yearMap[y])yearMap[y]={buyAmt:0,sellAmt:0,fee:0,buyCnt:0,sellCnt:0};if(d.isBuy){yearMap[y].buyAmt+=d.amount||0;yearMap[y].fee+=d.totalFee||0;yearMap[y].buyCnt++;}else{yearMap[y].sellAmt+=d.amount||0;yearMap[y].fee+=d.totalFee||0;yearMap[y].sellCnt++;}}
   const monthMap={};
   for(const d of buys){const ym=d.yearMonth||d.date.slice(0,7).replace('-','/');monthMap[ym]=(monthMap[ym]||0)+(d.amount||0);}
   const allMonths=Object.keys(monthMap).sort();
@@ -176,8 +225,8 @@ function buildReport(docs){
     <div class="stat-card"><div class="label">總買入金額</div><div class="value" style="color:#ef5350">${fmtK(totalBuyAmt)}</div><div class="sub">USD $${fmt(totalBuyAmt)}</div></div>
     <div class="stat-card"><div class="label">總賣出金額</div><div class="value" style="color:#4caf50">${fmtK(totalSellAmt)}</div><div class="sub">USD $${fmt(totalSellAmt)}</div></div>
     <div class="stat-card"><div class="label">已實現損益</div><div class="value" style="color:${pnlColor}">${pnlMark} ${fmtK(Math.abs(totalRealizedPnL))}</div><div class="sub">扣除手續費後</div></div>
-    <div class="stat-card"><div class="label">總手續費</div><div class="value" style="color:#FBC02D">$${fmt(totalFeeAll)}</div><div class="sub">所有交易合計</div></div>
-    <div class="stat-card"><div class="label">交易筆數</div><div class="value" style="color:#7986cb">${docs.length}</div><div class="sub">${buys.length} 買 / ${sells.length} 賣</div></div>
+    <div class="stat-card"><div class="label">💰 股利淨收入</div><div class="value" style="color:#FBC02D">${fmtK(totalDivNet)}</div><div class="sub">稅前 $${fmt(totalDivGross)} ｜ 稅 $${fmt(totalDivTax)}</div></div>
+    <div class="stat-card"><div class="label">交易筆數</div><div class="value" style="color:#7986cb">${trades.length}</div><div class="sub">${buys.length} 買 / ${sells.length} 賣 ｜ 股利 ${divDocs.length} 筆</div></div>
     <div class="stat-card"><div class="label">投資年數</div><div class="value" style="color:#26c6da">${years.length}</div><div class="sub">${years[0]} – ${years[years.length-1]}</div></div>
     <div class="stat-card"><div class="label">標的數</div><div class="value" style="color:#ab47bc">${codes.length}</div><div class="sub">${codes.join(' / ')}</div></div>
   </div>`);
@@ -258,6 +307,7 @@ function buildReport(docs){
         <button class="chip active" data-action="" onclick="setActionFilter('')">全部</button>
         <button class="chip" data-action="buy" onclick="setActionFilter('buy')">買進</button>
         <button class="chip" data-action="sell" onclick="setActionFilter('sell')">賣出</button>
+        <button class="chip" data-action="div" onclick="setActionFilter('div')" style="color:#FBC02D;border-color:#FBC02D40">💰 股利</button>
       </div>
       <button class="clear-btn" onclick="clearFilters()">✕ 清除</button>
     </div>

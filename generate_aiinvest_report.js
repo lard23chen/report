@@ -1,12 +1,9 @@
 /**
  * generate_aiinvest_report.js
- * 讀取 aiinvest20260529 (2)~(7).xlsx，寫入 MongoDB AlexLIFE/USA_Stock
- * 並輸出動態版 AI_Invest_Report.html（資料從 API 即時讀取）
+ * 讀取 aiinvest20260529 (2)~(7).xlsx + 美股股利_20260529.xlsx
+ * 寫入 MongoDB AlexLIFE/USA_Stock，並產出動態版 AI_Invest_Report.html
  *
  * 執行: node generate_aiinvest_report.js
- *
- * 注意：HTML 中所有圖表/卡片均由前端 JS fetch http://localhost:3000/api/usa-stock
- *       在瀏覽器端即時運算並渲染，不再內嵌靜態資料。
  */
 const XLSX       = require('xlsx');
 const fs         = require('fs');
@@ -18,9 +15,7 @@ const DB_NAME    = 'AlexLIFE';
 const COLLECTION = 'USA_Stock';
 const DIR        = __dirname;
 
-// ── 1. 讀取所有 xlsx ──────────────────────────────────────────────────────────
-const files = [2,3,4,5,6,7].map(n => path.join(DIR, `aiinvest20260529 (${n}).xlsx`));
-
+// ── 共用工具 ──────────────────────────────────────────────────────────────────
 function excelDateToStr(serial) {
   const d = new Date(Math.round((serial - 25569) * 86400 * 1000));
   const y = d.getUTCFullYear();
@@ -36,49 +31,94 @@ function extractCode(name) {
   const m = name.match(/\(([^)]+)\)/);
   return m ? m[1] : name.trim();
 }
+function makeDate(dateStr) {
+  const parts = dateStr.split('/');
+  return new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+}
 
 const SHORT_NAME = {
   AAPL:'蘋果', AMD:'超微半導體', BNDW:'全球債券ETF',
   EWJ:'日本ETF', TLT:'長期美債ETF', LLY:'禮來'
 };
 
+// ── 1. 讀取交易記錄 xlsx ──────────────────────────────────────────────────────
+const tradeFiles = [2,3,4,5,6,7].map(n => path.join(DIR, `aiinvest20260529 (${n}).xlsx`));
 let allDocs = [];
-for (const f of files) {
+
+for (const f of tradeFiles) {
   const wb   = XLSX.readFile(f);
   const ws   = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
     if (!r[0]) continue;
-    const dateStr   = parseDate(r[0]);
-    const stockName = String(r[1]).trim();
-    const code      = extractCode(stockName);
-    const action    = String(r[2]).trim();
-    const shares    = parseFloat(r[3]) || 0;
-    const price     = parseFloat(r[4]) || 0;
-    const amount    = parseFloat(r[5]) || 0;
-    const currency  = String(r[6]).trim() || 'USD';
-    const fee       = parseFloat(r[7]) || 0;
-    const otherFee  = parseFloat(r[8]) || 0;
-    const totalFee  = fee + otherFee;
-    const net       = parseFloat(r[10]) || 0;
-    const parts     = dateStr.split('/');
-    const dateObj   = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    const dateStr  = parseDate(r[0]);
+    const stockName= String(r[1]).trim();
+    const code     = extractCode(stockName);
+    const action   = String(r[2]).trim();
+    const shares   = parseFloat(r[3]) || 0;
+    const price    = parseFloat(r[4]) || 0;
+    const amount   = parseFloat(r[5]) || 0;
+    const currency = String(r[6]).trim() || 'USD';
+    const fee      = parseFloat(r[7]) || 0;
+    const otherFee = parseFloat(r[8]) || 0;
+    const totalFee = fee + otherFee;
+    const net      = parseFloat(r[10]) || 0;
+    const dateObj  = makeDate(dateStr);
     allDocs.push({
-      date: dateStr, dateObj, year: dateObj.getFullYear(),
-      month: dateObj.getMonth()+1,
+      date: dateStr, dateObj,
+      year: dateObj.getFullYear(), month: dateObj.getMonth()+1,
       yearMonth: `${dateObj.getFullYear()}/${String(dateObj.getMonth()+1).padStart(2,'0')}`,
       code, name: SHORT_NAME[code]||stockName, fullName: stockName,
-      action, isBuy: action.includes('買'),
+      action, isBuy: action.includes('買'), isDividend: false,
       shares, price, amount, currency, fee, otherFee, totalFee, net,
       totalCost: action.includes('買') ? amount+totalFee : null,
       netReturn: action.includes('賣') ? amount-totalFee : null,
     });
   }
 }
+
+// ── 2. 讀取股利 xlsx ──────────────────────────────────────────────────────────
+const divFile = path.join(DIR, '美股股利_20260529.xlsx');
+if (fs.existsSync(divFile)) {
+  const wb   = XLSX.readFile(divFile);
+  const ws   = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+  let divCount = 0;
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r[0]) continue;
+    const dateStr    = parseDate(r[0]);
+    const code       = String(r[1]).trim();              // 代號 (TLT/BNDW/...)
+    const fullName   = String(r[2]).trim();              // 完整名稱
+    const divPerSh   = parseFloat(r[3]) || 0;           // 現金股利/股
+    const sharesHeld = parseFloat(r[4]) || 0;           // 基準日股數
+    const grossAmt   = parseFloat(r[5]) || 0;           // 發放金額（稅前）
+    const tax        = parseFloat(r[6]) || 0;           // 稅款
+    const netAmt     = parseFloat(r[7]) || 0;           // 股利淨額
+    const dateObj    = makeDate(dateStr);
+    allDocs.push({
+      date: dateStr, dateObj,
+      year: dateObj.getFullYear(), month: dateObj.getMonth()+1,
+      yearMonth: `${dateObj.getFullYear()}/${String(dateObj.getMonth()+1).padStart(2,'0')}`,
+      code, name: SHORT_NAME[code]||code, fullName,
+      action: '現金股利', isBuy: false, isDividend: true,
+      shares: sharesHeld, price: divPerSh, amount: grossAmt,
+      currency: 'USD', fee: tax, otherFee: 0, totalFee: tax, net: netAmt,
+      totalCost: null, netReturn: netAmt,
+    });
+    divCount++;
+  }
+  console.log(`💰 股利：${divCount} 筆`);
+} else {
+  console.log('⚠️  找不到股利檔案，跳過');
+}
+
 allDocs.sort((a, b) => a.date.localeCompare(b.date));
 
-console.log(`📦 解析完成：共 ${allDocs.length} 筆`);
+const trades = allDocs.filter(d => !d.isDividend);
+const divs   = allDocs.filter(d => d.isDividend);
+console.log(`📦 解析完成：交易 ${trades.length} 筆 + 股利 ${divs.length} 筆 = 共 ${allDocs.length} 筆`);
 console.log(`   日期範圍：${allDocs[0].date} ~ ${allDocs[allDocs.length-1].date}`);
 
 // ── 2. 寫入 MongoDB ───────────────────────────────────────────────────────────
@@ -96,6 +136,7 @@ async function run() {
     await col.createIndex({ code: 1, dateObj: 1 });
     await col.createIndex({ yearMonth: 1 });
     await col.createIndex({ isBuy: 1 });
+    await col.createIndex({ isDividend: 1 });
     console.log('🔍 索引建立完成');
   } catch (err) {
     console.error('❌ MongoDB 錯誤：', err.message);
