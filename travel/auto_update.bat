@@ -25,3 +25,6 @@ git commit -m "Auto-update expense report: %DATE% %TIME%"
 git push >> update_log.txt 2>&1
 
 echo Update finished. >> update_log.txt
+
+echo Sending LINE notification...
+powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "travel" >> update_log.txt 2>&1

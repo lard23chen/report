@@ -15,4 +15,7 @@ git add .
 git commit -m "Auto Update Daily Reports: %date% %time%"
 git push origin main >> daily_log.txt 2>&1
 
+echo Sending LINE notification...
+powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "daily" >> daily_log.txt 2>&1
+
 echo Done.
