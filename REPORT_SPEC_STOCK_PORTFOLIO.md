@@ -43,8 +43,10 @@
 
 ### 1. 部署環境 (Deployment)
 *   **前端展示**：GitHub Pages (Static Hosting)。
-*   **後端 API**：Vercel Serverless Functions。
-*   **即時數據**：TWSE (Taiwan Stock Exchange) 公開 API 代理。
+*   **後端 API**：Vercel Serverless Functions（`stock_api.js`）。
+*   **即時數據**：Yahoo Finance chart API（`/v8/finance/chart/SYMBOL`）。
+    *   ⚠️ 舊版使用 `mis.twse.com.tw`，但從 Vercel 美國伺服器呼叫時 `z`（即時成交價）永遠為 `-`，只能取到昨收（`y`），已改用 Yahoo Finance。
+    *   上市股票（1x, 2x, 5x, 6x, 8x, 9x, 00xx...）→ `{CODE}.TW`；上櫃（3x, 4x）→ `{CODE}.TWO`；若主要後綴 404，自動 fallback 至另一後綴（處理如 `00679B` 等上櫃 ETF）。
 
 ### 2. 資料庫與持久化 (Databases)
 *   **主要存儲**：MongoDB Atlas (`AlexLIFE.Stock_Portfolio`)。
