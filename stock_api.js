@@ -73,39 +73,50 @@ app.post('/api/stock/delete', async (req, res) => {
     }
 });
 
-// GET: 取得股價
+// GET: 取得股價 (Yahoo Finance chart API — works from any server location)
 app.get('/api/stock/prices', async (req, res) => {
     try {
         const codes = req.query.codes ? req.query.codes.split(',') : [];
         if (codes.length === 0) return res.json({ ok: true, prices: {}, time: new Date().toLocaleString('zh-TW') });
 
-        // Filter and sanitize codes
-        const cleanCodes = codes.map(c => c.toString().trim()).filter(c => c.length >= 2);
-        const parts = cleanCodes.flatMap(c => [`tse_${c}.tw`, `otc_${c}.tw`]);
-        const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${parts.join('|')}&json=1&delay=0&_=${Date.now()}`;
-        
-        console.log('Fetching prices from TWSE:', cleanCodes.join(','));
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Referer': 'https://mis.twse.com.tw/'
-            }
-        });
-        const twseData = await response.json();
-        
-        const prices = {};
-        if (twseData.msgArray) {
-            twseData.msgArray.forEach(item => {
-                // z: 最近成交價, y: 昨收, pz: 昨收(備援), o: 開盤
-                const px = parseFloat((item.z && item.z !== '-') ? item.z : (item.y && item.y !== '-' ? item.y : (item.pz && item.pz !== '-' ? item.pz : '0')));
-                if (item.c && px > 0) {
-                    // 如果已經有值(tse)，不要被 0 或更差的值覆蓋
-                    if (!prices[item.c] || prices[item.c] === 0) {
-                        prices[item.c] = px;
-                    }
-                }
-            });
+        // Only valid Taiwan stock codes: 4+ digits, optional single uppercase letter suffix (ETFs like 00642U)
+        const cleanCodes = [...new Set(
+            codes.map(c => c.toString().trim()).filter(c => /^\d{4,}[A-Z]?$/.test(c))
+        )];
+
+        if (cleanCodes.length === 0) return res.json({ ok: true, prices: {}, time: new Date().toLocaleString('zh-TW') });
+
+        // Codes starting with 3 or 4 are TPEX (OTC), others are TWSE
+        function yahooSymbol(code) {
+            return code + ((/^[34]/.test(code)) ? '.TWO' : '.TW');
         }
+
+        async function fetchOne(code) {
+            const symbol = yahooSymbol(code);
+            try {
+                const r = await fetch(
+                    `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1d&includePrePost=false`,
+                    { headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'application/json, */*',
+                        'Accept-Language': 'en-US,en;q=0.9'
+                    }}
+                );
+                const json = await r.json();
+                const meta = json?.chart?.result?.[0]?.meta;
+                const price = meta?.regularMarketPrice;
+                return { code, price: typeof price === 'number' && price > 0 ? price : null };
+            } catch (e) {
+                return { code, price: null };
+            }
+        }
+
+        console.log('Fetching prices from Yahoo Finance for:', cleanCodes.join(','));
+        const results = await Promise.all(cleanCodes.map(fetchOne));
+
+        const prices = {};
+        results.forEach(({ code, price }) => { if (price) prices[code] = price; });
+
         res.json({ ok: true, prices, time: new Date().toLocaleString('zh-TW') });
     } catch (e) {
         console.error('Price API Error:', e);
