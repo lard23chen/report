@@ -136,10 +136,11 @@ background:
 
 ## 5. 資料維護注意事項 (Maintenance Notes)
 
-1. **新增月份時**：在統計表新增一行，計算正確的 MoM 變動率；同步更新趨勢圖 `labels` 與 `data` 陣列；更新總計列。
-2. **新增報表連結**：在對應 Tab 的 `.grid` 中新增 `.card`，確認 `href` 連結正確。
-3. **生成時間**：由 `new Date()` 即時產生，無需手動維護。
-4. **月份統計數字來源**：執行 `generate_report_XXX_2026_v3.js` 後，從 HTML 的 `summaryData` 取得正確數值，再手動填入本頁表格。
+1. **月份統計表與 Tab1 卡片均已全自動**：每月 1 日 `daily_update.bat` 執行時，`update_index_stats.js` 會自動從 MongoDB 聚合最新月份數據，更新統計表、趨勢圖、頁首時間，以及 `本月/上月報表` Tab 中的月份卡片連結。
+2. **月報 HTML 自動產生**：每月 1 日 `daily_update.bat` 偵測到日期為 1 時，自動執行 `generate_monthly_report.js` 產生上月完整分析報表。無需手動建立新的 generator 腳本。
+3. **新增報表連結**：在對應 Tab 的 `.grid` 中新增 `.card`，確認 `href` 連結正確。
+4. **生成時間**：由 `new Date()` 即時產生，無需手動維護。
+5. **Tab1 月份卡片定位**：HTML 中以 `<!-- TAB1_MONTH_CARD_START -->` / `<!-- TAB1_MONTH_CARD_END -->` 標記，`update_index_stats.js` 用 regex 替換，勿手動移除這兩行標記。
 
 ---
 
@@ -147,12 +148,11 @@ background:
 
 | 腳本 | 用途 |
 |------|------|
-| `generate_report_jan_2026_v3.js` | 產生 1 月正確數字 |
-| `generate_report_feb_2026_v3.js` | 產生 2 月正確數字 |
-| `generate_report_mar_2026_v3.js` | 產生 3 月正確數字 |
-| `update_index_stats.js` | 從 MongoDB 聚合所有月份數據，自動更新統計表、趨勢圖以及頁首產生時間 |
+| `update_index_stats.js` | **主要維護腳本**：從 MongoDB 聚合所有月份數據，自動更新統計表、趨勢圖、頁首時間、Tab1 月份卡片；每日由 `daily_update.bat` 呼叫 |
+| `generate_monthly_report.js` | **通用月報 generator**：自動偵測上月（每月 1 日執行），可手動指定月份：`node generate_monthly_report.js 2026-05`；輸出 `A_Qware_Revenue_Report_YYYY年MM月_分析報表.html` |
+| `generate_report_may_2026.js` | 2026 年 5 月報表（已產出，由此腳本產生；後續月份改用 `generate_monthly_report.js`） |
 | `update_all_verified.js` | ⚠️ 已知使用錯誤數字，勿使用 |
 
 ---
 
-*最後更新日期：2026/05/05*
+*最後更新日期：2026/06/01*

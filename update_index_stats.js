@@ -310,6 +310,36 @@ async function updateIndexStats() {
         fs.writeFileSync(indexPath, htmlContent, 'utf-8');
         console.log("Updated header date and time successfully.");
 
+        // Update Tab1 monthly report card (between TAB1_MONTH_CARD_START / TAB1_MONTH_CARD_END)
+        if (validResults.length > 0) {
+            const latestMonth = validResults[0]._id; // e.g. "2026-05"
+            const [ly, lm] = latestMonth.split('-');
+            const monthLabel = `${ly}年${lm}月`;
+            const CHINESE_MONTHS = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
+            const chineseMon = CHINESE_MONTHS[parseInt(lm, 10) - 1];
+            const newCard = `<!-- TAB1_MONTH_CARD_START -->
+                <div class="card">
+                    <div class="card-icon icon-revenue">📊</div>
+                    <div class="card-content">
+                        <h3>${monthLabel} 分析報表 (A系統)</h3>
+                        <p>完整的${chineseMon}月份營收數據分析，包含支付方式佔比與重要銷售指標。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Monthly</span>
+                        <a href="A_Qware_Revenue_Report_${monthLabel}_分析報表.html" class="btn-link">查看報表</a>
+                    </div>
+                </div>
+<!-- TAB1_MONTH_CARD_END -->`;
+
+            let updatedHtml = fs.readFileSync(indexPath, 'utf-8');
+            updatedHtml = updatedHtml.replace(
+                /<!-- TAB1_MONTH_CARD_START -->[\s\S]*?<!-- TAB1_MONTH_CARD_END -->/,
+                newCard
+            );
+            fs.writeFileSync(indexPath, updatedHtml, 'utf-8');
+            console.log(`Updated Tab1 monthly card to: ${monthLabel}`);
+        }
+
     } catch (err) {
         console.error("Error:", err);
     } finally {
