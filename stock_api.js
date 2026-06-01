@@ -86,26 +86,30 @@ app.get('/api/stock/prices', async (req, res) => {
 
         if (cleanCodes.length === 0) return res.json({ ok: true, prices: {}, time: new Date().toLocaleString('zh-TW') });
 
-        // Codes starting with 3 or 4 are TPEX (OTC), others are TWSE
-        function yahooSymbol(code) {
-            return code + ((/^[34]/.test(code)) ? '.TWO' : '.TW');
+        const YF_HEADERS = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json, */*',
+            'Accept-Language': 'en-US,en;q=0.9'
+        };
+
+        async function fetchYahoo(symbol) {
+            const r = await fetch(
+                `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1d&includePrePost=false`,
+                { headers: YF_HEADERS }
+            );
+            if (!r.ok) return null;
+            const json = await r.json();
+            const price = json?.chart?.result?.[0]?.meta?.regularMarketPrice;
+            return typeof price === 'number' && price > 0 ? price : null;
         }
 
         async function fetchOne(code) {
-            const symbol = yahooSymbol(code);
             try {
-                const r = await fetch(
-                    `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1d&includePrePost=false`,
-                    { headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Accept': 'application/json, */*',
-                        'Accept-Language': 'en-US,en;q=0.9'
-                    }}
-                );
-                const json = await r.json();
-                const meta = json?.chart?.result?.[0]?.meta;
-                const price = meta?.regularMarketPrice;
-                return { code, price: typeof price === 'number' && price > 0 ? price : null };
+                // Primary: TWSE (.TW) for most codes; OTC (.TWO) for codes starting with 3 or 4
+                const primary = code + ((/^[34]/.test(code)) ? '.TWO' : '.TW');
+                const fallback = code + ((/^[34]/.test(code)) ? '.TW' : '.TWO');
+                const price = (await fetchYahoo(primary)) ?? (await fetchYahoo(fallback));
+                return { code, price };
             } catch (e) {
                 return { code, price: null };
             }
