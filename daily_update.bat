@@ -12,8 +12,8 @@ echo Running update_index_stats.js (monthly stats update)...
 "D:\nodejs\node.exe" update_index_stats.js >> daily_log.txt 2>&1
 
 for /f %%d in ('powershell -NoProfile -Command "(Get-Date).Day"') do set TODAY_DAY=%%d
-if "%TODAY_DAY%"=="1" (
-    echo [%date% %time%] Day 1 detected - generating previous month report... >> daily_log.txt
+if "%TODAY_DAY%"=="2" (
+    echo [%date% %time%] Day 2 detected - generating previous month report... >> daily_log.txt
     "D:\nodejs\node.exe" generate_monthly_report.js >> daily_log.txt 2>&1
 )
 

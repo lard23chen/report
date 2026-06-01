@@ -10,7 +10,7 @@
 |---------|--------|---------|---------|------|
 | `Qware_Daily_Report_Update` | `daily_update.bat` | 每日 08:00 | 2026/05/25 08:51 | Ready |
 | `Qware_Daily_Report_Update_Final` | `daily_update.bat` | 每日 08:00 | 2026/05/25 08:51 | Ready |
-| `Qware_Monthly_Report_Update` | `daily_update.bat` | 每月 1 日 08:30 | 2026/05/02 07:56 | Ready |
+| `Qware_Monthly_Report_Update` | `daily_update.bat` | 每月 2 日 08:30 | 2026/05/02 07:56 | Ready |
 | `Update_GA_Report_0800` | `update_ga_report.bat` | 每日 08:00 | 2026/05/25 08:51 | Ready |
 | `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | 2026/05/25 15:00 | Ready |
 | `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/05/25 08:51 | Ready |
@@ -26,7 +26,7 @@
 | 項目 | 說明 |
 |------|------|
 | 路徑 | `D:\2025\AI\MongoDB\daily_update.bat` |
-| 對應排程 | `Qware_Daily_Report_Update`（每日 08:00）、`Qware_Daily_Report_Update_Final`（每日 08:00）、`Qware_Monthly_Report_Update`（每月 1 日 08:30） |
+| 對應排程 | `Qware_Daily_Report_Update`（每日 08:00）、`Qware_Daily_Report_Update_Final`（每日 08:00）、`Qware_Monthly_Report_Update`（每月 2 日 08:30） |
 | 執行目錄 | `D:\2025\AI\MongoDB` |
 | Node 執行檔 | `D:\nodejs\node.exe` |
 
@@ -47,7 +47,7 @@ git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin m
 | `generate_a_daily_report.js` | `A_Qware_Revenue_Report_Daily.html` | MongoDB `Qware_A_Ticket_data_Daily` | A 系統每日營業快訊 |
 | `generate_kaohsiung_beer_festival_report.js` | `A_KaohsiungBeerFestival_2026.html` | MongoDB `Qware_A_Ticket_data_Daily` + `Qware_A_Traffic_session_data` | 2026 高雄啤酒音樂節專案分析 |
 | `update_index_stats.js` | `report_index.html` | MongoDB `Qware_Ticket_Data` | 月份統計表、趨勢圖、Tab1 本月報表卡片；每日執行 |
-| `generate_monthly_report.js` | `A_Qware_Revenue_Report_YYYY年MM月_分析報表.html` | MongoDB `Qware_Ticket_Data` | 上月完整分析報表；**僅每月 1 日執行**（bat 內有日期判斷） |
+| `generate_monthly_report.js` | `A_Qware_Revenue_Report_YYYY年MM月_分析報表.html` | MongoDB `Qware_Ticket_Data` | 上月完整分析報表；**僅每月 2 日執行**（bat 內有日期判斷） |
 
 ### 2.4 Log 輸出
 
