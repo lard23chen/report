@@ -36,6 +36,71 @@
     *   **優先級 2**：本地 LocalStorage (離線存取)。
 *   **自動對齊**：編輯完成後自動呼叫統計函數與同步機制。
 
+### 5. 飯店區塊管理 (Hotel Section)
+
+#### 5.1 結構規範
+每個 `.trip` 卡片必須包含 `.hotel-section`，位於 `.passenger-section` 之後、`.trip` 關閉前：
+
+```html
+<div class="hotel-section">
+    <div class="hotel-section-title">🏨 飯店 Hotels</div>
+    <div class="hotel-table"><table>
+        <thead><tr>
+            <th>酒店</th><th>體系</th><th>入住</th><th>退房</th>
+            <th>晚數</th><th>支付</th><th>價錢</th><th>備註</th>
+        </tr></thead>
+        <tbody>
+        <!-- 資料列 or 佔位符 -->
+        </tbody>
+    </table></div>
+</div>
+```
+
+**佔位符（尚未確認飯店時使用）：**
+```html
+<tr><td colspan="8" class="note" style="text-align:center;color:var(--text-muted);">— 飯店資料待補 —</td></tr>
+```
+
+#### 5.2 資料列格式
+```html
+<tr>
+  <td class="hotel-name">酒店名稱</td>
+  <td><span class="hotel-system">IHG</span></td>  <!-- 或 class="dash">— -->
+  <td class="hotel-dates">4/12</td>
+  <td class="hotel-dates">4/17</td>
+  <td class="note" style="text-align:center">5</td>
+  <td class="note">大戶(4708)</td>
+  <td class="price">THB 30,000</td>  <!-- 含 Points/哩/里 → 自動套用 class="hotel-pts" -->
+  <td class="note">含早餐</td>       <!-- 或 class="dash">— -->
+</tr>
+```
+
+**體系標籤 (`.hotel-system`)：** 紫色小標籤，常見值：`IHG`、`IHG 私享`、`Marriott`、`Marriott 私享`、`Hilton`、`Agoda`、`私享`。
+
+**價錢欄自動判斷：** 若值包含 `Point`、`積分`、`哩`、`里` 等關鍵字，JS 自動套用 `.hotel-pts`（紫色加粗）；否則套用 `.price`。
+
+#### 5.3 新增飯店資料（操作流程）
+
+**方式一：管理員模式（推薦）**
+1. 右下角點 ✏️ 編輯 → 輸入密碼
+2. 找到該 trip 的 🏨 飯店 Hotels 表格
+3. 點表格下方「＋ 新增一行」按鈕，填入欄位後儲存
+4. 資料同步至 LocalStorage / MongoDB
+
+**方式二：直接編輯 HTML**
+在對應 trip 的 `.hotel-section tbody` 新增 `<tr>` 資料列（格式見 5.2）。
+
+#### 5.4 覆蓋率現況
+| Tab | 狀態 |
+|-----|------|
+| 2027 Trip 1–2 | 有結構，待補資料（佔位符） |
+| 2026 Trip 1, 2, 4, 5 | 已填入完整資料 |
+| 2026 Trip 3（聖誕跨年） | 有結構，待補資料（佔位符） |
+| 2025 Trip 1–5 | 已填入完整資料 |
+| 2024 T1–T7 | 有結構，待補資料（佔位符） |
+| 2023 T1–T4 | 有結構，待補資料（佔位符） |
+| 2022 T1 | 已填入完整資料 |
+
 ### 3. 多分頁管理 (Tab Navigation)
 *   支援 2027 (計劃)、2026 (當前)、2025 (歷史) 及 2022-2024 (歷史) 的切換。
 *   歷史頁面採用淡化處理（Desaturated color scheme），區分當前與過去數據。
@@ -65,34 +130,43 @@
 
 ---
 
-## ?????? (Recent Feature Additions)
+## 近期功能異動紀錄 (Recent Feature Additions)
 
-### 1. ??? (Notes Column) ? 2026-05-08
-*   **????**?2027 Tab ? Trip 2????? Japan ???ALEX ? MARK ?????
-*   **????**?????????????????`<th>??</th>`????????? `<td class="dash">?</td>` ????????????????????????
-*   **??**???????????????????????????? 2027 Trip 2 ?????
+### 1. 備註欄 (Notes Column) — 2026-05-08
+*   **背景**：2027 Tab 的 Trip 2 日本行程需要紀錄 ALEX 與 MARK 的個別備註。
+*   **實作**：在對應 `<thead>` 加入 `<th>備註</th>`，每列補上 `<td class="dash">—</td>` 或實際備註文字。
+*   **範圍**：僅影響 2027 Trip 2 的航班表格。
 
-### 2. ????? (Copy Row Feature) ? 2026-05-08
-*   **????**??????????? ?? ???`.copy-row-btn`??**????????**?????????
-*   **????**?
-    1.  ???????? ?? ? ??????`#copy-target-menu`?`position:fixed`?
-    2.  ?????
-        *   **?? ????**???????????? ` | ` ????????
-        *   **? ?? [???]**????????? copy/action ???????????? Trip ?????? `<tbody>`??????? localStorage / MongoDB
-*   **????????**???? `.table-wrap` ?????? `.passenger-label > .p-badge` ???????ALEX / MARK ????? `.passenger-section` ????????????? section ???
-*   **???**?????? `{ id, html }` ???? store ? `added[tbodyEid]` ???????????
-*   **???????**???????????? ?? / ?? ?????????????
-*   **CSS ????**???? `position:fixed`?top/left ??? `getBoundingClientRect()` ? viewport ???**??** `window.scrollY` / `window.scrollX`??? bug?????????????????
+### 2. 複製列功能 (Copy Row Feature) — 2026-05-08
+*   **背景**：編輯模式需要快速複製某旅客的航班列到另一個 Trip。
+*   **實作**：
+    1. 每列右側新增「複製」按鈕（`.copy-row-btn`），點擊後開啟目標選單（`#copy-target-menu`，`position:fixed`）。
+    2. 選單選項：
+        *   **同 Trip 插入**：直接在當前 `tbody` 最後插入，欄位間以 ` | ` 分隔顯示。
+        *   **至其他 [Trip]**：將複製 HTML 存入 localStorage / MongoDB 的目標 Trip `<tbody>`。
+*   **旅客判斷**：從 `.table-wrap` 往上查找 `.passenger-label > .p-badge`，取得 ALEX / MARK 等標籤，對應至正確的 `.passenger-section`。
+*   **儲存格式**：`{ id, html }` 存入 store 的 `added[tbodyEid]` 陣列。
+*   **CSS 注意**：選單使用 `position:fixed`，座標以 `getBoundingClientRect()` 取得 viewport 位置，**不加** `window.scrollY` / `window.scrollX`，否則會有偏移 bug。
 
-### 3. ?? Schema ?????? (Complete Data Schema)
-??? localStorage / MongoDB store ????????
+### 3. 完整 Data Schema — 2026-05-08
 
-| ?? | ?? |
+localStorage / MongoDB store 欄位說明：
+
+| 欄位 | 說明 |
 |------|------|
-| `deleted` | ?????? `data-eid` ?? |
-| `added` | ????`{ [tbodyEid]: [{id, html}] }` |
-| `addedSections` | ???????`{ [tripEid]: [{id, html}] }` |
-| `addedTrips` | ?????`{ [tabId]: [{id, html}] }` |
-| `rowEdits` | ???????`{ [trEid]: [cellHtml, ...] }` |
-| `tripEdits` | ???????`{ [tripEid]: {dest, dates, tag} }` |
-| `lastUpdated` | ???????zh-TW locale string? |
+| `deleted` | 已刪除元件的 `data-eid` 集合 |
+| `added` | 新增航班列 `{ [tbodyEid]: [{id, html}] }` |
+| `addedSections` | 新增旅客區塊 `{ [tripEid]: [{id, html}] }` |
+| `addedTrips` | 新增行程 `{ [tabId]: [{id, html}] }` |
+| `rowEdits` | 編輯列 `{ [trEid]: [cellHtml, ...] }` |
+| `tripEdits` | 編輯行程標題 `{ [tripEid]: {dest, dates, tag} }` |
+| `lastUpdated` | 最後同步時間（zh-TW locale string） |
+
+### 4. 飯店區塊補齊 — 2026-06-02
+*   **背景**：2024 T1–T7、2023 T1–T4、2026 Trip 3 原本缺少 `.hotel-section`，導致管理員模式無法新增飯店資料。
+*   **修正**：補齊上述共 12 個 trip 的 `hotel-section`（含佔位符），確保所有 Tab 所有 trip 結構一致。
+*   **規範**：詳見上方「5. 飯店區塊管理」章節。
+
+---
+
+*最後更新日期：2026/06/02*
