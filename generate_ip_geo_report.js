@@ -134,7 +134,8 @@ const toNum = v => {
   const nowObj = new Date();
   const now = nowObj.toLocaleString('zh-TW');
   const thisMonthStart = `${nowObj.getFullYear()}-${String(nowObj.getMonth()+1).padStart(2,'0')}-01`;
-  const thisMonthEnd   = nowObj.toISOString().split('T')[0];
+  const rawEnd         = nowObj.toISOString().split('T')[0];
+  const thisMonthEnd   = rawEnd <= maxDate ? rawEnd : maxDate;
   const thisMonthLabel = `${nowObj.getFullYear()}年${String(nowObj.getMonth()+1).padStart(2,'0')}月`;
 
   const hourOpts = (def) => Array.from({length:48},(_,i)=>{
