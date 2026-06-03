@@ -128,10 +128,14 @@ Collection：`QwareAi.AzureMonthlyCost`
 
 #### 更新 SOP
 
-1. 確認 Google Sheets 中新月份資料已填完
-2. 對照 Google Sheets，修改 `generate_azure_cost_report.js` 中 `monitoringStats2026` 陣列（新增月份物件）
-3. 執行 `node generate_azure_cost_report.js` 重新產出 HTML
-4. `git add generate_azure_cost_report.js Azure_Cost_Analysis_Report.html && git commit && git push`
+1. 確認 Google Sheets 中新月份資料已填完（Sheets ID：`1PXpKxQ-mfojDlxWshC2ncje7RSSSjCSYLRZCykWBGwU`，`gid=1883089838`）
+2. 使用 Google Drive MCP（`mcp__claude_ai_Google_Drive__read_file_content`）讀取 Sheets 全文，以 Python 解析每列的 col5（機器大小欄）統計各月 total / small / medium / large 數量
+3. 對照統計結果，修改 `generate_azure_cost_report.js` 中 `monitoringStats2026` 陣列（更新或新增月份物件）
+4. 執行 `node generate_azure_cost_report.js` 重新產出 HTML
+5. `git add generate_azure_cost_report.js Azure_Cost_Analysis_Report.html && git commit && git push`
+
+> **Sheets 欄位結構**（gid=1883089838）：`| 日期 | 時間 | 節目名稱 | col4(流管/監控) | col5(機器大小) | 人員… |`
+> col5 為實際機器大小（小/中/大/X），X 表示無機器（計入 total 但不計入小/中/大）。
 
 ### 4.5 圖表 (Charts)
 
@@ -144,6 +148,7 @@ Collection：`QwareAi.AzureMonthlyCost`
   - Canvas ID：`dSystemCompareChart`
   - 由 generator 中 `allData` 注入後的 IIFE 立即執行（位於 `const allData = ...` 之後，`let trendChart, stackedChart;` 之前）
   - **維護注意**：`SystemD_Cost` 在 2025/11 前為 Azure 費用，2025/11 起為 AWS 費用（同一欄位，分界在 2025/11）
+  - **datalabels**：chart 層級 `plugins` 陣列必須含 `[migLinePlugin, ChartDataLabels]`，缺少 `ChartDataLabels` 會導致節點數字不顯示；`datalabels.display` 判斷需使用 `!=`（寬鬆比對）以同時攔截 `null` 和 `undefined`，否則 null 資料點拋 TypeError 導致整個 IIFE 崩潰、頁面資料消失
 - **每月費用趨勢折線圖**：Chart.js `line`，顯示 A/D/E 三系統趨勢，帶數值標籤（`chartjs-plugin-datalabels`），千位縮寫（如 `1,200k`）
 - **系統費用堆疊長條圖**：Chart.js `bar`（stacked），顯示 A/D/E/共用四層，篩選器聯動更新
 
@@ -209,7 +214,8 @@ node generate_azure_cost_report.js
 受影響的功能（歷史上曾被覆蓋過）：
 - MoM Analysis 區塊 — 2026/05/21 新增，已同步至 generator（`momSection` 變數直接嵌入模板字串，使用 server-side 已計算的 `latestDoc` / `prevDoc`）
 - D系統 Azure vs AWS 比較圖 — 2026/05/29 新增，已同步至 generator（IIFE 嵌入模板字串，位於 `const allData = ...` 之後）
+- datalabels 節點數字 — 2026/06/03 修正：IIFE 的 chart `plugins` 陣列補上 `ChartDataLabels`；`display` callback 改用 `!=` 寬鬆比對防止 TypeError
 
 ---
 
-*最後更新日期：2026/05/29（新增 D系統 Azure vs AWS 費用比較圖說明）*
+*最後更新日期：2026/06/03（機器等級統計 SOP 補充 Sheets 欄位結構與 MCP 讀取方式；datalabels 修正說明）*
