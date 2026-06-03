@@ -108,12 +108,12 @@ async function generateReport() {
                 { date: '03/27', name: 'i-dle CITY of SENSE（加場全面開賣）', hasE: true }
             ]},
             { month: '4月', total: 36, small: 33, medium: 3, large: 0, largeEvents: [] },
-            { month: '5月', total: 29, small: 18, medium: 8, large: 3, largeEvents: [
+            { month: '5月', total: 34, small: 23, medium: 8, large: 3, largeEvents: [
                 { date: '05/13', name: '7-ELEVEN 高雄啤酒音樂節（中信卡優先購）', hasE: false },
                 { date: '05/14', name: '7-ELEVEN 高雄啤酒音樂節', hasE: false },
                 { date: '05/14', name: '角頭GATAO唱演會（員訓）', hasE: false }
             ]},
-            { month: '6月', total: 1, small: 1, medium: 0, large: 0, largeEvents: [] },
+            { month: '6月', total: 10, small: 10, medium: 0, large: 0, largeEvents: [] },
             { month: '7月', total: 1, small: 1, medium: 0, large: 0, largeEvents: [] }
         ];
         const monitoringTableRows = monitoringStats2026.map(m => {
