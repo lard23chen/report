@@ -281,7 +281,8 @@ function applyFilters(){
 }
 function renderDetailTbody(arr){
   const tbody=document.getElementById('detailTbody');
-  if(!arr.length){tbody.innerHTML='<tr><td colspan="8" class="no-result">🔍 無符合條件的記錄</td></tr>';return;}
+  const tfoot=document.getElementById('detailTfoot');
+  if(!arr.length){tbody.innerHTML='<tr><td colspan="8" class="no-result">🔍 無符合條件的記錄</td></tr>';if(tfoot)tfoot.innerHTML='';return;}
   tbody.innerHTML=arr.map(d=>{
     const color=COLORS[d.code]||'#999';
     if(d.isDividend){
@@ -308,6 +309,35 @@ function renderDetailTbody(arr){
       <td class="num" style="color:\${isBuy?'#ef5350':'#4caf50'}">$\${fmt(isBuy?(d.amount+d.totalFee):Math.abs(d.amount-d.totalFee)||0)}</td>
     </tr>\`;
   }).join('');
+  if(tfoot){
+    const tBuys=arr.filter(d=>d.isBuy);
+    const tSells=arr.filter(d=>!d.isBuy&&!d.isDividend);
+    const tDivs=arr.filter(d=>d.isDividend);
+    const tBuyAmt=tBuys.reduce((s,d)=>s+(d.amount||0),0);
+    const tSellAmt=tSells.reduce((s,d)=>s+(d.amount||0),0);
+    const tDivGross=tDivs.reduce((s,d)=>s+(d.amount||0),0);
+    const tDivNet=tDivs.reduce((s,d)=>s+(d.net||0),0);
+    const tFees=arr.reduce((s,d)=>s+(d.totalFee||0),0);
+    const tBuyNet=tBuys.reduce((s,d)=>s+(d.amount||0)+(d.totalFee||0),0);
+    const tSellNet=tSells.reduce((s,d)=>s+Math.abs((d.amount||0)-(d.totalFee||0)),0);
+    const netFlow=tSellNet+tDivNet-tBuyNet;
+    const amtParts=[];
+    if(tBuyAmt>0)amtParts.push(\`<span style="color:#ef5350">買 - $\${fmt(tBuyAmt)}</span>\`);
+    if(tSellAmt>0)amtParts.push(\`<span style="color:#4caf50">賣 + $\${fmt(tSellAmt)}</span>\`);
+    if(tDivGross>0)amtParts.push(\`<span style="color:#FBC02D">股利 $\${fmt(tDivGross)}</span>\`);
+    const cntParts=[];
+    if(tBuys.length)cntParts.push(\`買 \${tBuys.length}\`);
+    if(tSells.length)cntParts.push(\`賣 \${tSells.length}\`);
+    if(tDivs.length)cntParts.push(\`股利 \${tDivs.length}\`);
+    tfoot.innerHTML=\`<tr>
+      <td>合計</td><td></td>
+      <td class="num" style="font-size:0.82rem">\${cntParts.join(' / ')}</td>
+      <td class="num">—</td><td class="num">—</td>
+      <td class="num" style="line-height:1.6">\${amtParts.join('<br>')}</td>
+      <td class="num">$\${fmt(tFees)}</td>
+      <td class="num" style="color:\${netFlow>=0?'#4caf50':'#ef5350'}">\${netFlow>=0?'+':'-'}$\${fmt(Math.abs(netFlow))}</td>
+    </tr>\`;
+  }
 }
 async function init(){
   document.getElementById('loadingBox').style.display='flex';
@@ -457,6 +487,7 @@ function buildReport(docs,usdTwd,stockPrices){
   <div class="dyn-section table-wrap"><table>
     <thead><tr><th>成交日期</th><th>標的</th><th>類型</th><th class="num">股數</th><th class="num">均價</th><th class="num">金額</th><th class="num">手續費</th><th class="num">淨收付</th></tr></thead>
     <tbody id="detailTbody"></tbody>
+    <tfoot id="detailTfoot"></tfoot>
   </table></div>\`);
   document.querySelectorAll('#codeChips .code-chip[data-code]').forEach(btn=>{const cc=COLORS[btn.dataset.code];if(cc){btn.addEventListener('mouseenter',()=>{if(!btn.classList.contains('active'))btn.style.borderColor=cc});btn.addEventListener('mouseleave',()=>{if(!btn.classList.contains('active'))btn.style.borderColor=''});}});
   renderDetailTbody(_allDetailDocs);
