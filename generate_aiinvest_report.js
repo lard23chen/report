@@ -497,7 +497,7 @@ function buildReport(docs,usdTwd,stockPrices){
     <tfoot id="detailTfoot"></tfoot>
   </table></div>\`);
   document.querySelectorAll('#codeChips .code-chip[data-code]').forEach(btn=>{const cc=COLORS[btn.dataset.code];if(cc){btn.addEventListener('mouseenter',()=>{if(!btn.classList.contains('active'))btn.style.borderColor=cc});btn.addEventListener('mouseleave',()=>{if(!btn.classList.contains('active'))btn.style.borderColor=''});}});
-  renderDetailTbody(_allDetailDocs);
+  applyFilters();
   main.insertAdjacentHTML('beforeend',\`
   <div class="dyn-section section-title">📊 圖表分析</div>
   <div class="dyn-section chart-row">
