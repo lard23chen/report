@@ -107,6 +107,7 @@ const PRICES_API='https://report-theta-nine.vercel.app/api/stock-prices';
 const COLORS={AAPL:'#a8dadc',AMD:'#e63946',BNDW:'#457b9d',EWJ:'#f4a261',TLT:'#2a9d8f',LLY:'#ab47bc'};
 const BG_COLORS={AAPL:'rgba(168,218,220,0.15)',AMD:'rgba(230,57,70,0.12)',BNDW:'rgba(69,123,157,0.12)',EWJ:'rgba(244,162,97,0.15)',TLT:'rgba(42,157,143,0.12)',LLY:'rgba(171,71,188,0.12)'};
 const SHORT_NAMES={AAPL:'蘋果',AMD:'超微半導體',BNDW:'全球債券ETF',EWJ:'日本ETF',TLT:'長期美債ETF',LLY:'禮來'};
+Chart.register(ChartDataLabels);
 let pieChart,yearChart,monthChart;
 let _allDetailDocs=[],_fYear='',_fMonth='',_fCode='',_fAction='';
 function fmt(n,dec=2){return n.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})}
