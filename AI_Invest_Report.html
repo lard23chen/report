@@ -109,14 +109,16 @@ const BG_COLORS={AAPL:'rgba(168,218,220,0.15)',AMD:'rgba(230,57,70,0.12)',BNDW:'
 const SHORT_NAMES={AAPL:'蘋果',AMD:'超微半導體',BNDW:'全球債券ETF',EWJ:'日本ETF',TLT:'長期美債ETF',LLY:'禮來'};
 Chart.register(ChartDataLabels);
 let pieChart,yearChart,monthChart;
-let _allDetailDocs=[],_fYear='',_fMonth='',_fCode='',_fAction='';
+let _allDetailDocs=[],_fYear='',_fMonth='',_fCode='',_fAction='',_fDateRange='1y';
 function fmt(n,dec=2){return n.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})}
 function fmtK(n){if(Math.abs(n)>=1e6)return'$'+(n/1e6).toFixed(2)+'M';if(Math.abs(n)>=1e3)return'$'+(n/1e3).toFixed(1)+'K';return'$'+fmt(n)}
 function setCodeFilter(code){_fCode=code;document.querySelectorAll('#codeChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.code===code));applyFilters();}
 function setActionFilter(action){_fAction=action;document.querySelectorAll('#actionChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.action===action));applyFilters();}
-function clearFilters(){_fYear='';_fMonth='';_fCode='';_fAction='';document.getElementById('fYear').value='';document.getElementById('fMonth').value='';document.querySelectorAll('#codeChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.code===''));document.querySelectorAll('#actionChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.action===''));applyFilters();}
+function setDateRange(r){_fDateRange=r;if(r){_fYear='';_fMonth='';document.getElementById('fYear').value='';document.getElementById('fMonth').value='';}document.querySelectorAll('#drChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.dr===r));applyFilters();}
+function clearFilters(){_fYear='';_fMonth='';_fCode='';_fAction='';_fDateRange='';document.getElementById('fYear').value='';document.getElementById('fMonth').value='';document.querySelectorAll('#codeChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.code===''));document.querySelectorAll('#actionChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.action===''));document.querySelectorAll('#drChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.dr===''));applyFilters();}
 function applyFilters(){
   let f=_allDetailDocs;
+  if(_fDateRange==='1y'){const n=new Date();const d1=new Date(n.getFullYear()-1,n.getMonth(),n.getDate());const cut=d1.getFullYear()+'/'+(d1.getMonth()+1).toString().padStart(2,'0')+'/'+d1.getDate().toString().padStart(2,'0');f=f.filter(d=>d.date>=cut);}
   if(_fYear)   f=f.filter(d=>String(d.year||'')===_fYear);
   if(_fMonth)  f=f.filter(d=>String(d.month||'')===_fMonth);
   if(_fCode)   f=f.filter(d=>d.code===_fCode);
@@ -315,8 +317,12 @@ function buildReport(docs,usdTwd,stockPrices){
   <div class="dyn-section filter-bar">
     <div class="filter-row">
       <span class="filter-label">⏱ 時間</span>
-      <select class="filter-select" id="fYear" onchange="_fYear=this.value;applyFilters()"><option value="">全部年份</option>${yearOpts}</select>
-      <select class="filter-select" id="fMonth" onchange="_fMonth=this.value;applyFilters()"><option value="">全部月份</option>${monthOpts}</select>
+      <select class="filter-select" id="fYear" onchange="_fYear=this.value;_fDateRange='';document.querySelectorAll('#drChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.dr===''));applyFilters()"><option value="">全部年份</option>${yearOpts}</select>
+      <select class="filter-select" id="fMonth" onchange="_fMonth=this.value;_fDateRange='';document.querySelectorAll('#drChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.dr===''));applyFilters()"><option value="">全部月份</option>${monthOpts}</select>
+      <div class="chips" id="drChips" style="margin-left:4px">
+        <button class="chip active" data-dr="1y" onclick="setDateRange('1y')">近 1 年</button>
+        <button class="chip" data-dr="" onclick="setDateRange('')">全部</button>
+      </div>
       <div class="filter-divider"></div>
       <span class="filter-label">📌 標的</span>
       <div class="chips" id="codeChips">
