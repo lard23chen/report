@@ -161,15 +161,37 @@ Collection: `GA_D_ClickData_Webb_202606`（451 documents）
 
 ## 9. 更新方式
 
-若需更新此報表（新月份資料），請：
-1. 查詢新月份 Collection（如 `GA_D_ClickData_Webb_202607`）
-2. 執行相同的 MongoDB aggregation 取得活動彙總資料
-3. 更新 HTML 中以下 JavaScript 常數：
-   - `DAILY`：每日總點擊 + 登入/未登入分量
-   - `ACTIVITIES`：33 個活動的彙總統計
-   - `BY_DATE`：11 個日期 × 活動明細陣列（供趨勢圖點擊用）
-   - `ACT_DAILY`：各活動的每日明細物件（供活動名稱點擊用）
-4. 修改 header 的資料期間、最新資料更新時間（注意轉換為台灣時間 UTC+8）
+### 自動更新（S1 排程）
+
+已加入 `daily_update.bat`，由 Windows 工作排程器於每日 08:00 自動執行：
+
+```
+node generate_d_ga_clickdata_report.js
+```
+
+Generator 腳本會：
+1. 連線 MongoDB `QwareAi.GA_D_ClickData_Webb_202606`
+2. 執行 4 個 aggregation（DAILY / ACTIVITIES / BY_DATE / ACT_DAILY）
+3. 讀取現有 HTML，替換 `// ── Data ──` 至 `// ── Charts ─` 區間的資料常數
+4. 更新 header 資料期間與最新資料更新時間（UTC+8 台灣時間）
+5. 存回 `D_GA_ClickData_Webb_202606_Report.html`
+
+### 手動執行
+
+```bash
+node generate_d_ga_clickdata_report.js
+```
+
+### 切換新月份（如 202607）
+
+1. 複製 `generate_d_ga_clickdata_report.js` 為 `generate_d_ga_clickdata_report_202607.js`
+2. 修改 `COLL`、`OUT_FILE`、`YEAR` 三個常數
+3. 更新 `CAT_MAP`（如有新活動需分類）
+4. 同步更新 `daily_update.bat` 與 `HTML_Report_Catalog.html`
+
+**注意事項：**
+- `CAT_MAP` 為手動分類，新活動預設歸類為 `concert`，需人工確認
+- UpdateTime 直接從 MongoDB `UpdateTime` 欄位取最新值，已自動轉換為台灣時間（UTC+8）
 
 ## 10. 相關連結
 
