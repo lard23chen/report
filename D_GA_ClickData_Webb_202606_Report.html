@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D系統節目點擊量分析 — 2026年6月</title>
+  <style>html { visibility: hidden; }</style>
+  <script>
+    (function () {
+      var ALLOWED = ['211.75.181.109','211.75.181.110','220.130.6.196','220.130.6.197','220.130.6.198','220.130.134.238','220.130.134.239','220.130.134.240'];
+      function deny(ip) {
+        document.documentElement.style.visibility = 'visible';
+        document.body.style.cssText = 'margin:0;padding:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh;';
+        document.body.innerHTML = '<div style="text-align:center;font-family:Outfit,sans-serif;padding:40px"><div style="font-size:5rem;margin-bottom:20px">🔒</div><h1 style="color:#ef4444;font-size:2rem;margin:0 0 14px">存取被拒絕</h1><p style="color:#94a3b8;margin:0 0 8px">您目前的 IP 位址：<code style="background:#1e293b;padding:2px 10px;border-radius:4px;color:#f472b6">' + ip + '</code></p><p style="color:#64748b;font-size:0.88rem">此頁面僅限內部網路存取 · Access restricted to internal network only</p></div>';
+      }
+      var timer = setTimeout(function () { deny('timeout'); }, 6000);
+      fetch('https://api.ipify.org?format=json')
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          clearTimeout(timer);
+          if (ALLOWED.indexOf(d.ip) !== -1) { document.documentElement.style.visibility = 'visible'; }
+          else { deny(d.ip); }
+        })
+        .catch(function () { clearTimeout(timer); deny('unknown'); });
+    })();
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card2: #263348;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --blue: #3b82f6;
+      --cyan: #06b6d4;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #8b5cf6;
+      --orange: #f97316;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 24px 60px;
+    }
+    /* Header */
+    .page-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .page-header .breadcrumb {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+    }
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+    .page-header .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .page-header .subtitle span { color: var(--cyan); }
+
+    /* KPI row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 1100px) { .kpi-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 680px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+    }
+    .kpi-card .label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .kpi-card .value {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .kpi-card .sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* Charts row */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .row-2col {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) { .row-2col { grid-template-columns: 1fr; } }
+    .row-3col {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) { .row-3col { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .card-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .card-title span { color: var(--text); }
+    .chart-wrap { position: relative; }
+
+    /* Table */
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      overflow-x: auto;
+    }
+    .table-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .table-header-row .card-title { margin-bottom: 0; }
+    .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--muted);
+      background: transparent;
+    }
+    .chip.active { border-color: var(--blue); color: var(--blue); background: rgba(59,130,246,0.1); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+    thead th {
+      text-align: left;
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    thead th:hover { color: var(--blue); }
+    thead th.sort-asc::after { content: ' ▲'; }
+    thead th.sort-desc::after { content: ' ▼'; }
+    tbody tr {
+      border-bottom: 1px solid rgba(51,65,85,0.4);
+      transition: background .12s;
+    }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 9px 12px; vertical-align: middle; }
+    .rank { color: var(--muted); font-weight: 600; font-size: 0.78rem; }
+    .rank.top3 { color: var(--amber); }
+    .game-name { font-weight: 600; max-width: 280px; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .tag-sports { background: rgba(59,130,246,0.15); color: var(--blue); }
+    .tag-concert { background: rgba(139,92,246,0.15); color: var(--purple); }
+    .tag-fan { background: rgba(244,63,94,0.15); color: var(--rose); }
+    .tag-music { background: rgba(16,185,129,0.15); color: var(--green); }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .num-main { font-weight: 700; color: var(--text); }
+    .bar-bg { height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; margin-top: 4px; }
+    .bar-fill { height: 5px; border-radius: 3px; background: var(--blue); }
+    .rate-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.73rem;
+      font-weight: 700;
+    }
+    .rate-high { background: rgba(16,185,129,0.15); color: var(--green); }
+    .rate-mid { background: rgba(245,158,11,0.15); color: var(--amber); }
+    .rate-low { background: rgba(244,63,94,0.15); color: var(--rose); }
+
+    /* Insight bar */
+    .insight-bar {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .insight-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      flex: 1;
+      min-width: 220px;
+    }
+    .insight-item .i-label { font-size: 0.73rem; color: var(--muted); margin-bottom: 4px; }
+    .insight-item .i-value { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="breadcrumb">Qware Analytics · D系統 · GA_D_ClickData_Webb_202606</div>
+  <h1>D系統節目點擊量分析報表</h1>
+  <div class="subtitle">
+    資料期間：<span>2026/05/26 — 2026/06/05</span>
+    &nbsp;·&nbsp; 資料擷取：<span>2026/06/08</span>
+    &nbsp;·&nbsp; 資料庫：<span>QwareAi</span>
+  </div>
+</header>
+
+<!-- KPI Cards -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="label">總點擊量</div>
+    <div class="value" style="color:var(--blue)">448,578</div>
+    <div class="sub">11 天累積</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">活動數</div>
+    <div class="value" style="color:var(--cyan)">33</div>
+    <div class="sub">含棒球、籃球、演唱會等</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">場次數</div>
+    <div class="value" style="color:var(--green)">451</div>
+    <div class="sub">平均每活動 13.7 場</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">登入點擊佔比</div>
+    <div class="value" style="color:var(--amber)">55.7%</div>
+    <div class="sub">250,112 / 448,578</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">單日峰值</div>
+    <div class="value" style="color:var(--rose)">122,805</div>
+    <div class="sub">2026/06/05 (最高單日)</div>
+  </div>
+</div>
+
+<!-- Insight Row -->
+<div class="insight-bar">
+  <div class="insight-item">
+    <div class="i-label">點擊量 No.1 活動</div>
+    <div class="i-value">統一7-ELEVEn獅-樂天桃猿 &nbsp;<span style="color:var(--amber);font-size:0.82rem">92,108 次 · 143 場</span></div>
+  </div>
+  <div class="insight-item">
+    <div class="i-label">登入率最高 (≥100場)</div>
+    <div class="i-value">新北國王-福爾摩沙夢想家 &nbsp;<span style="color:var(--green);font-size:0.82rem">77.9% 登入率</span></div>
+  </div>
+  <div class="insight-item">
+    <div class="i-label">單場最高均值</div>
+    <div class="i-value">Girl Rules Fan Meeting &nbsp;<span style="color:var(--purple);font-size:0.82rem">36,592 次 (1場)</span></div>
+  </div>
+  <div class="insight-item">
+    <div class="i-label">06/04-05 兩日佔比</div>
+    <div class="i-value">228,436 次 &nbsp;<span style="color:var(--rose);font-size:0.82rem">佔整體 50.9%</span></div>
+  </div>
+</div>
+
+<!-- Daily Trend Chart -->
+<div class="charts-row">
+  <div class="card">
+    <div class="card-title">每日點擊量趨勢 <span>（登入 vs 未登入）</span></div>
+    <div class="chart-wrap" style="height:280px">
+      <canvas id="dailyChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Top 10 + Donut row -->
+<div class="row-2col">
+  <div class="card">
+    <div class="card-title">Top 10 活動點擊量 <span>（總計）</span></div>
+    <div class="chart-wrap" style="height:380px">
+      <canvas id="top10Chart"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">登入 / 未登入 <span>比例</span></div>
+    <div class="chart-wrap" style="height:220px;margin-bottom:16px">
+      <canvas id="donutChart"></canvas>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;font-size:0.8rem;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="width:12px;height:12px;border-radius:3px;background:var(--blue);display:inline-block"></span>
+        <span style="color:var(--muted)">已登入</span>
+        <strong>250,112 (55.7%)</strong>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="width:12px;height:12px;border-radius:3px;background:var(--border);display:inline-block"></span>
+        <span style="color:var(--muted)">未登入</span>
+        <strong>198,466 (44.3%)</strong>
+      </div>
+    </div>
+    <div style="margin-top:24px">
+      <div class="card-title" style="margin-bottom:12px">類別分布 <span>（運動 vs 娛樂）</span></div>
+      <div class="chart-wrap" style="height:140px">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Complete Activity Table -->
+<div class="table-card">
+  <div class="table-header-row">
+    <div class="card-title" style="margin-bottom:0">完整活動明細 <span>（全 33 項，可點擊欄位排序）</span></div>
+    <div class="filter-chips">
+      <button class="chip active" onclick="filterTable('all',this)">全部</button>
+      <button class="chip" onclick="filterTable('sports',this)">運動</button>
+      <button class="chip" onclick="filterTable('concert',this)">演唱會</button>
+      <button class="chip" onclick="filterTable('fan',this)">見面會</button>
+      <button class="chip" onclick="filterTable('music',this)">音樂節</button>
+    </div>
+  </div>
+  <table id="actTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">排名</th>
+        <th onclick="sortTable(1)">活動名稱</th>
+        <th onclick="sortTable(2)" class="num">活動ID</th>
+        <th onclick="sortTable(3)" class="num">場次數</th>
+        <th onclick="sortTable(4)" class="num sort-desc">總點擊量</th>
+        <th onclick="sortTable(5)" class="num">已登入</th>
+        <th onclick="sortTable(6)" class="num">未登入</th>
+        <th onclick="sortTable(7)" class="num">登入率</th>
+        <th onclick="sortTable(8)" class="num">單場均值</th>
+      </tr>
+    </thead>
+    <tbody id="actTbody"></tbody>
+  </table>
+</div>
+
+<footer>
+  資料來源：MongoDB QwareAi / GA_D_ClickData_Webb_202606 &nbsp;·&nbsp; 產出日期：2026-06-08
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ── Data ──────────────────────────────────────────────────────────────────
+const DAILY = [
+  { date: '05/26', total: 12888, loggedIn: 3855, notIn: 9033 },
+  { date: '05/27', total: 14609, loggedIn: 4951, notIn: 9658 },
+  { date: '05/28', total: 37364, loggedIn: 20218, notIn: 17146 },
+  { date: '05/29', total: 16766, loggedIn: 4606, notIn: 12160 },
+  { date: '05/30', total: 25266, loggedIn: 6278, notIn: 18988 },
+  { date: '05/31', total: 25070, loggedIn: 6668, notIn: 18402 },
+  { date: '06/01', total: 22502, loggedIn: 6813, notIn: 15689 },
+  { date: '06/02', total: 26623, loggedIn: 8078, notIn: 18545 },
+  { date: '06/03', total: 39054, loggedIn: 20199, notIn: 18855 },
+  { date: '06/04', total: 105631, loggedIn: 74940, notIn: 30691 },
+  { date: '06/05', total: 122805, loggedIn: 93506, notIn: 29299 },
+];
+
+const ACTIVITIES = [
+  { id:'39428', name:'統一7-ELEVEn獅-樂天桃猿', total:92108, loggedIn:53262, notIn:38846, perf:143, cat:'sports', eventDate:'2026-05-30' },
+  { id:'39190', name:'新北國王-福爾摩沙夢想家', total:75467, loggedIn:58816, notIn:16651, perf:8, cat:'sports', eventDate:'2026-05-30' },
+  { id:'39576', name:'富邦悍將-統一7-ELEVEn獅', total:61788, loggedIn:20559, notIn:41229, perf:32, cat:'sports', eventDate:'2026-05-30' },
+  { id:'39667', name:'台鋼雄鷹-樂天桃猿', total:40880, loggedIn:33856, notIn:7024, perf:2, cat:'sports', eventDate:'2026-06-05' },
+  { id:'39649', name:'Girl Rules Fan Meeting in Taipei', total:36592, loggedIn:33176, notIn:3416, perf:1, cat:'fan', eventDate:'2026-06-05' },
+  { id:'39590', name:'2026 7–ELEVEN 高雄啤酒音樂節', total:27692, loggedIn:10879, notIn:16813, perf:33, cat:'music', eventDate:'2026-05-30' },
+  { id:'39226', name:'富邦勇士-桃園璞園領航猿', total:21956, loggedIn:7152, notIn:14804, perf:17, cat:'sports', eventDate:'2026-05-30' },
+  { id:'39603', name:'2026 FTISLAND TOUR \'FaTe\' in TAIPEI', total:21433, loggedIn:5462, notIn:15971, perf:22, cat:'concert', eventDate:'2026-05-30' },
+  { id:'39455', name:'台鋼雄鷹-統一7-ELEVEn獅', total:16949, loggedIn:5512, notIn:11437, perf:55, cat:'sports', eventDate:'2026-05-30' },
+  { id:'39584', name:'ACON 2026 IN TAIPEI', total:11987, loggedIn:2876, notIn:9111, perf:11, cat:'concert', eventDate:'2026-05-30' },
+  { id:'39611', name:'2026 角頭GATAO唱演會—情義到高雄', total:9788, loggedIn:7221, notIn:2567, perf:1, cat:'concert', eventDate:'2026-05-28' },
+  { id:'39470', name:'孫淑媚《MAY好三十》演唱會－台北站', total:6623, loggedIn:1607, notIn:5016, perf:11, cat:'concert', eventDate:'2026-05-30' },
+  { id:'39673', name:'ONE PACT : SUMMER BREEZE in Taipei', total:3688, loggedIn:3447, notIn:241, perf:2, cat:'fan', eventDate:'2026-06-05' },
+  { id:'39664', name:'2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA', total:3117, loggedIn:0, notIn:3117, perf:1, cat:'music', eventDate:'2026-06-02' },
+  { id:'39559', name:'2026 蔡琴 不要告別 巡迴演唱會［台北返場］', total:2918, loggedIn:557, notIn:2361, perf:22, cat:'concert', eventDate:'2026-05-30' },
+  { id:'39451', name:'台鋼雄鷹-樂天桃猿', total:2721, loggedIn:1388, notIn:1333, perf:15, cat:'sports', eventDate:'2026-05-29' },
+  { id:'39607', name:'2026 T CONCERT《IDOL MEET FEST 偶像相遇祭》', total:2132, loggedIn:725, notIn:1407, perf:15, cat:'fan', eventDate:'2026-05-30' },
+  { id:'39458', name:'味全龍-樂天桃猿', total:1589, loggedIn:579, notIn:1010, perf:6, cat:'sports', eventDate:'2026-06-05' },
+  { id:'39494', name:'2026星光女孩日', total:1582, loggedIn:709, notIn:873, perf:10, cat:'fan', eventDate:'2026-05-28' },
+  { id:'39549', name:'2026 YANG YOSEOP SOLO CONCERT ＜Fade In＞', total:1540, loggedIn:412, notIn:1128, perf:8, cat:'concert', eventDate:'2026-05-30' },
+  { id:'39529', name:'《LA LA LAND IN CONCERT》樂來越愛你 電影交響音樂會', total:1525, loggedIn:88, notIn:1437, perf:8, cat:'concert', eventDate:'2026-05-29' },
+  { id:'39605', name:'LUCY 9TH CONCERT ＜ISLAND＞ IN TAIPEI', total:1419, loggedIn:500, notIn:919, perf:7, cat:'concert', eventDate:'2026-05-26' },
+  { id:'39648', name:'2026 斯巴達障礙跑競賽新北場', total:704, loggedIn:96, notIn:608, perf:5, cat:'sports', eventDate:'2026-05-30' },
+  { id:'39511', name:'中信兄弟-樂天桃猿', total:595, loggedIn:396, notIn:199, perf:5, cat:'sports', eventDate:'2026-06-05' },
+  { id:'39619', name:'COSMOS 1st music concert in Taipei', total:426, loggedIn:299, notIn:127, perf:2, cat:'concert', eventDate:'2026-06-05' },
+  { id:'39666', name:'統一7-ELEVEn獅-樂天桃猿（6/6）', total:354, loggedIn:285, notIn:69, perf:1, cat:'sports', eventDate:'2026-06-05' },
+  { id:'39496', name:'THE MUSIC OF SQUARE ENIX', total:278, loggedIn:11, notIn:267, perf:2, cat:'concert', eventDate:'2026-05-29' },
+  { id:'39490', name:'《女神異聞錄 5》Persona 5 Big Band Concert', total:161, loggedIn:28, notIn:133, perf:1, cat:'concert', eventDate:'2026-06-04' },
+  { id:'39524', name:'Red Bull BC One Cypher Taiwan', total:130, loggedIn:46, notIn:84, perf:1, cat:'sports', eventDate:'2026-06-05' },
+  { id:'39526', name:'豐田裕大 Fan Meeting in Taipei 2026', total:121, loggedIn:8, notIn:113, perf:1, cat:'fan', eventDate:'2026-05-26' },
+  { id:'39575', name:'Pami in Taipei 2026', total:108, loggedIn:86, notIn:22, perf:1, cat:'fan', eventDate:'2026-05-27' },
+  { id:'39550', name:'APPLEMIM 1st Wedding Meeting in TAIPEI', total:104, loggedIn:8, notIn:96, perf:1, cat:'fan', eventDate:'2026-05-29' },
+  { id:'39610', name:'伊品聲樂獨唱音樂會', total:103, loggedIn:66, notIn:37, perf:1, cat:'concert', eventDate:'2026-05-28' },
+];
+
+const CAT_LABELS = { sports:'運動', concert:'演唱會', fan:'見面會', music:'音樂節' };
+const CAT_COLORS = { sports:'var(--blue)', concert:'var(--purple)', fan:'var(--rose)', music:'var(--green)' };
+
+const maxTotal = ACTIVITIES[0].total;
+
+// ── Charts ─────────────────────────────────────────────────────────────────
+const gridColor = 'rgba(255,255,255,0.06)';
+const baseFont = { family: "'Outfit','Noto Sans TC',sans-serif" };
+
+// Daily stacked bar
+new Chart(document.getElementById('dailyChart'), {
+  type: 'bar',
+  data: {
+    labels: DAILY.map(d => d.date),
+    datasets: [
+      {
+        label: '已登入',
+        data: DAILY.map(d => d.loggedIn),
+        backgroundColor: '#3b82f6cc',
+        borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 4, bottomRight: 4 },
+        borderSkipped: false,
+      },
+      {
+        label: '未登入',
+        data: DAILY.map(d => d.notIn),
+        backgroundColor: '#475569cc',
+        borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+        borderSkipped: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { color: '#94a3b8', font: baseFont, boxWidth: 12, padding: 16 } },
+      datalabels: { display: false },
+      tooltip: {
+        callbacks: {
+          title: (items) => '2026/' + items[0].label,
+          footer: (items) => '總計：' + items.reduce((s,i) => s + i.parsed.y, 0).toLocaleString()
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true, grid: { color: gridColor }, ticks: { color: '#94a3b8', font: baseFont } },
+      y: { stacked: true, grid: { color: gridColor }, ticks: { color: '#94a3b8', font: baseFont, callback: v => v >= 1000 ? (v/1000).toFixed(0)+'K' : v } }
+    }
+  }
+});
+
+// Top10 horizontal bar
+const top10 = ACTIVITIES.slice(0, 10);
+const catColorArr = { sports:'#3b82f6', concert:'#8b5cf6', fan:'#f43f5e', music:'#10b981' };
+new Chart(document.getElementById('top10Chart'), {
+  type: 'bar',
+  data: {
+    labels: top10.map(a => a.name.length > 22 ? a.name.slice(0,22)+'…' : a.name),
+    datasets: [{
+      data: top10.map(a => a.total),
+      backgroundColor: top10.map(a => catColorArr[a.cat] + 'cc'),
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        anchor: 'end', align: 'end',
+        color: '#94a3b8',
+        font: { ...baseFont, size: 11 },
+        formatter: v => v >= 1000 ? (v/1000).toFixed(1)+'K' : v
+      },
+      tooltip: {
+        callbacks: {
+          label: (item) => ' ' + item.raw.toLocaleString() + ' 次'
+        }
+      }
+    },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: '#94a3b8', font: baseFont, callback: v => v>=1000?(v/1000).toFixed(0)+'K':v } },
+      y: { grid: { display: false }, ticks: { color: '#f8fafc', font: { ...baseFont, size: 11 } } }
+    },
+    layout: { padding: { right: 50 } }
+  }
+});
+
+// Donut
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['已登入', '未登入'],
+    datasets: [{
+      data: [250112, 198466],
+      backgroundColor: ['#3b82f6cc', '#475569cc'],
+      borderColor: ['#3b82f6', '#475569'],
+      borderWidth: 1.5,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '62%',
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        color: '#fff',
+        font: { ...baseFont, size: 12, weight: 700 },
+        formatter: (v, ctx) => {
+          const total = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+          return (v/total*100).toFixed(1)+'%';
+        }
+      }
+    }
+  }
+});
+
+// Category chart
+const catGroups = {};
+ACTIVITIES.forEach(a => { catGroups[a.cat] = (catGroups[a.cat]||0) + a.total; });
+const catOrder = ['sports','concert','music','fan'];
+new Chart(document.getElementById('categoryChart'), {
+  type: 'bar',
+  data: {
+    labels: catOrder.map(c => CAT_LABELS[c]),
+    datasets: [{
+      data: catOrder.map(c => catGroups[c]||0),
+      backgroundColor: catOrder.map(c => catColorArr[c]+'cc'),
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        anchor: 'end', align: 'top',
+        color: '#94a3b8',
+        font: { ...baseFont, size: 10 },
+        formatter: v => v >= 1000 ? (v/1000).toFixed(0)+'K' : v
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { ...baseFont, size: 11 } } },
+      y: { grid: { color: gridColor }, ticks: { color: '#94a3b8', font: baseFont, callback: v => v>=1000?(v/1000).toFixed(0)+'K':v } }
+    },
+    layout: { padding: { top: 20 } }
+  }
+});
+
+// ── Table ──────────────────────────────────────────────────────────────────
+let tableData = ACTIVITIES.map((a, i) => ({ ...a, rank: i + 1 }));
+let currentFilter = 'all';
+let sortCol = 4;
+let sortDir = -1;
+
+function renderTable(data) {
+  const tbody = document.getElementById('actTbody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">無符合條件的資料</td></tr>'; return; }
+  tbody.innerHTML = data.map((a, i) => {
+    const rate = a.total > 0 ? (a.loggedIn / a.total * 100) : 0;
+    const avg = a.perf > 0 ? Math.round(a.total / a.perf) : 0;
+    const barWidth = (a.total / maxTotal * 100).toFixed(1);
+    const rankClass = a.rank <= 3 ? 'rank top3' : 'rank';
+    const tagMap = { sports: 'tag-sports', concert: 'tag-concert', fan: 'tag-fan', music: 'tag-music' };
+    const rateClass = rate >= 70 ? 'rate-high' : rate >= 40 ? 'rate-mid' : 'rate-low';
+    return `<tr data-cat="${a.cat}">
+      <td><span class="${rankClass}">#${a.rank}</span></td>
+      <td class="game-name">
+        ${a.name}
+        <span class="tag ${tagMap[a.cat]}">${CAT_LABELS[a.cat]}</span>
+        <div class="bar-bg"><div class="bar-fill" style="width:${barWidth}%"></div></div>
+      </td>
+      <td class="num" style="color:var(--muted);font-size:0.75rem">${a.id}</td>
+      <td class="num">${a.perf}</td>
+      <td class="num num-main">${a.total.toLocaleString()}</td>
+      <td class="num" style="color:var(--blue)">${a.loggedIn.toLocaleString()}</td>
+      <td class="num" style="color:var(--muted)">${a.notIn.toLocaleString()}</td>
+      <td class="num"><span class="rate-badge ${rateClass}">${rate.toFixed(1)}%</span></td>
+      <td class="num">${avg.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTable(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  applyAll();
+}
+
+function sortTable(col) {
+  const ths = document.querySelectorAll('#actTable thead th');
+  ths.forEach(th => { th.classList.remove('sort-asc','sort-desc'); });
+  if (sortCol === col) { sortDir *= -1; }
+  else { sortCol = col; sortDir = -1; }
+  ths[col].classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+  applyAll();
+}
+
+function applyAll() {
+  let data = currentFilter === 'all' ? [...tableData] : tableData.filter(a => a.cat === currentFilter);
+  const colMap = [
+    a => a.rank,
+    a => a.name,
+    a => a.id,
+    a => a.perf,
+    a => a.total,
+    a => a.loggedIn,
+    a => a.notIn,
+    a => a.total > 0 ? a.loggedIn / a.total : 0,
+    a => a.perf > 0 ? a.total / a.perf : 0,
+  ];
+  data.sort((x, y) => {
+    const va = colMap[sortCol](x), vb = colMap[sortCol](y);
+    return va < vb ? -sortDir : va > vb ? sortDir : 0;
+  });
+  renderTable(data);
+}
+
+renderTable(tableData);
+</script>
+</body>
+</html>
