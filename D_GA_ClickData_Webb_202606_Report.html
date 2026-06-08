@@ -744,6 +744,13 @@ const dailyChart = new Chart(document.getElementById('dailyChart'), {
         backgroundColor: getDailyColors(0),
         borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 4, bottomRight: 4 },
         borderSkipped: false,
+        datalabels: {
+          anchor: 'center', align: 'center',
+          color: 'rgba(255,255,255,0.92)',
+          font: { family: "'Outfit','Noto Sans TC',sans-serif", size: 10, weight: 700 },
+          formatter: v => v < 10000 ? (v/1000).toFixed(1)+'K' : Math.round(v/1000)+'K',
+          display: ctx => ctx.dataset.data[ctx.dataIndex] >= 15000 && (selectedDayIdx === null || selectedDayIdx === ctx.dataIndex),
+        }
       },
       {
         label: '未登入',
@@ -751,6 +758,28 @@ const dailyChart = new Chart(document.getElementById('dailyChart'), {
         backgroundColor: getDailyColors(1),
         borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
         borderSkipped: false,
+        datalabels: {
+          labels: {
+            segment: {
+              anchor: 'center', align: 'center',
+              color: 'rgba(255,255,255,0.92)',
+              font: { family: "'Outfit','Noto Sans TC',sans-serif", size: 10, weight: 700 },
+              formatter: v => v < 10000 ? (v/1000).toFixed(1)+'K' : Math.round(v/1000)+'K',
+              display: ctx => ctx.dataset.data[ctx.dataIndex] >= 15000 && (selectedDayIdx === null || selectedDayIdx === ctx.dataIndex),
+            },
+            total: {
+              anchor: 'end', align: 'top', offset: 4,
+              color: '#f8fafc',
+              font: { family: "'Outfit','Noto Sans TC',sans-serif", size: 11, weight: 700 },
+              formatter: (v, ctx) => {
+                const d0 = ctx.chart.data.datasets[0].data[ctx.dataIndex];
+                const t = d0 + v;
+                return t < 10000 ? (t/1000).toFixed(1)+'K' : Math.round(t/1000)+'K';
+              },
+              display: ctx => selectedDayIdx === null || selectedDayIdx === ctx.dataIndex,
+            }
+          }
+        }
       }
     ]
   },
@@ -770,9 +799,10 @@ const dailyChart = new Chart(document.getElementById('dailyChart'), {
     onHover: (evt, elements) => {
       evt.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
     },
+    layout: { padding: { top: 20 } },
     plugins: {
       legend: { position: 'top', labels: { color: '#94a3b8', font: baseFont, boxWidth: 12, padding: 16 } },
-      datalabels: { display: false },
+      datalabels: {},
       tooltip: {
         callbacks: {
           title: (items) => '2026/' + items[0].label,
