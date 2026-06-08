@@ -257,6 +257,60 @@
       font-size: 0.75rem;
       margin-top: 40px;
     }
+
+    /* Day detail panel */
+    .day-detail-panel {
+      background: var(--card);
+      border: 1px solid var(--blue);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      animation: slideDown .18s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .day-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .day-detail-header .date-label {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--blue);
+    }
+    .day-detail-header .date-stats {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-left: 10px;
+    }
+    .close-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .close-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .day-detail-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+      letter-spacing: 0.03em;
+    }
+    #dayDetailTable { font-size: 0.82rem; }
+    #dayDetailTable thead th { font-size: 0.7rem; }
+    .day-bar-bg { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 3px; min-width: 60px; }
+    .day-bar-fill { height: 4px; border-radius: 2px; background: var(--blue); }
   </style>
 </head>
 <body>
@@ -327,7 +381,32 @@
     <div class="chart-wrap" style="height:280px">
       <canvas id="dailyChart"></canvas>
     </div>
+    <div class="day-detail-hint" id="clickHint">點擊柱體查看當日活動明細 ▼</div>
   </div>
+</div>
+
+<!-- Day Detail Panel -->
+<div id="dayDetailPanel" class="day-detail-panel" style="display:none">
+  <div class="day-detail-header">
+    <div>
+      <span class="date-label" id="dayDetailTitle"></span>
+      <span class="date-stats" id="dayDetailStats"></span>
+    </div>
+    <button class="close-btn" onclick="closeDayDetail()">✕ 關閉</button>
+  </div>
+  <table id="dayDetailTable">
+    <thead>
+      <tr>
+        <th style="width:36px">#</th>
+        <th>活動名稱</th>
+        <th class="num">總點擊</th>
+        <th class="num">已登入</th>
+        <th class="num">未登入</th>
+        <th class="num">登入率</th>
+      </tr>
+    </thead>
+    <tbody id="dayDetailTbody"></tbody>
+  </table>
 </div>
 
 <!-- Top 10 + Donut row -->
@@ -457,12 +536,49 @@ const CAT_COLORS = { sports:'var(--blue)', concert:'var(--purple)', fan:'var(--r
 
 const maxTotal = ACTIVITIES[0].total;
 
+// ── BY_DATE per-day activity data ──────────────────────────────────────────
+const catById = {};
+ACTIVITIES.forEach(a => { catById[a.id] = a.cat; });
+
+const BY_DATE = [
+  // 05/26
+  [{id:'39428',name:'味全龍-樂天桃猿',total:3065,loggedIn:1092},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:2316,loggedIn:694},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:2312,loggedIn:671},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1269,loggedIn:384},{id:'39584',name:'ACON 2026 IN TAIPEI',total:1251,loggedIn:482},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:730,loggedIn:125},{id:'39529',name:'《LA LA LAND IN CONCERT》',total:450,loggedIn:25},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:391,loggedIn:163},{id:'39648',name:'2026 斯巴達障礙跑競賽新北場',total:352,loggedIn:40},{id:'39607',name:'2026 T CONCERT',total:254,loggedIn:79},{id:'39559',name:'2026 蔡琴 不要告別',total:242,loggedIn:42},{id:'39605',name:'LUCY 9TH CONCERT',total:135,loggedIn:50},{id:'39526',name:'豐田裕大 Fan Meeting',total:121,loggedIn:8}],
+  // 05/27
+  [{id:'39428',name:'統一7-ELEVEn獅-樂天桃猿',total:3348,loggedIn:1246},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:2640,loggedIn:818},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:2330,loggedIn:663},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:2004,loggedIn:700},{id:'39190',name:'新北國王-福爾摩沙夢想家',total:1519,loggedIn:783},{id:'39584',name:'ACON 2026 IN TAIPEI',total:758,loggedIn:229},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:514,loggedIn:100},{id:'39529',name:'《LA LA LAND IN CONCERT》',total:396,loggedIn:23},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:357,loggedIn:127},{id:'39559',name:'2026 蔡琴 不要告別',total:296,loggedIn:71},{id:'39607',name:'2026 T CONCERT',total:223,loggedIn:75},{id:'39648',name:'2026 斯巴達障礙跑 Kids',total:116,loggedIn:30},{id:'39575',name:'Pami in Taipei 2026',total:108,loggedIn:86}],
+  // 05/28
+  [{id:'39611',name:'2026 角頭GATAO唱演會—情義到高雄',total:9788,loggedIn:7221},{id:'39190',name:'新北國王-福爾摩沙夢想家',total:7639,loggedIn:5751},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:6510,loggedIn:3495},{id:'39428',name:'富邦悍將-樂天桃猿',total:3523,loggedIn:1170},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:3167,loggedIn:760},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:2331,loggedIn:545},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1411,loggedIn:478},{id:'39584',name:'ACON 2026 IN TAIPEI',total:830,loggedIn:221},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:608,loggedIn:142},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:427,loggedIn:122},{id:'39529',name:'《LA LA LAND IN CONCERT》',total:361,loggedIn:19},{id:'39559',name:'2026 蔡琴 不要告別',total:297,loggedIn:65},{id:'39494',name:'2026星光女孩日',total:209,loggedIn:86},{id:'39451',name:'台鋼雄鷹-樂天桃猿',total:160,loggedIn:77},{id:'39610',name:'伊品聲樂獨唱音樂會',total:103,loggedIn:66}],
+  // 05/29
+  [{id:'39428',name:'統一7-ELEVEn獅-樂天桃猿',total:3714,loggedIn:1327},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:3235,loggedIn:794},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:2166,loggedIn:533},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:1792,loggedIn:451},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1339,loggedIn:446},{id:'39584',name:'ACON 2026 IN TAIPEI',total:1172,loggedIn:281},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:854,loggedIn:235},{id:'39190',name:'新北國王-福爾摩沙夢想家',total:509,loggedIn:176},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:445,loggedIn:80},{id:'39529',name:'《LA LA LAND IN CONCERT》',total:318,loggedIn:21},{id:'39559',name:'2026 蔡琴 不要告別',total:248,loggedIn:27},{id:'39607',name:'2026 T CONCERT',total:219,loggedIn:77},{id:'39549',name:'2026 YANG YOSEOP SOLO CONCERT',total:218,loggedIn:59},{id:'39451',name:'台鋼雄鷹-樂天桃猿',total:186,loggedIn:68},{id:'39496',name:'THE MUSIC OF SQUARE ENIX',total:136,loggedIn:5},{id:'39648',name:'2026 斯巴達障礙跑 Kids',total:111,loggedIn:18},{id:'39550',name:'APPLEMIM 1st Wedding Meeting',total:104,loggedIn:8}],
+  // 05/30
+  [{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:6645,loggedIn:1144},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:4548,loggedIn:1314},{id:'39584',name:'ACON 2026 IN TAIPEI',total:4196,loggedIn:914},{id:'39428',name:'統一7-ELEVEn獅-樂天桃猿',total:3048,loggedIn:1102},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:1946,loggedIn:642},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1480,loggedIn:487},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:1425,loggedIn:267},{id:'39190',name:'新北國王-福爾摩沙夢想家',total:645,loggedIn:100},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:407,loggedIn:65},{id:'39559',name:'2026 蔡琴 不要告別',total:294,loggedIn:56},{id:'39549',name:'2026 YANG YOSEOP SOLO CONCERT',total:254,loggedIn:55},{id:'39607',name:'2026 T CONCERT',total:253,loggedIn:124},{id:'39648',name:'2026 斯巴達障礙跑',total:125,loggedIn:8}],
+  // 05/31
+  [{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:6108,loggedIn:1981},{id:'39428',name:'味全龍-樂天桃猿',total:5348,loggedIn:1790},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:4606,loggedIn:773},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:1784,loggedIn:589},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:1630,loggedIn:259},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1626,loggedIn:555},{id:'39584',name:'ACON 2026 IN TAIPEI',total:1315,loggedIn:184},{id:'39190',name:'新北國王-福爾摩沙夢想家',total:743,loggedIn:109},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:534,loggedIn:70},{id:'39458',name:'味全龍-樂天桃猿',total:273,loggedIn:66},{id:'39451',name:'台鋼雄鷹-樂天桃猿',total:271,loggedIn:93},{id:'39559',name:'2026 蔡琴 不要告別',total:232,loggedIn:34},{id:'39549',name:'2026 YANG YOSEOP SOLO CONCERT',total:227,loggedIn:83},{id:'39496',name:'THE MUSIC OF SQUARE ENIX',total:142,loggedIn:6},{id:'39494',name:'2026星光女孩日',total:128,loggedIn:51},{id:'39605',name:'LUCY 9TH CONCERT',total:103,loggedIn:25}],
+  // 06/01
+  [{id:'39428',name:'統一7-ELEVEn獅-樂天桃猿',total:6120,loggedIn:1981},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:6073,loggedIn:2209},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:2290,loggedIn:440},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:1888,loggedIn:662},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:1877,loggedIn:403},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1445,loggedIn:461},{id:'39584',name:'ACON 2026 IN TAIPEI',total:669,loggedIn:118},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:412,loggedIn:90},{id:'39605',name:'LUCY 9TH CONCERT',total:305,loggedIn:67},{id:'39458',name:'味全龍-樂天桃猿',total:295,loggedIn:70},{id:'39559',name:'2026 蔡琴 不要告別',total:268,loggedIn:24},{id:'39451',name:'台鋼雄鷹-樂天桃猿',total:253,loggedIn:103},{id:'39549',name:'2026 YANG YOSEOP SOLO CONCERT',total:206,loggedIn:61},{id:'39494',name:'2026星光女孩日',total:165,loggedIn:64},{id:'39511',name:'中信兄弟-樂天桃猿',total:130,loggedIn:40},{id:'39190',name:'新北國王-福爾摩沙夢想家',total:106,loggedIn:20}],
+  // 06/02
+  [{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:7050,loggedIn:2731},{id:'39428',name:'味全龍-樂天桃猿',total:6707,loggedIn:2346},{id:'39664',name:'2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA',total:3117,loggedIn:0},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:1824,loggedIn:584},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:1681,loggedIn:301},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:1619,loggedIn:661},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1468,loggedIn:480},{id:'39584',name:'ACON 2026 IN TAIPEI',total:638,loggedIn:184},{id:'39494',name:'2026星光女孩日',total:427,loggedIn:218},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:426,loggedIn:83},{id:'39451',name:'台鋼雄鷹-樂天桃猿',total:415,loggedIn:160},{id:'39458',name:'味全龍-樂天桃猿',total:333,loggedIn:65},{id:'39559',name:'2026 蔡琴 不要告別',total:302,loggedIn:69},{id:'39607',name:'2026 T CONCERT',total:281,loggedIn:93},{id:'39605',name:'LUCY 9TH CONCERT',total:169,loggedIn:64},{id:'39549',name:'2026 YANG YOSEOP SOLO CONCERT',total:166,loggedIn:39}],
+  // 06/03
+  [{id:'39428',name:'台鋼雄鷹-樂天桃猿',total:18494,loggedIn:12736},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:8100,loggedIn:2926},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:4733,loggedIn:2150},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:1846,loggedIn:380},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:1424,loggedIn:602},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1375,loggedIn:436},{id:'39607',name:'2026 T CONCERT（雙日票）',total:622,loggedIn:195},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:565,loggedIn:170},{id:'39584',name:'ACON 2026 IN TAIPEI',total:447,loggedIn:96},{id:'39494',name:'2026星光女孩日',total:410,loggedIn:183},{id:'39451',name:'台鋼雄鷹-樂天桃猿',total:284,loggedIn:107},{id:'39549',name:'2026 YANG YOSEOP SOLO CONCERT',total:213,loggedIn:59},{id:'39458',name:'味全龍-樂天桃猿',total:208,loggedIn:85},{id:'39559',name:'2026 蔡琴 不要告別',total:204,loggedIn:36},{id:'39605',name:'LUCY 9TH CONCERT',total:129,loggedIn:38}],
+  // 06/04
+  [{id:'39190',name:'新北國王-福爾摩沙夢想家',total:61496,loggedIn:49665},{id:'39428',name:'台鋼雄鷹-樂天桃猿',total:19707,loggedIn:15336},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:9994,loggedIn:3319},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:5426,loggedIn:3289},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:3363,loggedIn:1114},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:1752,loggedIn:861},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1361,loggedIn:525},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:598,loggedIn:187},{id:'39584',name:'ACON 2026 IN TAIPEI',total:348,loggedIn:80},{id:'39607',name:'2026 T CONCERT',total:280,loggedIn:82},{id:'39605',name:'LUCY 9TH CONCERT',total:259,loggedIn:73},{id:'39559',name:'2026 蔡琴 不要告別',total:242,loggedIn:70},{id:'39490',name:'《女神異聞錄 5》Persona 5 Concert',total:161,loggedIn:28},{id:'39458',name:'味全龍-樂天桃猿',total:155,loggedIn:88},{id:'39549',name:'2026 YANG YOSEOP SOLO CONCERT',total:147,loggedIn:39},{id:'39494',name:'2026星光女孩日',total:119,loggedIn:49},{id:'39619',name:'COSMOS 1st music concert',total:117,loggedIn:72},{id:'39451',name:'台鋼雄鷹-樂天桃猿',total:106,loggedIn:63}],
+  // 06/05
+  [{id:'39667',name:'台鋼雄鷹-樂天桃猿',total:40880,loggedIn:33856},{id:'39649',name:'Girl Rules Fan Meeting in Taipei',total:36592,loggedIn:33176},{id:'39428',name:'台鋼雄鷹-樂天桃猿',total:19034,loggedIn:13136},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:8561,loggedIn:3036},{id:'39673',name:'ONE PACT : SUMMER BREEZE in Taipei',total:3688,loggedIn:3447},{id:'39190',name:'新北國王-福爾摩沙夢想家',total:2810,loggedIn:2212},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1845,loggedIn:597},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:1648,loggedIn:573},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:1458,loggedIn:400},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:1384,loggedIn:495},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:1068,loggedIn:334},{id:'39451',name:'台鋼雄鷹-樂天桃猿',total:1046,loggedIn:717},{id:'39511',name:'中信兄弟-樂天桃猿',total:465,loggedIn:356},{id:'39584',name:'ACON 2026 IN TAIPEI',total:363,loggedIn:87},{id:'39666',name:'統一7-ELEVEn獅-樂天桃猿',total:354,loggedIn:285},{id:'39458',name:'味全龍-樂天桃猿',total:325,loggedIn:205},{id:'39605',name:'LUCY 9TH CONCERT',total:319,loggedIn:183},{id:'39619',name:'COSMOS 1st music concert',total:309,loggedIn:227},{id:'39559',name:'2026 蔡琴 不要告別',total:293,loggedIn:63},{id:'39524',name:'Red Bull BC One Cypher Taiwan',total:130,loggedIn:46},{id:'39494',name:'2026星光女孩日',total:124,loggedIn:58},{id:'39549',name:'2026 YANG YOSEOP SOLO CONCERT',total:109,loggedIn:17}],
+];
+
 // ── Charts ─────────────────────────────────────────────────────────────────
 const gridColor = 'rgba(255,255,255,0.06)';
 const baseFont = { family: "'Outfit','Noto Sans TC',sans-serif" };
 
+// ── Daily chart bar colours ────────────────────────────────────────────────
+let selectedDayIdx = null;
+function getDailyColors(dsIdx) {
+  const base = dsIdx === 0 ? '#3b82f6' : '#475569';
+  if (selectedDayIdx === null) return DAILY.map(() => base + 'cc');
+  return DAILY.map((_, i) => i === selectedDayIdx ? base : base + '22');
+}
+
 // Daily stacked bar
-new Chart(document.getElementById('dailyChart'), {
+const dailyChart = new Chart(document.getElementById('dailyChart'), {
   type: 'bar',
   data: {
     labels: DAILY.map(d => d.date),
@@ -470,14 +586,14 @@ new Chart(document.getElementById('dailyChart'), {
       {
         label: '已登入',
         data: DAILY.map(d => d.loggedIn),
-        backgroundColor: '#3b82f6cc',
+        backgroundColor: getDailyColors(0),
         borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 4, bottomRight: 4 },
         borderSkipped: false,
       },
       {
         label: '未登入',
         data: DAILY.map(d => d.notIn),
-        backgroundColor: '#475569cc',
+        backgroundColor: getDailyColors(1),
         borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
         borderSkipped: false,
       }
@@ -486,6 +602,19 @@ new Chart(document.getElementById('dailyChart'), {
   options: {
     responsive: true,
     maintainAspectRatio: false,
+    onClick: (evt, elements) => {
+      if (elements.length > 0) {
+        const idx = elements[0].index;
+        if (selectedDayIdx === idx) {
+          closeDayDetail();
+        } else {
+          showDayDetail(idx);
+        }
+      }
+    },
+    onHover: (evt, elements) => {
+      evt.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+    },
     plugins: {
       legend: { position: 'top', labels: { color: '#94a3b8', font: baseFont, boxWidth: 12, padding: 16 } },
       datalabels: { display: false },
@@ -605,6 +734,64 @@ new Chart(document.getElementById('categoryChart'), {
     layout: { padding: { top: 20 } }
   }
 });
+
+// ── Day Detail Panel ───────────────────────────────────────────────────────
+function showDayDetail(idx) {
+  selectedDayIdx = idx;
+
+  // Highlight selected bar, dim others
+  dailyChart.data.datasets[0].backgroundColor = getDailyColors(0);
+  dailyChart.data.datasets[1].backgroundColor = getDailyColors(1);
+  dailyChart.update('none');
+
+  const day = DAILY[idx];
+  const items = BY_DATE[idx];
+  const dayMax = items[0].total;
+  const tagMap = { sports:'tag-sports', concert:'tag-concert', fan:'tag-fan', music:'tag-music' };
+
+  document.getElementById('dayDetailTitle').textContent = '2026/' + day.date + ' 活動明細';
+  document.getElementById('dayDetailStats').textContent =
+    '共 ' + items.length + ' 個活動 · 總點擊 ' + day.total.toLocaleString() +
+    ' · 登入率 ' + (day.loggedIn / day.total * 100).toFixed(1) + '%';
+
+  document.getElementById('dayDetailTbody').innerHTML = items.map((a, i) => {
+    const cat = catById[a.id] || 'concert';
+    const rate = a.total > 0 ? (a.loggedIn / a.total * 100) : 0;
+    const barW = (a.total / dayMax * 100).toFixed(1);
+    const rateClass = rate >= 70 ? 'rate-high' : rate >= 40 ? 'rate-mid' : 'rate-low';
+    return `<tr>
+      <td class="rank">${i + 1}</td>
+      <td class="game-name" style="max-width:300px">
+        ${a.name}
+        <span class="tag ${tagMap[cat]}">${CAT_LABELS[cat]}</span>
+        <div class="day-bar-bg"><div class="day-bar-fill" style="width:${barW}%"></div></div>
+      </td>
+      <td class="num num-main">${a.total.toLocaleString()}</td>
+      <td class="num" style="color:var(--blue)">${a.loggedIn.toLocaleString()}</td>
+      <td class="num" style="color:var(--muted)">${(a.total - a.loggedIn).toLocaleString()}</td>
+      <td class="num"><span class="rate-badge ${rateClass}">${rate.toFixed(1)}%</span></td>
+    </tr>`;
+  }).join('');
+
+  const panel = document.getElementById('dayDetailPanel');
+  panel.style.display = 'block';
+  // Trigger re-animation
+  panel.style.animation = 'none';
+  panel.offsetHeight;
+  panel.style.animation = '';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  document.getElementById('clickHint').textContent = '再次點擊同一柱體可關閉 · 點擊其他日期切換';
+}
+
+function closeDayDetail() {
+  selectedDayIdx = null;
+  dailyChart.data.datasets[0].backgroundColor = getDailyColors(0);
+  dailyChart.data.datasets[1].backgroundColor = getDailyColors(1);
+  dailyChart.update('none');
+  document.getElementById('dayDetailPanel').style.display = 'none';
+  document.getElementById('clickHint').textContent = '點擊柱體查看當日活動明細 ▼';
+}
 
 // ── Table ──────────────────────────────────────────────────────────────────
 let tableData = ACTIVITIES.map((a, i) => ({ ...a, rank: i + 1 }));
