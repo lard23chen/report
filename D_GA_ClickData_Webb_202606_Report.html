@@ -311,6 +311,78 @@
     #dayDetailTable thead th { font-size: 0.7rem; }
     .day-bar-bg { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 3px; min-width: 60px; }
     .day-bar-fill { height: 4px; border-radius: 2px; background: var(--blue); }
+
+    /* Act name link */
+    .act-name-link {
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-color: rgba(59,130,246,0.4);
+      text-underline-offset: 3px;
+      transition: color .15s, text-decoration-color .15s;
+    }
+    .act-name-link:hover { color: var(--blue); text-decoration-color: var(--blue); }
+
+    /* Activity detail modal */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeInBg .15s ease;
+    }
+    @keyframes fadeInBg { from { opacity:0; } to { opacity:1; } }
+    .modal-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%; max-width: 720px;
+      max-height: 88vh;
+      display: flex; flex-direction: column;
+      animation: slideUp .18s ease;
+    }
+    @keyframes slideUp {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .modal-header {
+      padding: 20px 24px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .modal-header-top {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      margin-bottom: 10px;
+    }
+    .modal-act-name {
+      font-size: 1.1rem; font-weight: 800; color: var(--text); line-height: 1.3;
+    }
+    .modal-kpis {
+      display: flex; gap: 20px; flex-wrap: wrap;
+    }
+    .modal-kpi { font-size: 0.8rem; color: var(--muted); }
+    .modal-kpi strong { color: var(--text); font-size: 0.92rem; }
+    .modal-body {
+      overflow-y: auto; padding: 16px 24px 20px;
+      flex: 1;
+    }
+    .modal-section-title {
+      font-size: 0.72rem; font-weight: 600; color: var(--muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    #actDetailTable { font-size: 0.82rem; }
+    #actDetailTable thead th { font-size: 0.7rem; }
+    .spark-bg { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; margin-top: 4px; min-width: 80px; }
+    .spark-fill { height: 6px; border-radius: 3px; }
+    .modal-footer-note {
+      padding: 10px 24px 16px;
+      font-size: 0.75rem; color: var(--muted);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex; gap: 20px; flex-wrap: wrap;
+    }
+    .modal-footer-note span strong { color: var(--text); }
   </style>
 </head>
 <body>
@@ -478,6 +550,51 @@
   資料來源：MongoDB QwareAi / GA_D_ClickData_Webb_202606 &nbsp;·&nbsp; 產出日期：2026-06-08
 </footer>
 
+<!-- Activity Detail Modal -->
+<div id="actModalBackdrop" class="modal-backdrop" style="display:none" onclick="closeActDetail(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-top">
+        <div>
+          <div class="modal-act-name" id="modalActName"></div>
+          <div style="margin-top:5px;display:flex;gap:8px;align-items:center">
+            <span class="tag" id="modalActTag"></span>
+            <span style="font-size:0.75rem;color:var(--muted)" id="modalActId"></span>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeActDetail()">✕ 關閉</button>
+      </div>
+      <div class="modal-kpis">
+        <div class="modal-kpi">總點擊量 <strong id="mKpiTotal"></strong></div>
+        <div class="modal-kpi">登入率 <strong id="mKpiRate"></strong></div>
+        <div class="modal-kpi">活躍天數 <strong id="mKpiDays"></strong></div>
+        <div class="modal-kpi">單日峰值 <strong id="mKpiPeak"></strong></div>
+        <div class="modal-kpi">日均點擊 <strong id="mKpiAvg"></strong></div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-title">每日點擊量明細</div>
+      <table id="actDetailTable">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th class="num">總點擊</th>
+            <th class="num">已登入</th>
+            <th class="num">未登入</th>
+            <th class="num">登入率</th>
+            <th style="min-width:100px">趨勢</th>
+          </tr>
+        </thead>
+        <tbody id="actDetailTbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer-note">
+      <span id="mPeakNote"></span>
+      <span id="mLoginNote"></span>
+    </div>
+  </div>
+</div>
+
 <script>
 Chart.register(ChartDataLabels);
 
@@ -565,6 +682,43 @@ const BY_DATE = [
   // 06/05
   [{id:'39667',name:'台鋼雄鷹-樂天桃猿',total:40880,loggedIn:33856},{id:'39649',name:'Girl Rules Fan Meeting in Taipei',total:36592,loggedIn:33176},{id:'39428',name:'台鋼雄鷹-樂天桃猿',total:19034,loggedIn:13136},{id:'39576',name:'富邦悍將-統一7-ELEVEn獅',total:8561,loggedIn:3036},{id:'39673',name:'ONE PACT : SUMMER BREEZE in Taipei',total:3688,loggedIn:3447},{id:'39190',name:'新北國王-福爾摩沙夢想家',total:2810,loggedIn:2212},{id:'39455',name:'台鋼雄鷹-統一7-ELEVEn獅',total:1845,loggedIn:597},{id:'39590',name:'2026 7–ELEVEN 高雄啤酒音樂節',total:1648,loggedIn:573},{id:'39226',name:'富邦勇士-桃園璞園領航猿',total:1458,loggedIn:400},{id:'39470',name:'孫淑媚《MAY好三十》演唱會',total:1384,loggedIn:495},{id:'39603',name:"2026 FTISLAND TOUR 'FaTe'",total:1068,loggedIn:334},{id:'39451',name:'台鋼雄鷹-樂天桃猿',total:1046,loggedIn:717},{id:'39511',name:'中信兄弟-樂天桃猿',total:465,loggedIn:356},{id:'39584',name:'ACON 2026 IN TAIPEI',total:363,loggedIn:87},{id:'39666',name:'統一7-ELEVEn獅-樂天桃猿',total:354,loggedIn:285},{id:'39458',name:'味全龍-樂天桃猿',total:325,loggedIn:205},{id:'39605',name:'LUCY 9TH CONCERT',total:319,loggedIn:183},{id:'39619',name:'COSMOS 1st music concert',total:309,loggedIn:227},{id:'39559',name:'2026 蔡琴 不要告別',total:293,loggedIn:63},{id:'39524',name:'Red Bull BC One Cypher Taiwan',total:130,loggedIn:46},{id:'39494',name:'2026星光女孩日',total:124,loggedIn:58},{id:'39549',name:'2026 YANG YOSEOP SOLO CONCERT',total:109,loggedIn:17}],
 ];
+
+// ── Per-activity daily breakdown ──────────────────────────────────────────
+const ACT_DAILY = {
+  '39428': [{date:'05/26',total:3065,loggedIn:1092},{date:'05/27',total:3348,loggedIn:1246},{date:'05/28',total:3523,loggedIn:1170},{date:'05/29',total:3714,loggedIn:1327},{date:'05/30',total:3048,loggedIn:1102},{date:'05/31',total:5348,loggedIn:1790},{date:'06/01',total:6120,loggedIn:1981},{date:'06/02',total:6707,loggedIn:2346},{date:'06/03',total:18494,loggedIn:12736},{date:'06/04',total:19707,loggedIn:15336},{date:'06/05',total:19034,loggedIn:13136}],
+  '39190': [{date:'05/27',total:1519,loggedIn:783},{date:'05/28',total:7639,loggedIn:5751},{date:'05/29',total:509,loggedIn:176},{date:'05/30',total:645,loggedIn:100},{date:'05/31',total:743,loggedIn:109},{date:'06/01',total:106,loggedIn:20},{date:'06/04',total:61496,loggedIn:49665},{date:'06/05',total:2810,loggedIn:2212}],
+  '39576': [{date:'05/26',total:2312,loggedIn:671},{date:'05/27',total:2640,loggedIn:818},{date:'05/28',total:3167,loggedIn:760},{date:'05/29',total:3235,loggedIn:794},{date:'05/30',total:4548,loggedIn:1314},{date:'05/31',total:6108,loggedIn:1981},{date:'06/01',total:6073,loggedIn:2209},{date:'06/02',total:7050,loggedIn:2731},{date:'06/03',total:8100,loggedIn:2926},{date:'06/04',total:9994,loggedIn:3319},{date:'06/05',total:8561,loggedIn:3036}],
+  '39667': [{date:'06/05',total:40880,loggedIn:33856}],
+  '39649': [{date:'06/05',total:36592,loggedIn:33176}],
+  '39590': [{date:'05/26',total:2316,loggedIn:694},{date:'05/27',total:2004,loggedIn:700},{date:'05/28',total:2331,loggedIn:545},{date:'05/29',total:1792,loggedIn:451},{date:'05/30',total:1946,loggedIn:642},{date:'05/31',total:1784,loggedIn:589},{date:'06/01',total:1888,loggedIn:662},{date:'06/02',total:1824,loggedIn:584},{date:'06/03',total:4733,loggedIn:2150},{date:'06/04',total:5426,loggedIn:3289},{date:'06/05',total:1648,loggedIn:573}],
+  '39226': [{date:'05/28',total:6510,loggedIn:3495},{date:'05/29',total:2166,loggedIn:533},{date:'05/30',total:1425,loggedIn:267},{date:'05/31',total:1630,loggedIn:259},{date:'06/01',total:1877,loggedIn:403},{date:'06/02',total:1681,loggedIn:301},{date:'06/03',total:1846,loggedIn:380},{date:'06/04',total:3363,loggedIn:1114},{date:'06/05',total:1458,loggedIn:400}],
+  '39603': [{date:'05/26',total:391,loggedIn:163},{date:'05/27',total:357,loggedIn:127},{date:'05/28',total:427,loggedIn:122},{date:'05/29',total:854,loggedIn:235},{date:'05/30',total:6645,loggedIn:1144},{date:'05/31',total:4606,loggedIn:773},{date:'06/01',total:2290,loggedIn:440},{date:'06/02',total:1619,loggedIn:661},{date:'06/03',total:1424,loggedIn:602},{date:'06/04',total:1752,loggedIn:861},{date:'06/05',total:1068,loggedIn:334}],
+  '39455': [{date:'05/26',total:1269,loggedIn:384},{date:'05/27',total:2330,loggedIn:663},{date:'05/28',total:1411,loggedIn:478},{date:'05/29',total:1339,loggedIn:446},{date:'05/30',total:1480,loggedIn:487},{date:'05/31',total:1626,loggedIn:555},{date:'06/01',total:1445,loggedIn:461},{date:'06/02',total:1468,loggedIn:480},{date:'06/03',total:1375,loggedIn:436},{date:'06/04',total:1361,loggedIn:525},{date:'06/05',total:1845,loggedIn:597}],
+  '39584': [{date:'05/26',total:1251,loggedIn:482},{date:'05/27',total:758,loggedIn:229},{date:'05/28',total:830,loggedIn:221},{date:'05/29',total:1172,loggedIn:281},{date:'05/30',total:4196,loggedIn:914},{date:'05/31',total:1315,loggedIn:184},{date:'06/01',total:669,loggedIn:118},{date:'06/02',total:638,loggedIn:184},{date:'06/03',total:447,loggedIn:96},{date:'06/04',total:348,loggedIn:80},{date:'06/05',total:363,loggedIn:87}],
+  '39611': [{date:'05/28',total:9788,loggedIn:7221}],
+  '39470': [{date:'05/26',total:730,loggedIn:125},{date:'05/27',total:514,loggedIn:100},{date:'05/28',total:608,loggedIn:142},{date:'05/29',total:445,loggedIn:80},{date:'05/30',total:407,loggedIn:65},{date:'05/31',total:534,loggedIn:70},{date:'06/01',total:412,loggedIn:90},{date:'06/02',total:426,loggedIn:83},{date:'06/03',total:565,loggedIn:170},{date:'06/04',total:598,loggedIn:187},{date:'06/05',total:1384,loggedIn:495}],
+  '39673': [{date:'06/05',total:3688,loggedIn:3447}],
+  '39664': [{date:'06/02',total:3117,loggedIn:0}],
+  '39559': [{date:'05/26',total:242,loggedIn:42},{date:'05/27',total:296,loggedIn:71},{date:'05/28',total:297,loggedIn:65},{date:'05/29',total:248,loggedIn:27},{date:'05/30',total:294,loggedIn:56},{date:'05/31',total:232,loggedIn:34},{date:'06/01',total:268,loggedIn:24},{date:'06/02',total:302,loggedIn:69},{date:'06/03',total:204,loggedIn:36},{date:'06/04',total:242,loggedIn:70},{date:'06/05',total:293,loggedIn:63}],
+  '39451': [{date:'05/28',total:160,loggedIn:77},{date:'05/29',total:186,loggedIn:68},{date:'05/31',total:271,loggedIn:93},{date:'06/01',total:253,loggedIn:103},{date:'06/02',total:415,loggedIn:160},{date:'06/03',total:284,loggedIn:107},{date:'06/04',total:106,loggedIn:63},{date:'06/05',total:1046,loggedIn:717}],
+  '39607': [{date:'05/26',total:254,loggedIn:79},{date:'05/27',total:223,loggedIn:75},{date:'05/29',total:219,loggedIn:77},{date:'05/30',total:253,loggedIn:124},{date:'06/02',total:281,loggedIn:93},{date:'06/03',total:622,loggedIn:195},{date:'06/04',total:280,loggedIn:82}],
+  '39458': [{date:'05/31',total:273,loggedIn:66},{date:'06/01',total:295,loggedIn:70},{date:'06/02',total:333,loggedIn:65},{date:'06/03',total:208,loggedIn:85},{date:'06/04',total:155,loggedIn:88},{date:'06/05',total:325,loggedIn:205}],
+  '39494': [{date:'05/28',total:209,loggedIn:86},{date:'05/31',total:128,loggedIn:51},{date:'06/01',total:165,loggedIn:64},{date:'06/02',total:427,loggedIn:218},{date:'06/03',total:410,loggedIn:183},{date:'06/04',total:119,loggedIn:49},{date:'06/05',total:124,loggedIn:58}],
+  '39549': [{date:'05/29',total:218,loggedIn:59},{date:'05/30',total:254,loggedIn:55},{date:'05/31',total:227,loggedIn:83},{date:'06/01',total:206,loggedIn:61},{date:'06/02',total:166,loggedIn:39},{date:'06/03',total:213,loggedIn:59},{date:'06/04',total:147,loggedIn:39},{date:'06/05',total:109,loggedIn:17}],
+  '39529': [{date:'05/26',total:450,loggedIn:25},{date:'05/27',total:396,loggedIn:23},{date:'05/28',total:361,loggedIn:19},{date:'05/29',total:318,loggedIn:21}],
+  '39605': [{date:'05/26',total:135,loggedIn:50},{date:'05/31',total:103,loggedIn:25},{date:'06/01',total:305,loggedIn:67},{date:'06/02',total:169,loggedIn:64},{date:'06/03',total:129,loggedIn:38},{date:'06/04',total:259,loggedIn:73},{date:'06/05',total:319,loggedIn:183}],
+  '39648': [{date:'05/26',total:352,loggedIn:40},{date:'05/27',total:116,loggedIn:30},{date:'05/29',total:111,loggedIn:18},{date:'05/30',total:125,loggedIn:8}],
+  '39511': [{date:'06/01',total:130,loggedIn:40},{date:'06/05',total:465,loggedIn:356}],
+  '39619': [{date:'06/04',total:117,loggedIn:72},{date:'06/05',total:309,loggedIn:227}],
+  '39666': [{date:'06/05',total:354,loggedIn:285}],
+  '39496': [{date:'05/29',total:136,loggedIn:5},{date:'05/31',total:142,loggedIn:6}],
+  '39490': [{date:'06/04',total:161,loggedIn:28}],
+  '39524': [{date:'06/05',total:130,loggedIn:46}],
+  '39526': [{date:'05/26',total:121,loggedIn:8}],
+  '39575': [{date:'05/27',total:108,loggedIn:86}],
+  '39550': [{date:'05/29',total:104,loggedIn:8}],
+  '39610': [{date:'05/28',total:103,loggedIn:66}],
+};
 
 // ── Charts ─────────────────────────────────────────────────────────────────
 const gridColor = 'rgba(255,255,255,0.06)';
@@ -794,6 +948,75 @@ function closeDayDetail() {
   document.getElementById('clickHint').textContent = '點擊柱體查看當日活動明細 ▼';
 }
 
+// ── Activity detail modal ──────────────────────────────────────────────────
+function showActDetail(actId) {
+  const act = ACTIVITIES.find(a => a.id === actId);
+  const days = ACT_DAILY[actId] || [];
+  if (!act || !days.length) return;
+
+  const dayMax = Math.max(...days.map(d => d.total));
+  const totalLoggedIn = days.reduce((s, d) => s + d.loggedIn, 0);
+  const peakDay = days.reduce((mx, d) => d.total > mx.total ? d : mx, days[0]);
+  const avgPerDay = Math.round(act.total / days.length);
+  const overallRate = act.total > 0 ? (act.loggedIn / act.total * 100).toFixed(1) : '0.0';
+
+  const tagMap = { sports:'tag-sports', concert:'tag-concert', fan:'tag-fan', music:'tag-music' };
+  const catColorMap = { sports:'#3b82f6', concert:'#8b5cf6', fan:'#f43f5e', music:'#10b981' };
+
+  document.getElementById('modalActName').textContent = act.name;
+  const tagEl = document.getElementById('modalActTag');
+  tagEl.textContent = CAT_LABELS[act.cat];
+  tagEl.className = 'tag ' + tagMap[act.cat];
+  document.getElementById('modalActId').textContent = 'ActivityId: ' + actId;
+
+  document.getElementById('mKpiTotal').textContent = act.total.toLocaleString();
+  document.getElementById('mKpiRate').textContent = overallRate + '%';
+  document.getElementById('mKpiDays').textContent = days.length + ' 天';
+  document.getElementById('mKpiPeak').textContent = dayMax.toLocaleString() + ' (' + peakDay.date + ')';
+  document.getElementById('mKpiAvg').textContent = avgPerDay.toLocaleString();
+
+  const color = catColorMap[act.cat] || '#3b82f6';
+  document.getElementById('actDetailTbody').innerHTML = days.map(d => {
+    const rate = d.total > 0 ? (d.loggedIn / d.total * 100) : 0;
+    const barW = (d.total / dayMax * 100).toFixed(1);
+    const rateClass = rate >= 70 ? 'rate-high' : rate >= 40 ? 'rate-mid' : 'rate-low';
+    const isPeak = d.total === dayMax;
+    return `<tr style="${isPeak ? 'background:rgba(59,130,246,0.06)' : ''}">
+      <td style="font-variant-numeric:tabular-nums;color:${isPeak ? 'var(--amber)' : 'var(--muted)'};font-weight:${isPeak ? 700 : 400}">
+        2026/${d.date}${isPeak ? ' ★' : ''}
+      </td>
+      <td class="num num-main">${d.total.toLocaleString()}</td>
+      <td class="num" style="color:var(--blue)">${d.loggedIn.toLocaleString()}</td>
+      <td class="num" style="color:var(--muted)">${(d.total - d.loggedIn).toLocaleString()}</td>
+      <td class="num"><span class="rate-badge ${rateClass}">${rate.toFixed(1)}%</span></td>
+      <td>
+        <div class="spark-bg">
+          <div class="spark-fill" style="width:${barW}%;background:${color}"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const peakHighLoginDay = days.reduce((mx, d) => d.loggedIn > mx.loggedIn ? d : mx, days[0]);
+  document.getElementById('mPeakNote').innerHTML =
+    `<span>峰值日：<strong>2026/${peakDay.date}</strong>（${dayMax.toLocaleString()} 次）</span>`;
+  document.getElementById('mLoginNote').innerHTML =
+    `<span>登入最高日：<strong>2026/${peakHighLoginDay.date}</strong>（${peakHighLoginDay.loggedIn.toLocaleString()} 次登入，${(peakHighLoginDay.loggedIn / peakHighLoginDay.total * 100).toFixed(1)}%）</span>`;
+
+  document.getElementById('actModalBackdrop').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeActDetail(evt) {
+  if (evt && evt.target !== document.getElementById('actModalBackdrop')) return;
+  document.getElementById('actModalBackdrop').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { document.getElementById('actModalBackdrop').style.display = 'none'; document.body.style.overflow = ''; }
+});
+
 // ── Table ──────────────────────────────────────────────────────────────────
 let tableData = ACTIVITIES.map((a, i) => ({ ...a, rank: i + 1 }));
 let currentFilter = 'all';
@@ -813,7 +1036,7 @@ function renderTable(data) {
     return `<tr data-cat="${a.cat}">
       <td><span class="${rankClass}">#${a.rank}</span></td>
       <td class="game-name">
-        ${a.name}
+        <span class="act-name-link" onclick="showActDetail('${a.id}')">${a.name}</span>
         <span class="tag ${tagMap[a.cat]}">${CAT_LABELS[a.cat]}</span>
         <div class="bar-bg"><div class="bar-fill" style="width:${barWidth}%"></div></div>
       </td>
