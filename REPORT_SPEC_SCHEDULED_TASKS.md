@@ -35,6 +35,7 @@
 ```bat
 node generate_a_daily_report.js                    → A_Qware_Revenue_Report_Daily.html
 node generate_kaohsiung_beer_festival_report.js    → A_KaohsiungBeerFestival_2026.html
+node generate_d_ga_clickdata_report.js             → D_GA_ClickData_Webb_202606_Report.html
 node update_index_stats.js                         → report_index.html（統計表 + Tab1 月份卡片）
 if 今日為1日: node generate_monthly_report.js      → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
 git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin main
@@ -46,6 +47,7 @@ git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin m
 |------|----------|---------|------|
 | `generate_a_daily_report.js` | `A_Qware_Revenue_Report_Daily.html` | MongoDB `Qware_A_Ticket_data_Daily` | A 系統每日營業快訊 |
 | `generate_kaohsiung_beer_festival_report.js` | `A_KaohsiungBeerFestival_2026.html` | MongoDB `Qware_A_Ticket_data_Daily` + `Qware_A_Traffic_session_data` | 2026 高雄啤酒音樂節專案分析 |
+| `generate_d_ga_clickdata_report.js` | `D_GA_ClickData_Webb_202606_Report.html` | MongoDB `QwareAi.GA_D_ClickData_Webb_202606` | D 系統節目點擊量分析（GA）；patch-in-place 方式更新資料常數 |
 | `update_index_stats.js` | `report_index.html` | MongoDB `Qware_Ticket_Data` | 月份統計表、趨勢圖、Tab1 本月報表卡片；每日執行 |
 | `generate_monthly_report.js` | `A_Qware_Revenue_Report_YYYY年MM月_分析報表.html` | MongoDB `Qware_Ticket_Data` | 上月完整分析報表；**僅每月 2 日執行**（bat 內有日期判斷） |
 
