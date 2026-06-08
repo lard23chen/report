@@ -482,6 +482,36 @@
   </table>
 </div>
 
+<!-- Complete Activity Table -->
+<div class="table-card">
+  <div class="table-header-row">
+    <div class="card-title" style="margin-bottom:0">完整活動明細 <span>（全 33 項，可點擊欄位排序）</span></div>
+    <div class="filter-chips">
+      <button class="chip active" onclick="filterTable('all',this)">全部</button>
+      <button class="chip" onclick="filterTable('sports',this)">運動</button>
+      <button class="chip" onclick="filterTable('concert',this)">演唱會</button>
+      <button class="chip" onclick="filterTable('fan',this)">見面會</button>
+      <button class="chip" onclick="filterTable('music',this)">音樂節</button>
+    </div>
+  </div>
+  <table id="actTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">排名</th>
+        <th onclick="sortTable(1)">活動名稱</th>
+        <th onclick="sortTable(2)" class="num">活動ID</th>
+        <th onclick="sortTable(3)" class="num">場次數</th>
+        <th onclick="sortTable(4)" class="num sort-desc">總點擊量</th>
+        <th onclick="sortTable(5)" class="num">已登入</th>
+        <th onclick="sortTable(6)" class="num">未登入</th>
+        <th onclick="sortTable(7)" class="num">登入率</th>
+        <th onclick="sortTable(8)" class="num">單場均值</th>
+      </tr>
+    </thead>
+    <tbody id="actTbody"></tbody>
+  </table>
+</div>
+
 <!-- Top 10 + Donut row -->
 <div class="row-2col">
   <div class="card">
@@ -514,36 +544,6 @@
       </div>
     </div>
   </div>
-</div>
-
-<!-- Complete Activity Table -->
-<div class="table-card">
-  <div class="table-header-row">
-    <div class="card-title" style="margin-bottom:0">完整活動明細 <span>（全 33 項，可點擊欄位排序）</span></div>
-    <div class="filter-chips">
-      <button class="chip active" onclick="filterTable('all',this)">全部</button>
-      <button class="chip" onclick="filterTable('sports',this)">運動</button>
-      <button class="chip" onclick="filterTable('concert',this)">演唱會</button>
-      <button class="chip" onclick="filterTable('fan',this)">見面會</button>
-      <button class="chip" onclick="filterTable('music',this)">音樂節</button>
-    </div>
-  </div>
-  <table id="actTable">
-    <thead>
-      <tr>
-        <th onclick="sortTable(0)">排名</th>
-        <th onclick="sortTable(1)">活動名稱</th>
-        <th onclick="sortTable(2)" class="num">活動ID</th>
-        <th onclick="sortTable(3)" class="num">場次數</th>
-        <th onclick="sortTable(4)" class="num sort-desc">總點擊量</th>
-        <th onclick="sortTable(5)" class="num">已登入</th>
-        <th onclick="sortTable(6)" class="num">未登入</th>
-        <th onclick="sortTable(7)" class="num">登入率</th>
-        <th onclick="sortTable(8)" class="num">單場均值</th>
-      </tr>
-    </thead>
-    <tbody id="actTbody"></tbody>
-  </table>
 </div>
 
 <footer>
