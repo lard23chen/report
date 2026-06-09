@@ -35,18 +35,28 @@
 *   **視覺**: 紅色線條帶有淡紅色區域填充 (Gradient Fill)，並開啟數據標籤顯示簡化金額 (如 $20.9M)。
 
 #### C. 分頁導覽系統 (Tabbed Navigation)
-*   **本月/上月報表 (Tab 1)**: 僅顯示最新兩個月份的分析報告，提供快速存取。
+*   **本月/上月報表 (Tab 1)**: 僅顯示最新兩個月份的分析報告，提供快速存取。每月更新時手動調整：最新月加「本月」badge、前一月加「上月」badge、再前一月移至 Tab 3。
 *   **報表比較分析 (Tab 2)**: 預留給跨月份對比報告的區塊。
-*   **歷史報表分析 (Tab 3)**: 收納三個月前（含）的所有歷史分析報告，避免首頁過於擁擠。
+*   **歷史報表分析 (Tab 3)**: 收納三個月前（含）的所有歷史分析報告，避免首頁過於擁擠；新卡片插入至最頂端。
 *   **各節目報表分析 (Tab 4)**: 預留給特定大型活動或專案的專屬報表。
+
+**Tab 1 現況（2026-06-09 更新）**：
+
+| 位置 | 月份 | Badge |
+|------|------|-------|
+| Tab 1 第 1 張 | 2026年05月 | 本月 |
+| Tab 1 第 2 張 | 2026年04月 | 上月 |
+| Tab 3 最新 | 2026年03月 | Historical |
 
 ### 3. 資料來源與更新機制 (Data Engine)
 *   **資料庫**: MongoDB (Cluster0)。
 *   **集合 (Collection)**: `QwareAi / Qware_Ticket_Data_Esys` (E系統專屬資料表)。
+*   **`交易時間` 欄位格式**: `YYYY-MM-DD HH:mm:ss`（dash 分隔），查詢用 `$regex: "^YYYY-MM"`。
 *   **腳本工具**:
-    *   `generate_e_report_mar_2026.js`: 負責抓取單月數據並生成單一月份的 HTML 報表。
-    *   `update_e_index_stats.js`: 負責聚合所有月份數據，重新計算統計表與趨勢圖，並更新 `E_report_index.html`。
+    *   `generate_e_report_<mon>_2026.js`（jan / feb / mar / apr / may）: 負責抓取單月數據並生成單一月份的 HTML 報表。
+    *   `update_e_index_stats.js`: 負責聚合所有月份數據，重新計算統計表與趨勢圖，並更新 `E_report_index.html`（只替換 `<!-- STATS_START -->` 至 `<!-- Tabs Navigation -->` 之間的內容，**Tab 1–4 的卡片需手動更新**）。
 *   **排程策略**: 每月一號 08:30 自動執行全量更新。
+*   **⚠️ 新 generator 建立方式**: 用 Node.js 讀取上月 `.js` 檔案後以 `.replace()` 替換月份字串，再以 `'utf8'` 寫入。**禁止用 PowerShell `-replace`**，因為 Windows 預設 UTF-16 LE 編碼會破壞中文字元（檔名、標題、query string 全部損毀）。
 
 ### 4. 輸出與存取 (Deployment)
 *   **靜態網站**: 部署於 GitHub Pages (`https://lard23chen.github.io/report/E_report_index.html`)。
@@ -62,5 +72,32 @@
 - 最近月份趨勢分析區塊 — 2026/05/08 被更新覆蓋，已修復並同步至 generator（以 `MOM_ANALYSIS_PLACEHOLDER` 動態替換）
 - 最近月份趨勢分析區塊 — 2026/05/21 再次遺失：根本原因是 generator 對 `template` 做 `MOM_ANALYSIS_PLACEHOLDER` 替換後，緊接著的 stats block regex 替換又用含有原始 placeholder 的 `statsHtml` 覆蓋整個區塊。**正確做法：在寫入 stats block 前，先對 `statsHtml` 做 `.replace('MOM_ANALYSIS_PLACEHOLDER', momHtml)` 得到 `statsHtmlFinal`，再嵌入 regex 替換的模板字串中。**
 
+### ⚠️ 每月更新 SOP
+
+新月份到來時依序執行：
+
+1. **產出新月份報表**
+   ```js
+   // 用 Node.js 複製上月 generator，替換月份字串
+   const fs = require('fs');
+   let src = fs.readFileSync('generate_e_report_apr_2026.js', 'utf8');
+   let dst = src
+     .replace(/2026-04/g, '2026-05')
+     .replace(/2026年04月/g, '2026年05月')
+     .replace(/04月/g, '05月')
+     .replace(/E_Qware_Revenue_Report_2026年04月_分析報表\.html/, 'E_Qware_Revenue_Report_2026年05月_分析報表.html');
+   fs.writeFileSync('generate_e_report_may_2026.js', dst, 'utf8');
+   ```
+   再執行 `node generate_e_report_may_2026.js`
+
+2. **更新統計區塊**：執行 `node update_e_index_stats.js`
+
+3. **手動更新 Tab 1 卡片**（`update_e_index_stats.js` 不觸及此段）：
+   - 加入新月份卡片（badge: 本月）
+   - 前月卡片改 badge 為「上月」
+   - 前前月卡片移至 Tab 3 最頂端（badge: Historical）
+
+4. **commit & push**
+
 ---
-*Last Updated: 2026/05/21*
+*Last Updated: 2026/06/09*
