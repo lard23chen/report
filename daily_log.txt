@@ -2256,3 +2256,120 @@ Updated Tab1 monthly card to: 2026年05月
 To https://github.com/lard23chen/report.git
    35d0fad..5e0a0f2  main -> main
 [LINE] OK: daily
+[2026/06/10 �g�T 13:02:31.35] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily...
+Fetched 105906 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (37 KB)
+Connecting to MongoDB...
+Fetching data for: 2026 7–ELEVEN 高雄啤酒音樂節...
+Fetched 3876 records.
+Fetched 48 page view records.
+Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (3541 KB)
+Connecting to MongoDB...
+UpdateTime (TWN): 2026/06/10 03:00
+Aggregating DAILY...
+Aggregating ACTIVITIES...
+Aggregating BY_DATE...
+Aggregating ACT_DAILY...
+Patching HTML...
+Done. Activities: 37, Days: 13, UpdateTime: 2026/06/10 03:00
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-05',
+    salesOrderCount: 87411,
+    salesTicketCount: 228229,
+    salesAmount: new Decimal128('267940305'),
+    refundOrderCount: 12625,
+    refundTicketCount: 17369,
+    refundFee: new Decimal128('2234907.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 58649,
+    salesTicketCount: 179884,
+    salesAmount: new Decimal128('148779061'),
+    refundOrderCount: 5513,
+    refundTicketCount: 8686,
+    refundFee: new Decimal128('903665.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 107530,
+    salesTicketCount: 286978,
+    salesAmount: new Decimal128('242352348'),
+    refundOrderCount: 9506,
+    refundTicketCount: 15948,
+    refundFee: new Decimal128('1401480.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 37418,
+    salesTicketCount: 87608,
+    salesAmount: new Decimal128('69428085'),
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 20185,
+    salesTicketCount: 42393,
+    salesAmount: new Decimal128('86819380'),
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 46757,
+    salesTicketCount: 86480,
+    salesAmount: 278213528,
+    refundOrderCount: 7365,
+    refundTicketCount: 10514,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 15021,
+    salesTicketCount: 24967,
+    salesAmount: 55559110,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 18195,
+    salesTicketCount: 38533,
+    salesAmount: 103014816,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 55377,
+    salesTicketCount: 154112,
+    salesAmount: new Decimal128('150783090'),
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18894,
+    salesTicketCount: 34641,
+    salesAmount: new Decimal128('73209755'),
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026年05月
+[2026/06/10 �g�T 13:03:18.03] Update Completed. 
