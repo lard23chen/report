@@ -192,6 +192,31 @@ while (genScript[tplStart] === '\r' || genScript[tplStart] === '\n') tplStart++;
 
 ---
 
+### 問題五：退票排行第二名（或任意名次）筆數為 0（sort comparator typo）
+
+**發生時間**: 2026/06/10
+
+**症狀**:
+- `#topRefundTable` 退票排行榜中，部分名次的退票筆數與張數顯示為 `0`
+- 退票排行與實際退票金額最高的節目不符
+
+**根本原因**:
+`generate_monthly_report.js` 第 186 行排序函式寫成：
+```javascript
+// 錯誤
+const topByRefunds = [...eventList].sort((a,b) => b.refunds - b.refunds).slice(0, 5);
+```
+`b.refunds - b.refunds` 同一變數相減恆為 `0`，Array.sort 視為相等不調換順序，導致排序完全失效。`topByRefunds` 實際上是 `eventList` 的插入順序前 5 筆，其中可能有完全無退票記錄的節目。
+
+**修正方式**:
+```javascript
+// 正確
+const topByRefunds = [...eventList].sort((a,b) => b.refunds - a.refunds).slice(0, 5);
+```
+修正後重新產出 2026年05月報表已確認退票排行正確。
+
+---
+
 ## 8. 報表生成腳本對照表 (Script Reference)
 
 | 月份 | 建議使用腳本 | 備註 |
