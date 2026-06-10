@@ -104,9 +104,9 @@ tfoot td{background:var(--surface2);font-weight:700;padding:10px 12px;border-top
 <script>
 const API='https://report-theta-nine.vercel.app/api/usa-stock';
 const PRICES_API='https://report-theta-nine.vercel.app/api/stock-prices';
-const COLORS={AAPL:'#a8dadc',AMD:'#e63946',BNDW:'#457b9d',EWJ:'#f4a261',TLT:'#2a9d8f',LLY:'#ab47bc'};
-const BG_COLORS={AAPL:'rgba(168,218,220,0.15)',AMD:'rgba(230,57,70,0.12)',BNDW:'rgba(69,123,157,0.12)',EWJ:'rgba(244,162,97,0.15)',TLT:'rgba(42,157,143,0.12)',LLY:'rgba(171,71,188,0.12)'};
-const SHORT_NAMES={AAPL:'蘋果',AMD:'超微半導體',BNDW:'全球債券ETF',EWJ:'日本ETF',TLT:'長期美債ETF',LLY:'禮來'};
+const COLORS={AAPL:'#a8dadc',AMD:'#e63946',BNDW:'#457b9d',EWJ:'#f4a261',TLT:'#2a9d8f',LLY:'#ab47bc',NVDA:'#76b841',NKE:'#ff6b35',ONON:'#e8c547',NET:'#f38020',GOOG:'#4285f4'};
+const BG_COLORS={AAPL:'rgba(168,218,220,0.15)',AMD:'rgba(230,57,70,0.12)',BNDW:'rgba(69,123,157,0.12)',EWJ:'rgba(244,162,97,0.15)',TLT:'rgba(42,157,143,0.12)',LLY:'rgba(171,71,188,0.12)',NVDA:'rgba(118,184,65,0.12)',NKE:'rgba(255,107,53,0.12)',ONON:'rgba(232,197,71,0.12)',NET:'rgba(243,128,32,0.12)',GOOG:'rgba(66,133,244,0.12)'};
+const SHORT_NAMES={AAPL:'蘋果',AMD:'超微半導體',BNDW:'全球債券ETF',EWJ:'日本ETF',TLT:'長期美債ETF',LLY:'禮來',NVDA:'輝達',NKE:'耐吉',ONON:'昂跑控股',NET:'Cloudflare',GOOG:'Alphabet'};
 Chart.register(ChartDataLabels);
 let pieChart,yearChart,monthChart;
 let _allDetailDocs=[],_fYear='',_fMonth='',_fCode='',_fAction='',_fDateRange='1y';
