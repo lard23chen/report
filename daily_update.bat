@@ -1,5 +1,14 @@
 @echo off
 cd /d D:\2025\AI\MongoDB
+
+:: Skip if already completed today
+for /f %%d in ('powershell -NoProfile -Command "Get-Date -Format yyyy/MM/dd"') do set TODAY=%%d
+findstr /c:"[%TODAY%" daily_log.txt | findstr "Update Completed" >nul 2>&1
+if %errorlevel%==0 (
+    echo [%date% %time%] Already completed today, skipping. >> daily_log.txt
+    exit /b 0
+)
+
 echo [%date% %time%] Starting Daily Report Update... >> daily_log.txt
 
 echo Running generate_a_daily_report.js...
