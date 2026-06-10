@@ -183,7 +183,7 @@ async function generateReport() {
 
         const topByRevenue = [...eventList].sort((a,b) => b.revenue - a.revenue).slice(0, 5);
         const topByTickets = [...eventList].sort((a,b) => b.tickets - a.tickets).slice(0, 5);
-        const topByRefunds = [...eventList].sort((a,b) => b.refunds - b.refunds).slice(0, 5);
+        const topByRefunds = [...eventList].sort((a,b) => b.refunds - a.refunds).slice(0, 5);
 
         const paymentList = Object.entries(payMap).map(([name, s]) => ({ name, revenue: s.revenue, tickets: s.tickets, orderCount: s.orders.size, share: (s.revenue/totalRevenue*100).toFixed(1) })).sort((a,b) => b.revenue - a.revenue);
         const spList = Object.entries(pointMap).map(([name, s]) => ({ name, revenue: s.revenue, tickets: s.tickets, orderCount: s.orders.size, share: (s.revenue/totalRevenue*100).toFixed(1) })).sort((a,b) => b.revenue - a.revenue);
