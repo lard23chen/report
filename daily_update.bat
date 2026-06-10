@@ -28,6 +28,10 @@ if "%TODAY_DAY%"=="2" (
     echo [%date% %time%] Day 2 detected - generating previous month report... >> daily_log.txt
     "D:\nodejs\node.exe" generate_monthly_report.js >> daily_log.txt 2>&1
 )
+if "%TODAY_DAY%"=="10" (
+    echo [%date% %time%] Day 10 detected - updating GA Traffic Analysis Report... >> daily_log.txt
+    "D:\nodejs\node.exe" generate_ga_report.js >> daily_log.txt 2>&1
+)
 
 echo [%date% %time%] Update Completed. >> daily_log.txt
 
