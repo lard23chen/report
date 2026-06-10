@@ -8,14 +8,16 @@
 
 | 排程名稱 | BAT 檔 | 觸發時間 | 最後執行 | 狀態 |
 |---------|--------|---------|---------|------|
-| `Qware_Daily_Report_Update` | `daily_update.bat` | 每日 08:00 | 2026/05/25 08:51 | Ready |
-| `Qware_Daily_Report_Update_Final` | `daily_update.bat` | 每日 08:00 | 2026/05/25 08:51 | Ready |
+| `Qware_Daily_Report_Update` | `daily_update.bat` | 每日 08:00 | 2026/06/10 09:13（失敗） | Ready |
+| `Qware_Daily_Report_Update_Final` | `daily_update.bat` | 每日 08:00 | 2026/06/09 08:34 | Ready |
 | `Qware_Monthly_Report_Update` | `daily_update.bat` | 每月 2 日 08:30 | 2026/05/02 07:56 | Ready |
-| `Update_GA_Report_0800` | `update_ga_report.bat` | 每日 08:00 | 2026/05/25 08:51 | Ready |
-| `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | 2026/05/25 15:00 | Ready |
-| `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/05/25 08:51 | Ready |
+| `Update_GA_Report_0800` | `update_ga_report.bat` | 每日 08:00 | — | Ready |
+| `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | — | Ready |
+| `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/06/10 09:14 | Ready |
+| `QwareDailyReport`（HKCU Run） | `daily_update.bat` | 每次使用者登入 | — | 常駐 |
 
 > **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 執行相同的 BAT，前者為原始排程，後者為補強版（設有 WorkingDirectory）。兩者並存確保至少一個成功觸發。
+> 因帳號非系統管理員，無法將排程設定為「不論是否登入都執行」，改以 HKCU Run 機碼作為登入補跑機制。
 
 ---
 
@@ -33,11 +35,14 @@
 ### 2.2 執行步驟
 
 ```bat
+# 0. 重複執行保護（2026/06/10 新增）
+if daily_log.txt 已有今日 "Update Completed" → exit /b 0（寫入 "Already completed today, skipping."）
+
 node generate_a_daily_report.js                    → A_Qware_Revenue_Report_Daily.html
 node generate_kaohsiung_beer_festival_report.js    → A_KaohsiungBeerFestival_2026.html
 node generate_d_ga_clickdata_report.js             → D_GA_ClickData_Webb_202606_Report.html
 node update_index_stats.js                         → report_index.html（統計表 + Tab1 月份卡片）
-if 今日為1日: node generate_monthly_report.js      → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
+if 今日為2日: node generate_monthly_report.js      → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
 git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin main
 ```
 
@@ -53,7 +58,13 @@ git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin m
 
 ### 2.4 Log 輸出
 
-執行過程與時間戳記寫入 `daily_log.txt`（格式：`[date time] Starting...` / `[date time] Update Completed.`）。
+執行過程與時間戳記寫入 `daily_log.txt`：
+
+| 訊息 | 說明 |
+|------|------|
+| `[date time] Starting Daily Report Update...` | 正常開始 |
+| `[date time] Update Completed.` | 全流程完成（作為重複執行判斷依據） |
+| `[date time] Already completed today, skipping.` | 今日已完成，略過（HKCU Run 補跑時觸發） |
 
 ---
 
@@ -127,19 +138,35 @@ git add . && git commit -m "Auto-update GA Traffic Reports: ..." && git push
 
 ## 5. 維護注意事項
 
-### 5.1 錯誤碼 2147946720（0x800710E0）
+### 5.1 常見錯誤碼
 
-常見原因：
-- Node.js 執行路徑錯誤（BAT 未設定 WorkingDirectory）
-- MongoDB 連線逾時
-- Git commit 無差異（`nothing to commit`）
+| 錯誤碼 | 代號 | 常見原因 | 處理方式 |
+|--------|------|---------|---------|
+| `2147946720`（`0x800710E0`） | — | Node.js 路徑錯誤、MongoDB 逾時、Git 無差異 | 查 `daily_log.txt`；確認 `_Final` 排程是否成功 |
+| `-2147020576`（`0x80070520`） | `ERROR_NO_SUCH_LOGON_SESSION` | 排程觸發時電腦已鎖定（Interactive only 限制） | 登入後由 HKCU Run 機碼自動補跑；或手動執行 BAT |
 
-排查步驟：
-1. 查看 `daily_log.txt` 確認 Node.js 輸出
+**排查步驟：**
+1. 查看 `daily_log.txt` 確認 Node.js 輸出與完成時間戳
 2. 確認 `Qware_Daily_Report_Update_Final` 是否成功（Result: 0）
 3. 手動執行 BAT 確認錯誤訊息
 
-### 5.2 新增排程程式規範
+### 5.2 登入補跑機制（HKCU Run）
+
+因帳號為非系統管理員，無法將排程 Logon Mode 改為「不論是否登入都執行」，改採以下替代方案：
+
+- **位置**：`HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QwareDailyReport`
+- **值**：`cmd /c "D:\2025\AI\MongoDB\daily_update.bat" > nul 2>&1`
+- **效果**：每次使用者登入時觸發；BAT 內的重複執行保護確保當天已完成時自動略過
+
+移除或查看此設定：
+```powershell
+# 查看
+Get-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "QwareDailyReport"
+# 移除
+Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "QwareDailyReport"
+```
+
+### 5.3 新增排程程式規範
 
 若需新增排程：
 1. 撰寫 `.bat` 或 `.ps1`，輸出 log 至 `*_log.txt`
