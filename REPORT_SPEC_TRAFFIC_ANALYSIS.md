@@ -12,7 +12,7 @@
 
 | 報表 | 腳本 | 資料集合 | 排程 |
 |------|------|---------|------|
-| A_GA_Traffic_Analysis_Report.html | generate_ga_report.js | GA_MonthlyStats | 每日 08:00 / 15:00 |
+| A_GA_Traffic_Analysis_Report.html | generate_ga_report.js | GA_MonthlyStats | 每日 08:00 / 15:00；每月 10 日由 daily_update.bat 額外執行 |
 | A_DMP_PageView_Report_AllTime_Top10.html | generate_alltime_top10_v3.js | DMP event (trek-first-party-dmp) | 手動 |
 | A_DecaJoins_Traffic_Analysis.html | generate_deca_traffic_report.js | Qware_A_Traffic_session_data | 手動 |
 | A_UniformLions_GA_Analysis_20260309.html | generate_lions_ga_report.js | QwareTrafficSession / QwareTrafficGAReadTime | 手動 |

@@ -42,7 +42,8 @@ node generate_a_daily_report.js                    → A_Qware_Revenue_Report_Da
 node generate_kaohsiung_beer_festival_report.js    → A_KaohsiungBeerFestival_2026.html
 node generate_d_ga_clickdata_report.js             → D_GA_ClickData_Webb_202606_Report.html
 node update_index_stats.js                         → report_index.html（統計表 + Tab1 月份卡片）
-if 今日為2日: node generate_monthly_report.js      → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
+if 今日為2日:  node generate_monthly_report.js     → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
+if 今日為10日: node generate_ga_report.js          → A_GA_Traffic_Analysis_Report.html
 git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin main
 ```
 
