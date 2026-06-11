@@ -149,6 +149,7 @@ Collection：`QwareAi.AzureMonthlyCost`
   - 由 generator 中 `allData` 注入後的 IIFE 立即執行（位於 `const allData = ...` 之後，`let trendChart, stackedChart;` 之前）
   - **維護注意**：`SystemD_Cost` 在 2025/11 前為 Azure 費用，2025/11 起為 AWS 費用（同一欄位，分界在 2025/11）
   - **datalabels**：chart 層級 `plugins` 陣列必須含 `[migLinePlugin, ChartDataLabels]`，缺少 `ChartDataLabels` 會導致節點數字不顯示；`datalabels.display` 判斷需使用 `!=`（寬鬆比對）以同時攔截 `null` 和 `undefined`，否則 null 資料點拋 TypeError 導致整個 IIFE 崩潰、頁面資料消失
+  - **datalabels 數字格式（2026/06/11 更新）**：節點標籤顯示完整金額，格式 `$163,234`（`'$' + Math.round(v).toLocaleString()`），取代原本的縮寫格式（`163k`、`1.1M`）；標籤加深色背景框（`rgba(18,18,18,0.88)`）、圓角 4px、`offset: 4`（原為 2），提升在折線上的可讀性；Azure（藍 `#42A5F5`）與 AWS（橘 `#FF9800`）各用對應線條顏色顯示數字
 - **每月費用趨勢折線圖**：Chart.js `line`，顯示 A/D/E 三系統趨勢，帶數值標籤（`chartjs-plugin-datalabels`），千位縮寫（如 `1,200k`）
 - **系統費用堆疊長條圖**：Chart.js `bar`（stacked），顯示 A/D/E/共用四層，篩選器聯動更新
 
@@ -215,7 +216,8 @@ node generate_azure_cost_report.js
 - MoM Analysis 區塊 — 2026/05/21 新增，已同步至 generator（`momSection` 變數直接嵌入模板字串，使用 server-side 已計算的 `latestDoc` / `prevDoc`）
 - D系統 Azure vs AWS 比較圖 — 2026/05/29 新增，已同步至 generator（IIFE 嵌入模板字串，位於 `const allData = ...` 之後）
 - datalabels 節點數字 — 2026/06/03 修正：IIFE 的 chart `plugins` 陣列補上 `ChartDataLabels`；`display` callback 改用 `!=` 寬鬆比對防止 TypeError
+- datalabels 數字格式 — 2026/06/11 更新：節點標籤由縮寫（`163k`）改為完整格式（`$163,234`）；同步更新 `generate_azure_cost_report.js`
 
 ---
 
-*最後更新日期：2026/06/03（機器等級統計 SOP 補充 Sheets 欄位結構與 MCP 讀取方式；datalabels 修正說明）*
+*最後更新日期：2026/06/11（D系統比較圖節點標籤改為完整數字格式）*
