@@ -451,7 +451,7 @@
                 plugins:{
                     legend:{labels:{color:'#e0e0e0',font:{family:'Outfit',size:13},boxWidth:20,boxHeight:3}},
                     datalabels:{
-                        display: ctx => ctx.parsed !== null && ctx.parsed.y !== null,
+                        display: ctx => ctx.parsed != null && ctx.parsed.y != null,
                         color: ctx => ctx.dataset.borderColor,
                         anchor: 'end',
                         align: 'top',
@@ -473,7 +473,7 @@
                     y:{ticks:{color:'#a0a0a0',callback:fmtY,font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}
                 }
             },
-            plugins:[migLinePlugin]
+            plugins:[migLinePlugin, ChartDataLabels]
         });
     })();
 
