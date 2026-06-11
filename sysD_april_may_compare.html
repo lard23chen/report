@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>D系統 4月 vs 5月 費用比較</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Outfit','Noto Sans TC',sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 30px 20px; }
+  .container { max-width: 1300px; margin: 0 auto; }
+  h1 { color: #f472b6; font-size: 1.8rem; margin: 0 0 4px; font-weight: 800; }
+  .subtitle { color: #94a3b8; font-size: 0.9rem; margin-bottom: 24px; }
+  .card { background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 28px; margin-bottom: 24px; }
+  .chart-wrap { height: 480px; }
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+  .stat { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px 20px; }
+  .stat .label { color: #94a3b8; font-size: 0.82rem; margin-bottom: 6px; }
+  .stat .val  { font-size: 1.5rem; font-weight: 800; }
+  .april { color: #60a5fa; }
+  .may   { color: #f472b6; }
+  .spike-box { background: rgba(244,114,182,0.08); border: 1px solid rgba(244,114,182,0.3); border-radius: 10px; padding: 16px 20px; }
+  .spike-box h3 { color: #f472b6; margin: 0 0 12px; font-size: 1rem; }
+  .spike-row { display: flex; gap: 12px; align-items: baseline; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 7px 0; font-size: 0.88rem; }
+  .spike-row:last-child { border-bottom: none; }
+  .spike-date { color: #e2e8f0; width: 60px; flex-shrink: 0; font-weight: 700; }
+  .spike-val  { color: #f472b6; width: 90px; flex-shrink: 0; font-weight: 800; }
+  .spike-act  { color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>D系統 (AWS) — 4月 vs 5月 每日費用比較</h1>
+  <div class="subtitle">Source: daily_expense_report / AzureMonthlyCost_Daily · 單位：元（未稅）</div>
+
+  <div class="stats" style="margin-bottom:20px">
+    <div class="stat"><div class="label">4月 月總計</div><div class="val april">$152,445</div></div>
+    <div class="stat"><div class="label">4月 日均</div><div class="val april">$5,082</div></div>
+    <div class="stat"><div class="label">5月 月總計</div><div class="val may">$345,919</div></div>
+    <div class="stat"><div class="label">5月 日均</div><div class="val may">$11,159</div></div>
+  </div>
+
+  <div class="card">
+    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  </div>
+
+  <div class="spike-box">
+    <h3>⚡ 5月峰值事件 (D系統異常高日)</h3>
+    <div class="spike-row"><span class="spike-date">05/13</span><span class="spike-val">$72,857</span><span class="spike-act">7-ELEVEN 高雄啤酒音樂節（中信卡友優先購）</span></div>
+    <div class="spike-row"><span class="spike-date">05/14</span><span class="spike-val">$90,618</span><span class="spike-act">7-ELEVEN 高雄啤酒音樂節（全面）＋ 角頭GATAO唱演會</span></div>
+    <div class="spike-row"><span class="spike-date">05/17</span><span class="spike-val">$24,275</span><span class="spike-act">ACON 2026 IN TAIPEI ＋ COSMOS 1st music concert</span></div>
+    <div class="spike-row"><span class="spike-date">05/15</span><span class="spike-val">$11,661</span><span class="spike-act">蔡琴 不要告別 巡迴演唱會〔台北返場〕＋ 東海岸大地藝術節</span></div>
+    <div class="spike-row"><span class="spike-date">05/16</span><span class="spike-val">$11,567</span><span class="spike-act">2026 FTISLAND TOUR 0 — XIX — III 'FaTe' in TAIPEI</span></div>
+    <div class="spike-row"><span class="spike-date">05/12</span><span class="spike-val">$12,075</span><span class="spike-act">Jane Yeh Birthday Tour 周邊商品（兩場次）</span></div>
+  </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const april = [4477,4616,5457,4377,4345,4601,4906,4586,4591,6057,4597,4824,4867,6394,5205,4662,5430,7832,5241,4702,5185,4645,4660,4977,5416,6879,4912,4770,4793,4441,null];
+const may   = [4959,4265,3988,4100,4417,4155,4578,4778,5668,4756,5083,12075,72857,90618,11661,11567,24275,7928,5633,5551,5446,4875,4673,4677,4945,4802,4569,4593,5055,4630,4742];
+
+const aprilActs = ["","《女神異聞錄5》Persona5加場","Jane Yeh Birthday Tour","","","The Sweet Escape–MablePangjie","Tk Nur A Queens Time福利","豐田裕大FM–SVIP","豐田裕大FM–VIP","Jane Yeh+2am Concert","","OomBam 1st FM","KAO SUPASSARA BIRTHDAY","NEXZ GLOBAL SHOWCASE","Solar+臺南總舖師春季場","LA LA LAND IN CONCERT","","EXID CONCERT EXtra ID","APPLEMIM 1st Weddind Meeting","KAO SUPASSARA周邊","","","TPE48期別FM+Special Performance","GCS春季賽+EXILE AKIRA","春魚3D Live+蔡琴演唱會","春魚2D Live+蔡琴+Yang Yoseop","EXID加開5樓+TPE48全面","統一獅嘉義季票","統一獅嘉義獅卡PLUS","統一獅嘉義全面啟售",""];
+const mayActs   = ["博麗神社+丙午年+EXILE AKIRA加場","Pami in Taipei 2026","","夢想家季後賽","統一獅X三麗鷗季票","屏東黑鮪魚+統一獅三麗鷗兆豐","統一獅X三麗鷗全面開賣","","LUCY 9TH CONCERT","","2026 T CONCERT早鳥","Jane Yeh周邊商品(2場)","7-ELEVEN高雄啤酒音樂節(中信優先)","7-ELEVEN高雄啤酒音樂節+角頭GATAO","蔡琴返場+東海岸大地藝術節+T CONCERT","FTISLAND TOUR FaTe","ACON 2026+COSMOS 1st concert","","","","斯巴達小勇士+夢想家冠軍賽","","CooMIC","角頭GATAO(uniopen優先)","","斯巴達新北(中信優先)","","斯巴達新北(OPENPOINT)","角頭GATAO全面+TPBL+桃園猿主場","斯巴達新北三色周末",""];
+
+const labels = Array.from({length:31}, (_,i) => String(i+1).padStart(2,'0'));
+
+const ctx = document.getElementById('chart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: '4月 D系統',
+        data: april,
+        borderColor: '#60a5fa',
+        backgroundColor: 'rgba(96,165,250,0.08)',
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2.5,
+        pointRadius: april.map((v,i) => v && aprilActs[i] ? 6 : 3),
+        pointBackgroundColor: april.map((v,i) => aprilActs[i] ? '#60a5fa' : 'rgba(96,165,250,0.4)'),
+        datalabels: {
+          display: (ctx) => {
+            const v = april[ctx.dataIndex];
+            return v !== null && v > 6000;
+          },
+          align: 'top', anchor: 'end', offset: 4,
+          color: '#60a5fa',
+          backgroundColor: 'rgba(15,23,42,0.9)',
+          borderRadius: 4,
+          padding: {top:3,bottom:3,left:6,right:6},
+          font: {size:10, weight:'bold'},
+          formatter: v => '$' + v.toLocaleString()
+        }
+      },
+      {
+        label: '5月 D系統',
+        data: may,
+        borderColor: '#f472b6',
+        backgroundColor: 'rgba(244,114,182,0.06)',
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2.5,
+        pointRadius: may.map((v,i) => mayActs[i] ? 6 : 3),
+        pointBackgroundColor: may.map((v,i) => mayActs[i] ? '#f472b6' : 'rgba(244,114,182,0.4)'),
+        datalabels: {
+          display: (ctx) => may[ctx.dataIndex] > 6000,
+          align: 'bottom', anchor: 'center', offset: 6,
+          color: '#f472b6',
+          backgroundColor: 'rgba(15,23,42,0.9)',
+          borderRadius: 4,
+          padding: {top:3,bottom:3,left:6,right:6},
+          font: {size:10, weight:'bold'},
+          formatter: v => '$' + v.toLocaleString()
+        }
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', labels: { color: '#e2e8f0', font: { size: 13 }, padding: 20 } },
+      tooltip: {
+        backgroundColor: 'rgba(15,23,42,0.97)',
+        padding: 14,
+        titleFont: { size: 13 },
+        bodyFont: { size: 13 },
+        callbacks: {
+          title: (items) => '第 ' + items[0].label + ' 日',
+          label: (c) => {
+            const month = c.datasetIndex === 0 ? '4月' : '5月';
+            const v = c.parsed.y;
+            return v !== null ? month + ': $' + v.toLocaleString() : month + ': —';
+          },
+          afterBody: (items) => {
+            const i = items[0].dataIndex;
+            const lines = [];
+            if (aprilActs[i]) lines.push('4月活動: ' + aprilActs[i]);
+            if (mayActs[i])   lines.push('5月活動: ' + mayActs[i]);
+            return lines.length ? ['',...lines] : [];
+          }
+        }
+      },
+      datalabels: { display: false }
+    },
+    scales: {
+      y: {
+        grid: { color: 'rgba(255,255,255,0.05)' },
+        ticks: { color: '#94a3b8', callback: v => '$' + v.toLocaleString() }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#94a3b8' },
+        title: { display: true, text: '當月日期', color: '#64748b', font: { size: 12 } }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
