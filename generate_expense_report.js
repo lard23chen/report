@@ -181,7 +181,21 @@ function generateHTML(data) {
                             }
                           }
                         },
-                        { label: 'D系統', data: dat.map(d=>d.sysD), borderColor: '#f472b6', fill: false, tension: 0.3, pointRadius: 2, datalabels: { display: false } },
+                        { label: 'D系統', data: dat.map(d=>d.sysD), borderColor: '#f472b6', fill: false, tension: 0.3,
+                          pointRadius: showLabels ? 4 : 2,
+                          datalabels: {
+                            display: (ctx) => showLabels,
+                            align: 'bottom',
+                            anchor: 'center',
+                            offset: 6,
+                            color: '#f472b6',
+                            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                            borderRadius: 4,
+                            padding: { top: 2, bottom: 2, left: 5, right: 5 },
+                            font: { size: 9, weight: 'bold' },
+                            formatter: (v) => '$' + Math.round(v).toLocaleString()
+                          }
+                        },
                         { label: 'E系統', data: dat.map(d=>d.sysE), borderColor: '#fbbf24', fill: false, tension: 0.3, pointRadius: 2, datalabels: { display: false } },
                         { label: '共用', data: dat.map(d=>d.shared), borderColor: '#10b981', fill: false, tension: 0.3, pointRadius: 2, datalabels: { display: false } },
                         { label: '會員', data: dat.map(d=>d.member), borderColor: '#94a3b8', fill: false, tension: 0.3, pointRadius: 2, datalabels: { display: false } }
