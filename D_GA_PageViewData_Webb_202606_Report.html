@@ -85,15 +85,6 @@ body { font-family: 'Outfit','Noto Sans TC',sans-serif; background: var(--bg); c
 .badge-kpop    { background:rgba(244,63,94,.18);   color:#fb7185; }
 .badge-anime   { background:rgba(16,185,129,.18);  color:#34d399; }
 
-/* ─── CONCENTRATION BAR ─── */
-.conc-wrap { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:24px; }
-.conc-title { font-size:.85rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; }
-.conc-bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:.88rem; }
-.conc-label { width:60px; color:var(--muted); font-size:.8rem; text-align:right; flex-shrink:0; }
-.conc-track { flex:1; background:rgba(255,255,255,.07); border-radius:4px; height:20px; overflow:hidden; }
-.conc-fill { height:100%; border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; font-size:.78rem; font-weight:700; color:#fff; transition:width .6s ease; }
-.conc-pct { width:50px; text-align:right; font-weight:700; font-size:.88rem; }
-
 /* ─── TABLE ─── */
 .tbl-wrap { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:24px; }
 .tbl-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); }
@@ -128,10 +119,6 @@ tbody td { padding:10px 12px; font-size:.88rem; vertical-align:middle; }
 .pv-bar-wrap { display:flex; align-items:center; gap:8px; }
 .pv-bar { height:6px; border-radius:3px; min-width:2px; }
 .pv-pct { font-size:.75rem; color:var(--muted); width:38px; text-align:right; }
-
-/* ─── RAKUTEN NOTE ─── */
-.note-card { background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.25); border-radius:10px; padding:14px 16px; margin-bottom:24px; font-size:.84rem; color:var(--muted); }
-.note-card strong { color:var(--accent); }
 
 /* ─── FOOTER ─── */
 footer { text-align:center; padding:20px; color:var(--muted); font-size:.8rem; border-top:1px solid var(--border); }
@@ -227,44 +214,6 @@ footer a { color:var(--accent); text-decoration:none; }
       <canvas id="top10Chart"></canvas>
     </div>
   </div>
-</div>
-
-<!-- ─── CONCENTRATION BARS ─── -->
-<div class="conc-wrap">
-  <div class="conc-title">📐 前 N 名 PV 集中度</div>
-  <div class="conc-bar-row">
-    <span class="conc-label">TOP 1</span>
-    <div class="conc-track"><div class="conc-fill" style="width:25.3%;background:var(--amber)">25.3%</div></div>
-    <span class="conc-pct" style="color:var(--amber)">25.3%</span>
-  </div>
-  <div class="conc-bar-row">
-    <span class="conc-label">TOP 3</span>
-    <div class="conc-track"><div class="conc-fill" style="width:50.2%;background:var(--orange)">50.2%</div></div>
-    <span class="conc-pct" style="color:var(--orange)">50.2%</span>
-  </div>
-  <div class="conc-bar-row">
-    <span class="conc-label">TOP 5</span>
-    <div class="conc-track"><div class="conc-fill" style="width:69.3%;background:var(--rose)">69.3%</div></div>
-    <span class="conc-pct" style="color:var(--rose)">69.3%</span>
-  </div>
-  <div class="conc-bar-row">
-    <span class="conc-label">TOP 10</span>
-    <div class="conc-track"><div class="conc-fill" style="width:85.9%;background:var(--purple)">85.9%</div></div>
-    <span class="conc-pct" style="color:var(--purple)">85.9%</span>
-  </div>
-  <div class="conc-bar-row">
-    <span class="conc-label">其餘 22</span>
-    <div class="conc-track"><div class="conc-fill" style="width:14.1%;background:var(--muted)">14.1%</div></div>
-    <span class="conc-pct" style="color:var(--muted)">14.1%</span>
-  </div>
-</div>
-
-<!-- ─── RAKUTEN NOTE ─── -->
-<div class="note-card">
-  ⚠️ <strong>Rakuten 碎分提醒：</strong>
-  Rakuten 主場共有 6 個子票種頁面（主場 / 辣酷甜女孩套票 / 特色席位 / 黑松沙士 / 動紫三日 / 小周末套票），
-  各自計算合計 <strong>6,648 PV</strong>，若視為單一活動排名為 <strong>第 2 名</strong>（超越 JAM JAM ASIA 4,240）。
-  碎分現象導致各子頁排名低估 Rakuten 整體關注度。
 </div>
 
 <!-- ─── TABLE ─── -->
