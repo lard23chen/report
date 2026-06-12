@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026/05 績效會議摘要</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #212435;
+    --border: #2e3250;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --accent: #5b8cf8;
+    --accent2: #7c6af7;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --cyan: #38bdf8;
+    --orange: #fb923c;
+    --pink: #f472b6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: linear-gradient(135deg, #1a1d27 0%, #212850 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px 24px;
+  }
+  .site-header .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .site-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .site-header .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  /* ── Nav Pills ── */
+  .nav-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px 40px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .nav-pills a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .nav-pills a:hover { color: var(--text); background: var(--card); border-color: var(--accent); }
+
+  /* ── Main Layout ── */
+  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+  .page-num {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .section-header .icon { font-size: 1.1rem; }
+  .section-body { padding: 20px 24px; }
+
+  /* ── Metric Row ── */
+  .metric-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .metric-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .metric-body { font-size: 0.95rem; color: var(--text); }
+
+  /* ── Stat Chips ── */
+  .stat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+  .chip.up   { background: rgba(74,222,128,0.1); color: var(--green); border-color: rgba(74,222,128,0.25); }
+  .chip.down { background: rgba(248,113,113,0.1); color: var(--red);   border-color: rgba(248,113,113,0.25); }
+  .chip.neutral { background: rgba(91,140,248,0.1); color: var(--accent); border-color: rgba(91,140,248,0.25); }
+  .chip.warn { background: rgba(251,191,36,0.1); color: var(--yellow); border-color: rgba(251,191,36,0.25); }
+
+  /* ── System Tags ── */
+  .sys { display: inline-block; padding: 1px 8px; border-radius: 5px; font-size: 0.78rem; font-weight: 700; margin-right: 4px; }
+  .sys-a   { background: rgba(251,146,60,0.2);  color: #fb923c; }
+  .sys-d   { background: rgba(56,189,248,0.2);  color: #38bdf8; }
+  .sys-e   { background: rgba(74,222,128,0.2);  color: #4ade80; }
+  .sys-k   { background: rgba(167,139,250,0.2); color: #a78bfa; }
+  .sys-hw  { background: rgba(244,114,182,0.2); color: #f472b6; }
+  .sys-aws { background: rgba(251,191,36,0.2);  color: #fbbf24; }
+
+  /* ── Progress List ── */
+  .prog-group { margin-bottom: 20px; }
+  .prog-group:last-child { margin-bottom: 0; }
+  .prog-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .req-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .req-item:last-child { margin-bottom: 0; }
+  .req-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+  .req-status {
+    font-size: 0.84rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .req-status .hl { color: var(--cyan); font-weight: 500; }
+  .req-status .pending { color: var(--yellow); font-weight: 500; }
+
+  /* ── Timeline ── */
+  .timeline { padding-left: 4px; }
+  .tl-group { margin-bottom: 18px; }
+  .tl-group:last-child { margin-bottom: 0; }
+  .tl-sys-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .tl-items { display: flex; flex-direction: column; gap: 6px; }
+  .tl-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+  }
+  .tl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .dot-done   { background: var(--green); }
+  .dot-active { background: var(--yellow); }
+  .dot-plan   { background: var(--accent); }
+  .tl-text { color: var(--text); }
+  .tl-text .date { color: var(--cyan); font-weight: 600; }
+
+  /* ── Utilization ── */
+  .util-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .util-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .util-card .val {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .util-card .val.green { color: var(--green); }
+  .util-card .lbl { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .util-note { margin-top: 14px; font-size: 0.88rem; color: var(--muted); background: var(--card); border-radius: 8px; padding: 10px 14px; border: 1px solid var(--border); }
+
+  /* ── Comparison Month Tag ── */
+  .compare-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(91,140,248,0.1);
+    border: 1px solid rgba(91,140,248,0.3);
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 600px) {
+    .site-header, .nav-pills { padding-left: 16px; padding-right: 16px; }
+    .main { padding: 16px 12px 40px; }
+    .site-header h1 { font-size: 1.4rem; }
+    .section-body { padding: 14px 16px; }
+    .util-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="site-header">
+  <div class="badge">Monthly Report</div>
+  <h1>2026/05 績效會議摘要</h1>
+  <div class="subtitle">數位應用開發 Team ｜ 2026 年 5 月份數據回顧 &amp; 開發進度</div>
+</header>
+
+<!-- ── Nav ── -->
+<nav class="nav-pills">
+  <a href="#ga4">GA4 流量</a>
+  <a href="#azure">Azure 費用</a>
+  <a href="#a-ticket">A系統票券</a>
+  <a href="#a-rank">A系統排行</a>
+  <a href="#e-ticket">E系統票券</a>
+  <a href="#e-rank">E系統排行</a>
+  <a href="#req">需求進度</a>
+  <a href="#aws">AWS 進度</a>
+  <a href="#util">工時稼動率</a>
+</nav>
+
+<main class="main">
+
+  <!-- ── Page 3: GA4 ── -->
+  <section class="section" id="ga4">
+    <div class="section-header">
+      <span class="page-num">P.3</span>
+      <span class="icon">📊</span>
+      <h2>GA4 統計資料 — 獲客數量</h2>
+    </div>
+    <div class="section-body">
+      <div class="compare-tag">⬆ 2026/05 較上月 2026/04</div>
+
+      <div class="metric-row">
+        <span class="metric-icon">📊</span>
+        <div>
+          <div class="metric-label">流量 (Sessions)</div>
+          <div class="stat-chips">
+            <span class="chip up"><span class="sys sys-d">D</span> ▲ 35.9%（+297,775）</span>
+            <span class="chip up"><span class="sys sys-a">A</span> ▲ 42.3%（+99,589）</span>
+            <span class="chip down"><span class="sys sys-e">E</span> ▼ 29.4%（-67,697）</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-row">
+        <span class="metric-icon">📱</span>
+        <div>
+          <div class="metric-label">Mobile 佔比</div>
+          <div class="stat-chips">
+            <span class="chip neutral"><span class="sys sys-d">D</span> 80.5%</span>
+            <span class="chip neutral"><span class="sys sys-a">A</span> 66.2%</span>
+            <span class="chip neutral"><span class="sys sys-e">E</span> 82.0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Page 4: Azure ── -->
+  <section class="section" id="azure">
+    <div class="section-header">
+      <span class="page-num">P.4</span>
+      <span class="icon">☁️</span>
+      <h2>Azure 雲端費用統計</h2>
+    </div>
+    <div class="section-body">
+      <div class="compare-tag">⬆ 2026/05 較上月 2026/04</div>
+
+      <div class="metric-row">
+        <span class="metric-icon">💰</span>
+        <div>
+          <div class="metric-label">總費用</div>
+          <div class="metric-body">
+            <span class="chip up" style="font-size:1rem;">▲ 29.4%（+$544,984）</span>
+            &nbsp;本月達 <strong style="color:#fbbf24;font-size:1.05rem;">$2,399,055</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-row">
+        <span class="metric-icon">🖥️</span>
+        <div>
+          <div class="metric-label">各系統費用</div>
+          <div class="stat-chips">
+            <span class="chip up"><span class="sys sys-a">A</span> ▲ 27.3%（+$264,790）</span>
+            <span class="chip up"><span class="sys sys-d">D</span> ▲ 126.9%（+$193,474）</span>
+            <span class="chip up"><span class="sys sys-e">E</span> ▲ 12.8%（+$31,938）</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-row">
+        <span class="metric-icon">📦</span>
+        <div>
+          <div class="metric-label">其他費用</div>
+          <div class="stat-chips">
+            <span class="chip up">共用 ▲ 4.6%（+$8,187）</span>
+            <span class="chip up">會員 ▲ 18.4%（+$25,560）</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Page 5: A系統票券 ── -->
+  <section class="section" id="a-ticket">
+    <div class="section-header">
+      <span class="page-num">P.5</span>
+      <span class="icon">🎫</span>
+      <h2><span class="sys sys-a">A</span> 系統票券統計</h2>
+    </div>
+    <div class="section-body">
+      <div class="compare-tag">⬆ 2026/05 較上月 2026/04</div>
+
+      <div class="metric-row">
+        <span class="metric-icon">📊</span>
+        <div>
+          <div class="metric-label">交易量</div>
+          <div class="stat-chips">
+            <span class="chip up">購票筆數 ▲ +3 萬筆（+49.0%）</span>
+            <span class="chip up">購票張數 ▲ +5 萬張（+26.9%）</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-row">
+        <span class="metric-icon">💰</span>
+        <div>
+          <div class="metric-label">收入</div>
+          <div class="metric-body">
+            購票金額大幅增加約 <strong style="color:#4ade80;">NT$1.19 億（+80.1%）</strong>，本月達 <strong style="color:#fbbf24;">NT$2.68 億</strong>，客單價提升。
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-row">
+        <span class="metric-icon">🔺</span>
+        <div>
+          <div class="metric-label">退票</div>
+          <div class="stat-chips">
+            <span class="chip warn">退票筆數 ▲ +129.0%（+7,112 筆）</span>
+            <span class="chip warn">退票張數 ▲ +100.0%（+8,683 張）</span>
+            <span class="chip warn">退票手續費 ▲ +147.3%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Page 6: A系統排行 ── -->
+  <section class="section" id="a-rank">
+    <div class="section-header">
+      <span class="page-num">P.6</span>
+      <span class="icon">🏆</span>
+      <h2><span class="sys sys-a">A</span> 系統票券排行（5 月份）</h2>
+    </div>
+    <div class="section-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="req-item">
+          <div class="req-title">📈 銷售排行</div>
+          <div class="req-status">詳見簡報附件投影片</div>
+        </div>
+        <div class="req-item">
+          <div class="req-title">📉 退票排行</div>
+          <div class="req-status">詳見簡報附件投影片</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Page 7: E系統票券 ── -->
+  <section class="section" id="e-ticket">
+    <div class="section-header">
+      <span class="page-num">P.7</span>
+      <span class="icon">🎟️</span>
+      <h2><span class="sys sys-e">E</span> 系統票券統計</h2>
+    </div>
+    <div class="section-body">
+      <div class="compare-tag">⬆ 2026/05 較上月 2026/04</div>
+
+      <div class="metric-row">
+        <span class="metric-icon">📊</span>
+        <div>
+          <div class="metric-label">交易量</div>
+          <div class="stat-chips">
+            <span class="chip up">購票筆數 ▲ +15,314 筆（+81.2%）</span>
+            <span class="chip up">購票張數 ▲ +16,053 張（+46.3%）</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-row">
+        <span class="metric-icon">💰</span>
+        <div>
+          <div class="metric-label">收入</div>
+          <div class="metric-body">
+            購票金額 ▲ <strong style="color:#4ade80;">+NT$5,903,639（+48.6%）</strong>，本月達 <strong style="color:#fbbf24;">NT$18,055,877</strong>。
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-row">
+        <span class="metric-icon">🔻</span>
+        <div>
+          <div class="metric-label">退票</div>
+          <div class="stat-chips">
+            <span class="chip down">退票筆數 ▼ -28.7%</span>
+            <span class="chip down">退票張數 ▼ -42.6%</span>
+            <span class="chip down">退票手續費 ▼ -34.7%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Page 8: E系統排行 ── -->
+  <section class="section" id="e-rank">
+    <div class="section-header">
+      <span class="page-num">P.8</span>
+      <span class="icon">🏆</span>
+      <h2><span class="sys sys-e">E</span> 系統票券排行（5 月份）</h2>
+    </div>
+    <div class="section-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="req-item">
+          <div class="req-title">📈 銷售排行</div>
+          <div class="req-status">詳見簡報附件投影片</div>
+        </div>
+        <div class="req-item">
+          <div class="req-title">📉 退票排行</div>
+          <div class="req-status">詳見簡報附件投影片</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Page 9: 需求進度 ── -->
+  <section class="section" id="req">
+    <div class="section-header">
+      <span class="page-num">P.9</span>
+      <span class="icon">📋</span>
+      <h2>需求進度說明</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="prog-group">
+        <div class="prog-group-title"><span class="sys sys-d">D</span> D 系統</div>
+        <div class="req-item">
+          <div class="req-title">先登會員設定</div>
+          <div class="req-status">
+            節目介紹頁，場次可設定【線上購票】點選後，是否要先登會員。<br>
+            <span class="hl">✔ 已上版</span>，驗測後發現綁定 QIT 時 NG，修正後已上版，<span class="pending">驗測中</span>。
+          </div>
+        </div>
+      </div>
+
+      <div class="prog-group">
+        <div class="prog-group-title"><span class="sys sys-a">A</span> A 系統</div>
+        <div class="req-item">
+          <div class="req-title">樂天 APP 需求</div>
+          <div class="req-status">
+            社群登入、內嵌購票 + 訂單查詢 + 電子票分票。<br>
+            <span class="pending">⏳ 待樂天驗測回饋後，再排對外發佈日期。</span>
+          </div>
+        </div>
+        <div class="req-item">
+          <div class="req-title">新版保留訂單作業</div>
+          <div class="req-status">
+            <span class="pending">⏳ 待 AWS 壓測改善 DB Time Out 狀況後，再接續進行調整及壓測。</span>
+          </div>
+        </div>
+        <div class="req-item">
+          <div class="req-title">實名認證購票</div>
+          <div class="req-status"><span class="pending">⏳ 待 AWS 後開發。</span></div>
+        </div>
+        <div class="req-item">
+          <div class="req-title">D 秒殺（票區＋票種數量）後之購物車要有繼續選購</div>
+          <div class="req-status"><span class="pending">⏳ 待 AWS 後開發。</span></div>
+        </div>
+        <div class="req-item">
+          <div class="req-title">實名制 by 場次檢核</div>
+          <div class="req-status"><span class="pending">⏳ 待 AWS 後開發。</span></div>
+        </div>
+      </div>
+
+      <div class="prog-group">
+        <div class="prog-group-title"><span class="sys sys-k">K</span> K 系統</div>
+        <div class="req-item">
+          <div class="req-title">高鐵國旅聯票離峰專案</div>
+          <div class="req-status"><span class="pending">⏳ 待 AWS 後開發。</span></div>
+        </div>
+      </div>
+
+      <div class="prog-group">
+        <div class="prog-group-title"><span class="sys sys-e">E</span> E 系統</div>
+        <div class="req-item">
+          <div class="req-title">富爾特 eSIM 卡串接</div>
+          <div class="req-status">
+            <span class="hl">✔ 測試已全數完成，</span><span class="pending">待業務建檔上架。</span>
+          </div>
+        </div>
+        <div class="req-item">
+          <div class="req-title">PayEasy 串接</div>
+          <div class="req-status">
+            系統開發中，<span class="date" style="color:#38bdf8;font-weight:600;">預計 6/22</span> 可 UAT 測試。
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Page 10: AWS 進度 ── -->
+  <section class="section" id="aws">
+    <div class="section-header">
+      <span class="page-num">P.10</span>
+      <span class="icon">⚡</span>
+      <h2>AWS 移轉進度說明</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="tl-group">
+        <div class="tl-sys-label"><span class="sys sys-e">E</span> E 系統</div>
+        <div class="tl-items">
+          <div class="tl-item"><div class="tl-dot dot-done"></div><div class="tl-text">UAT 測試 + 障礙調整 / 複測：<span class="date">PM / 業務已完成</span></div></div>
+          <div class="tl-item"><div class="tl-dot dot-active"></div><div class="tl-text">正式環境：疏通完成，PM 於 <span class="date">6/8 ～ 6/19</span> 進行驗測，預計 <span class="date">6/22</span> 通知業務一起進行。</div></div>
+          <div class="tl-item"><div class="tl-dot dot-active"></div><div class="tl-text">壓力測試：<span class="date">6/2 ～ 6/23</span></div></div>
+          <div class="tl-item"><div class="tl-dot dot-plan"></div><div class="tl-text">系統判定：<span class="date">6/25</span></div></div>
+          <div class="tl-item"><div class="tl-dot dot-plan" style="background:#f472b6;"></div><div class="tl-text" style="color:#f472b6;">⚠ 切換當日，網站 + 機台需暫停 12 小時進行上版及測試。</div></div>
+        </div>
+      </div>
+
+      <div class="tl-group" style="margin-top:18px;">
+        <div class="tl-sys-label"><span class="sys sys-a">A</span> A 系統</div>
+        <div class="tl-items">
+          <div class="tl-item"><div class="tl-dot dot-active"></div><div class="tl-text">UAT 測試 + 障礙調整 / 複測：PM 於 <span class="date">6/8 ～ 6/30</span> 進行全部複測，預計 <span class="date">6/23</span> 通知業務一起進行。</div></div>
+          <div class="tl-item"><div class="tl-dot dot-active"></div><div class="tl-text">壓力測試：至 <span class="date">6/25</span></div></div>
+          <div class="tl-item"><div class="tl-dot dot-plan"></div><div class="tl-text">系統判定：<span class="date">6/30</span></div></div>
+        </div>
+      </div>
+
+      <div class="tl-group" style="margin-top:18px;">
+        <div class="tl-sys-label"><span class="sys sys-k">K</span> K 系統</div>
+        <div class="tl-items">
+          <div class="tl-item"><div class="tl-dot dot-active"></div><div class="tl-text">UAT 測試 + 障礙調整 / 複測：PM 於 <span class="date">6/15 ～ 6/30</span> 進行測試，預計 <span class="date">6/23</span> 通知業務一起進行。</div></div>
+          <div class="tl-item"><div class="tl-dot dot-active"></div><div class="tl-text">壓力測試：至 <span class="date">6/25</span></div></div>
+          <div class="tl-item"><div class="tl-dot dot-plan"></div><div class="tl-text">系統判定：<span class="date">6/30</span></div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Page 11: 工時稼動率 ── -->
+  <section class="section" id="util">
+    <div class="section-header">
+      <span class="page-num">P.11</span>
+      <span class="icon">⏱️</span>
+      <h2>工時稼動率分析</h2>
+    </div>
+    <div class="section-body">
+      <div class="compare-tag">📅 統計區間：05/07 ～ 06/03</div>
+
+      <div class="util-grid">
+        <div class="util-card">
+          <div class="val green">99.4%</div>
+          <div class="lbl">稼動率（扣除請假）</div>
+        </div>
+        <div class="util-card">
+          <div class="val">106.71%</div>
+          <div class="lbl">稼動率（含加班）</div>
+        </div>
+        <div class="util-card">
+          <div class="val" style="color:#f472b6;">16</div>
+          <div class="lbl">5 月份人力（位）</div>
+        </div>
+        <div class="util-card">
+          <div class="val" style="color:#38bdf8;">20</div>
+          <div class="lbl">上班天數</div>
+        </div>
+        <div class="util-card">
+          <div class="val" style="color:#fb923c;">181.5</div>
+          <div class="lbl">請假時數（小時）</div>
+        </div>
+      </div>
+
+      <div class="util-note" style="margin-top:14px;">
+        📎 工時占比詳細分布請參考簡報附件（數位應用開發 Team）。
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>
