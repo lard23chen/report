@@ -113,8 +113,8 @@ async function generateReport() {
                 { date: '05/14', name: '7-ELEVEN 高雄啤酒音樂節', hasE: false },
                 { date: '05/14', name: '角頭GATAO唱演會（員訓）', hasE: false }
             ]},
-            { month: '6月', total: 10, small: 10, medium: 0, large: 0, largeEvents: [] },
-            { month: '7月', total: 1, small: 1, medium: 0, large: 0, largeEvents: [] }
+            { month: '6月', total: 14, small: 14, medium: 0, large: 0, largeEvents: [] },
+            { month: '7月', total: 3, small: 3, medium: 0, large: 0, largeEvents: [] }
         ];
         const monitoringTableRows = monitoringStats2026.map(m => {
             const notes = m.largeEvents.length > 0
