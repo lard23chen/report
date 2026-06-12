@@ -216,6 +216,17 @@ footer a { color:var(--accent); text-decoration:none; }
   </div>
 </div>
 
+<!-- ─── DAILY TREND CHART ─── -->
+<div class="chart-card" style="margin-bottom:24px;">
+  <div class="chart-title">📅 每日 Page View 趨勢</div>
+  <div class="chart-wrap" style="height:200px;">
+    <canvas id="dailyChart"></canvas>
+  </div>
+  <div style="font-size:.78rem;color:var(--muted);margin-top:8px;text-align:right;">
+    最新資料更新：<span id="updateTimeLabel">2026/06/12 14:48</span>
+  </div>
+</div>
+
 <!-- ─── TABLE ─── -->
 <div class="tbl-wrap">
   <div class="tbl-header">
@@ -247,59 +258,307 @@ footer a { color:var(--accent); text-decoration:none; }
 
 <footer>
   資料來源：MongoDB <code>QwareAi / GA_D_PageViewData_Webb_202606</code>　｜
-  快照日期：2026/06/10　｜
+  快照日期：2026/06/10｜
   <a href="HTML_Report_Catalog.html">← 返回目錄</a>
 </footer>
 
 <script>
-// ── Data ──
-const DATA = [
-  { rank:1,  id:"39590", name:"2026 7–ELEVEN 高雄啤酒音樂節",                                   cat:"concert", pv:8612 },
-  { rank:2,  id:"39664", name:"2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA 亞洲音樂節",              cat:"concert", pv:4240 },
-  { rank:3,  id:"39226", name:"2025－2026 桃園璞園領航猿主場",                                  cat:"sports",  pv:4204 },
-  { rank:4,  id:"39428", name:"中華職棒37年 Rakuten 主場例行賽",                                 cat:"sports",  pv:4005 },
-  { rank:5,  id:"39455", name:"中華職棒37年例行賽統一獅主場（上）",                               cat:"sports",  pv:2491 },
-  { rank:6,  id:"39611", name:"2026 角頭GATAO唱演會—情義到高雄",                                 cat:"concert", pv:1985 },
-  { rank:7,  id:"39667", name:"中華職棒37年 Rakuten 主場例行賽 辣酷甜女孩套票",                  cat:"sports",  pv:1530 },
-  { rank:8,  id:"39678", name:"2026 KIM JI WOONG FANMEETING in TAIPEI",                        cat:"kpop",    pv:857  },
-  { rank:9,  id:"39496", name:"THE MUSIC OF SQUARE ENIX－Magic, Memories, and Melodies",       cat:"anime",   pv:724  },
-  { rank:10, id:"39559", name:"2026 蔡琴 不要告別 巡迴演唱會〔台北返場〕",                       cat:"concert", pv:543  },
-  { rank:11, id:"39649", name:"Girl Rules Fan Meeting in Taipei",                               cat:"kpop",    pv:541  },
-  { rank:12, id:"39451", name:"中華職棒37年 Rakuten 主場例行賽 特色席位＆套票",                   cat:"sports",  pv:473  },
-  { rank:13, id:"39584", name:"ACON 2026 IN TAIPEI",                                           cat:"anime",   pv:408  },
-  { rank:14, id:"39603", name:"2026 FTISLAND TOUR 0 — XIX — III 'FaTe' in TAIPEI",            cat:"kpop",    pv:386  },
-  { rank:15, id:"39511", name:"中華職棒37年 Rakuten 主場例行賽 黑松沙士快樂炒",                  cat:"sports",  pv:275  },
-  { rank:16, id:"39458", name:"中華職棒37年 Rakuten 主場例行賽 動紫三日套票",                    cat:"sports",  pv:244  },
-  { rank:17, id:"39682", name:"韓國寶藏音樂人 DDBB 台北演唱會",                                 cat:"kpop",    pv:215  },
-  { rank:18, id:"39680", name:"LMSY Love in Our Sweet Yard Fan Meeting in Kaohsiung",          cat:"kpop",    pv:213  },
-  { rank:19, id:"39494", name:"2026 星光女孩日",                                                cat:"concert", pv:194  },
-  { rank:20, id:"38900", name:"2025 蔡琴 不要告別 巡迴演唱會",                                  cat:"concert", pv:191  },
-  { rank:21, id:"39673", name:"ONE PACT : SUMMER BREEZE in Taipei",                            cat:"kpop",    pv:178  },
-  { rank:22, id:"39490", name:"《女神異聞錄 5》Persona 5 Special Big Band Concert",             cat:"anime",   pv:170  },
-  { rank:23, id:"39453", name:"TPE48－RESET 公演",                                              cat:"concert", pv:164  },
-  { rank:24, id:"39005", name:"2025年台灣精品中華職棒明星對抗賽",                                cat:"sports",  pv:159  },
-  { rank:25, id:"39605", name:"LUCY 9TH CONCERT ＜ISLAND＞ IN TAIPEI",                        cat:"kpop",    pv:158  },
-  { rank:26, id:"39650", name:"第十七屆兩岸電影展",                                              cat:"concert", pv:155  },
-  { rank:27, id:"39555", name:"2026 春魚創意 3D/2D Live《NEXUS》—＜Threshold／臨界＞",          cat:"anime",   pv:132  },
-  { rank:28, id:"39666", name:"中華職棒37年 Rakuten 主場例行賽 小周末套票（周三版）",            cat:"sports",  pv:121  },
-  { rank:29, id:"39607", name:"2026 T CONCERT《IDOL MEET FEST 偶像相遇祭》",                   cat:"kpop",    pv:110  },
-  { rank:30, id:"39549", name:"2026 YANG YOSEOP SOLO CONCERT ＜Fade In＞ IN TAIPEI",          cat:"kpop",    pv:108  },
-  { rank:31, id:"39556", name:"2026 春魚創意 3D Live《NEXUS》—＜Echo／迴響＞",                 cat:"anime",   pv:107  },
-  { rank:32, id:"39527", name:"Jane Yeh Birthday Tour 2026 in Taipei",                         cat:"concert", pv:102  }
+// ── Data ──────────────────────────────────────────────────────────────────
+const DAILY = [
+  {
+    "date": "06/10",
+    "totalPV": 33995,
+    "actCount": 32
+  }
 ];
-
+const DATA = [
+  {
+    "rank": 1,
+    "id": "39590",
+    "name": "2026 7–ELEVEN 高雄啤酒音樂節",
+    "cat": "concert",
+    "pv": 8612
+  },
+  {
+    "rank": 2,
+    "id": "39664",
+    "name": "2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA 亞洲音樂節",
+    "cat": "concert",
+    "pv": 4240
+  },
+  {
+    "rank": 3,
+    "id": "39226",
+    "name": "2025－2026  桃園璞園領航猿主場",
+    "cat": "sports",
+    "pv": 4204
+  },
+  {
+    "rank": 4,
+    "id": "39428",
+    "name": "中華職棒37年Rakuten主場例行賽",
+    "cat": "sports",
+    "pv": 4005
+  },
+  {
+    "rank": 5,
+    "id": "39455",
+    "name": "中華職棒37年例行賽統一獅主場（上）",
+    "cat": "sports",
+    "pv": 2491
+  },
+  {
+    "rank": 6,
+    "id": "39611",
+    "name": "2026 角頭GATAO唱演會—情義到高雄",
+    "cat": "concert",
+    "pv": 1985
+  },
+  {
+    "rank": 7,
+    "id": "39667",
+    "name": "中華職棒37年Rakuten主場例行賽 辣酷甜女孩套票",
+    "cat": "sports",
+    "pv": 1530
+  },
+  {
+    "rank": 8,
+    "id": "39678",
+    "name": "2026 KIM JI WOONG FANMEETING 〔TAKE 1： Unique Story〕 in TAIPEI",
+    "cat": "kpop",
+    "pv": 857
+  },
+  {
+    "rank": 9,
+    "id": "39496",
+    "name": "THE MUSIC OF SQUARE ENIX－Magic，Memories，and Melodies",
+    "cat": "anime",
+    "pv": 724
+  },
+  {
+    "rank": 10,
+    "id": "39559",
+    "name": "2026 蔡琴 不要告別 巡迴演唱會〔台北返場〕",
+    "cat": "concert",
+    "pv": 543
+  },
+  {
+    "rank": 11,
+    "id": "39649",
+    "name": "Girl Rules Fan Meeting in Taipei",
+    "cat": "kpop",
+    "pv": 541
+  },
+  {
+    "rank": 12,
+    "id": "39451",
+    "name": "中華職棒37年Rakuten主場例行賽 特色席位＆套票",
+    "cat": "sports",
+    "pv": 473
+  },
+  {
+    "rank": 13,
+    "id": "39584",
+    "name": "ACON 2026 IN TAIPEI",
+    "cat": "anime",
+    "pv": 408
+  },
+  {
+    "rank": 14,
+    "id": "39603",
+    "name": "2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in TAIPEI",
+    "cat": "kpop",
+    "pv": 386
+  },
+  {
+    "rank": 15,
+    "id": "39511",
+    "name": "中華職棒37年Rakuten主場例行賽 黑松沙士快樂炒",
+    "cat": "sports",
+    "pv": 275
+  },
+  {
+    "rank": 16,
+    "id": "39458",
+    "name": "中華職棒37年Rakuten主場例行賽 動紫三日套票",
+    "cat": "sports",
+    "pv": 244
+  },
+  {
+    "rank": 17,
+    "id": "39682",
+    "name": "韓國寶藏音樂人 DDBB 台北演唱會",
+    "cat": "kpop",
+    "pv": 215
+  },
+  {
+    "rank": 18,
+    "id": "39680",
+    "name": "LMSY Love in Our Sweet Yard Fan Meeting in Kaohsiung",
+    "cat": "kpop",
+    "pv": 213
+  },
+  {
+    "rank": 19,
+    "id": "39494",
+    "name": "2026星光女孩日",
+    "cat": "concert",
+    "pv": 194
+  },
+  {
+    "rank": 20,
+    "id": "38900",
+    "name": "2025蔡琴 不要告別 巡迴演唱會",
+    "cat": "concert",
+    "pv": 191
+  },
+  {
+    "rank": 21,
+    "id": "39673",
+    "name": "ONE PACT : SUMMER BREEZE in Taipei",
+    "cat": "kpop",
+    "pv": 178
+  },
+  {
+    "rank": 22,
+    "id": "39490",
+    "name": "《女神異聞錄 5》Persona 5 Special Big Band Concert",
+    "cat": "anime",
+    "pv": 170
+  },
+  {
+    "rank": 23,
+    "id": "39453",
+    "name": "TPE48－RESET公演",
+    "cat": "concert",
+    "pv": 164
+  },
+  {
+    "rank": 24,
+    "id": "39005",
+    "name": "2025年台灣精品中華職棒明星對抗賽",
+    "cat": "sports",
+    "pv": 159
+  },
+  {
+    "rank": 25,
+    "id": "39605",
+    "name": "LUCY 9TH CONCERT ＜ISLAND＞ IN TAIPEI",
+    "cat": "kpop",
+    "pv": 158
+  },
+  {
+    "rank": 26,
+    "id": "39650",
+    "name": "第十七屆兩岸電影展",
+    "cat": "concert",
+    "pv": 155
+  },
+  {
+    "rank": 27,
+    "id": "39555",
+    "name": "2026 春魚創意 3D／2D Live《NEXUS 虛實之側》—＜Threshold／臨界＞",
+    "cat": "anime",
+    "pv": 132
+  },
+  {
+    "rank": 28,
+    "id": "39666",
+    "name": "中華職棒37年Rakuten主場例行賽 小周末套票＿周三版",
+    "cat": "sports",
+    "pv": 121
+  },
+  {
+    "rank": 29,
+    "id": "39607",
+    "name": "2026 T CONCERT《IDOL MEET FEST 偶像相遇祭》",
+    "cat": "kpop",
+    "pv": 110
+  },
+  {
+    "rank": 30,
+    "id": "39549",
+    "name": "2026 YANG YOSEOP SOLO CONCERT ＜Fade In＞ IN TAIPEI",
+    "cat": "kpop",
+    "pv": 108
+  },
+  {
+    "rank": 31,
+    "id": "39556",
+    "name": "2026 春魚創意 3D Live《NEXUS 虛實之側》—＜Echo／迴響＞",
+    "cat": "anime",
+    "pv": 107
+  },
+  {
+    "rank": 32,
+    "id": "39527",
+    "name": "Jane Yeh Birthday Tour 2026 in Taipei ",
+    "cat": "concert",
+    "pv": 102
+  }
+];
+// ── Charts ─────────────────────────────────────────────────────────────────
 const TOTAL = DATA.reduce((s,d) => s + d.pv, 0);
 const CAT_LABEL = { sports:'體育', concert:'演唱會', kpop:'K-pop', anime:'動漫' };
 const CAT_CSS   = { sports:'badge-sports', concert:'badge-concert', kpop:'badge-kpop', anime:'badge-anime' };
 const CAT_COLOR = { sports:'#3b82f6', concert:'#8b5cf6', kpop:'#f43f5e', anime:'#10b981' };
 
+// ── Update time label ──
+if (DAILY.length) {
+  const el = document.getElementById('updateTimeLabel');
+  if (el) el.textContent = DAILY[DAILY.length - 1].date + ' 資料';
+}
+
+// ── Daily Trend Chart ──
+new Chart(document.getElementById('dailyChart'), {
+  type: 'bar',
+  data: {
+    labels: DAILY.map(d => d.date),
+    datasets: [{
+      label: '每日 Page Views',
+      data: DAILY.map(d => d.totalPV),
+      backgroundColor: 'rgba(59,130,246,0.55)',
+      borderColor: '#3b82f6',
+      borderWidth: 2,
+      borderRadius: 6
+    }]
+  },
+  plugins: [ChartDataLabels],
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        anchor: 'end', align: 'top',
+        color: '#f1f5f9',
+        font: { size: 12, weight: '700' },
+        formatter: v => v.toLocaleString()
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,.06)' },
+        ticks: { color: '#94a3b8', font: { size: 12 } }
+      },
+      y: {
+        grid: { color: 'rgba(255,255,255,.06)' },
+        ticks: { color: '#94a3b8', font: { size: 11 }, callback: v => v >= 1000 ? (v/1000).toFixed(0)+'K' : v },
+        beginAtZero: true
+      }
+    },
+    layout: { padding: { top: 24 } }
+  }
+});
+
 // ── Donut Chart ──
+const catTotals = { concert:0, sports:0, kpop:0, anime:0 };
+DATA.forEach(d => { catTotals[d.cat] = (catTotals[d.cat] || 0) + d.pv; });
 new Chart(document.getElementById('donutChart'), {
   type: 'doughnut',
   data: {
     labels: ['演唱會/音樂節','棒球/TPBL','K-pop/韓星','動漫/遊戲'],
     datasets: [{
-      data: [16344, 13502, 2608, 1541],
+      data: [catTotals.concert, catTotals.sports, catTotals.kpop, catTotals.anime],
       backgroundColor: ['#8b5cf6','#3b82f6','#f43f5e','#10b981'],
       borderColor: '#1e293b',
       borderWidth: 3
