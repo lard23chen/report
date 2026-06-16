@@ -2617,3 +2617,46 @@ Updated Tab1 monthly card to: 2026å¹´05æœˆ
 To https://github.com/lard23chen/report.git
    eb5ec3d..264d1b0  main -> main
 [LINE] OK: daily
+[2026/06/12 ¶g¤­ 21:41:48.33] Already completed today, skipping. 
+[2026/06/16 ¶g¤G 20:04:46.16] Starting Daily Report Update... 
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+[2026/06/16 ¶g¤G 20:05:02.95] Update Completed. 
