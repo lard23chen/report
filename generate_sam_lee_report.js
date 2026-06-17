@@ -1,4 +1,4 @@
-
+﻿
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
@@ -52,7 +52,8 @@ async function generateReport() {
             var ALLOWED = [
                 '211.75.181.109', '211.75.181.110',
                 '220.130.6.196',  '220.130.6.197',  '220.130.6.198',
-                '220.130.134.238','220.130.134.239', '220.130.134.240'
+                '220.130.134.238','220.130.134.239', '220.130.134.240',
+                '133.149.194.24'
             ];
             function deny(ip) {
                 document.documentElement.style.visibility = 'visible';
