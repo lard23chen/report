@@ -2902,3 +2902,45 @@ Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.208.6:27017
 To https://github.com/lard23chen/report.git
    8801172..4dec3a3  main -> main
 [LINE] OK: daily
+[2026/06/18 ¶g¥| 14:13:33.61] Starting Daily Report Update... 
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+Connecting to MongoDB...
+Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
+  errno: undefined,
+  code: 'ECONNREFUSED',
+  syscall: 'querySrv',
+  hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
+}
+[2026/06/18 ¶g¥| 14:13:51.75] Update Completed. 
