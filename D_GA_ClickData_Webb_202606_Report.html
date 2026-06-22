@@ -1269,12 +1269,13 @@ const baseFont = { family: "'Outfit','Noto Sans TC',sans-serif" };
 
 // ── Daily chart bar colours ────────────────────────────────────────────────
 let selectedDayIdx = null;
+let currentDailyLabels = DAILY.map(function(d){ return d.date; }); // updated by applyAll()
 function getDailyColors(dsIdx) {
   const base = dsIdx === 0 ? '#3b82f6' : '#475569';
-  const labels = (typeof dailyChart !== 'undefined') ? dailyChart.data.labels : DAILY.map(d => d.date);
+  const labels = currentDailyLabels;
   const selDate = (selectedDayIdx !== null && DAILY[selectedDayIdx]) ? DAILY[selectedDayIdx].date : null;
-  if (selDate === null) return labels.map(() => base + 'cc');
-  return labels.map(lbl => lbl === selDate ? base : base + '22');
+  if (selDate === null) return labels.map(function(){ return base + 'cc'; });
+  return labels.map(function(lbl){ return lbl === selDate ? base : base + '22'; });
 }
 
 // Daily stacked bar
@@ -1702,8 +1703,9 @@ function applyAll() {
   document.getElementById('kpi-peak-sub').textContent  = peakDay.date ? '2026/' + peakDay.date + ' (最高單日)' : '—';
 
   // Update daily chart
+  currentDailyLabels = rangeDailyData.map(function(d){ return d.date; });
   closeDayDetail();
-  dailyChart.data.labels = rangeDailyData.map(function(d){ return d.date; });
+  dailyChart.data.labels = currentDailyLabels;
   dailyChart.data.datasets[0].data = rangeDailyData.map(function(d){ return d.loggedIn; });
   dailyChart.data.datasets[1].data = rangeDailyData.map(function(d){ return d.notIn; });
   dailyChart.data.datasets[0].backgroundColor = getDailyColors(0);
