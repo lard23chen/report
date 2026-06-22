@@ -269,6 +269,12 @@ footer a { color:var(--accent); text-decoration:none; }
     </div>
   </div>
   <div class="search-bar">
+    <div class="date-range">
+      <span class="pv-label">日期區間</span>
+      <select id="dateFrom" onchange="applyFilters()"><option value="">起始日期</option></select>
+      <span class="pv-label">～</span>
+      <select id="dateTo" onchange="applyFilters()"><option value="">結束日期</option></select>
+    </div>
     <input id="searchInput" type="text" placeholder="🔍 搜尋活動名稱 / ActivityId…" oninput="applyFilters()">
     <div class="pv-chips">
       <span class="pv-label">PV ≥</span>
@@ -277,12 +283,6 @@ footer a { color:var(--accent); text-decoration:none; }
       <button class="chip-pv"       data-min="5000"   onclick="setPvMin(5000,this)">5,000+</button>
       <button class="chip-pv"       data-min="10000"  onclick="setPvMin(10000,this)">10,000+</button>
       <button class="chip-pv"       data-min="50000"  onclick="setPvMin(50000,this)">50,000+</button>
-    </div>
-    <div class="date-range">
-      <span class="pv-label">日期區間</span>
-      <select id="dateFrom" onchange="applyFilters()"><option value="">起始日期</option></select>
-      <span class="pv-label">～</span>
-      <select id="dateTo" onchange="applyFilters()"><option value="">結束日期</option></select>
     </div>
     <span id="resultCount"></span>
   </div>
