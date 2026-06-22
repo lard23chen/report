@@ -2944,3 +2944,129 @@ Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb
   hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
 }
 [2026/06/18 ¶g¥| 14:13:51.75] Update Completed. 
+fatal: unable to access 'https://github.com/lard23chen/report.git/': Could not resolve host: github.com
+[LINE] FAILED: µLªk¸ÑªR»·ºÝ¦WºÙ: 'publiclinemessageapi.azurewebsites.net'
+[2026/06/18 ¶g¥| 20:32:40.07] Already completed today, skipping. 
+[2026/06/22 ¶g¤@  8:22:07.82] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily...
+Fetched 160571 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (41 KB)
+Connecting to MongoDB...
+Fetching data for: 2026 7â€“ELEVEN é«˜é›„å•¤é…’éŸ³æ¨‚ç¯€...
+Fetched 4690 records.
+Fetched 48 page view records.
+Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (4316 KB)
+Connecting to MongoDB...
+UpdateTime (TWN): 2026/06/22 03:00
+Aggregating DAILY...
+Aggregating ACTIVITIES...
+Aggregating BY_DATE...
+Aggregating ACT_DAILY...
+Patching HTML...
+Done. Activities: 39, Days: 25, UpdateTime: 2026/06/22 03:00
+Connecting to MongoDB...
+UpdateTime (TWN): 2026/06/22 03:30
+Aggregating DAILY...
+Aggregating DATA...
+Patching HTML...
+Done. Days: 11, Activities: 42, UpdateTime: 2026/06/22 03:30
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-05',
+    salesOrderCount: 87411,
+    salesTicketCount: 228229,
+    salesAmount: new Decimal128('267940305'),
+    refundOrderCount: 12625,
+    refundTicketCount: 17369,
+    refundFee: new Decimal128('2234907.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 58649,
+    salesTicketCount: 179884,
+    salesAmount: new Decimal128('148779061'),
+    refundOrderCount: 5513,
+    refundTicketCount: 8686,
+    refundFee: new Decimal128('903665.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 107530,
+    salesTicketCount: 286978,
+    salesAmount: new Decimal128('242352348'),
+    refundOrderCount: 9506,
+    refundTicketCount: 15948,
+    refundFee: new Decimal128('1401480.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 37418,
+    salesTicketCount: 87608,
+    salesAmount: new Decimal128('69428085'),
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 20185,
+    salesTicketCount: 42393,
+    salesAmount: new Decimal128('86819380'),
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 46757,
+    salesTicketCount: 86480,
+    salesAmount: 278213528,
+    refundOrderCount: 7365,
+    refundTicketCount: 10514,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 15021,
+    salesTicketCount: 24967,
+    salesAmount: 55559110,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 18195,
+    salesTicketCount: 38533,
+    salesAmount: 103014816,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 55377,
+    salesTicketCount: 154112,
+    salesAmount: new Decimal128('150783090'),
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18894,
+    salesTicketCount: 34641,
+    salesAmount: new Decimal128('73209755'),
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026å¹´05æœˆ
+[2026/06/22 ¶g¤@  8:24:15.07] Update Completed. 

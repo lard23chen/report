@@ -223,7 +223,7 @@ footer a { color:var(--accent); text-decoration:none; }
     <canvas id="dailyChart"></canvas>
   </div>
   <div style="font-size:.78rem;color:var(--muted);margin-top:8px;text-align:right;">
-    最新資料更新：<span id="updateTimeLabel">2026/06/12 14:48</span>
+    最新資料更新：<span id="updateTimeLabel">2026/06/22 03:30</span>
   </div>
 </div>
 
@@ -258,7 +258,7 @@ footer a { color:var(--accent); text-decoration:none; }
 
 <footer>
   資料來源：MongoDB <code>QwareAi / GA_D_PageViewData_Webb_202606</code>　｜
-  快照日期：2026/06/10｜
+  資料期間：2026/06/10 — 2026/06/20｜
   <a href="HTML_Report_Catalog.html">← 返回目錄</a>
 </footer>
 
@@ -269,232 +269,352 @@ const DAILY = [
     "date": "06/10",
     "totalPV": 33995,
     "actCount": 32
+  },
+  {
+    "date": "06/11",
+    "totalPV": 49741,
+    "actCount": 32
+  },
+  {
+    "date": "06/12",
+    "totalPV": 39214,
+    "actCount": 31
+  },
+  {
+    "date": "06/13",
+    "totalPV": 33784,
+    "actCount": 31
+  },
+  {
+    "date": "06/14",
+    "totalPV": 37299,
+    "actCount": 28
+  },
+  {
+    "date": "06/15",
+    "totalPV": 34576,
+    "actCount": 30
+  },
+  {
+    "date": "06/16",
+    "totalPV": 38795,
+    "actCount": 33
+  },
+  {
+    "date": "06/17",
+    "totalPV": 100487,
+    "actCount": 34
+  },
+  {
+    "date": "06/18",
+    "totalPV": 43852,
+    "actCount": 31
+  },
+  {
+    "date": "06/19",
+    "totalPV": 41672,
+    "actCount": 30
+  },
+  {
+    "date": "06/20",
+    "totalPV": 66286,
+    "actCount": 29
   }
 ];
 const DATA = [
   {
     "rank": 1,
-    "id": "39590",
-    "name": "2026 7–ELEVEN 高雄啤酒音樂節",
-    "cat": "concert",
-    "pv": 8612
-  },
-  {
-    "rank": 2,
-    "id": "39664",
-    "name": "2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA 亞洲音樂節",
-    "cat": "concert",
-    "pv": 4240
-  },
-  {
-    "rank": 3,
     "id": "39226",
     "name": "2025－2026  桃園璞園領航猿主場",
     "cat": "sports",
-    "pv": 4204
+    "pv": 99628
   },
   {
-    "rank": 4,
+    "rank": 2,
     "id": "39428",
     "name": "中華職棒37年Rakuten主場例行賽",
     "cat": "sports",
-    "pv": 4005
+    "pv": 76765
+  },
+  {
+    "rank": 3,
+    "id": "39611",
+    "name": "2026 角頭GATAO唱演會—情義到高雄",
+    "cat": "concert",
+    "pv": 56660
+  },
+  {
+    "rank": 4,
+    "id": "39590",
+    "name": "2026 7–ELEVEN 高雄啤酒音樂節",
+    "cat": "concert",
+    "pv": 55691
   },
   {
     "rank": 5,
     "id": "39455",
     "name": "中華職棒37年例行賽統一獅主場（上）",
     "cat": "sports",
-    "pv": 2491
+    "pv": 49869
   },
   {
     "rank": 6,
-    "id": "39611",
-    "name": "2026 角頭GATAO唱演會—情義到高雄",
-    "cat": "concert",
-    "pv": 1985
+    "id": "39680",
+    "name": "LMSY Love in Our Sweet Yard Fan Meeting in Kaohsiung",
+    "cat": "kpop",
+    "pv": 30965
   },
   {
     "rank": 7,
-    "id": "39667",
-    "name": "中華職棒37年Rakuten主場例行賽 辣酷甜女孩套票",
-    "cat": "sports",
-    "pv": 1530
+    "id": "39664",
+    "name": "2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA 亞洲音樂節",
+    "cat": "concert",
+    "pv": 22331
   },
   {
     "rank": 8,
-    "id": "39678",
-    "name": "2026 KIM JI WOONG FANMEETING 〔TAKE 1： Unique Story〕 in TAIPEI",
+    "id": "39603",
+    "name": "2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in TAIPEI",
     "cat": "kpop",
-    "pv": 857
+    "pv": 11240
   },
   {
     "rank": 9,
-    "id": "39496",
-    "name": "THE MUSIC OF SQUARE ENIX－Magic，Memories，and Melodies",
-    "cat": "anime",
-    "pv": 724
+    "id": "39667",
+    "name": "中華職棒37年Rakuten主場例行賽 辣酷甜女孩套票",
+    "cat": "sports",
+    "pv": 9346
   },
   {
     "rank": 10,
     "id": "39559",
     "name": "2026 蔡琴 不要告別 巡迴演唱會〔台北返場〕",
     "cat": "concert",
-    "pv": 543
+    "pv": 8930
   },
   {
     "rank": 11,
-    "id": "39649",
-    "name": "Girl Rules Fan Meeting in Taipei",
-    "cat": "kpop",
-    "pv": 541
-  },
-  {
-    "rank": 12,
     "id": "39451",
     "name": "中華職棒37年Rakuten主場例行賽 特色席位＆套票",
     "cat": "sports",
-    "pv": 473
+    "pv": 7730
   },
   {
-    "rank": 13,
+    "rank": 12,
     "id": "39584",
     "name": "ACON 2026 IN TAIPEI",
     "cat": "anime",
-    "pv": 408
+    "pv": 6748
+  },
+  {
+    "rank": 13,
+    "id": "39696",
+    "name": "UNDERTALE：The Determination Symphony",
+    "cat": "concert",
+    "pv": 6631
   },
   {
     "rank": 14,
-    "id": "39603",
-    "name": "2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in TAIPEI",
+    "id": "39607",
+    "name": "2026 T CONCERT《IDOL MEET FEST 偶像相遇祭》",
     "cat": "kpop",
-    "pv": 386
+    "pv": 5566
   },
   {
     "rank": 15,
-    "id": "39511",
-    "name": "中華職棒37年Rakuten主場例行賽 黑松沙士快樂炒",
-    "cat": "sports",
-    "pv": 275
+    "id": "39527",
+    "name": "Jane Yeh Birthday Tour 2026 in Taipei ",
+    "cat": "concert",
+    "pv": 5509
   },
   {
     "rank": 16,
-    "id": "39458",
-    "name": "中華職棒37年Rakuten主場例行賽 動紫三日套票",
-    "cat": "sports",
-    "pv": 244
+    "id": "39678",
+    "name": "2026 KIM JI WOONG FANMEETING 〔TAKE 1： Unique Story〕 in TAIPEI",
+    "cat": "kpop",
+    "pv": 5457
   },
   {
     "rank": 17,
-    "id": "39682",
-    "name": "韓國寶藏音樂人 DDBB 台北演唱會",
+    "id": "39649",
+    "name": "Girl Rules Fan Meeting in Taipei",
     "cat": "kpop",
-    "pv": 215
+    "pv": 5377
   },
   {
     "rank": 18,
-    "id": "39680",
-    "name": "LMSY Love in Our Sweet Yard Fan Meeting in Kaohsiung",
-    "cat": "kpop",
-    "pv": 213
+    "id": "39496",
+    "name": "THE MUSIC OF SQUARE ENIX－Magic，Memories，and Melodies",
+    "cat": "anime",
+    "pv": 5238
   },
   {
     "rank": 19,
-    "id": "39494",
-    "name": "2026星光女孩日",
-    "cat": "concert",
-    "pv": 194
+    "id": "39556",
+    "name": "2026 春魚創意 3D Live《NEXUS 虛實之側》—＜Echo／迴響＞",
+    "cat": "anime",
+    "pv": 4347
   },
   {
     "rank": 20,
-    "id": "38900",
-    "name": "2025蔡琴 不要告別 巡迴演唱會",
+    "id": "39690",
+    "name": "閻奕格【逃生出口 Way Out巡迴演唱會— 台北站 】",
     "cat": "concert",
-    "pv": 191
+    "pv": 4276
   },
   {
     "rank": 21,
-    "id": "39673",
-    "name": "ONE PACT : SUMMER BREEZE in Taipei",
-    "cat": "kpop",
-    "pv": 178
+    "id": "39458",
+    "name": "中華職棒37年Rakuten主場例行賽 動紫三日套票",
+    "cat": "sports",
+    "pv": 4219
   },
   {
     "rank": 22,
-    "id": "39490",
-    "name": "《女神異聞錄 5》Persona 5 Special Big Band Concert",
+    "id": "39555",
+    "name": "2026 春魚創意 3D／2D Live《NEXUS 虛實之側》—＜Threshold／臨界＞",
     "cat": "anime",
-    "pv": 170
+    "pv": 4208
   },
   {
     "rank": 23,
-    "id": "39453",
-    "name": "TPE48－RESET公演",
-    "cat": "concert",
-    "pv": 164
+    "id": "39511",
+    "name": "中華職棒37年Rakuten主場例行賽 黑松沙士快樂炒",
+    "cat": "sports",
+    "pv": 3963
   },
   {
     "rank": 24,
-    "id": "39005",
-    "name": "2025年台灣精品中華職棒明星對抗賽",
-    "cat": "sports",
-    "pv": 159
+    "id": "39689",
+    "name": "中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次",
+    "cat": "concert",
+    "pv": 3534
   },
   {
     "rank": 25,
     "id": "39605",
     "name": "LUCY 9TH CONCERT ＜ISLAND＞ IN TAIPEI",
     "cat": "kpop",
-    "pv": 158
+    "pv": 3266
   },
   {
     "rank": 26,
-    "id": "39650",
-    "name": "第十七屆兩岸電影展",
+    "id": "39494",
+    "name": "2026星光女孩日",
     "cat": "concert",
-    "pv": 155
+    "pv": 2680
   },
   {
     "rank": 27,
-    "id": "39555",
-    "name": "2026 春魚創意 3D／2D Live《NEXUS 虛實之側》—＜Threshold／臨界＞",
-    "cat": "anime",
-    "pv": 132
+    "id": "39673",
+    "name": "ONE PACT : SUMMER BREEZE in Taipei",
+    "cat": "kpop",
+    "pv": 2436
   },
   {
     "rank": 28,
-    "id": "39666",
-    "name": "中華職棒37年Rakuten主場例行賽 小周末套票＿周三版",
+    "id": "39005",
+    "name": "2025年台灣精品中華職棒明星對抗賽",
     "cat": "sports",
-    "pv": 121
+    "pv": 2399
   },
   {
     "rank": 29,
-    "id": "39607",
-    "name": "2026 T CONCERT《IDOL MEET FEST 偶像相遇祭》",
-    "cat": "kpop",
-    "pv": 110
+    "id": "39490",
+    "name": "《女神異聞錄 5》Persona 5 Special Big Band Concert",
+    "cat": "anime",
+    "pv": 2344
   },
   {
     "rank": 30,
-    "id": "39549",
-    "name": "2026 YANG YOSEOP SOLO CONCERT ＜Fade In＞ IN TAIPEI",
-    "cat": "kpop",
-    "pv": 108
+    "id": "39529",
+    "name": "《LA LA LAND IN CONCERT》樂來越愛你 電影交響音樂會",
+    "cat": "concert",
+    "pv": 2337
   },
   {
     "rank": 31,
-    "id": "39556",
-    "name": "2026 春魚創意 3D Live《NEXUS 虛實之側》—＜Echo／迴響＞",
-    "cat": "anime",
-    "pv": 107
+    "id": "39692",
+    "name": "《暗喻幻想》Metaphor：ReFantazio 交響音樂會",
+    "cat": "concert",
+    "pv": 2109
   },
   {
     "rank": 32,
-    "id": "39527",
-    "name": "Jane Yeh Birthday Tour 2026 in Taipei ",
+    "id": "39665",
+    "name": "Zenless Live 2026 – Signal Lost DJ Live – 台北站",
     "cat": "concert",
-    "pv": 102
+    "pv": 1601
+  },
+  {
+    "rank": 33,
+    "id": "39666",
+    "name": "中華職棒37年Rakuten主場例行賽 小周末套票＿周三版",
+    "cat": "sports",
+    "pv": 1203
+  },
+  {
+    "rank": 34,
+    "id": "39549",
+    "name": "2026 YANG YOSEOP SOLO CONCERT ＜Fade In＞ IN TAIPEI",
+    "cat": "kpop",
+    "pv": 1053
+  },
+  {
+    "rank": 35,
+    "id": "39682",
+    "name": "韓國寶藏音樂人 DDBB 台北演唱會",
+    "cat": "kpop",
+    "pv": 888
+  },
+  {
+    "rank": 36,
+    "id": "39687",
+    "name": "2026台北羽球公開賽",
+    "cat": "concert",
+    "pv": 673
+  },
+  {
+    "rank": 37,
+    "id": "39453",
+    "name": "TPE48－RESET公演",
+    "cat": "concert",
+    "pv": 611
+  },
+  {
+    "rank": 38,
+    "id": "39650",
+    "name": "第十七屆兩岸電影展",
+    "cat": "concert",
+    "pv": 533
+  },
+  {
+    "rank": 39,
+    "id": "38900",
+    "name": "2025蔡琴 不要告別 巡迴演唱會",
+    "cat": "concert",
+    "pv": 447
+  },
+  {
+    "rank": 40,
+    "id": "38847",
+    "name": "中華職棒36年Rakuten主場例行賽",
+    "cat": "concert",
+    "pv": 430
+  },
+  {
+    "rank": 41,
+    "id": "38579",
+    "name": "2024-2025 PLG桃園璞園領航猿主場",
+    "cat": "concert",
+    "pv": 314
+  },
+  {
+    "rank": 42,
+    "id": "39190",
+    "name": "TPBL冠軍賽　福爾摩沙夢想家主場",
+    "cat": "concert",
+    "pv": 149
   }
 ];
 // ── Charts ─────────────────────────────────────────────────────────────────
