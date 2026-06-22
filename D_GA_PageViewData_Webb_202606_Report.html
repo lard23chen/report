@@ -123,7 +123,8 @@ tbody td { padding:10px 12px; font-size:.88rem; vertical-align:middle; }
 /* ─── SEARCH BAR ─── */
 .search-bar {
   display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-  padding:10px 18px 12px; border-bottom:1px solid var(--border);
+  padding:12px 18px; border:1px solid var(--border); border-radius:12px;
+  background:var(--card); margin-bottom:20px;
 }
 #searchInput {
   flex:1; min-width:200px;
@@ -178,6 +179,26 @@ footer a { color:var(--accent); text-decoration:none; }
 
 <main class="wrap">
 
+<!-- ─── SEARCH / FILTER BAR ─── -->
+<div class="search-bar">
+  <div class="date-range">
+    <span class="pv-label">日期區間</span>
+    <select id="dateFrom" onchange="applyFilters()"><option value="">起始日期</option></select>
+    <span class="pv-label">～</span>
+    <select id="dateTo" onchange="applyFilters()"><option value="">結束日期</option></select>
+  </div>
+  <input id="searchInput" type="text" placeholder="🔍 搜尋活動名稱 / ActivityId…" oninput="applyFilters()">
+  <div class="pv-chips">
+    <span class="pv-label">PV ≥</span>
+    <button class="chip-pv active" data-min="0"     onclick="setPvMin(0,this)">全部</button>
+    <button class="chip-pv"       data-min="1000"   onclick="setPvMin(1000,this)">1,000+</button>
+    <button class="chip-pv"       data-min="5000"   onclick="setPvMin(5000,this)">5,000+</button>
+    <button class="chip-pv"       data-min="10000"  onclick="setPvMin(10000,this)">10,000+</button>
+    <button class="chip-pv"       data-min="50000"  onclick="setPvMin(50000,this)">50,000+</button>
+  </div>
+  <span id="resultCount"></span>
+</div>
+
 <!-- ─── INSIGHT BAR ─── -->
 <div class="insight-bar">
   <div class="ins-item"><span class="ins-icon">🏆</span><span class="ins-label">瀏覽 No.1&nbsp;</span><span class="ins-val">7-ELEVEN 高雄啤酒音樂節（8,612）</span></div>
@@ -189,34 +210,34 @@ footer a { color:var(--accent); text-decoration:none; }
 <!-- ─── KPI CARDS ─── -->
 <div class="kpi-grid">
   <div class="kpi">
-    <div class="kpi-val" style="color:var(--amber)">33,995</div>
+    <div id="kpi-total" class="kpi-val" style="color:var(--amber)">—</div>
     <div class="kpi-label">總 Page Views</div>
-    <div class="kpi-sub">2026/06/10 快照</div>
+    <div id="kpi-total-sub" class="kpi-sub">全部日期</div>
   </div>
   <div class="kpi">
-    <div class="kpi-val" style="color:var(--cyan)">32</div>
+    <div id="kpi-count" class="kpi-val" style="color:var(--cyan)">—</div>
     <div class="kpi-label">活動數</div>
     <div class="kpi-sub">含各票種子頁</div>
   </div>
   <div class="kpi">
-    <div class="kpi-val" style="color:var(--green)">8,612</div>
+    <div id="kpi-max" class="kpi-val" style="color:var(--green)">—</div>
     <div class="kpi-label">單頁最高 PV</div>
-    <div class="kpi-sub">7-ELEVEN 啤酒音樂節</div>
+    <div id="kpi-max-sub" class="kpi-sub">—</div>
   </div>
   <div class="kpi">
-    <div class="kpi-val" style="color:var(--rose)">69.3%</div>
+    <div id="kpi-top5" class="kpi-val" style="color:var(--rose)">—</div>
     <div class="kpi-label">TOP 5 集中度</div>
-    <div class="kpi-sub">前 3 名即達 50.2%</div>
+    <div id="kpi-top5-sub" class="kpi-sub">—</div>
   </div>
   <div class="kpi">
-    <div class="kpi-val" style="color:var(--sports)">39.7%</div>
+    <div id="kpi-sports" class="kpi-val" style="color:var(--sports)">—</div>
     <div class="kpi-label">棒球 / TPBL</div>
-    <div class="kpi-sub">13,502 PV · 9 頁</div>
+    <div id="kpi-sports-sub" class="kpi-sub">—</div>
   </div>
   <div class="kpi">
-    <div class="kpi-val" style="color:var(--concert)">48.1%</div>
+    <div id="kpi-concert" class="kpi-val" style="color:var(--concert)">—</div>
     <div class="kpi-label">演唱會 / 音樂節</div>
-    <div class="kpi-sub">16,344 PV · 10 頁</div>
+    <div id="kpi-concert-sub" class="kpi-sub">—</div>
   </div>
 </div>
 
@@ -267,24 +288,6 @@ footer a { color:var(--accent); text-decoration:none; }
       <button class="chip" onclick="filterTable('kpop',this)">🎤 K-pop</button>
       <button class="chip" onclick="filterTable('anime',this)">🎮 動漫</button>
     </div>
-  </div>
-  <div class="search-bar">
-    <div class="date-range">
-      <span class="pv-label">日期區間</span>
-      <select id="dateFrom" onchange="applyFilters()"><option value="">起始日期</option></select>
-      <span class="pv-label">～</span>
-      <select id="dateTo" onchange="applyFilters()"><option value="">結束日期</option></select>
-    </div>
-    <input id="searchInput" type="text" placeholder="🔍 搜尋活動名稱 / ActivityId…" oninput="applyFilters()">
-    <div class="pv-chips">
-      <span class="pv-label">PV ≥</span>
-      <button class="chip-pv active" data-min="0"     onclick="setPvMin(0,this)">全部</button>
-      <button class="chip-pv"       data-min="1000"   onclick="setPvMin(1000,this)">1,000+</button>
-      <button class="chip-pv"       data-min="5000"   onclick="setPvMin(5000,this)">5,000+</button>
-      <button class="chip-pv"       data-min="10000"  onclick="setPvMin(10000,this)">10,000+</button>
-      <button class="chip-pv"       data-min="50000"  onclick="setPvMin(50000,this)">50,000+</button>
-    </div>
-    <span id="resultCount"></span>
   </div>
   <table id="mainTable">
     <thead>
@@ -1102,7 +1105,7 @@ if (DAILY.length) {
 }
 
 // ── Daily Trend Chart ──
-new Chart(document.getElementById('dailyChart'), {
+const dailyChartInst = new Chart(document.getElementById('dailyChart'), {
   type: 'bar',
   data: {
     labels: DAILY.map(d => d.date),
@@ -1145,7 +1148,7 @@ new Chart(document.getElementById('dailyChart'), {
 // ── Donut Chart ──
 const catTotals = { concert:0, sports:0, kpop:0, anime:0 };
 DATA.forEach(d => { catTotals[d.cat] = (catTotals[d.cat] || 0) + d.pv; });
-new Chart(document.getElementById('donutChart'), {
+const donutChartInst = new Chart(document.getElementById('donutChart'), {
   type: 'doughnut',
   data: {
     labels: ['演唱會/音樂節','棒球/TPBL','K-pop/韓星','動漫/遊戲'],
@@ -1174,7 +1177,7 @@ new Chart(document.getElementById('donutChart'), {
 
 // ── TOP 10 Horizontal Bar ──
 const top10 = DATA.slice(0, 10);
-new Chart(document.getElementById('top10Chart'), {
+const top10ChartInst = new Chart(document.getElementById('top10Chart'), {
   type: 'bar',
   data: {
     labels: top10.map(d => d.name.length > 22 ? d.name.slice(0,22)+'…' : d.name),
@@ -1231,41 +1234,95 @@ let minPv = 0;
   document.getElementById('dateTo').value   = dates[dates.length - 1] || '';
 })();
 
-function getPv(d) {
+function getRangeDates() {
   const dates = DAILY.map(function(x){ return x.date; });
   const from = document.getElementById('dateFrom').value;
   const to   = document.getElementById('dateTo').value;
   const fi = from ? dates.indexOf(from) : 0;
   const ti = to   ? dates.indexOf(to)   : dates.length - 1;
-  const inRange = dates.slice(fi < 0 ? 0 : fi, (ti < 0 ? dates.length - 1 : ti) + 1);
-  return inRange.reduce(function(sum, dt) {
-    return sum + ((d.pvByDate && d.pvByDate[dt]) || 0);
-  }, 0);
+  return dates.slice(fi < 0 ? 0 : fi, (ti < 0 ? dates.length - 1 : ti) + 1);
 }
 
 function applyFilters() {
-  const kw = document.getElementById('searchInput').value.trim().toLowerCase();
-  const tbody = document.getElementById('tableBody');
-  let rows = DATA.slice();
-  if (currentFilter !== 'all') rows = rows.filter(d => d.cat === currentFilter);
-  if (minPv > 0) rows = rows.filter(d => d.pv >= minPv);
-  if (kw) rows = rows.filter(d =>
-    d.name.toLowerCase().includes(kw) || d.id.toString().includes(kw)
-  );
-  rows.sort((a, b) => {
-    let va = sortCol === 0 ? a.rank : sortCol === 3 ? getPv(a) : a.id;
-    let vb = sortCol === 0 ? b.rank : sortCol === 3 ? getPv(b) : b.id;
+  const kw      = document.getElementById('searchInput').value.trim().toLowerCase();
+  const tbody   = document.getElementById('tableBody');
+  const rangeDates = getRangeDates();
+
+  // Pre-compute PV per activity for the selected date range
+  const pvCache = {};
+  DATA.forEach(function(d) {
+    pvCache[d.id] = rangeDates.reduce(function(sum, dt) {
+      return sum + ((d.pvByDate && d.pvByDate[dt]) || 0);
+    }, 0);
+  });
+
+  // Aggregate totals across all categories
+  const allRangePv   = DATA.reduce(function(s, d){ return s + pvCache[d.id]; }, 0);
+  const sportsPv     = DATA.filter(function(d){ return d.cat === 'sports'; }).reduce(function(s,d){ return s + pvCache[d.id]; }, 0);
+  const concertPv    = DATA.filter(function(d){ return d.cat === 'concert'; }).reduce(function(s,d){ return s + pvCache[d.id]; }, 0);
+  const sportsCount  = DATA.filter(function(d){ return d.cat === 'sports'  && pvCache[d.id] > 0; }).length;
+  const concertCount = DATA.filter(function(d){ return d.cat === 'concert' && pvCache[d.id] > 0; }).length;
+  const sortedAll    = DATA.slice().sort(function(a,b){ return pvCache[b.id] - pvCache[a.id]; });
+  const top1         = sortedAll[0];
+  const top5Sum      = sortedAll.slice(0,5).reduce(function(s,d){ return s + pvCache[d.id]; }, 0);
+  const top3Sum      = sortedAll.slice(0,3).reduce(function(s,d){ return s + pvCache[d.id]; }, 0);
+  const activeCount  = DATA.filter(function(d){ return pvCache[d.id] > 0; }).length;
+  const total4pct    = allRangePv || 1;
+
+  // ── Update KPI cards ──
+  document.getElementById('kpi-total').textContent     = allRangePv.toLocaleString();
+  document.getElementById('kpi-total-sub').textContent = rangeDates.length === DAILY.length
+    ? '全部日期' : rangeDates[0] + ' ～ ' + rangeDates[rangeDates.length - 1];
+  document.getElementById('kpi-count').textContent     = activeCount;
+  document.getElementById('kpi-max').textContent       = top1 ? pvCache[top1.id].toLocaleString() : '0';
+  document.getElementById('kpi-max-sub').textContent   = top1 ? (top1.name.length > 16 ? top1.name.slice(0,16)+'…' : top1.name) : '—';
+  document.getElementById('kpi-top5').textContent      = (top5Sum / total4pct * 100).toFixed(1) + '%';
+  document.getElementById('kpi-top5-sub').textContent  = '前 3 名即達 ' + (top3Sum / total4pct * 100).toFixed(1) + '%';
+  document.getElementById('kpi-sports').textContent    = (sportsPv / total4pct * 100).toFixed(1) + '%';
+  document.getElementById('kpi-sports-sub').textContent  = sportsPv.toLocaleString() + ' PV · ' + sportsCount + ' 頁';
+  document.getElementById('kpi-concert').textContent   = (concertPv / total4pct * 100).toFixed(1) + '%';
+  document.getElementById('kpi-concert-sub').textContent = concertPv.toLocaleString() + ' PV · ' + concertCount + ' 頁';
+
+  // ── Update charts ──
+  const catT = { concert:0, sports:0, kpop:0, anime:0 };
+  DATA.forEach(function(d){ catT[d.cat] = (catT[d.cat] || 0) + pvCache[d.id]; });
+  donutChartInst.data.datasets[0].data = [catT.concert, catT.sports, catT.kpop, catT.anime];
+  donutChartInst.options.plugins.datalabels.formatter = function(val) {
+    var pct = (val / total4pct * 100).toFixed(1);
+    return pct > 5 ? pct + '%' : '';
+  };
+  donutChartInst.update();
+
+  var top10items = sortedAll.slice(0, 10);
+  top10ChartInst.data.labels = top10items.map(function(d){ return d.name.length > 22 ? d.name.slice(0,22)+'…' : d.name; });
+  top10ChartInst.data.datasets[0].data            = top10items.map(function(d){ return pvCache[d.id]; });
+  top10ChartInst.data.datasets[0].backgroundColor = top10items.map(function(d){ return CAT_COLOR[d.cat]+'cc'; });
+  top10ChartInst.data.datasets[0].borderColor     = top10items.map(function(d){ return CAT_COLOR[d.cat]; });
+  top10ChartInst.update();
+
+  var rangeDaily = DAILY.filter(function(d){ return rangeDates.indexOf(d.date) !== -1; });
+  dailyChartInst.data.labels              = rangeDaily.map(function(d){ return d.date; });
+  dailyChartInst.data.datasets[0].data   = rangeDaily.map(function(d){ return d.totalPV; });
+  dailyChartInst.update();
+
+  // ── Update table ──
+  var rows = DATA.slice();
+  if (currentFilter !== 'all') rows = rows.filter(function(d){ return d.cat === currentFilter; });
+  if (minPv > 0) rows = rows.filter(function(d){ return pvCache[d.id] >= minPv; });
+  if (kw) rows = rows.filter(function(d){
+    return d.name.toLowerCase().includes(kw) || d.id.toString().includes(kw);
+  });
+  rows.sort(function(a, b) {
+    var va = sortCol === 0 ? a.rank : sortCol === 3 ? pvCache[a.id] : a.id;
+    var vb = sortCol === 0 ? b.rank : sortCol === 3 ? pvCache[b.id] : b.id;
     return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
   });
-  const dateTotalPv = currentDate
-    ? (DAILY.find(function(x){ return x.date === currentDate; }) || {}).totalPV || 1
-    : TOTAL;
-  const maxPv = Math.max.apply(null, rows.map(getPv).concat([1]));
+  var maxPv = Math.max.apply(null, rows.map(function(d){ return pvCache[d.id]; }).concat([1]));
   tbody.innerHTML = rows.map(function(d) {
-    const pv = getPv(d);
-    const rankCls = d.rank === 1 ? 'gold' : d.rank === 2 ? 'silver' : d.rank === 3 ? 'bronze' : '';
-    const pct = (pv / dateTotalPv * 100).toFixed(1);
-    const barW = Math.round(pv / maxPv * 200);
+    var pv      = pvCache[d.id];
+    var rankCls = d.rank === 1 ? 'gold' : d.rank === 2 ? 'silver' : d.rank === 3 ? 'bronze' : '';
+    var pct     = (pv / total4pct * 100).toFixed(1);
+    var barW    = Math.round(pv / maxPv * 200);
     return '<tr data-cat="' + d.cat + '">' +
       '<td><span class="rank-num ' + rankCls + '">' + d.rank + '</span></td>' +
       '<td><div class="act-name">' + d.name + '</div><div class="act-id">ID: ' + d.id + '</div></td>' +
@@ -1275,7 +1332,7 @@ function applyFilters() {
       '<td style="color:var(--muted);font-size:.8rem;">' + d.id + '</td>' +
       '</tr>';
   }).join('');
-  const n = rows.length;
+  var n = rows.length;
   document.getElementById('resultCount').textContent = '顯示 ' + n + ' / ' + DATA.length + ' 筆';
   document.getElementById('tblCount').textContent = '（' + n + ' 筆）';
 }
