@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>D系統 瀏覽→點擊轉換分析 2026/06</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+:root{
+  --bg:#0f172a;--card:#1e293b;--border:#2d3d55;
+  --text:#f1f5f9;--muted:#94a3b8;
+  --blue:#3b82f6;--purple:#8b5cf6;--rose:#f43f5e;
+  --green:#10b981;--amber:#f59e0b;--cyan:#06b6d4;
+  --sports:#3b82f6;--concert:#8b5cf6;--kpop:#f43f5e;--anime:#10b981;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:14px;min-height:100vh}
+a{color:var(--blue);text-decoration:none}
+/* Header */
+header{background:linear-gradient(135deg,#1e3a5f,#1e293b);border-bottom:1px solid var(--border);padding:20px 28px 16px}
+.hdr-row{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.hdr-titles h1{font-size:20px;font-weight:700;color:var(--text)}
+.hdr-titles .sub{font-size:12px;color:var(--muted);margin-top:4px}
+.hdr-tags{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.tag-pv{background:rgba(59,130,246,.18);color:#93c5fd;border:1px solid rgba(59,130,246,.4)}
+.tag-click{background:rgba(139,92,246,.18);color:#c4b5fd;border:1px solid rgba(139,92,246,.4)}
+.tag-info{background:rgba(148,163,184,.12);color:var(--muted);border:1px solid rgba(148,163,184,.25)}
+.hdr-note{margin-left:auto;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 14px;max-width:340px;font-size:11px;color:#fcd34d;line-height:1.6}
+
+/* Main */
+main{padding:20px 28px}
+
+/* KPI grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi-card .kpi-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.kpi-card .kpi-val{font-size:24px;font-weight:700;line-height:1.1}
+.kpi-card .kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.c-blue{color:var(--blue)}.c-purple{color:var(--purple)}.c-green{color:var(--green)}.c-rose{color:var(--rose)}.c-amber{color:var(--amber)}.c-cyan{color:var(--cyan)}
+
+/* Funnel visual */
+.funnel-row{display:flex;align-items:stretch;gap:0;margin-bottom:20px;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.funnel-step{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 12px;text-align:center;position:relative}
+.funnel-step:not(:last-child)::after{content:'';position:absolute;right:-1px;top:0;bottom:0;width:1px;background:var(--border)}
+.funnel-step .f-icon{font-size:22px;margin-bottom:6px}
+.funnel-step .f-num{font-size:22px;font-weight:700}
+.funnel-step .f-label{font-size:11px;color:var(--muted);margin-top:3px}
+.funnel-step .f-badge{font-size:10px;padding:2px 8px;border-radius:10px;margin-top:6px;font-weight:600}
+.funnel-arrow{display:flex;align-items:center;justify-content:center;width:36px;flex-shrink:0;color:var(--muted);font-size:18px}
+
+/* Insight bar */
+.insight-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.insight{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;flex:1;min-width:200px}
+.insight .i-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.insight .i-val{font-size:13px;font-weight:600}
+
+/* Charts */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.chart-card.full{grid-column:1/-1}
+.chart-card h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.chart-card .chart-sub{font-size:11px;color:var(--muted);margin-bottom:12px}
+.chart-wrap{position:relative}
+
+/* Table */
+.table-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.table-section h3{font-size:14px;font-weight:600;margin-bottom:12px}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:rgba(148,163,184,.1);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;transition:.15s}
+.chip.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.chip.sports.active{background:var(--sports)}
+.chip.concert.active{background:var(--concert)}
+.chip.kpop.active{background:var(--kpop)}
+.chip.anime.active{background:var(--anime)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;text-align:left;cursor:pointer;white-space:nowrap;user-select:none}
+th:hover{color:var(--text)}
+th.sort-asc::after{content:' ↑'}th.sort-desc::after{content:' ↓'}
+td{padding:8px 10px;border-bottom:1px solid rgba(45,61,85,.5);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(59,130,246,.04)}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+.badge-sports{background:rgba(59,130,246,.15);color:#93c5fd}
+.badge-concert{background:rgba(139,92,246,.15);color:#c4b5fd}
+.badge-kpop{background:rgba(244,63,94,.15);color:#fda4af}
+.badge-anime{background:rgba(16,185,129,.15);color:#6ee7b7}
+.ds-both{background:rgba(6,182,212,.12);color:var(--cyan)}
+.ds-pv{background:rgba(59,130,246,.12);color:#93c5fd}
+.ds-click{background:rgba(139,92,246,.12);color:#c4b5fd}
+.ctr-bar-wrap{width:80px;height:6px;background:rgba(148,163,184,.15);border-radius:3px;display:inline-block;vertical-align:middle;margin-left:4px}
+.ctr-bar-fill{height:100%;border-radius:3px;transition:.3s}
+.rank-up{color:var(--green);font-size:11px}
+.rank-dn{color:var(--rose);font-size:11px}
+.rank-eq{color:var(--muted);font-size:11px}
+
+/* Legend */
+.legend-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* Footer */
+footer{margin-top:28px;padding:16px 28px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
+footer a{color:var(--muted)}footer a:hover{color:var(--text)}
+
+@media(max-width:760px){
+  .chart-row{grid-template-columns:1fr}
+  .chart-card.full{grid-column:auto}
+  .funnel-arrow{display:none}
+  main{padding:14px}header{padding:14px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-row">
+    <div class="hdr-titles">
+      <h1>D系統 瀏覽 → 點擊 轉換分析（2026/06）</h1>
+      <div class="sub">消費者行為旅程：節目介紹頁瀏覽（PageView）→ 場次購票點擊（ClickData）</div>
+      <div class="hdr-tags">
+        <span class="tag tag-pv">📄 瀏覽量資料：2026/06/10 – 06/20</span>
+        <span class="tag tag-click">🖱 點擊量資料：2026/05/26 – 06/06</span>
+        <span class="tag tag-info">共同活動 27 個</span>
+        <span class="tag tag-info">更新：<span id="updateTimeLabel">2026/06/22</span></span>
+      </div>
+    </div>
+    <div class="hdr-note">
+      ⚠️ 兩份資料涵蓋不同時段，點擊/瀏覽比（CTR）可能超過100%。<br>
+      本報表以<strong>活動（ActivityId）</strong>為連結鍵，分析同一活動在兩個消費者行為層的相對差異。
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">📄 總瀏覽量（PV）</div>
+    <div class="kpi-val c-blue" id="kpi-pv-total">516,544</div>
+    <div class="kpi-sub">35 個活動頁 · 06/10–06/20</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">🖱 總點擊量</div>
+    <div class="kpi-val c-purple" id="kpi-click-total">810,590</div>
+    <div class="kpi-sub">39 個活動 · 05/26–06/06</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">🔗 共同活動數</div>
+    <div class="kpi-val c-cyan" id="kpi-matched">27</div>
+    <div class="kpi-sub">兩份資料皆有紀錄</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">🚀 最高點擊/瀏覽比</div>
+    <div class="kpi-val c-rose" id="kpi-top-ctr">944.9%</div>
+    <div class="kpi-sub" id="kpi-top-ctr-name">Girl Rules Fan Meeting</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">👁 高瀏覽低轉換</div>
+    <div class="kpi-val c-amber" id="kpi-low-ctr">7.3%</div>
+    <div class="kpi-sub" id="kpi-low-ctr-name">Square Enix（5,238 PV）</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">📊 匹配整體點擊/瀏覽比</div>
+    <div class="kpi-val c-green" id="kpi-overall-ctr">133.6%</div>
+    <div class="kpi-sub">27個共同活動合計</div>
+  </div>
+</div>
+
+<!-- Funnel Visual -->
+<div class="funnel-row">
+  <div class="funnel-step">
+    <div class="f-icon">📄</div>
+    <div class="f-num c-blue">516,544</div>
+    <div class="f-label">總瀏覽量（PV）</div>
+    <div class="f-badge" style="background:rgba(59,130,246,.15);color:#93c5fd">35 個活動</div>
+  </div>
+  <div class="funnel-arrow">→</div>
+  <div class="funnel-step">
+    <div class="f-icon">🔗</div>
+    <div class="f-num c-cyan">27</div>
+    <div class="f-label">共同出現活動</div>
+    <div class="f-badge" style="background:rgba(6,182,212,.15);color:var(--cyan)">兩份皆有</div>
+  </div>
+  <div class="funnel-arrow">→</div>
+  <div class="funnel-step">
+    <div class="f-icon">🖱</div>
+    <div class="f-num c-purple">810,590</div>
+    <div class="f-label">總點擊量</div>
+    <div class="f-badge" style="background:rgba(139,92,246,.15);color:#c4b5fd">39 個活動</div>
+  </div>
+  <div class="funnel-arrow">→</div>
+  <div class="funnel-step" style="background:rgba(16,185,129,.04)">
+    <div class="f-icon">📈</div>
+    <div class="f-num c-green">133.6%</div>
+    <div class="f-label">點擊/瀏覽比（共同活動）</div>
+    <div class="f-badge" style="background:rgba(16,185,129,.15);color:var(--green)">K-pop最高 944.9%</div>
+  </div>
+</div>
+
+<!-- Insights -->
+<div class="insight-bar">
+  <div class="insight">
+    <div class="i-label">排名躍升最多</div>
+    <div class="i-val c-green">ONE PACT／Girl Rules：PV 排名 27/17 → 點擊排名 17/8（+10/+9）</div>
+  </div>
+  <div class="insight">
+    <div class="i-label">排名下滑最多</div>
+    <div class="i-val c-rose">Square Enix：PV第18 → 點擊第32（-14），春魚Echo：PV第19 → 點擊第31（-12）</div>
+  </div>
+  <div class="insight">
+    <div class="i-label">僅有瀏覽，無點擊紀錄</div>
+    <div class="i-val c-amber">8個活動（UNDERTALE、暗喻幻想、Zenless Live 等新上架節目）</div>
+  </div>
+  <div class="insight">
+    <div class="i-label">僅有點擊，無瀏覽紀錄</div>
+    <div class="i-val c-purple">12個活動（新北國王 75,467次、富邦悍將-統一獅 65,541次）</div>
+  </div>
+</div>
+
+<!-- Charts row 1 -->
+<div class="chart-row">
+  <div class="chart-card full">
+    <h3>瀏覽量 vs 點擊量 分布（共同活動 27 個）</h3>
+    <div class="chart-sub">對數座標 · 對角虛線 = 點擊/瀏覽比 100% 基準線 · 線上方 = 點擊超過瀏覽量</div>
+    <div class="legend-row" id="scatter-legend"></div>
+    <div class="chart-wrap" style="height:340px"><canvas id="scatterChart"></canvas></div>
+  </div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-card">
+    <h3>點擊/瀏覽比排行（共同活動）</h3>
+    <div class="chart-sub">Clicks ÷ PV × 100%，依比值降序</div>
+    <div class="chart-wrap" style="height:480px"><canvas id="ctrChart"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h3>類別：瀏覽占比 vs 點擊占比</h3>
+    <div class="chart-sub">以共同活動為基準，顯示各類別在兩個行為層的相對份額差異</div>
+    <div class="chart-wrap" style="height:280px"><canvas id="catChart"></canvas></div>
+    <div style="margin-top:14px;font-size:11px;color:var(--muted);line-height:1.7">
+      <span style="color:var(--rose)">■</span> K-pop：瀏覽13.4% → 點擊25.5%（+12.1%，粉絲購買力強）<br>
+      <span style="color:var(--blue)">■</span> 運動：瀏覽51.6% → 點擊54.4%（+2.8%，穩定轉換）<br>
+      <span style="color:var(--purple)">■</span> 演唱會：瀏覽30.4% → 點擊17.2%（-13.2%，瀏覽多點擊少）<br>
+      <span style="color:var(--green)">■</span> 動漫/遊戲：瀏覽4.7% → 點擊2.9%（-1.8%，偏探索型瀏覽）
+    </div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="table-section">
+  <h3>完整活動對照表</h3>
+  <div class="chip-row">
+    <span class="chip active" onclick="filterTable('all',this)">全部</span>
+    <span class="chip" onclick="filterTable('both',this)">兩者皆有</span>
+    <span class="chip" onclick="filterTable('pvonly',this)">僅瀏覽</span>
+    <span class="chip" onclick="filterTable('clickonly',this)">僅點擊</span>
+    <span class="chip sports" onclick="filterTable('sports',this)">運動</span>
+    <span class="chip concert" onclick="filterTable('concert',this)">演唱會</span>
+    <span class="chip kpop" onclick="filterTable('kpop',this)">K-pop</span>
+    <span class="chip anime" onclick="filterTable('anime',this)">動漫</span>
+  </div>
+  <div class="table-wrap">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th onclick="sortTable('pvRank')">PV排名</th>
+          <th onclick="sortTable('name')">活動名稱</th>
+          <th onclick="sortTable('cat')">類別</th>
+          <th>資料集</th>
+          <th onclick="sortTable('pv')">瀏覽量</th>
+          <th onclick="sortTable('clicks')">點擊量</th>
+          <th onclick="sortTable('ctr')">點擊/瀏覽比</th>
+          <th onclick="sortTable('clickRank')">點擊排名</th>
+          <th onclick="sortTable('rankDelta')">排名變化</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <span>D系統 瀏覽→點擊轉換分析 · 2026/06</span>
+  <a href="D_GA_PageViewData_Webb_202606_Report.html">← 瀏覽量報表</a>
+  <a href="D_GA_ClickData_Webb_202606_Report.html">← 點擊量報表</a>
+  <a href="HTML_Report_Catalog.html">目錄</a>
+  <span style="margin-left:auto">資料期間：瀏覽 2026/06/10–06/20 · 點擊 2026/05/26–06/06</span>
+</footer>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────
+const FUNNEL_DATA = [
+  // matched (both PV and Click)
+  {id:"39428",name:"中華職棒37年Rakuten主場例行賽",cat:"sports",pv:76765,pvRank:2,clicks:156203,clickRank:1,ctr:203.5,pvShare:14.9,clickShare:19.3,loggedIn:76712,notIn:79491,perf:279},
+  {id:"39226",name:"2025–2026桃園璞園領航猿主場",cat:"sports",pv:99628,pvRank:1,clicks:68525,clickRank:3,ctr:68.8,pvShare:19.3,clickShare:8.5,loggedIn:34001,notIn:34524,perf:25},
+  {id:"39590",name:"2026 7–ELEVEN 高雄啤酒音樂節",cat:"concert",pv:55691,pvRank:4,clicks:64903,clickRank:5,ctr:116.5,pvShare:10.8,clickShare:8.0,loggedIn:24151,notIn:40752,perf:90},
+  {id:"39667",name:"中華職棒37年Rakuten主場 辣酷甜女孩套票",cat:"sports",pv:9346,pvRank:9,clicks:63072,clickRank:6,ctr:675.1,pvShare:1.8,clickShare:7.8,loggedIn:42710,notIn:20362,perf:30},
+  {id:"39455",name:"中華職棒37年例行賽統一獅主場（上）",cat:"sports",pv:49869,pvRank:5,clicks:60376,clickRank:7,ctr:121.1,pvShare:9.6,clickShare:7.5,loggedIn:21052,notIn:39324,perf:114},
+  {id:"39649",name:"Girl Rules Fan Meeting in Taipei",cat:"kpop",pv:5377,pvRank:17,clicks:50807,clickRank:8,ctr:944.9,pvShare:1.0,clickShare:6.3,loggedIn:43364,notIn:7443,perf:15},
+  {id:"39678",name:"2026 KIM JI WOONG FANMEETING in TAIPEI",cat:"kpop",pv:5457,pvRank:16,clicks:47773,clickRank:9,ctr:875.6,pvShare:1.1,clickShare:5.9,loggedIn:42248,notIn:5525,perf:14},
+  {id:"39603",name:"2026 FTISLAND TOUR 'FaTe' in TAIPEI",cat:"kpop",pv:11240,pvRank:8,clicks:32411,clickRank:10,ctr:288.4,pvShare:2.2,clickShare:4.0,loggedIn:8424,notIn:23987,perf:50},
+  {id:"39611",name:"2026 角頭GATAO唱演會—情義到高雄",cat:"concert",pv:56660,pvRank:3,clicks:25685,clickRank:11,ctr:45.3,pvShare:11.0,clickShare:3.2,loggedIn:14087,notIn:11598,perf:11},
+  {id:"39680",name:"LMSY Love in Our Sweet Yard Fan Meeting",cat:"kpop",pv:30965,pvRank:6,clicks:20830,clickRank:12,ctr:67.3,pvShare:6.0,clickShare:2.6,loggedIn:18407,notIn:2423,perf:1},
+  {id:"39584",name:"ACON 2026 IN TAIPEI",cat:"anime",pv:6748,pvRank:12,clicks:16881,clickRank:13,ctr:250.2,pvShare:1.3,clickShare:2.1,loggedIn:4025,notIn:12856,perf:25},
+  {id:"39664",name:"2026 JAM JAM ASIA 亞洲音樂節",cat:"concert",pv:22331,pvRank:7,clicks:10586,clickRank:14,ctr:47.4,pvShare:4.3,clickShare:1.3,loggedIn:3393,notIn:7193,perf:21},
+  {id:"39559",name:"2026 蔡琴 不要告別 巡迴演唱會〔台北返場〕",cat:"concert",pv:8930,pvRank:10,clicks:6503,clickRank:16,ctr:72.8,pvShare:1.7,clickShare:0.8,loggedIn:1093,notIn:5410,perf:44},
+  {id:"39673",name:"ONE PACT : SUMMER BREEZE in Taipei",cat:"kpop",pv:2436,pvRank:27,clicks:6439,clickRank:17,ctr:264.3,pvShare:0.5,clickShare:0.8,loggedIn:5678,notIn:761,perf:11},
+  {id:"39451",name:"Rakuten主場例行賽 特色席位＆套票",cat:"sports",pv:7730,pvRank:11,clicks:4151,clickRank:18,ctr:53.7,pvShare:1.5,clickShare:0.5,loggedIn:1891,notIn:2260,perf:21},
+  {id:"39607",name:"2026 T CONCERT《IDOL MEET FEST 偶像相遇祭》",cat:"kpop",pv:5566,pvRank:14,clicks:3645,clickRank:20,ctr:65.5,pvShare:1.1,clickShare:0.4,loggedIn:1070,notIn:2575,perf:27},
+  {id:"39605",name:"LUCY 9TH CONCERT ＜ISLAND＞ IN TAIPEI",cat:"kpop",pv:3266,pvRank:25,clicks:3198,clickRank:21,ctr:97.9,pvShare:0.6,clickShare:0.4,loggedIn:1145,notIn:2053,perf:16},
+  {id:"39494",name:"2026星光女孩日",cat:"concert",pv:2680,pvRank:26,clicks:2991,clickRank:22,ctr:111.6,pvShare:0.5,clickShare:0.4,loggedIn:1302,notIn:1689,perf:20},
+  {id:"39458",name:"Rakuten主場例行賽 動紫三日套票",cat:"sports",pv:4219,pvRank:21,clicks:2345,clickRank:23,ctr:55.6,pvShare:0.8,clickShare:0.3,loggedIn:876,notIn:1469,perf:11},
+  {id:"39549",name:"2026 YANG YOSEOP SOLO CONCERT in TAIPEI",cat:"kpop",pv:1053,pvRank:34,clicks:1989,clickRank:24,ctr:188.9,pvShare:0.2,clickShare:0.2,loggedIn:477,notIn:1512,perf:11},
+  {id:"39529",name:"《LA LA LAND IN CONCERT》電影交響音樂會",cat:"concert",pv:2337,pvRank:30,clicks:1963,clickRank:25,ctr:84.0,pvShare:0.5,clickShare:0.2,loggedIn:168,notIn:1795,perf:11},
+  {id:"39511",name:"Rakuten主場例行賽 黑松沙士快樂炒",cat:"sports",pv:3963,pvRank:23,clicks:839,clickRank:27,ctr:21.2,pvShare:0.8,clickShare:0.1,loggedIn:474,notIn:365,perf:7},
+  {id:"39555",name:"春魚創意 3D/2D Live《NEXUS》—Threshold／臨界",cat:"anime",pv:4208,pvRank:22,clicks:772,clickRank:28,ctr:18.3,pvShare:0.8,clickShare:0.1,loggedIn:140,notIn:632,perf:5},
+  {id:"39556",name:"春魚創意 3D Live《NEXUS》—Echo／迴響",cat:"anime",pv:4347,pvRank:19,clicks:416,clickRank:31,ctr:9.6,pvShare:0.8,clickShare:0.1,loggedIn:48,notIn:368,perf:3},
+  {id:"39496",name:"THE MUSIC OF SQUARE ENIX－Magic Memories & Melodies",cat:"anime",pv:5238,pvRank:18,clicks:381,clickRank:32,ctr:7.3,pvShare:1.0,clickShare:0.0,loggedIn:36,notIn:345,perf:3},
+  {id:"39666",name:"Rakuten主場例行賽 小周末套票＿周三版",cat:"sports",pv:1203,pvRank:33,clicks:354,clickRank:33,ctr:29.4,pvShare:0.2,clickShare:0.0,loggedIn:285,notIn:69,perf:1},
+  {id:"39490",name:"《女神異聞錄5》Persona 5 Special Big Band Concert",cat:"anime",pv:2344,pvRank:29,clicks:270,clickRank:34,ctr:11.5,pvShare:0.5,clickShare:0.0,loggedIn:43,notIn:227,perf:2},
+  // PV only
+  {id:"39696",name:"UNDERTALE：The Determination Symphony",cat:"concert",pv:6631,pvRank:13,clicks:null,clickRank:null,ctr:null,pvShare:1.3,clickShare:null},
+  {id:"39527",name:"Jane Yeh Birthday Tour 2026 in Taipei",cat:"concert",pv:5509,pvRank:15,clicks:null,clickRank:null,ctr:null,pvShare:1.1,clickShare:null},
+  {id:"39690",name:"閻奕格【逃生出口 Way Out 巡迴演唱會—台北站】",cat:"concert",pv:4276,pvRank:20,clicks:null,clickRank:null,ctr:null,pvShare:0.8,clickShare:null},
+  {id:"39689",name:"Rakuten主場例行賽 臺北大巨蛋場次",cat:"sports",pv:3534,pvRank:24,clicks:null,clickRank:null,ctr:null,pvShare:0.7,clickShare:null},
+  {id:"39005",name:"2025年台灣精品中華職棒明星對抗賽",cat:"sports",pv:2399,pvRank:28,clicks:null,clickRank:null,ctr:null,pvShare:0.5,clickShare:null},
+  {id:"39692",name:"《暗喻幻想》Metaphor：ReFantazio 交響音樂會",cat:"concert",pv:2109,pvRank:31,clicks:null,clickRank:null,ctr:null,pvShare:0.4,clickShare:null},
+  {id:"39665",name:"Zenless Live 2026 – Signal Lost DJ Live – 台北站",cat:"concert",pv:1601,pvRank:32,clicks:null,clickRank:null,ctr:null,pvShare:0.3,clickShare:null},
+  {id:"39682",name:"韓國寶藏音樂人 DDBB 台北演唱會",cat:"kpop",pv:888,pvRank:35,clicks:null,clickRank:null,ctr:null,pvShare:0.2,clickShare:null},
+  // Click only
+  {id:"39190",name:"新北國王-福爾摩沙夢想家",cat:"sports",pv:null,pvRank:null,clicks:75467,clickRank:2,ctr:null,pvShare:null,clickShare:9.3,loggedIn:58816,notIn:16651,perf:8},
+  {id:"39576",name:"富邦悍將-統一7-ELEVEn獅",cat:"sports",pv:null,pvRank:null,clicks:65541,clickRank:4,ctr:null,pvShare:null,clickShare:8.1,loggedIn:22005,notIn:43536,perf:33},
+  {id:"39470",name:"孫淑媚《MAY好三十》演唱會－台北站",cat:"concert",pv:null,pvRank:null,clicks:7595,clickRank:15,ctr:null,pvShare:null,clickShare:0.9,loggedIn:1805,notIn:5790,perf:12},
+  {id:"39453",name:"TPE48－6月RESET公演",cat:"concert",pv:null,pvRank:null,clicks:4096,clickRank:19,ctr:null,pvShare:null,clickShare:0.5,loggedIn:3501,notIn:595,perf:8},
+  {id:"39650",name:"JAM JAM ASIA 單場票",cat:"concert",pv:null,pvRank:null,clicks:1887,clickRank:26,ctr:null,pvShare:null,clickShare:0.2,loggedIn:1143,notIn:744,perf:3},
+  {id:"39648",name:"2026斯巴達障礙跑競賽新北場",cat:"sports",pv:null,pvRank:null,clicks:704,clickRank:29,ctr:null,pvShare:null,clickShare:0.1,loggedIn:96,notIn:608,perf:5},
+  {id:"39619",name:"COSMOS 1st music concert in Taipei",cat:"concert",pv:null,pvRank:null,clicks:426,clickRank:30,ctr:null,pvShare:null,clickShare:0.1,loggedIn:299,notIn:127,perf:2},
+  {id:"39524",name:"Red Bull BC One Cypher Taiwan",cat:"sports",pv:null,pvRank:null,clicks:130,clickRank:35,ctr:null,pvShare:null,clickShare:0.0,loggedIn:46,notIn:84,perf:1},
+  {id:"39526",name:"豐田裕大 Fan Meeting in Taipei 2026",cat:"kpop",pv:null,pvRank:null,clicks:121,clickRank:36,ctr:null,pvShare:null,clickShare:0.0,loggedIn:8,notIn:113,perf:1},
+  {id:"39575",name:"Pami in Taipei 2026",cat:"kpop",pv:null,pvRank:null,clicks:108,clickRank:37,ctr:null,pvShare:null,clickShare:0.0,loggedIn:86,notIn:22,perf:1},
+  {id:"39550",name:"APPLEMIM 1st Wedding Meeting in TAIPEI",cat:"kpop",pv:null,pvRank:null,clicks:104,clickRank:38,ctr:null,pvShare:null,clickShare:0.0,loggedIn:8,notIn:96,perf:1},
+  {id:"39610",name:"伊品聲樂獨唱音樂會",cat:"concert",pv:null,pvRank:null,clicks:103,clickRank:39,ctr:null,pvShare:null,clickShare:0.0,loggedIn:66,notIn:37,perf:1},
+];
+
+const SUMMARY = {
+  pvTotal: 516544,
+  clickTotal: 810590,
+  matchedCount: 27,
+  pvOnlyCount: 8,
+  clickOnlyCount: 12,
+  matchedPV: 489597,
+  matchedClicks: 654308,
+  pvDates: "2026/06/10 – 06/20",
+  clickDates: "2026/05/26 – 06/06",
+};
+// ── Charts ─────────────────────────────────────────────────────────────────
+
+Chart.register(ChartDataLabels);
+
+const CAT_COLOR = {
+  sports: { bg:'rgba(59,130,246,.75)', border:'#3b82f6', label:'運動' },
+  concert:{ bg:'rgba(139,92,246,.75)',  border:'#8b5cf6', label:'演唱會' },
+  kpop:   { bg:'rgba(244,63,94,.75)',   border:'#f43f5e', label:'K-pop' },
+  anime:  { bg:'rgba(16,185,129,.75)',  border:'#10b981', label:'動漫/遊戲' },
+};
+
+function fmtNum(n){ if(n==null)return'—'; return n>=10000?(n/10000).toFixed(1)+'萬':n.toLocaleString(); }
+function fmtK(n){ if(n==null)return'—'; return n>=1000?(n/1000).toFixed(n>=10000?0:1)+'K':n; }
+
+// ── Scatter Chart ──────────────────────────────────────────────────────────
+(function(){
+  const matched = FUNNEL_DATA.filter(d=>d.pv!=null&&d.clicks!=null);
+  const catOrder = ['sports','concert','kpop','anime'];
+
+  // Build legend
+  const leg = document.getElementById('scatter-legend');
+  catOrder.forEach(c=>{
+    const d = CAT_COLOR[c];
+    leg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${d.border}"></div>${d.label}</div>`;
+  });
+  leg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:rgba(148,163,184,.4);border:1px dashed #94a3b8"></div>點擊/瀏覽比 = 100% 參考線</div>`;
+
+  const datasets = catOrder.map(cat => ({
+    label: CAT_COLOR[cat].label,
+    data: matched.filter(d=>d.cat===cat).map(d=>({
+      x: d.pv, y: d.clicks, name: d.name, ctr: d.ctr, id: d.id
+    })),
+    backgroundColor: CAT_COLOR[cat].bg,
+    borderColor: CAT_COLOR[cat].border,
+    borderWidth: 1.5,
+    pointRadius: 7,
+    pointHoverRadius: 10,
+  }));
+
+  // Reference line: y=x from min to max
+  const maxV = 180000;
+  datasets.push({
+    label: 'CTR=100% 參考線',
+    data: [{x:500,y:500},{x:maxV,y:maxV}],
+    type:'line', borderColor:'rgba(148,163,184,.35)',
+    borderDash:[5,4], borderWidth:1.5, pointRadius:0,
+    backgroundColor:'transparent', fill:false,
+    datalabels:{display:false},
+  });
+
+  new Chart(document.getElementById('scatterChart'),{
+    type:'scatter',
+    data:{ datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label(ctx){
+              const p=ctx.raw;
+              if(!p.name) return '';
+              return [`${p.name}`,`PV：${p.x.toLocaleString()}`,`點擊：${p.y.toLocaleString()}`,`點擊/瀏覽比：${p.ctr?.toFixed(1)}%`];
+            }
+          }
+        },
+        datalabels:{
+          display(ctx){ return ctx.dataset.data[ctx.dataIndex]?.name!=null; },
+          formatter(v){ return v.name?.substring(0,8)||''; },
+          color:'#94a3b8', font:{size:9}, anchor:'end', align:'end',
+          offset:4,
+        }
+      },
+      scales:{
+        x:{
+          type:'logarithmic', min:500, max:200000,
+          title:{display:true,text:'瀏覽量（PV，對數）',color:'#94a3b8',font:{size:11}},
+          grid:{color:'rgba(45,61,85,.5)'},
+          ticks:{color:'#94a3b8',callback:v=>fmtK(v)},
+        },
+        y:{
+          type:'logarithmic', min:200, max:300000,
+          title:{display:true,text:'點擊量（對數）',color:'#94a3b8',font:{size:11}},
+          grid:{color:'rgba(45,61,85,.5)'},
+          ticks:{color:'#94a3b8',callback:v=>fmtK(v)},
+        }
+      }
+    }
+  });
+})();
+
+// ── CTR Bar Chart ──────────────────────────────────────────────────────────
+(function(){
+  const matched = FUNNEL_DATA.filter(d=>d.ctr!=null).sort((a,b)=>b.ctr-a.ctr);
+  new Chart(document.getElementById('ctrChart'),{
+    type:'bar',
+    data:{
+      labels: matched.map(d=>d.name.length>18?d.name.substring(0,18)+'…':d.name),
+      datasets:[{
+        data: matched.map(d=>+d.ctr.toFixed(1)),
+        backgroundColor: matched.map(d=>CAT_COLOR[d.cat]?.bg||'rgba(148,163,184,.5)'),
+        borderColor: matched.map(d=>CAT_COLOR[d.cat]?.border||'#94a3b8'),
+        borderWidth:1, borderRadius:3,
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`點擊/瀏覽比：${ctx.parsed.x}%`}},
+        datalabels:{
+          anchor:'end', align:'end', color:'#94a3b8', font:{size:9},
+          formatter:v=>v>200?v.toFixed(0)+'%':'',
+        }
+      },
+      scales:{
+        x:{
+          grid:{color:'rgba(45,61,85,.5)'},
+          ticks:{color:'#94a3b8',font:{size:10},callback:v=>v+'%'},
+          title:{display:true,text:'點擊/瀏覽比（%）',color:'#94a3b8'},
+        },
+        y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:10}}}
+      }
+    }
+  });
+})();
+
+// ── Category Chart ─────────────────────────────────────────────────────────
+(function(){
+  const cats = ['sports','concert','kpop','anime'];
+  const catLabels = cats.map(c=>CAT_COLOR[c].label);
+  const matched = FUNNEL_DATA.filter(d=>d.pv!=null&&d.clicks!=null);
+  const totalPV = matched.reduce((s,d)=>s+d.pv,0);
+  const totalCL = matched.reduce((s,d)=>s+d.clicks,0);
+
+  const pvShares = cats.map(c=>{ const s=matched.filter(d=>d.cat===c).reduce((a,d)=>a+d.pv,0); return +(s/totalPV*100).toFixed(1); });
+  const clShares = cats.map(c=>{ const s=matched.filter(d=>d.cat===c).reduce((a,d)=>a+d.clicks,0); return +(s/totalCL*100).toFixed(1); });
+
+  new Chart(document.getElementById('catChart'),{
+    type:'bar',
+    data:{
+      labels: catLabels,
+      datasets:[
+        { label:'瀏覽占比 %', data:pvShares, backgroundColor:'rgba(59,130,246,.5)', borderColor:'#3b82f6', borderWidth:1, borderRadius:3 },
+        { label:'點擊占比 %', data:clShares, backgroundColor:'rgba(139,92,246,.5)', borderColor:'#8b5cf6', borderWidth:1, borderRadius:3 },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ labels:{color:'#94a3b8',font:{size:10},boxWidth:10}, position:'top' },
+        datalabels:{
+          anchor:'end', align:'end', color:'#94a3b8', font:{size:9},
+          formatter:v=>v+'%',
+        },
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}：${ctx.parsed.y}%`}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:10}}},
+        y:{
+          grid:{color:'rgba(45,61,85,.5)'},
+          ticks:{color:'#94a3b8',font:{size:10},callback:v=>v+'%'},
+          max:65,
+        }
+      }
+    }
+  });
+})();
+
+// ── Table ──────────────────────────────────────────────────────────────────
+let currentFilter = 'all';
+let sortKey = 'pvRank';
+let sortAsc = true;
+
+function getDS(d){
+  if(d.pv!=null&&d.clicks!=null) return 'both';
+  if(d.pv!=null) return 'pvonly';
+  return 'clickonly';
+}
+
+function filterTable(key, el){
+  document.querySelectorAll('.chip-row .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = key;
+  renderTable();
+}
+
+function sortTable(key){
+  document.querySelectorAll('th').forEach(th=>th.classList.remove('sort-asc','sort-desc'));
+  if(sortKey===key) sortAsc=!sortAsc; else { sortKey=key; sortAsc=true; }
+  const th = [...document.querySelectorAll('th')].find(t=>t.getAttribute('onclick')===`sortTable('${key}')`);
+  if(th) th.classList.add(sortAsc?'sort-asc':'sort-desc');
+  renderTable();
+}
+
+function renderTable(){
+  let data = [...FUNNEL_DATA];
+  if(currentFilter==='both')     data=data.filter(d=>d.pv!=null&&d.clicks!=null);
+  else if(currentFilter==='pvonly')    data=data.filter(d=>d.pv!=null&&d.clicks==null);
+  else if(currentFilter==='clickonly') data=data.filter(d=>d.pv==null&&d.clicks!=null);
+  else if(['sports','concert','kpop','anime'].includes(currentFilter)) data=data.filter(d=>d.cat===currentFilter);
+
+  data.sort((a,b)=>{
+    let va=a[sortKey], vb=b[sortKey];
+    if(va==null) va=sortAsc?Infinity:-Infinity;
+    if(vb==null) vb=sortAsc?Infinity:-Infinity;
+    return sortAsc?va-vb:vb-va;
+  });
+  if(sortKey==='name'||sortKey==='cat'){
+    data.sort((a,b)=>{ const va=a[sortKey]||''; const vb=b[sortKey]||''; return sortAsc?va.localeCompare(vb):vb.localeCompare(va); });
+  }
+
+  const maxCtr = 950;
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = data.map(d=>{
+    const ds = getDS(d);
+    const dsBadge = ds==='both'?`<span class="badge ds-both">兩者</span>`:ds==='pvonly'?`<span class="badge ds-pv">僅瀏覽</span>`:`<span class="badge ds-click">僅點擊</span>`;
+    const catBadge = `<span class="badge badge-${d.cat}">${CAT_COLOR[d.cat]?.label||d.cat}</span>`;
+    const ctrFill = d.ctr!=null ? `<span style="color:${d.ctr>=100?'var(--green)':d.ctr>=50?'var(--amber)':'var(--rose)'}">${d.ctr.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(d.ctr/maxCtr*100,100)}%;background:${d.ctr>=100?'var(--green)':d.ctr>=50?'var(--amber)':'var(--rose)'}"></div></div>` : '<span style="color:var(--muted)">—</span>';
+
+    const delta = (d.pvRank!=null&&d.clickRank!=null) ? d.pvRank-d.clickRank : null;
+    const deltaStr = delta==null ? '<span class="rank-eq">—</span>'
+      : delta>0 ? `<span class="rank-up">▲ ${delta}</span>`
+      : delta<0 ? `<span class="rank-dn">▼ ${Math.abs(delta)}</span>`
+      : `<span class="rank-eq">—</span>`;
+
+    return `<tr data-ds="${ds}" data-cat="${d.cat}">
+      <td style="color:var(--muted)">${d.pvRank!=null?'#'+d.pvRank:'—'}</td>
+      <td><span style="font-size:11px;font-weight:500">${d.name}</span><br><span style="font-size:10px;color:var(--muted)">${d.id}</span></td>
+      <td>${catBadge}</td>
+      <td>${dsBadge}</td>
+      <td style="text-align:right">${d.pv!=null?d.pv.toLocaleString():'—'}</td>
+      <td style="text-align:right">${d.clicks!=null?d.clicks.toLocaleString():'—'}</td>
+      <td>${ctrFill}</td>
+      <td style="color:var(--muted)">${d.clickRank!=null?'#'+d.clickRank:'—'}</td>
+      <td>${deltaStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+renderTable();
+</script>
+</body>
+</html>
