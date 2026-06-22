@@ -111,6 +111,23 @@ git push origin main
 
 更新頻率：**手動 / 依需求**（新活動開賣後執行）
 
+### ⚡ 增量更新原則（重要）
+
+> **只需更新尚未有資料的日期，過去已有的資料不需重新抓取。**
+
+目前 `generate_ga_events_report.js` 是全量重建（每次從 MongoDB 抓取所有 129+ 個活動的完整資料），執行時間長達數分鐘。
+
+**下次修改 generator 時，請依此原則優化：**
+
+1. 先讀取現有 HTML 中的 `serverData`，取出已有的最新日期 (`start` 欄位)
+2. 只從 MongoDB 查詢 **該日期之後** 的新 Session / GAReadTime / 票務資料
+3. 合併新舊資料後重新產生 HTML
+4. 歷史活動（所有日期均早於當前月份）若無新資料進入，可直接沿用舊資料跳過查詢
+
+**適用場景：**
+- 日常例行更新（新開賣活動追加）→ 只需抓最近 N 天
+- 歷史資料（已結束活動）→ 完全不需重新查詢
+
 ### ⚠️ 維護注意：HTML 與 Generator 必須同步
 
 `A_GA_Events_Traffic_Report.html` 由 `generate_ga_events_report.js` 產出。
