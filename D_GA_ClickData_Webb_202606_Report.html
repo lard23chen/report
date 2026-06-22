@@ -1624,8 +1624,9 @@ function getRangeDates() {
   var dates = DAILY.map(function(d){ return d.date; });
   selectedFrom = dates[0] || null;
   selectedTo   = dates[dates.length - 1] || null;
+  // Build Date objects (local time) to avoid ISO string parsing issues
   var available = dates.map(function(d) {
-    var p = d.split('/'); return '2026-' + p[0] + '-' + p[1];
+    var p = d.split('/'); return new Date(2026, +p[0] - 1, +p[1]);
   });
   function pad(n){ return String(n).padStart(2, '0'); }
   function mmdd(d){ return pad(d.getMonth()+1) + '/' + pad(d.getDate()); }
@@ -1640,11 +1641,11 @@ function getRangeDates() {
     onChange: function(sel) {
       if (!sel.length) return;
       selectedFrom = mmdd(sel[0]);
-      var fromIso = available[dates.indexOf(selectedFrom)];
-      if (fpTo) fpTo.set('minDate', fromIso);
-      if (selectedTo && dates.indexOf(selectedTo) < dates.indexOf(selectedFrom)) {
+      var fi = dates.indexOf(selectedFrom);
+      if (fpTo) fpTo.set('minDate', available[fi]);
+      if (selectedTo && dates.indexOf(selectedTo) < fi) {
         selectedTo = selectedFrom;
-        if (fpTo) fpTo.setDate(fromIso, false);
+        if (fpTo) fpTo.setDate(available[fi], false);
       }
       applyAll();
     }
