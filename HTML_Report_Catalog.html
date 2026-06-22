@@ -204,12 +204,62 @@
         }
         .sys-chk { background-color: #26c6da; }
         .sys-sch { background-color: #7e57c2; }
+
+        /* ── Tab bar ─────────────────────────────────────── */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .tab-btn {
+            background: #1e1e1e;
+            border: 1px solid #444;
+            border-radius: 24px;
+            color: #a0a0a0;
+            cursor: pointer;
+            font-family: 'Outfit','Noto Sans TC',sans-serif;
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 7px 18px;
+            transition: all 0.18s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { border-color: #42A5F5; color: #e0e0e0; }
+        .tab-btn.active {
+            background: #42A5F5;
+            border-color: #42A5F5;
+            color: #121212;
+            font-weight: 700;
+        }
+        .tab-btn.tab-dsys.active  { background:#26c6da; border-color:#26c6da; }
+        .tab-btn.tab-asys.active  { background:#ffd700; border-color:#ffd700; }
+        .tab-btn.tab-esys.active  { background:#4CAF50; border-color:#4CAF50; }
+        .tab-btn.tab-tools.active { background:#9c27b0; border-color:#9c27b0; color:#fff; }
+        .tab-count {
+            display: inline-block;
+            background: rgba(255,255,255,.15);
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 5px;
+            padding: 1px 7px;
+        }
     </style>
 </head>
 
 <body>
 
     <h1>📋 Qware 報表總目錄 (Report Catalog)</h1>
+
+    <div class="tab-bar" id="tabBar">
+        <button class="tab-btn active"     data-tab="all"       onclick="switchTab('all',this)">📋 全部</button>
+        <button class="tab-btn"            data-tab="dashboard" onclick="switchTab('dashboard',this)">🖥 主控台</button>
+        <button class="tab-btn tab-asys"   data-tab="asys"      onclick="switchTab('asys',this)">📊 A系統</button>
+        <button class="tab-btn tab-dsys"   data-tab="dsys"      onclick="switchTab('dsys',this)">🌐 流量 / D系統</button>
+        <button class="tab-btn tab-esys"   data-tab="esys"      onclick="switchTab('esys',this)">🛒 E系統</button>
+        <button class="tab-btn tab-tools"  data-tab="tools"     onclick="switchTab('tools',this)">🔧 工具 / 排程</button>
+    </div>
 
     <table>
         <thead>
@@ -732,6 +782,76 @@
             </tr>
         </tbody>
     </table>
+
+<script>
+// ── Tab filtering ──────────────────────────────────────────────────────────
+(function() {
+    // Map section header text snippets → tab group
+    var SECTION_MAP = [
+        { match: '主控台',  group: 'dashboard' },
+        { match: 'A 系統',  group: 'asys'      },
+        { match: '演唱會',  group: 'asys'      },
+        { match: '流量',    group: 'dsys'      },
+        { match: 'E 系統',  group: 'esys'      },
+        { match: 'ALEX',    group: 'tools'     },
+        { match: 'ibon',    group: 'tools'     },
+        { match: '排程',    group: 'tools'     },
+        { match: 'AI 工具', group: 'tools'     },
+        { match: '建檔',    group: 'tools'     },
+    ];
+
+    var tbody = document.querySelector('table tbody');
+    var rows  = Array.from(tbody.rows);
+    var currentGroup = 'dashboard'; // default before first header
+
+    // Assign data-group to every row
+    rows.forEach(function(row) {
+        var headerCell = row.querySelector('td[colspan="8"]');
+        if (headerCell) {
+            var text = headerCell.textContent || '';
+            for (var i = 0; i < SECTION_MAP.length; i++) {
+                if (text.indexOf(SECTION_MAP[i].match) !== -1) {
+                    currentGroup = SECTION_MAP[i].group;
+                    break;
+                }
+            }
+            row.setAttribute('data-group', currentGroup);
+            row.setAttribute('data-header', '1');
+        } else {
+            row.setAttribute('data-group', currentGroup);
+        }
+    });
+
+    // Count rows per group (excluding header rows) and update tab labels
+    var counts = {};
+    rows.forEach(function(row) {
+        if (!row.getAttribute('data-header')) {
+            var g = row.getAttribute('data-group');
+            counts[g] = (counts[g] || 0) + 1;
+        }
+    });
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        var tab = btn.getAttribute('data-tab');
+        if (tab === 'all') {
+            var total = rows.filter(function(r){ return !r.getAttribute('data-header'); }).length;
+            btn.innerHTML = btn.innerHTML + ' <span class="tab-count">' + total + '</span>';
+        } else if (counts[tab]) {
+            btn.innerHTML = btn.innerHTML + ' <span class="tab-count">' + counts[tab] + '</span>';
+        }
+    });
+})();
+
+function switchTab(tab, el) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    el.classList.add('active');
+
+    var tbody = document.querySelector('table tbody');
+    Array.from(tbody.rows).forEach(function(row) {
+        var g = row.getAttribute('data-group');
+        row.style.display = (tab === 'all' || g === tab) ? '' : 'none';
+    });
+}
+</script>
 
 </body>
 
