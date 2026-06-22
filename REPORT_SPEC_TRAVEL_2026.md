@@ -174,4 +174,19 @@ localStorage / MongoDB store 欄位說明：
 
 ---
 
-*最後更新日期：2026/06/09*
+### 6. 已過去行程淺灰底色 (Past Trip Gray Background) — 2026-06-22
+
+*   **背景**：旅程結束日早於當天的行程，需在視覺上與未來行程做區別，方便快速識別。
+*   **實作**：
+    *   新增 CSS class `.trip-past`，設定整個 trip 卡片 (`background: #f3f4f6`)、trip header (`#e8eaed`)、hotel section (`#edeef0`) 為淺灰色。
+    *   **2026 Tab** 中，結束日已過的行程手動加上 `trip-past` class：
+        *   Trip 1（2026/06/11–06/21）
+        *   Trip 4（2026/02/11–02/22）
+        *   Trip 5（2026/04/09–04/19）
+    *   **2025 / 2024 / 2023 / 2022 Tab**：所有 trip 均為過去，透過 CSS 選擇器（`#tab-2025 .trip` 等）統一套用淺灰底色，不需個別加 class。
+    *   歷史 Tab 的 `.trip-header` 同步從 `#f8fafc` 調整為 `#e8eaed`，與 2026 past trip 保持一致。
+*   **維護注意**：當 2026 Tab 的 Trip 2（09/18）與 Trip 3（12/24）結束後，需手動在其 `<div class="trip">` 加上 `trip-past` class，或考慮未來改為 JS 依日期自動判斷。
+
+---
+
+*最後更新日期：2026/06/22*

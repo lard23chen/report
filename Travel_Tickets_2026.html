@@ -193,8 +193,15 @@
         .dash { color: #cbd5e1; }
 
         /* History tab dim */
-        #tab-2025 .trip-header, #tab-2024 .trip-header, #tab-2023 .trip-header, #tab-2022 .trip-header { background: #f8fafc; }
+        #tab-2025 .trip-header, #tab-2024 .trip-header, #tab-2023 .trip-header, #tab-2022 .trip-header { background: #e8eaed; }
         #tab-2025 .trip-num, #tab-2024 .trip-num, #tab-2023 .trip-num, #tab-2022 .trip-num { background: #64748b; color: #ffffff; }
+
+        /* Past trip — light gray background */
+        .trip-past { background: #f3f4f6 !important; }
+        .trip-past .trip-header { background: #e8eaed !important; }
+        .trip-past .hotel-section { background: #edeef0 !important; }
+        #tab-2025 .trip, #tab-2024 .trip, #tab-2023 .trip, #tab-2022 .trip { background: #f3f4f6; }
+        #tab-2025 .hotel-section, #tab-2024 .hotel-section, #tab-2023 .hotel-section, #tab-2022 .hotel-section { background: #edeef0; }
 
         /* Hotel section */
         .hotel-section { padding: 0 22px 18px; border-top: 1px solid var(--card-border); margin-top: 2px; background: #fafafa; }
@@ -469,7 +476,7 @@
         </div>
 
         <!-- Trip 1 (Moved from Trip 2) -->
-        <div class="trip">
+        <div class="trip trip-past">
             <div class="trip-header">
                 <span class="trip-num">Trip 1</span>
                 <div><div class="trip-dest">🇯🇵 Sapporo / Tokyo</div><div class="trip-dates">2026/06/11 – 2026/06/21</div></div>
@@ -584,7 +591,7 @@
         </div>
 
         <!-- Trip 4 (2026/02 農曆新年) -->
-        <div class="trip">
+        <div class="trip trip-past">
             <div class="trip-header">
                 <span class="trip-num">Trip 4</span>
                 <div><div class="trip-dest">🇹🇭 Bangkok (BKK)</div><div class="trip-dates">2026/02/11 – 2026/02/22</div></div>
@@ -628,7 +635,7 @@
         </div>
 
         <!-- Trip 5 (2026/04 潑水節) -->
-        <div class="trip">
+        <div class="trip trip-past">
             <div class="trip-header">
                 <span class="trip-num">Trip 5</span>
                 <div><div class="trip-dest">🇹🇭 Bangkok (BKK)</div><div class="trip-dates">2026/04/09 – 2026/04/19</div></div>
