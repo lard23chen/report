@@ -2244,6 +2244,21 @@ function addDayOfWeek() {
     });
 }
 
+/* ── Mark past trips with gray background ───────────────────── */
+function markPastTrips() {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    document.querySelectorAll('.trip').forEach(function(trip) {
+        var dateEl = trip.querySelector('.trip-dates');
+        if (!dateEl) return;
+        var matches = dateEl.textContent.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/g);
+        if (!matches || matches.length < 1) return;
+        var last = matches[matches.length - 1].match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+        var endDate = new Date(+last[1], +last[2] - 1, +last[3]);
+        if (endDate < today) trip.classList.add('trip-past');
+    });
+}
+
 /* ── Init ───────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
     assignIds();
@@ -2273,6 +2288,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applyStore();
         sortHotelTables();
         addDayOfWeek();
+        markPastTrips();
         initRowCopy();
     });
 });
