@@ -140,6 +140,10 @@ tbody td { padding:10px 12px; font-size:.88rem; vertical-align:middle; }
   background:transparent; color:var(--muted); font-size:.76rem; font-weight:600;
   cursor:pointer; transition:all .2s; }
 .chip-pv:hover, .chip-pv.active { background:var(--purple); color:#fff; border-color:var(--purple); }
+.chip-date { padding:4px 10px; border-radius:20px; border:1px solid var(--border);
+  background:transparent; color:var(--muted); font-size:.76rem; font-weight:600;
+  cursor:pointer; transition:all .2s; }
+.chip-date:hover, .chip-date.active { background:var(--cyan); color:#fff; border-color:var(--cyan); }
 #resultCount { font-size:.78rem; color:var(--muted); margin-left:auto; white-space:nowrap; }
 
 /* ─── FOOTER ─── */
@@ -271,6 +275,9 @@ footer a { color:var(--accent); text-decoration:none; }
       <button class="chip-pv"       data-min="10000"  onclick="setPvMin(10000,this)">10,000+</button>
       <button class="chip-pv"       data-min="50000"  onclick="setPvMin(50000,this)">50,000+</button>
     </div>
+    <div class="pv-chips" id="dateChips">
+      <span class="pv-label">日期</span>
+    </div>
     <span id="resultCount"></span>
   </div>
   <table id="mainTable">
@@ -361,294 +368,719 @@ const DATA = [
     "id": "39226",
     "name": "2025－2026  桃園璞園領航猿主場",
     "cat": "sports",
-    "pv": 99628
+    "pv": 99628,
+    "pvByDate": {
+      "06/10": 4204,
+      "06/11": 3691,
+      "06/12": 4158,
+      "06/13": 4260,
+      "06/14": 3101,
+      "06/16": 3720,
+      "06/17": 70125,
+      "06/18": 6369
+    }
   },
   {
     "rank": 2,
     "id": "39428",
     "name": "中華職棒37年Rakuten主場例行賽",
     "cat": "sports",
-    "pv": 76765
+    "pv": 76765,
+    "pvByDate": {
+      "06/10": 4005,
+      "06/11": 4230,
+      "06/12": 3429,
+      "06/13": 3541,
+      "06/14": 3816,
+      "06/15": 7054,
+      "06/16": 7214,
+      "06/17": 7149,
+      "06/18": 14384,
+      "06/19": 12639,
+      "06/20": 9304
+    }
   },
   {
     "rank": 3,
     "id": "39611",
     "name": "2026 角頭GATAO唱演會—情義到高雄",
     "cat": "concert",
-    "pv": 56660
+    "pv": 56660,
+    "pvByDate": {
+      "06/10": 1985,
+      "06/11": 20299,
+      "06/12": 7527,
+      "06/13": 8566,
+      "06/14": 11770,
+      "06/15": 1862,
+      "06/16": 967,
+      "06/17": 1013,
+      "06/18": 731,
+      "06/19": 636,
+      "06/20": 1304
+    }
   },
   {
     "rank": 4,
     "id": "39590",
     "name": "2026 7–ELEVEN 高雄啤酒音樂節",
     "cat": "concert",
-    "pv": 55691
+    "pv": 55691,
+    "pvByDate": {
+      "06/10": 8612,
+      "06/11": 5406,
+      "06/12": 5841,
+      "06/13": 4431,
+      "06/14": 4811,
+      "06/15": 7035,
+      "06/16": 8308,
+      "06/17": 3589,
+      "06/18": 2882,
+      "06/19": 2718,
+      "06/20": 2058
+    }
   },
   {
     "rank": 5,
     "id": "39455",
     "name": "中華職棒37年例行賽統一獅主場（上）",
     "cat": "sports",
-    "pv": 49869
+    "pv": 49869,
+    "pvByDate": {
+      "06/10": 2491,
+      "06/11": 3965,
+      "06/12": 2551,
+      "06/13": 2983,
+      "06/14": 3089,
+      "06/15": 3829,
+      "06/16": 5468,
+      "06/17": 5200,
+      "06/18": 6691,
+      "06/19": 7375,
+      "06/20": 6227
+    }
   },
   {
     "rank": 6,
     "id": "39680",
     "name": "LMSY Love in Our Sweet Yard Fan Meeting in Kaohsiung",
     "cat": "kpop",
-    "pv": 30965
+    "pv": 30965,
+    "pvByDate": {
+      "06/10": 213,
+      "06/11": 238,
+      "06/12": 170,
+      "06/13": 144,
+      "06/14": 241,
+      "06/15": 229,
+      "06/16": 225,
+      "06/17": 332,
+      "06/18": 570,
+      "06/19": 1451,
+      "06/20": 27152
+    }
   },
   {
     "rank": 7,
     "id": "39664",
     "name": "2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA 亞洲音樂節",
     "cat": "concert",
-    "pv": 22331
+    "pv": 22331,
+    "pvByDate": {
+      "06/10": 4240,
+      "06/11": 1967,
+      "06/12": 2075,
+      "06/13": 1481,
+      "06/14": 2525,
+      "06/15": 2375,
+      "06/16": 1838,
+      "06/17": 1801,
+      "06/18": 969,
+      "06/19": 1447,
+      "06/20": 1613
+    }
   },
   {
     "rank": 8,
     "id": "39603",
     "name": "2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in TAIPEI",
     "cat": "kpop",
-    "pv": 11240
+    "pv": 11240,
+    "pvByDate": {
+      "06/10": 386,
+      "06/11": 542,
+      "06/12": 1042,
+      "06/13": 558,
+      "06/14": 591,
+      "06/15": 641,
+      "06/16": 620,
+      "06/17": 612,
+      "06/18": 688,
+      "06/19": 2029,
+      "06/20": 3531
+    }
   },
   {
     "rank": 9,
     "id": "39667",
     "name": "中華職棒37年Rakuten主場例行賽 辣酷甜女孩套票",
     "cat": "sports",
-    "pv": 9346
+    "pv": 9346,
+    "pvByDate": {
+      "06/10": 1530,
+      "06/11": 2291,
+      "06/12": 880,
+      "06/13": 635,
+      "06/14": 558,
+      "06/15": 663,
+      "06/16": 692,
+      "06/17": 534,
+      "06/18": 532,
+      "06/19": 438,
+      "06/20": 593
+    }
   },
   {
     "rank": 10,
     "id": "39559",
     "name": "2026 蔡琴 不要告別 巡迴演唱會〔台北返場〕",
     "cat": "concert",
-    "pv": 8930
+    "pv": 8930,
+    "pvByDate": {
+      "06/10": 543,
+      "06/11": 916,
+      "06/12": 1002,
+      "06/13": 1117,
+      "06/14": 1408,
+      "06/15": 1418,
+      "06/16": 867,
+      "06/17": 921,
+      "06/18": 261,
+      "06/19": 235,
+      "06/20": 242
+    }
   },
   {
     "rank": 11,
     "id": "39451",
     "name": "中華職棒37年Rakuten主場例行賽 特色席位＆套票",
     "cat": "sports",
-    "pv": 7730
+    "pv": 7730,
+    "pvByDate": {
+      "06/10": 473,
+      "06/11": 584,
+      "06/12": 385,
+      "06/13": 432,
+      "06/14": 459,
+      "06/15": 698,
+      "06/16": 847,
+      "06/17": 723,
+      "06/18": 1071,
+      "06/19": 1096,
+      "06/20": 962
+    }
   },
   {
     "rank": 12,
     "id": "39584",
     "name": "ACON 2026 IN TAIPEI",
     "cat": "anime",
-    "pv": 6748
+    "pv": 6748,
+    "pvByDate": {
+      "06/10": 408,
+      "06/11": 400,
+      "06/12": 712,
+      "06/13": 565,
+      "06/14": 744,
+      "06/15": 567,
+      "06/16": 616,
+      "06/17": 469,
+      "06/18": 450,
+      "06/19": 1183,
+      "06/20": 634
+    }
   },
   {
     "rank": 13,
     "id": "39696",
     "name": "UNDERTALE：The Determination Symphony",
     "cat": "concert",
-    "pv": 6631
+    "pv": 6631,
+    "pvByDate": {
+      "06/19": 1877,
+      "06/20": 4754
+    }
   },
   {
     "rank": 14,
     "id": "39607",
     "name": "2026 T CONCERT《IDOL MEET FEST 偶像相遇祭》",
     "cat": "kpop",
-    "pv": 5566
+    "pv": 5566,
+    "pvByDate": {
+      "06/10": 110,
+      "06/11": 165,
+      "06/12": 247,
+      "06/13": 408,
+      "06/14": 352,
+      "06/15": 1454,
+      "06/16": 548,
+      "06/17": 596,
+      "06/18": 520,
+      "06/19": 579,
+      "06/20": 587
+    }
   },
   {
     "rank": 15,
     "id": "39527",
     "name": "Jane Yeh Birthday Tour 2026 in Taipei ",
     "cat": "concert",
-    "pv": 5509
+    "pv": 5509,
+    "pvByDate": {
+      "06/10": 102,
+      "06/11": 216,
+      "06/12": 4834,
+      "06/13": 357
+    }
   },
   {
     "rank": 16,
     "id": "39678",
     "name": "2026 KIM JI WOONG FANMEETING 〔TAKE 1： Unique Story〕 in TAIPEI",
     "cat": "kpop",
-    "pv": 5457
+    "pv": 5457,
+    "pvByDate": {
+      "06/10": 857,
+      "06/11": 497,
+      "06/12": 399,
+      "06/13": 334,
+      "06/14": 269,
+      "06/15": 281,
+      "06/16": 1080,
+      "06/17": 565,
+      "06/18": 477,
+      "06/19": 332,
+      "06/20": 366
+    }
   },
   {
     "rank": 17,
     "id": "39649",
     "name": "Girl Rules Fan Meeting in Taipei",
     "cat": "kpop",
-    "pv": 5377
+    "pv": 5377,
+    "pvByDate": {
+      "06/10": 541,
+      "06/11": 549,
+      "06/12": 338,
+      "06/13": 329,
+      "06/14": 309,
+      "06/15": 424,
+      "06/16": 404,
+      "06/17": 519,
+      "06/18": 814,
+      "06/19": 450,
+      "06/20": 700
+    }
   },
   {
     "rank": 18,
     "id": "39496",
     "name": "THE MUSIC OF SQUARE ENIX－Magic，Memories，and Melodies",
     "cat": "anime",
-    "pv": 5238
+    "pv": 5238,
+    "pvByDate": {
+      "06/10": 724,
+      "06/11": 773,
+      "06/12": 981,
+      "06/13": 793,
+      "06/14": 849,
+      "06/15": 958,
+      "06/16": 160
+    }
   },
   {
     "rank": 19,
     "id": "39556",
     "name": "2026 春魚創意 3D Live《NEXUS 虛實之側》—＜Echo／迴響＞",
     "cat": "anime",
-    "pv": 4347
+    "pv": 4347,
+    "pvByDate": {
+      "06/10": 107,
+      "06/11": 248,
+      "06/12": 245,
+      "06/13": 353,
+      "06/14": 370,
+      "06/15": 436,
+      "06/16": 435,
+      "06/17": 412,
+      "06/18": 568,
+      "06/19": 1173
+    }
   },
   {
     "rank": 20,
     "id": "39690",
     "name": "閻奕格【逃生出口 Way Out巡迴演唱會— 台北站 】",
     "cat": "concert",
-    "pv": 4276
+    "pv": 4276,
+    "pvByDate": {
+      "06/15": 1699,
+      "06/16": 913,
+      "06/17": 726,
+      "06/18": 372,
+      "06/19": 216,
+      "06/20": 350
+    }
   },
   {
     "rank": 21,
     "id": "39458",
     "name": "中華職棒37年Rakuten主場例行賽 動紫三日套票",
     "cat": "sports",
-    "pv": 4219
+    "pv": 4219,
+    "pvByDate": {
+      "06/10": 244,
+      "06/11": 307,
+      "06/12": 241,
+      "06/13": 256,
+      "06/14": 239,
+      "06/15": 358,
+      "06/16": 419,
+      "06/17": 438,
+      "06/18": 672,
+      "06/19": 690,
+      "06/20": 355
+    }
   },
   {
     "rank": 22,
     "id": "39555",
     "name": "2026 春魚創意 3D／2D Live《NEXUS 虛實之側》—＜Threshold／臨界＞",
     "cat": "anime",
-    "pv": 4208
+    "pv": 4208,
+    "pvByDate": {
+      "06/10": 132,
+      "06/11": 268,
+      "06/12": 140,
+      "06/13": 156,
+      "06/14": 216,
+      "06/15": 331,
+      "06/16": 343,
+      "06/17": 394,
+      "06/18": 499,
+      "06/19": 930,
+      "06/20": 799
+    }
   },
   {
     "rank": 23,
     "id": "39511",
     "name": "中華職棒37年Rakuten主場例行賽 黑松沙士快樂炒",
     "cat": "sports",
-    "pv": 3963
+    "pv": 3963,
+    "pvByDate": {
+      "06/10": 275,
+      "06/11": 313,
+      "06/12": 245,
+      "06/13": 259,
+      "06/14": 233,
+      "06/15": 414,
+      "06/16": 492,
+      "06/17": 375,
+      "06/18": 411,
+      "06/19": 454,
+      "06/20": 492
+    }
   },
   {
     "rank": 24,
     "id": "39689",
     "name": "中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次",
     "cat": "concert",
-    "pv": 3534
+    "pv": 3534,
+    "pvByDate": {
+      "06/17": 632,
+      "06/18": 905,
+      "06/19": 949,
+      "06/20": 1048
+    }
   },
   {
     "rank": 25,
     "id": "39605",
     "name": "LUCY 9TH CONCERT ＜ISLAND＞ IN TAIPEI",
     "cat": "kpop",
-    "pv": 3266
+    "pv": 3266,
+    "pvByDate": {
+      "06/10": 158,
+      "06/11": 201,
+      "06/12": 172,
+      "06/13": 117,
+      "06/14": 107,
+      "06/15": 183,
+      "06/16": 347,
+      "06/17": 303,
+      "06/18": 341,
+      "06/19": 466,
+      "06/20": 871
+    }
   },
   {
     "rank": 26,
     "id": "39494",
     "name": "2026星光女孩日",
     "cat": "concert",
-    "pv": 2680
+    "pv": 2680,
+    "pvByDate": {
+      "06/10": 194,
+      "06/11": 379,
+      "06/12": 227,
+      "06/13": 183,
+      "06/14": 192,
+      "06/15": 276,
+      "06/16": 350,
+      "06/17": 306,
+      "06/18": 286,
+      "06/19": 287
+    }
   },
   {
     "rank": 27,
     "id": "39673",
     "name": "ONE PACT : SUMMER BREEZE in Taipei",
     "cat": "kpop",
-    "pv": 2436
+    "pv": 2436,
+    "pvByDate": {
+      "06/10": 178,
+      "06/11": 171,
+      "06/12": 143,
+      "06/13": 133,
+      "06/14": 119,
+      "06/15": 133,
+      "06/16": 225,
+      "06/17": 960,
+      "06/18": 260,
+      "06/20": 114
+    }
   },
   {
     "rank": 28,
     "id": "39005",
     "name": "2025年台灣精品中華職棒明星對抗賽",
     "cat": "sports",
-    "pv": 2399
+    "pv": 2399,
+    "pvByDate": {
+      "06/10": 159,
+      "06/11": 150,
+      "06/12": 116,
+      "06/13": 163,
+      "06/14": 162,
+      "06/15": 251,
+      "06/16": 275,
+      "06/17": 259,
+      "06/18": 354,
+      "06/19": 286,
+      "06/20": 224
+    }
   },
   {
     "rank": 29,
     "id": "39490",
     "name": "《女神異聞錄 5》Persona 5 Special Big Band Concert",
     "cat": "anime",
-    "pv": 2344
+    "pv": 2344,
+    "pvByDate": {
+      "06/10": 170,
+      "06/11": 166,
+      "06/12": 300,
+      "06/13": 230,
+      "06/14": 207,
+      "06/15": 220,
+      "06/16": 161,
+      "06/17": 207,
+      "06/18": 220,
+      "06/19": 212,
+      "06/20": 251
+    }
   },
   {
     "rank": 30,
     "id": "39529",
     "name": "《LA LA LAND IN CONCERT》樂來越愛你 電影交響音樂會",
     "cat": "concert",
-    "pv": 2337
+    "pv": 2337,
+    "pvByDate": {
+      "06/11": 121,
+      "06/12": 144,
+      "06/13": 446,
+      "06/14": 337,
+      "06/15": 262,
+      "06/16": 260,
+      "06/17": 238,
+      "06/18": 172,
+      "06/19": 169,
+      "06/20": 188
+    }
   },
   {
     "rank": 31,
     "id": "39692",
     "name": "《暗喻幻想》Metaphor：ReFantazio 交響音樂會",
     "cat": "concert",
-    "pv": 2109
+    "pv": 2109,
+    "pvByDate": {
+      "06/18": 669,
+      "06/19": 752,
+      "06/20": 688
+    }
   },
   {
     "rank": 32,
     "id": "39665",
     "name": "Zenless Live 2026 – Signal Lost DJ Live – 台北站",
     "cat": "concert",
-    "pv": 1601
+    "pv": 1601,
+    "pvByDate": {
+      "06/17": 331,
+      "06/18": 391,
+      "06/19": 311,
+      "06/20": 568
+    }
   },
   {
     "rank": 33,
     "id": "39666",
     "name": "中華職棒37年Rakuten主場例行賽 小周末套票＿周三版",
     "cat": "sports",
-    "pv": 1203
+    "pv": 1203,
+    "pvByDate": {
+      "06/10": 121,
+      "06/11": 147,
+      "06/15": 153,
+      "06/16": 168,
+      "06/17": 119,
+      "06/18": 164,
+      "06/19": 122,
+      "06/20": 209
+    }
   },
   {
     "rank": 34,
     "id": "39549",
     "name": "2026 YANG YOSEOP SOLO CONCERT ＜Fade In＞ IN TAIPEI",
     "cat": "kpop",
-    "pv": 1053
+    "pv": 1053,
+    "pvByDate": {
+      "06/10": 108,
+      "06/11": 132,
+      "06/12": 246,
+      "06/13": 203,
+      "06/15": 130,
+      "06/16": 125,
+      "06/17": 109
+    }
   },
   {
     "rank": 35,
     "id": "39682",
     "name": "韓國寶藏音樂人 DDBB 台北演唱會",
     "cat": "kpop",
-    "pv": 888
+    "pv": 888,
+    "pvByDate": {
+      "06/10": 215,
+      "06/11": 156,
+      "06/12": 169,
+      "06/13": 119,
+      "06/14": 121,
+      "06/15": 108
+    }
   },
   {
     "rank": 36,
     "id": "39687",
     "name": "2026台北羽球公開賽",
     "cat": "concert",
-    "pv": 673
+    "pv": 673,
+    "pvByDate": {
+      "06/13": 124,
+      "06/15": 134,
+      "06/16": 208,
+      "06/17": 105,
+      "06/20": 102
+    }
   },
   {
     "rank": 37,
     "id": "39453",
     "name": "TPE48－RESET公演",
     "cat": "concert",
-    "pv": 611
+    "pv": 611,
+    "pvByDate": {
+      "06/10": 164,
+      "06/11": 124,
+      "06/12": 110,
+      "06/13": 108,
+      "06/17": 105
+    }
   },
   {
     "rank": 38,
     "id": "39650",
     "name": "第十七屆兩岸電影展",
     "cat": "concert",
-    "pv": 533
+    "pv": 533,
+    "pvByDate": {
+      "06/10": 155,
+      "06/11": 129,
+      "06/12": 145,
+      "06/14": 104
+    }
   },
   {
     "rank": 39,
     "id": "38900",
     "name": "2025蔡琴 不要告別 巡迴演唱會",
     "cat": "concert",
-    "pv": 447
+    "pv": 447,
+    "pvByDate": {
+      "06/10": 191,
+      "06/16": 256
+    }
   },
   {
     "rank": 40,
     "id": "38847",
     "name": "中華職棒36年Rakuten主場例行賽",
     "cat": "concert",
-    "pv": 430
+    "pv": 430,
+    "pvByDate": {
+      "06/16": 101,
+      "06/18": 159,
+      "06/19": 170
+    }
   },
   {
     "rank": 41,
     "id": "38579",
     "name": "2024-2025 PLG桃園璞園領航猿主場",
     "cat": "concert",
-    "pv": 314
+    "pv": 314,
+    "pvByDate": {
+      "06/16": 143,
+      "06/17": 171
+    }
   },
   {
     "rank": 42,
     "id": "39190",
     "name": "TPBL冠軍賽　福爾摩沙夢想家主場",
     "cat": "concert",
-    "pv": 149
+    "pv": 149,
+    "pvByDate": {
+      "06/17": 149
+    }
   }
 ];
 // ── Charts ─────────────────────────────────────────────────────────────────
@@ -776,6 +1208,28 @@ let currentFilter = 'all';
 let sortCol = 3;
 let sortAsc = false;
 let minPv = 0;
+let currentDate = null;
+
+// Build date chips dynamically from DAILY
+(function() {
+  const c = document.getElementById('dateChips');
+  const allBtn = document.createElement('button');
+  allBtn.className = 'chip-date active';
+  allBtn.textContent = '全部';
+  allBtn.onclick = function() { setDateFilter(null, this); };
+  c.appendChild(allBtn);
+  DAILY.forEach(function(d) {
+    const btn = document.createElement('button');
+    btn.className = 'chip-date';
+    btn.textContent = d.date;
+    btn.onclick = function() { setDateFilter(d.date, this); };
+    c.appendChild(btn);
+  });
+})();
+
+function getPv(d) {
+  return currentDate ? (d.pvByDate && d.pvByDate[currentDate] || 0) : d.pv;
+}
 
 function applyFilters() {
   const kw = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -787,54 +1241,57 @@ function applyFilters() {
     d.name.toLowerCase().includes(kw) || d.id.toString().includes(kw)
   );
   rows.sort((a, b) => {
-    let va = sortCol === 0 ? a.rank : sortCol === 3 ? a.pv : a.id;
-    let vb = sortCol === 0 ? b.rank : sortCol === 3 ? b.pv : b.id;
+    let va = sortCol === 0 ? a.rank : sortCol === 3 ? getPv(a) : a.id;
+    let vb = sortCol === 0 ? b.rank : sortCol === 3 ? getPv(b) : b.id;
     return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
   });
-  const maxPv = rows[0] ? Math.max(...rows.map(d => d.pv)) : 1;
-  tbody.innerHTML = rows.map(d => {
+  const dateTotalPv = currentDate
+    ? (DAILY.find(function(x){ return x.date === currentDate; }) || {}).totalPV || 1
+    : TOTAL;
+  const maxPv = Math.max.apply(null, rows.map(getPv).concat([1]));
+  tbody.innerHTML = rows.map(function(d) {
+    const pv = getPv(d);
     const rankCls = d.rank === 1 ? 'gold' : d.rank === 2 ? 'silver' : d.rank === 3 ? 'bronze' : '';
-    const pct = (d.pv / TOTAL * 100).toFixed(1);
-    const barW = Math.round(d.pv / maxPv * 200);
-    return `<tr data-cat="${d.cat}">
-      <td><span class="rank-num ${rankCls}">${d.rank}</span></td>
-      <td>
-        <div class="act-name">${d.name}</div>
-        <div class="act-id">ID: ${d.id}</div>
-      </td>
-      <td><span class="badge ${CAT_CSS[d.cat]}">${CAT_LABEL[d.cat]}</span></td>
-      <td><span class="pv-num">${d.pv.toLocaleString()}</span></td>
-      <td>
-        <div class="pv-bar-wrap">
-          <div class="pv-bar" style="width:${barW}px;background:${CAT_COLOR[d.cat]}99;"></div>
-          <span class="pv-pct">${pct}%</span>
-        </div>
-      </td>
-      <td style="color:var(--muted);font-size:.8rem;">${d.id}</td>
-    </tr>`;
+    const pct = (pv / dateTotalPv * 100).toFixed(1);
+    const barW = Math.round(pv / maxPv * 200);
+    return '<tr data-cat="' + d.cat + '">' +
+      '<td><span class="rank-num ' + rankCls + '">' + d.rank + '</span></td>' +
+      '<td><div class="act-name">' + d.name + '</div><div class="act-id">ID: ' + d.id + '</div></td>' +
+      '<td><span class="badge ' + CAT_CSS[d.cat] + '">' + CAT_LABEL[d.cat] + '</span></td>' +
+      '<td><span class="pv-num">' + pv.toLocaleString() + '</span></td>' +
+      '<td><div class="pv-bar-wrap"><div class="pv-bar" style="width:' + barW + 'px;background:' + CAT_COLOR[d.cat] + '99;"></div><span class="pv-pct">' + pct + '%</span></div></td>' +
+      '<td style="color:var(--muted);font-size:.8rem;">' + d.id + '</td>' +
+      '</tr>';
   }).join('');
   const n = rows.length;
-  document.getElementById('resultCount').textContent = `顯示 ${n} / ${DATA.length} 筆`;
-  document.getElementById('tblCount').textContent = `（${n} 筆）`;
+  document.getElementById('resultCount').textContent = '顯示 ' + n + ' / ' + DATA.length + ' 筆';
+  document.getElementById('tblCount').textContent = '（' + n + ' 筆）';
 }
 
 function filterTable(cat, btn) {
   currentFilter = cat;
-  document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.filter-chips .chip').forEach(function(c){ c.classList.remove('active'); });
   btn.classList.add('active');
   applyFilters();
 }
 
 function setPvMin(min, btn) {
   minPv = min;
-  document.querySelectorAll('.chip-pv').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.chip-pv').forEach(function(c){ c.classList.remove('active'); });
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function setDateFilter(date, btn) {
+  currentDate = date;
+  document.querySelectorAll('.chip-date').forEach(function(c){ c.classList.remove('active'); });
   btn.classList.add('active');
   applyFilters();
 }
 
 function sortTable(col) {
   const ths = document.querySelectorAll('thead th');
-  ths.forEach(th => th.classList.remove('sort-asc','sort-desc'));
+  ths.forEach(function(th){ th.classList.remove('sort-asc','sort-desc'); });
   if (sortCol === col) { sortAsc = !sortAsc; }
   else { sortCol = col; sortAsc = col !== 3; }
   ths[col].classList.add(sortAsc ? 'sort-asc' : 'sort-desc');

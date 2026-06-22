@@ -57,23 +57,35 @@ async function main() {
         ]).toArray();
         const DAILY = dailyRaw.map(d => ({ date: d._id, totalPV: d.totalPV, actCount: d.actCount }));
 
-        // ── DATA: activity list sorted by PV desc ────────────────────────────
+        // ── DATA: per-activity per-date PV + total ───────────────────────────
         console.log('Aggregating DATA...');
-        const actRaw = await col.aggregate([
+        const actDateRaw = await col.aggregate([
             { $group: {
-                _id:  '$ActivityId',
+                _id:  { actId: '$ActivityId', date: { $dateToString: { format: '%m/%d', date: '$EventDate', timezone: 'Asia/Taipei' } } },
                 name: { $last: '$ActivityName' },
                 pv:   { $sum: '$EventCount' }
             }},
-            { $sort: { pv: -1 } }
+            { $sort: { '_id.date': 1 } }
         ]).toArray();
-        const DATA = actRaw.map((a, i) => ({
-            rank: i + 1,
-            id:   a._id,
-            name: a.name,
-            cat:  CAT_MAP[a._id] || 'concert',
-            pv:   a.pv
-        }));
+
+        const actMap = {};
+        actDateRaw.forEach(r => {
+            const id   = r._id.actId;
+            const date = r._id.date;
+            if (!actMap[id]) actMap[id] = { id, name: r.name, pvByDate: {}, pv: 0 };
+            actMap[id].pvByDate[date] = r.pv;
+            actMap[id].pv += r.pv;
+        });
+        const DATA = Object.values(actMap)
+            .sort((a, b) => b.pv - a.pv)
+            .map((a, i) => ({
+                rank:     i + 1,
+                id:       a.id,
+                name:     a.name,
+                cat:      CAT_MAP[a.id] || 'concert',
+                pv:       a.pv,
+                pvByDate: a.pvByDate
+            }));
 
         // ── Build new data section ───────────────────────────────────────────
         const newDataSection =
