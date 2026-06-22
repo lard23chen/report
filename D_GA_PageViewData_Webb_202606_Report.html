@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <style>
 :root {
   --bg:      #0f172a;
@@ -142,12 +144,18 @@ tbody td { padding:10px 12px; font-size:.88rem; vertical-align:middle; }
   cursor:pointer; transition:all .2s; }
 .chip-pv:hover, .chip-pv.active { background:var(--purple); color:#fff; border-color:var(--purple); }
 .date-range { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
-.date-range select {
+.date-range input[type="text"] {
   background:var(--surface); border:1px solid var(--border); color:var(--text);
   border-radius:8px; padding:5px 10px; font-size:.8rem; font-family:inherit;
-  outline:none; cursor:pointer; transition:border-color .2s;
+  outline:none; cursor:pointer; transition:border-color .2s; min-width:160px;
 }
-.date-range select:focus { border-color:var(--cyan); }
+.date-range input[type="text"]:focus { border-color:var(--cyan); }
+/* Flatpickr overrides */
+.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange {
+  background:#06b6d4 !important; border-color:#06b6d4 !important; }
+.flatpickr-day.inRange { background:rgba(6,182,212,.18) !important; box-shadow:none !important; }
+.flatpickr-day.today { border-color:#06b6d4; }
+.flatpickr-day.disabled,.flatpickr-day.disabled:hover { color:#334155 !important; background:transparent !important; }
 #resultCount { font-size:.78rem; color:var(--muted); margin-left:auto; white-space:nowrap; }
 
 /* ─── FOOTER ─── */
@@ -183,9 +191,7 @@ footer a { color:var(--accent); text-decoration:none; }
 <div class="search-bar">
   <div class="date-range">
     <span class="pv-label">日期區間</span>
-    <select id="dateFrom" onchange="applyFilters()"><option value="">起始日期</option></select>
-    <span class="pv-label">～</span>
-    <select id="dateTo" onchange="applyFilters()"><option value="">結束日期</option></select>
+    <input id="dateRangePicker" type="text" placeholder="選擇日期區間" readonly>
   </div>
   <input id="searchInput" type="text" placeholder="🔍 搜尋活動名稱 / ActivityId…" oninput="applyFilters()">
   <div class="pv-chips">
@@ -1218,30 +1224,48 @@ let sortCol = 3;
 let sortAsc = false;
 let minPv = 0;
 
-// Populate date range selects from DAILY
-(function() {
-  const dates = DAILY.map(function(d){ return d.date; });
-  ['dateFrom','dateTo'].forEach(function(id) {
-    const sel = document.getElementById(id);
-    dates.forEach(function(dt) {
-      const opt = document.createElement('option');
-      opt.value = dt; opt.textContent = dt;
-      sel.appendChild(opt);
-    });
-  });
-  // Default: full range
-  document.getElementById('dateFrom').value = dates[0] || '';
-  document.getElementById('dateTo').value   = dates[dates.length - 1] || '';
-})();
+// ── Date range state (managed by Flatpickr) ───────────────────────────────
+var selectedFrom = null;
+var selectedTo   = null;
 
 function getRangeDates() {
-  const dates = DAILY.map(function(x){ return x.date; });
-  const from = document.getElementById('dateFrom').value;
-  const to   = document.getElementById('dateTo').value;
-  const fi = from ? dates.indexOf(from) : 0;
-  const ti = to   ? dates.indexOf(to)   : dates.length - 1;
+  var dates = DAILY.map(function(x){ return x.date; });
+  var from = selectedFrom || dates[0];
+  var to   = selectedTo   || dates[dates.length - 1];
+  var fi = dates.indexOf(from);
+  var ti = dates.indexOf(to);
   return dates.slice(fi < 0 ? 0 : fi, (ti < 0 ? dates.length - 1 : ti) + 1);
 }
+
+// Init Flatpickr calendar
+(function() {
+  var dates = DAILY.map(function(d){ return d.date; });
+  selectedFrom = dates[0] || null;
+  selectedTo   = dates[dates.length - 1] || null;
+  var available = dates.map(function(d) {
+    var p = d.split('/'); return '2026-' + p[0] + '-' + p[1];
+  });
+  function pad(n){ return String(n).padStart(2, '0'); }
+  flatpickr(document.getElementById('dateRangePicker'), {
+    mode: 'range',
+    dateFormat: 'm/d',
+    rangeSeparator: ' ～ ',
+    enable: available,
+    minDate: available[0],
+    maxDate: available[available.length - 1],
+    defaultDate: available.length ? [available[0], available[available.length - 1]] : [],
+    onChange: function(sel) {
+      if (sel.length >= 1) {
+        selectedFrom = pad(sel[0].getMonth()+1) + '/' + pad(sel[0].getDate());
+        selectedTo   = selectedFrom;
+      }
+      if (sel.length >= 2) {
+        selectedTo = pad(sel[1].getMonth()+1) + '/' + pad(sel[1].getDate());
+        applyFilters();
+      }
+    }
+  });
+})();
 
 function applyFilters() {
   const kw      = document.getElementById('searchInput').value.trim().toLowerCase();
