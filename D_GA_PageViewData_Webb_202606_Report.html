@@ -191,7 +191,9 @@ footer a { color:var(--accent); text-decoration:none; }
 <div class="search-bar">
   <div class="date-range">
     <span class="pv-label">日期區間</span>
-    <input id="dateRangePicker" type="text" placeholder="選擇日期區間" readonly>
+    <input id="dateFrom" type="text" placeholder="起始日期" readonly>
+    <span class="pv-label">～</span>
+    <input id="dateTo" type="text" placeholder="結束日期" readonly>
   </div>
   <input id="searchInput" type="text" placeholder="🔍 搜尋活動名稱 / ActivityId…" oninput="applyFilters()">
   <div class="pv-chips">
@@ -1237,7 +1239,7 @@ function getRangeDates() {
   return dates.slice(fi < 0 ? 0 : fi, (ti < 0 ? dates.length - 1 : ti) + 1);
 }
 
-// Init Flatpickr calendar
+// Init Flatpickr calendars (start / end)
 (function() {
   var dates = DAILY.map(function(d){ return d.date; });
   selectedFrom = dates[0] || null;
@@ -1246,23 +1248,38 @@ function getRangeDates() {
     var p = d.split('/'); return '2026-' + p[0] + '-' + p[1];
   });
   function pad(n){ return String(n).padStart(2, '0'); }
-  flatpickr(document.getElementById('dateRangePicker'), {
-    mode: 'range',
+  function mmdd(d){ return pad(d.getMonth()+1) + '/' + pad(d.getDate()); }
+
+  var fpTo;
+  var fpFrom = flatpickr(document.getElementById('dateFrom'), {
     dateFormat: 'm/d',
-    rangeSeparator: ' ～ ',
     enable: available,
     minDate: available[0],
     maxDate: available[available.length - 1],
-    defaultDate: available.length ? [available[0], available[available.length - 1]] : [],
+    defaultDate: available[0],
     onChange: function(sel) {
-      if (sel.length >= 1) {
-        selectedFrom = pad(sel[0].getMonth()+1) + '/' + pad(sel[0].getDate());
-        selectedTo   = selectedFrom;
+      if (!sel.length) return;
+      selectedFrom = mmdd(sel[0]);
+      var fromIso = available[dates.indexOf(selectedFrom)];
+      if (fpTo) fpTo.set('minDate', fromIso);
+      if (selectedTo && dates.indexOf(selectedTo) < dates.indexOf(selectedFrom)) {
+        selectedTo = selectedFrom;
+        if (fpTo) fpTo.setDate(fromIso, false);
       }
-      if (sel.length >= 2) {
-        selectedTo = pad(sel[1].getMonth()+1) + '/' + pad(sel[1].getDate());
-        applyFilters();
-      }
+      applyFilters();
+    }
+  });
+
+  fpTo = flatpickr(document.getElementById('dateTo'), {
+    dateFormat: 'm/d',
+    enable: available,
+    minDate: available[0],
+    maxDate: available[available.length - 1],
+    defaultDate: available[available.length - 1],
+    onChange: function(sel) {
+      if (!sel.length) return;
+      selectedTo = mmdd(sel[0]);
+      applyFilters();
     }
   });
 })();
