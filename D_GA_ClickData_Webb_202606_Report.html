@@ -312,6 +312,32 @@
     .day-bar-bg { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 3px; min-width: 60px; }
     .day-bar-fill { height: 4px; border-radius: 2px; background: var(--blue); }
 
+    /* Search Bar */
+    .search-bar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      padding: 12px 18px; border: 1px solid var(--border); border-radius: 12px;
+      background: var(--card); margin-bottom: 20px;
+      max-width: 1200px; margin-left: auto; margin-right: auto;
+    }
+    #searchInput {
+      flex: 1; min-width: 200px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px;
+      padding: 7px 12px; font-size: 0.85rem; font-family: inherit; outline: none;
+      transition: border-color .2s;
+    }
+    #searchInput:focus { border-color: var(--blue); }
+    #searchInput::placeholder { color: var(--muted); }
+    .pv-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+    .date-range { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .date-range select {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 5px 10px; font-size: 0.8rem; font-family: inherit;
+      outline: none; cursor: pointer; transition: border-color .2s;
+    }
+    .date-range select:focus { border-color: var(--cyan); }
+    #resultCount { font-size: 0.78rem; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
     /* Act name link */
     .act-name-link {
       cursor: pointer;
@@ -398,32 +424,44 @@
   </div>
 </header>
 
+<!-- Search Bar -->
+<div class="search-bar">
+  <div class="date-range">
+    <span class="pv-label">日期區間</span>
+    <select id="dateFrom" onchange="applyAll()"><option value="">起始日期</option></select>
+    <span class="pv-label">～</span>
+    <select id="dateTo" onchange="applyAll()"><option value="">結束日期</option></select>
+  </div>
+  <input id="searchInput" type="text" placeholder="🔍 搜尋活動名稱 / ActivityId…" oninput="applyAll()">
+  <span id="resultCount"></span>
+</div>
+
 <!-- KPI Cards -->
 <div class="kpi-row">
   <div class="kpi-card">
     <div class="label">總點擊量</div>
-    <div class="value" style="color:var(--blue)">448,578</div>
-    <div class="sub">11 天累積</div>
+    <div id="kpi-total" class="value" style="color:var(--blue)">—</div>
+    <div id="kpi-total-sub" class="sub">全部日期</div>
   </div>
   <div class="kpi-card">
     <div class="label">活動數</div>
-    <div class="value" style="color:var(--cyan)">33</div>
-    <div class="sub">含棒球、籃球、演唱會等</div>
+    <div id="kpi-count" class="value" style="color:var(--cyan)">—</div>
+    <div class="sub">有資料的活動</div>
   </div>
   <div class="kpi-card">
     <div class="label">場次數</div>
-    <div class="value" style="color:var(--green)">451</div>
+    <div id="kpi-perf" class="value" style="color:var(--green)">451</div>
     <div class="sub">平均每活動 13.7 場</div>
   </div>
   <div class="kpi-card">
     <div class="label">登入點擊佔比</div>
-    <div class="value" style="color:var(--amber)">55.7%</div>
-    <div class="sub">250,112 / 448,578</div>
+    <div id="kpi-login-rate" class="value" style="color:var(--amber)">—</div>
+    <div id="kpi-login-sub" class="sub">—</div>
   </div>
   <div class="kpi-card">
     <div class="label">單日峰值</div>
-    <div class="value" style="color:var(--rose)">122,805</div>
-    <div class="sub">2026/06/05 (最高單日)</div>
+    <div id="kpi-peak" class="value" style="color:var(--rose)">—</div>
+    <div id="kpi-peak-sub" class="sub">—</div>
   </div>
 </div>
 
@@ -1233,8 +1271,10 @@ const baseFont = { family: "'Outfit','Noto Sans TC',sans-serif" };
 let selectedDayIdx = null;
 function getDailyColors(dsIdx) {
   const base = dsIdx === 0 ? '#3b82f6' : '#475569';
-  if (selectedDayIdx === null) return DAILY.map(() => base + 'cc');
-  return DAILY.map((_, i) => i === selectedDayIdx ? base : base + '22');
+  const labels = (typeof dailyChart !== 'undefined') ? dailyChart.data.labels : DAILY.map(d => d.date);
+  const selDate = (selectedDayIdx !== null && DAILY[selectedDayIdx]) ? DAILY[selectedDayIdx].date : null;
+  if (selDate === null) return labels.map(() => base + 'cc');
+  return labels.map(lbl => lbl === selDate ? base : base + '22');
 }
 
 // Daily stacked bar
@@ -1293,12 +1333,11 @@ const dailyChart = new Chart(document.getElementById('dailyChart'), {
     maintainAspectRatio: false,
     onClick: (evt, elements) => {
       if (elements.length > 0) {
-        const idx = elements[0].index;
-        if (selectedDayIdx === idx) {
-          closeDayDetail();
-        } else {
-          showDayDetail(idx);
-        }
+        const barDate = dailyChart.data.labels[elements[0].index];
+        const idx = DAILY.findIndex(function(d){ return d.date === barDate; });
+        if (idx === -1) return;
+        if (selectedDayIdx === idx) { closeDayDetail(); }
+        else { showDayDetail(idx); }
       }
     },
     onHover: (evt, elements) => {
@@ -1325,7 +1364,7 @@ const dailyChart = new Chart(document.getElementById('dailyChart'), {
 // Top10 horizontal bar
 const top10 = ACTIVITIES.slice(0, 10);
 const catColorArr = { sports:'#3b82f6', concert:'#8b5cf6', fan:'#f43f5e', music:'#10b981' };
-new Chart(document.getElementById('top10Chart'), {
+const top10ChartInst = new Chart(document.getElementById('top10Chart'), {
   type: 'bar',
   data: {
     labels: top10.map(a => a.name.length > 22 ? a.name.slice(0,22)+'…' : a.name),
@@ -1362,7 +1401,7 @@ new Chart(document.getElementById('top10Chart'), {
 });
 
 // Donut
-new Chart(document.getElementById('donutChart'), {
+const donutChartInst = new Chart(document.getElementById('donutChart'), {
   type: 'doughnut',
   data: {
     labels: ['已登入', '未登入'],
@@ -1395,7 +1434,7 @@ new Chart(document.getElementById('donutChart'), {
 const catGroups = {};
 ACTIVITIES.forEach(a => { catGroups[a.cat] = (catGroups[a.cat]||0) + a.total; });
 const catOrder = ['sports','concert','music','fan'];
-new Chart(document.getElementById('categoryChart'), {
+const categoryChartInst = new Chart(document.getElementById('categoryChart'), {
   type: 'bar',
   data: {
     labels: catOrder.map(c => CAT_LABELS[c]),
@@ -1553,49 +1592,73 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Table ──────────────────────────────────────────────────────────────────
-let tableData = ACTIVITIES.map((a, i) => ({ ...a, rank: i + 1 }));
 let currentFilter = 'all';
 let sortCol = 4;
 let sortDir = -1;
+let maxRangeTotal = maxTotal;
+
+function getRangeDates() {
+  var dates = DAILY.map(function(x){ return x.date; });
+  var from = document.getElementById('dateFrom').value;
+  var to   = document.getElementById('dateTo').value;
+  var fi = from ? dates.indexOf(from) : 0;
+  var ti = to   ? dates.indexOf(to)   : dates.length - 1;
+  return dates.slice(fi < 0 ? 0 : fi, (ti < 0 ? dates.length - 1 : ti) + 1);
+}
+
+// Populate date range dropdowns from DAILY
+(function() {
+  var dates = DAILY.map(function(d){ return d.date; });
+  ['dateFrom','dateTo'].forEach(function(id) {
+    var sel = document.getElementById(id);
+    dates.forEach(function(dt) {
+      var opt = document.createElement('option');
+      opt.value = dt; opt.textContent = dt;
+      sel.appendChild(opt);
+    });
+  });
+  document.getElementById('dateFrom').value = dates[0] || '';
+  document.getElementById('dateTo').value   = dates[dates.length - 1] || '';
+})();
 
 function renderTable(data) {
-  const tbody = document.getElementById('actTbody');
+  var tbody = document.getElementById('actTbody');
   if (!data.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">無符合條件的資料</td></tr>'; return; }
-  tbody.innerHTML = data.map((a, i) => {
-    const rate = a.total > 0 ? (a.loggedIn / a.total * 100) : 0;
-    const avg = a.perf > 0 ? Math.round(a.total / a.perf) : 0;
-    const barWidth = (a.total / maxTotal * 100).toFixed(1);
-    const rankClass = a.rank <= 3 ? 'rank top3' : 'rank';
-    const tagMap = { sports: 'tag-sports', concert: 'tag-concert', fan: 'tag-fan', music: 'tag-music' };
-    const rateClass = rate >= 70 ? 'rate-high' : rate >= 40 ? 'rate-mid' : 'rate-low';
-    return `<tr data-cat="${a.cat}">
-      <td><span class="${rankClass}">#${a.rank}</span></td>
-      <td class="game-name">
-        <span class="act-name-link" onclick="showActDetail('${a.id}')">${a.name}</span>
-        <span class="tag ${tagMap[a.cat]}">${CAT_LABELS[a.cat]}</span>
-        <div class="bar-bg"><div class="bar-fill" style="width:${barWidth}%"></div></div>
-      </td>
-      <td class="num" style="color:var(--muted);font-size:0.75rem">${a.id}</td>
-      <td class="num">${a.perf}</td>
-      <td class="num num-main">${a.total.toLocaleString()}</td>
-      <td class="num" style="color:var(--blue)">${a.loggedIn.toLocaleString()}</td>
-      <td class="num" style="color:var(--muted)">${a.notIn.toLocaleString()}</td>
-      <td class="num"><span class="rate-badge ${rateClass}">${rate.toFixed(1)}%</span></td>
-      <td class="num">${avg.toLocaleString()}</td>
-    </tr>`;
+  tbody.innerHTML = data.map(function(a) {
+    var rate = a.total > 0 ? (a.loggedIn / a.total * 100) : 0;
+    var avg  = a.perf > 0 ? Math.round(a.total / a.perf) : 0;
+    var barWidth = maxRangeTotal > 0 ? (a.total / maxRangeTotal * 100).toFixed(1) : '0';
+    var rankClass = a.rank <= 3 ? 'rank top3' : 'rank';
+    var tagMap = { sports: 'tag-sports', concert: 'tag-concert', fan: 'tag-fan', music: 'tag-music' };
+    var rateClass = rate >= 70 ? 'rate-high' : rate >= 40 ? 'rate-mid' : 'rate-low';
+    return '<tr data-cat="' + a.cat + '">' +
+      '<td><span class="' + rankClass + '">#' + a.rank + '</span></td>' +
+      '<td class="game-name">' +
+        '<span class="act-name-link" onclick="showActDetail(\'' + a.id + '\')">' + a.name + '</span>' +
+        '<span class="tag ' + tagMap[a.cat] + '">' + CAT_LABELS[a.cat] + '</span>' +
+        '<div class="bar-bg"><div class="bar-fill" style="width:' + barWidth + '%"></div></div>' +
+      '</td>' +
+      '<td class="num" style="color:var(--muted);font-size:0.75rem">' + a.id + '</td>' +
+      '<td class="num">' + a.perf + '</td>' +
+      '<td class="num num-main">' + a.total.toLocaleString() + '</td>' +
+      '<td class="num" style="color:var(--blue)">' + a.loggedIn.toLocaleString() + '</td>' +
+      '<td class="num" style="color:var(--muted)">' + a.notIn.toLocaleString() + '</td>' +
+      '<td class="num"><span class="rate-badge ' + rateClass + '">' + rate.toFixed(1) + '%</span></td>' +
+      '<td class="num">' + avg.toLocaleString() + '</td>' +
+      '</tr>';
   }).join('');
 }
 
 function filterTable(cat, btn) {
   currentFilter = cat;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
   btn.classList.add('active');
   applyAll();
 }
 
 function sortTable(col) {
-  const ths = document.querySelectorAll('#actTable thead th');
-  ths.forEach(th => { th.classList.remove('sort-asc','sort-desc'); });
+  var ths = document.querySelectorAll('#actTable thead th');
+  ths.forEach(function(th){ th.classList.remove('sort-asc','sort-desc'); });
   if (sortCol === col) { sortDir *= -1; }
   else { sortCol = col; sortDir = -1; }
   ths[col].classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
@@ -1603,26 +1666,97 @@ function sortTable(col) {
 }
 
 function applyAll() {
-  let data = currentFilter === 'all' ? [...tableData] : tableData.filter(a => a.cat === currentFilter);
-  const colMap = [
-    a => a.rank,
-    a => a.name,
-    a => a.id,
-    a => a.perf,
-    a => a.total,
-    a => a.loggedIn,
-    a => a.notIn,
-    a => a.total > 0 ? a.loggedIn / a.total : 0,
-    a => a.perf > 0 ? a.total / a.perf : 0,
+  var kw = (document.getElementById('searchInput') || {}).value;
+  kw = kw ? kw.trim().toLowerCase() : '';
+  var rangeDates = getRangeDates();
+
+  // Compute per-activity totals for selected date range
+  var rangeCache = {};
+  ACTIVITIES.forEach(function(a) {
+    var entries = ACT_DAILY[a.id] || [];
+    var total = 0, loggedIn = 0;
+    entries.forEach(function(e) {
+      if (rangeDates.indexOf(e.date) !== -1) { total += e.total; loggedIn += e.loggedIn; }
+    });
+    rangeCache[a.id] = { total: total, loggedIn: loggedIn, notIn: total - loggedIn };
+  });
+
+  // Aggregates
+  var allTotal    = ACTIVITIES.reduce(function(s,a){ return s + rangeCache[a.id].total; }, 0);
+  var allLoggedIn = ACTIVITIES.reduce(function(s,a){ return s + rangeCache[a.id].loggedIn; }, 0);
+  var allNotIn    = allTotal - allLoggedIn;
+  var activeCount = ACTIVITIES.filter(function(a){ return rangeCache[a.id].total > 0; }).length;
+  var sortedAll   = ACTIVITIES.slice().sort(function(a,b){ return rangeCache[b.id].total - rangeCache[a.id].total; });
+  var rangeDailyData = DAILY.filter(function(d){ return rangeDates.indexOf(d.date) !== -1; });
+  var peakDay = rangeDailyData.reduce(function(mx,d){ return d.total > mx.total ? d : mx; }, { total: 0, date: '' });
+
+  // Update KPI cards
+  document.getElementById('kpi-total').textContent    = allTotal.toLocaleString();
+  document.getElementById('kpi-total-sub').textContent = rangeDates.length === DAILY.length
+    ? '全部日期' : rangeDates[0] + ' ～ ' + rangeDates[rangeDates.length - 1];
+  document.getElementById('kpi-count').textContent    = activeCount;
+  var loginRate = allTotal > 0 ? (allLoggedIn / allTotal * 100).toFixed(1) + '%' : '0%';
+  document.getElementById('kpi-login-rate').textContent = loginRate;
+  document.getElementById('kpi-login-sub').textContent  = allLoggedIn.toLocaleString() + ' / ' + allTotal.toLocaleString();
+  document.getElementById('kpi-peak').textContent     = peakDay.total.toLocaleString();
+  document.getElementById('kpi-peak-sub').textContent  = peakDay.date ? '2026/' + peakDay.date + ' (最高單日)' : '—';
+
+  // Update daily chart
+  closeDayDetail();
+  dailyChart.data.labels = rangeDailyData.map(function(d){ return d.date; });
+  dailyChart.data.datasets[0].data = rangeDailyData.map(function(d){ return d.loggedIn; });
+  dailyChart.data.datasets[1].data = rangeDailyData.map(function(d){ return d.notIn; });
+  dailyChart.data.datasets[0].backgroundColor = getDailyColors(0);
+  dailyChart.data.datasets[1].backgroundColor = getDailyColors(1);
+  dailyChart.update();
+
+  // Update top10 chart
+  var top10items = sortedAll.slice(0, 10).filter(function(a){ return rangeCache[a.id].total > 0; });
+  top10ChartInst.data.labels = top10items.map(function(a){ return a.name.length > 22 ? a.name.slice(0,22)+'…' : a.name; });
+  top10ChartInst.data.datasets[0].data = top10items.map(function(a){ return rangeCache[a.id].total; });
+  top10ChartInst.data.datasets[0].backgroundColor = top10items.map(function(a){ return catColorArr[a.cat]+'cc'; });
+  top10ChartInst.update();
+
+  // Update donut chart
+  donutChartInst.data.datasets[0].data = [allLoggedIn, allNotIn];
+  donutChartInst.update();
+
+  // Update category chart
+  var catTotals = { sports:0, concert:0, fan:0, music:0 };
+  ACTIVITIES.forEach(function(a){ catTotals[a.cat] = (catTotals[a.cat]||0) + rangeCache[a.id].total; });
+  categoryChartInst.data.datasets[0].data = catOrder.map(function(c){ return catTotals[c]||0; });
+  categoryChartInst.update();
+
+  // Build table data with range values
+  maxRangeTotal = sortedAll[0] ? rangeCache[sortedAll[0].id].total : 1;
+  var rankData = ACTIVITIES.map(function(a, i) {
+    return Object.assign({}, a, { rank: i + 1 }, rangeCache[a.id]);
+  });
+
+  var data = currentFilter === 'all' ? rankData.slice() : rankData.filter(function(a){ return a.cat === currentFilter; });
+  if (kw) data = data.filter(function(a){ return a.name.toLowerCase().indexOf(kw) !== -1 || a.id.indexOf(kw) !== -1; });
+
+  var colMap = [
+    function(a){ return a.rank; },
+    function(a){ return a.name; },
+    function(a){ return a.id; },
+    function(a){ return a.perf; },
+    function(a){ return a.total; },
+    function(a){ return a.loggedIn; },
+    function(a){ return a.notIn; },
+    function(a){ return a.total > 0 ? a.loggedIn / a.total : 0; },
+    function(a){ return a.perf > 0 ? a.total / a.perf : 0; },
   ];
-  data.sort((x, y) => {
-    const va = colMap[sortCol](x), vb = colMap[sortCol](y);
+  data.sort(function(x, y) {
+    var va = colMap[sortCol](x), vb = colMap[sortCol](y);
     return va < vb ? -sortDir : va > vb ? sortDir : 0;
   });
+
+  document.getElementById('resultCount').textContent = '顯示 ' + data.length + ' / ' + ACTIVITIES.length + ' 筆';
   renderTable(data);
 }
 
-renderTable(tableData);
+applyAll();
 </script>
 </body>
 </html>
