@@ -120,6 +120,28 @@ tbody td { padding:10px 12px; font-size:.88rem; vertical-align:middle; }
 .pv-bar { height:6px; border-radius:3px; min-width:2px; }
 .pv-pct { font-size:.75rem; color:var(--muted); width:38px; text-align:right; }
 
+/* ─── SEARCH BAR ─── */
+.search-bar {
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+  padding:10px 18px 12px; border-bottom:1px solid var(--border);
+}
+#searchInput {
+  flex:1; min-width:200px;
+  background:var(--surface); border:1px solid var(--border);
+  color:var(--text); border-radius:8px;
+  padding:7px 12px; font-size:.85rem; font-family:inherit; outline:none;
+  transition:border-color .2s;
+}
+#searchInput:focus { border-color:var(--accent); }
+#searchInput::placeholder { color:var(--muted); }
+.pv-chips { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+.pv-label { font-size:.75rem; color:var(--muted); white-space:nowrap; }
+.chip-pv { padding:4px 10px; border-radius:20px; border:1px solid var(--border);
+  background:transparent; color:var(--muted); font-size:.76rem; font-weight:600;
+  cursor:pointer; transition:all .2s; }
+.chip-pv:hover, .chip-pv.active { background:var(--purple); color:#fff; border-color:var(--purple); }
+#resultCount { font-size:.78rem; color:var(--muted); margin-left:auto; white-space:nowrap; }
+
 /* ─── FOOTER ─── */
 footer { text-align:center; padding:20px; color:var(--muted); font-size:.8rem; border-top:1px solid var(--border); }
 footer a { color:var(--accent); text-decoration:none; }
@@ -230,7 +252,7 @@ footer a { color:var(--accent); text-decoration:none; }
 <!-- ─── TABLE ─── -->
 <div class="tbl-wrap">
   <div class="tbl-header">
-    <div class="tbl-title">📋 完整活動排行（32 頁）</div>
+    <div class="tbl-title">📋 完整活動排行 <span id="tblCount" style="font-weight:400;opacity:.65;"></span></div>
     <div class="filter-chips">
       <button class="chip active" onclick="filterTable('all',this)">全部</button>
       <button class="chip" onclick="filterTable('sports',this)">⚾ 體育</button>
@@ -238,6 +260,18 @@ footer a { color:var(--accent); text-decoration:none; }
       <button class="chip" onclick="filterTable('kpop',this)">🎤 K-pop</button>
       <button class="chip" onclick="filterTable('anime',this)">🎮 動漫</button>
     </div>
+  </div>
+  <div class="search-bar">
+    <input id="searchInput" type="text" placeholder="🔍 搜尋活動名稱 / ActivityId…" oninput="applyFilters()">
+    <div class="pv-chips">
+      <span class="pv-label">PV ≥</span>
+      <button class="chip-pv active" data-min="0"     onclick="setPvMin(0,this)">全部</button>
+      <button class="chip-pv"       data-min="1000"   onclick="setPvMin(1000,this)">1,000+</button>
+      <button class="chip-pv"       data-min="5000"   onclick="setPvMin(5000,this)">5,000+</button>
+      <button class="chip-pv"       data-min="10000"  onclick="setPvMin(10000,this)">10,000+</button>
+      <button class="chip-pv"       data-min="50000"  onclick="setPvMin(50000,this)">50,000+</button>
+    </div>
+    <span id="resultCount"></span>
   </div>
   <table id="mainTable">
     <thead>
@@ -741,18 +775,24 @@ new Chart(document.getElementById('top10Chart'), {
 let currentFilter = 'all';
 let sortCol = 3;
 let sortAsc = false;
+let minPv = 0;
 
-function renderTable(filter) {
+function applyFilters() {
+  const kw = document.getElementById('searchInput').value.trim().toLowerCase();
   const tbody = document.getElementById('tableBody');
   let rows = DATA.slice();
-  if (filter !== 'all') rows = rows.filter(d => d.cat === filter);
+  if (currentFilter !== 'all') rows = rows.filter(d => d.cat === currentFilter);
+  if (minPv > 0) rows = rows.filter(d => d.pv >= minPv);
+  if (kw) rows = rows.filter(d =>
+    d.name.toLowerCase().includes(kw) || d.id.toString().includes(kw)
+  );
   rows.sort((a, b) => {
     let va = sortCol === 0 ? a.rank : sortCol === 3 ? a.pv : a.id;
     let vb = sortCol === 0 ? b.rank : sortCol === 3 ? b.pv : b.id;
     return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
   });
   const maxPv = rows[0] ? Math.max(...rows.map(d => d.pv)) : 1;
-  tbody.innerHTML = rows.map((d, i) => {
+  tbody.innerHTML = rows.map(d => {
     const rankCls = d.rank === 1 ? 'gold' : d.rank === 2 ? 'silver' : d.rank === 3 ? 'bronze' : '';
     const pct = (d.pv / TOTAL * 100).toFixed(1);
     const barW = Math.round(d.pv / maxPv * 200);
@@ -773,13 +813,23 @@ function renderTable(filter) {
       <td style="color:var(--muted);font-size:.8rem;">${d.id}</td>
     </tr>`;
   }).join('');
+  const n = rows.length;
+  document.getElementById('resultCount').textContent = `顯示 ${n} / ${DATA.length} 筆`;
+  document.getElementById('tblCount').textContent = `（${n} 筆）`;
 }
 
 function filterTable(cat, btn) {
   currentFilter = cat;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
-  renderTable(cat);
+  applyFilters();
+}
+
+function setPvMin(min, btn) {
+  minPv = min;
+  document.querySelectorAll('.chip-pv').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
 }
 
 function sortTable(col) {
@@ -788,10 +838,10 @@ function sortTable(col) {
   if (sortCol === col) { sortAsc = !sortAsc; }
   else { sortCol = col; sortAsc = col !== 3; }
   ths[col].classList.add(sortAsc ? 'sort-asc' : 'sort-desc');
-  renderTable(currentFilter);
+  applyFilters();
 }
 
-renderTable('all');
+applyFilters();
 </script>
 </body>
 </html>
