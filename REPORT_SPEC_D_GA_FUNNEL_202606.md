@@ -126,6 +126,29 @@
 - 可排序欄位：PV排名、名稱、類別、瀏覽量、點擊量、CTR、點擊排名、排名變化
 - 排名變化 = pvRank - clickRank（▲正 = 點擊排名優於瀏覽排名）
 
+## 5.7 日期區間篩選（Date Range Filter）
+
+報表頂部提供兩組 Flatpickr 日期選擇器：
+
+| 篩選器 | 可選範圍 | 對應資料 |
+|--------|---------|---------|
+| PV 日期區間 | 06/10 – 06/20 | `PV_BY_DATE[actId][date]` |
+| 點擊日期區間 | 05/27 – 06/20 | `CLICK_ACT_DAILY[actId][]` |
+
+點擊「套用篩選」後呼叫 `applyFunnel()`，依選定日期區間重新計算：
+- 各活動 pv / clicks（加總該區間有的日期）
+- ctr（重新計算比值）
+- pvRank / clickRank（依新數值重新排序）
+- pvShare / clickShare（依新合計重新計算）
+
+並同步更新：KPI 卡片、漏斗視覺列、散點圖、CTR 橫條圖、類別比較圖、完整表格。
+
+「重置」按鈕還原到全期間數據。
+
+### 靜態每日資料（非 generator 自動更新）
+
+`PV_BY_DATE` 和 `CLICK_ACT_DAILY` 目前為靜態資料，嵌入在 HTML Charts 區塊（`// ── Charts ──` 之後），**不會被 generator 覆蓋**。若需更新，需手動從 `D_GA_PageViewData_Webb_202606_Report.html`（`DATA` 陣列的 `pvByDate`）和 `D_GA_ClickData_Webb_202606_Report.html`（`ACT_DAILY`）同步。
+
 ## 6. Section Markers（Generator 注入點）
 
 ```
