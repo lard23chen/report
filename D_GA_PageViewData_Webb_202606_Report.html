@@ -140,10 +140,13 @@ tbody td { padding:10px 12px; font-size:.88rem; vertical-align:middle; }
   background:transparent; color:var(--muted); font-size:.76rem; font-weight:600;
   cursor:pointer; transition:all .2s; }
 .chip-pv:hover, .chip-pv.active { background:var(--purple); color:#fff; border-color:var(--purple); }
-.chip-date { padding:4px 10px; border-radius:20px; border:1px solid var(--border);
-  background:transparent; color:var(--muted); font-size:.76rem; font-weight:600;
-  cursor:pointer; transition:all .2s; }
-.chip-date:hover, .chip-date.active { background:var(--cyan); color:#fff; border-color:var(--cyan); }
+.date-range { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+.date-range select {
+  background:var(--surface); border:1px solid var(--border); color:var(--text);
+  border-radius:8px; padding:5px 10px; font-size:.8rem; font-family:inherit;
+  outline:none; cursor:pointer; transition:border-color .2s;
+}
+.date-range select:focus { border-color:var(--cyan); }
 #resultCount { font-size:.78rem; color:var(--muted); margin-left:auto; white-space:nowrap; }
 
 /* ─── FOOTER ─── */
@@ -275,8 +278,11 @@ footer a { color:var(--accent); text-decoration:none; }
       <button class="chip-pv"       data-min="10000"  onclick="setPvMin(10000,this)">10,000+</button>
       <button class="chip-pv"       data-min="50000"  onclick="setPvMin(50000,this)">50,000+</button>
     </div>
-    <div class="pv-chips" id="dateChips">
-      <span class="pv-label">日期</span>
+    <div class="date-range">
+      <span class="pv-label">日期區間</span>
+      <select id="dateFrom" onchange="applyFilters()"><option value="">起始日期</option></select>
+      <span class="pv-label">～</span>
+      <select id="dateTo" onchange="applyFilters()"><option value="">結束日期</option></select>
     </div>
     <span id="resultCount"></span>
   </div>
@@ -1208,27 +1214,33 @@ let currentFilter = 'all';
 let sortCol = 3;
 let sortAsc = false;
 let minPv = 0;
-let currentDate = null;
 
-// Build date chips dynamically from DAILY
+// Populate date range selects from DAILY
 (function() {
-  const c = document.getElementById('dateChips');
-  const allBtn = document.createElement('button');
-  allBtn.className = 'chip-date active';
-  allBtn.textContent = '全部';
-  allBtn.onclick = function() { setDateFilter(null, this); };
-  c.appendChild(allBtn);
-  DAILY.forEach(function(d) {
-    const btn = document.createElement('button');
-    btn.className = 'chip-date';
-    btn.textContent = d.date;
-    btn.onclick = function() { setDateFilter(d.date, this); };
-    c.appendChild(btn);
+  const dates = DAILY.map(function(d){ return d.date; });
+  ['dateFrom','dateTo'].forEach(function(id) {
+    const sel = document.getElementById(id);
+    dates.forEach(function(dt) {
+      const opt = document.createElement('option');
+      opt.value = dt; opt.textContent = dt;
+      sel.appendChild(opt);
+    });
   });
+  // Default: full range
+  document.getElementById('dateFrom').value = dates[0] || '';
+  document.getElementById('dateTo').value   = dates[dates.length - 1] || '';
 })();
 
 function getPv(d) {
-  return currentDate ? (d.pvByDate && d.pvByDate[currentDate] || 0) : d.pv;
+  const dates = DAILY.map(function(x){ return x.date; });
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  const fi = from ? dates.indexOf(from) : 0;
+  const ti = to   ? dates.indexOf(to)   : dates.length - 1;
+  const inRange = dates.slice(fi < 0 ? 0 : fi, (ti < 0 ? dates.length - 1 : ti) + 1);
+  return inRange.reduce(function(sum, dt) {
+    return sum + ((d.pvByDate && d.pvByDate[dt]) || 0);
+  }, 0);
 }
 
 function applyFilters() {
@@ -1278,13 +1290,6 @@ function filterTable(cat, btn) {
 function setPvMin(min, btn) {
   minPv = min;
   document.querySelectorAll('.chip-pv').forEach(function(c){ c.classList.remove('active'); });
-  btn.classList.add('active');
-  applyFilters();
-}
-
-function setDateFilter(date, btn) {
-  currentDate = date;
-  document.querySelectorAll('.chip-date').forEach(function(c){ c.classList.remove('active'); });
   btn.classList.add('active');
   applyFilters();
 }
