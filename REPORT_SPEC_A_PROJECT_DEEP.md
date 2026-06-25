@@ -4,7 +4,7 @@
 
 
 本文件定義所有「演唱會 / 專案深度評估」類報表的共通規範。
-目前涵蓋：金唱片頒獎典禮、李聖傑演唱會、統一獅例行賽、韋禮安演唱會、高雄啤酒音樂節 2025/2026、高雄櫻花季 2025/2026。
+目前涵蓋：金唱片頒獎典禮、李聖傑演唱會、統一獅例行賽、韋禮安演唱會、高雄啤酒音樂節 2025/2026、高雄櫻花季 2025/2026、台灣精品中華職棒明星對抗賽 2026、中華職棒37年 Rakuten主場例行賽。
 
 ---
 
@@ -30,6 +30,7 @@
 | A_KaohsiungBeerFestival_2026.html | generate_kaohsiung_beer_festival_report.js | Qware_A_Ticket_data_Daily + Qware_Member_data |
 | A_KaohsiungSakuraFestival_2025.html | generate_kaohsiung_sakura_festival_2025_report.js | Qware_Ticket_Data + Qware_Member_data |
 | A_KaohsiungSakuraFestival_2026.html | generate_kaohsiung_sakura_festival_report.js | Qware_Ticket_Data + Qware_Member_data |
+| A_RakutenCPBL37_2026.html | generate_rakuten_cpbl37_report.js | Qware_Ticket_Data + Qware_Member_data |
 
 ---
 
@@ -159,6 +160,32 @@
   - `break-inside: avoid` 防止 chart-card / card 跨頁截斷
   - 按鈕本身在列印時隱藏（`display: none`）
   - 棄用 html2pdf.js（無法正確渲染 CSS Grid + Canvas 複合版面）
+
+### 中華職棒37年 Rakuten主場例行賽（A_RakutenCPBL37_2026）
+- 篩選條件：`節目/商品名稱 regex '中華職棒37年Rakuten'`（含所有子活動類型，共 6 種）
+- 資料來源：`Qware_Ticket_Data`（**含 `$numberDecimal` 正規化**：售價 / 原價 / 實退金額 / 手續費）
+- 聯查集合：`Qware_Member_data`（依 `會員編號` 批次查，取國籍 / 縣市）
+- 場次：31 場（2026-03-28 ~ 2026-07-10）
+- 場地：樂天桃園棒球場（213,825 張）+ 臺北大巨蛋（56,017 張，3/28 單場 35,036 張最高）
+- 子活動類型（共 6 種）：
+  - 主場例行賽（主）：264,505 筆 / 特色席位：9,303 筆 / 黑松沙士快樂炒：3,074 筆
+  - 小周末套票_周五版：513 筆 / 小周末套票_周三版：451 筆 / 動紫三日套票：110 筆
+- 銷售總覽：
+  - 總銷售張數：269,842（正常）/ 退票：8,114
+  - 總成交金額：$124,107,675 / 退票金額：$4,663,916 / 淨營收：$119,443,759
+  - 訂單去重：`訂單編號.split('_')[0]`
+- 付款方式：信用卡（110,550）/ 現金（159,292）
+- 交易期間：2026-03-04 ~ 2026-05-31
+- 開賣日：2026-03-04 10:00（首筆 10:00:13）/ 當日 21,160 張
+- 開賣尖峰：2026-03-04 10:01（529 張/分）
+- 每月購票量：2026-03（131,092）/ 2026-04（75,594）/ 2026-05（63,156）
+- **視覺格式**：WeiBird navy 主題，accent-color `#f43f5e`（Rakuten 品牌紅）
+- **預聚合 HTML 架構**（非嵌入原始資料）：
+  - Node.js 端完成所有統計，HTML 僅嵌入聚合 JSON（~40 KB）
+  - 原因：278k 筆嵌入約 250MB，超過 GitHub 100MB 上限
+- **主要分析區塊**：KPI 6 項 → 場次 Table（31 場）→ 子活動 + 場地圓餅 → 月別/場次 Bar → 每日趨勢 Bar → 性別 + 年齡 → 城市 Top 10 + 國籍/付款/取票 Table → 票別 + 票價 Table → 銷售點 Top 20 → 開賣尖峰 Table
+- **場次表格**：場地以徽章顯示（大巨蛋紅 `#f43f5e` / 桃園橙 `#fb923c`）
+- **PDF 下載**：呼叫 `window.print()`，`@page { size: A3 landscape; margin: 10mm; }`
 
 ### 高雄啤酒音樂節 2025（A_KaohsiungBeerFestival_2025）
 - 篩選條件：`節目/商品名稱 === '2025 7-ELEVEN高雄啤酒音樂節'`

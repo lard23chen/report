@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中華職棒37年 Rakuten主場例行賽 - 專案銷售分析報表</title>
+<!-- IP Allowlist: internal network only -->
+<style>html { visibility: hidden; }</style>
+<script>
+(function(){
+    var A=['211.75.181.109','211.75.181.110','220.130.6.196','220.130.6.197','220.130.6.198','220.130.134.238','220.130.134.239','220.130.134.240','133.149.194.24'];
+    function deny(ip){
+        document.documentElement.style.visibility='visible';
+        document.body.style.cssText='margin:0;padding:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh;';
+        document.body.innerHTML='<div style="text-align:center;font-family:Outfit,sans-serif;padding:40px"><div style="font-size:5rem;margin-bottom:20px">🔒</div><h1 style="color:#ef4444;font-size:2rem;margin:0 0 14px">存取被拒絕</h1><p style="color:#94a3b8;margin:0 0 8px">您目前的 IP 位址：<code style="background:#1e293b;padding:2px 10px;border-radius:4px;color:#f472b6">'+ip+'</code></p><p style="color:#64748b;font-size:0.88rem">此頁面僅限內部網路存取</p></div>';
+    }
+    var t=setTimeout(function(){deny('timeout');},6000);
+    fetch('https://api.ipify.org?format=json').then(function(r){return r.json();}).then(function(d){clearTimeout(t);if(A.indexOf(d.ip)!==-1){document.documentElement.style.visibility='visible';}else{deny(d.ip);}}).catch(function(){clearTimeout(t);deny('unknown');});
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-color: #0f172a; --card-bg: #1e293b; --text-primary: #f8fafc;
+    --text-secondary: #94a3b8; --accent-color: #f43f5e; --accent-secondary: #e11d48;
+    --shadow: 0 10px 25px -5px rgba(0,0,0,0.3); --success: #22c55e; --danger: #ef4444;
+}
+* { box-sizing: border-box; }
+body { font-family:'Outfit','Noto Sans TC',sans-serif; background-color:var(--bg-color); color:var(--text-primary); margin:0; padding:30px; }
+.container { max-width:1400px; margin:0 auto; }
+header { margin-bottom:40px; display:flex; justify-content:space-between; align-items:flex-end; background:linear-gradient(to right,#1e293b,#0f172a); padding:40px; border-radius:24px; box-shadow:var(--shadow); border-bottom:4px solid var(--accent-color); }
+.logo-text { font-size:2.2rem; font-weight:800; background:linear-gradient(135deg,#f43f5e,#fb923c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin:0; letter-spacing:-1px; }
+.logo-sub { font-size:1rem; color:var(--accent-color); margin-top:8px; font-weight:600; }
+.meta { text-align:right; font-size:0.9rem; color:var(--text-secondary); }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:20px; margin-bottom:36px; }
+.card { background:var(--card-bg); border-radius:20px; padding:22px; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,0.05); transition:all 0.3s; }
+.card:hover { border-color:var(--accent-color); transform:translateY(-4px); }
+.card h3 { margin:0 0 12px; font-size:0.8em; text-transform:uppercase; color:var(--text-secondary); }
+.card .value { font-size:2em; font-weight:700; color:var(--accent-color); }
+.card .sub { font-size:0.82em; color:#64748b; margin-top:6px; }
+.chart-card { background:var(--card-bg); border-radius:24px; padding:28px; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,0.05); margin-bottom:28px; }
+.chart-card h3 { border-left:5px solid var(--accent-color); padding-left:14px; margin:0 0 22px; font-size:1.15rem; }
+table { width:100%; border-collapse:collapse; font-size:0.88em; }
+th,td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.05); }
+th { color:var(--accent-color); font-weight:600; font-size:0.8rem; white-space:nowrap; }
+td { white-space:nowrap; }
+tr:hover td { background:rgba(244,63,94,0.04); }
+.text-right { text-align:right; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:28px; }
+.three-col { display:grid; grid-template-columns:2fr 1fr; gap:24px; margin-bottom:28px; }
+.progress-bar { background:rgba(255,255,255,0.05); width:100%; border-radius:8px; height:7px; margin-top:6px; overflow:hidden; }
+.progress-fill { height:100%; background:var(--accent-color); border-radius:8px; }
+.venue-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; }
+.venue-dome { background:rgba(244,63,94,0.2); color:#f43f5e; }
+.venue-taoyuan { background:rgba(251,146,60,0.2); color:#fb923c; }
+.peak-table-container { overflow-x:auto; border:1px solid rgba(255,255,255,0.08); border-radius:14px; background:rgba(15,23,42,0.5); }
+.show-table-container { overflow-x:auto; max-height:520px; overflow-y:auto; border:1px solid rgba(255,255,255,0.08); border-radius:14px; }
+.pdf-btn { display:inline-flex; align-items:center; gap:8px; margin-top:14px; padding:9px 20px; background:var(--accent-color); color:#fff; border:none; border-radius:10px; font-family:inherit; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all 0.2s; }
+.pdf-btn:hover { background:var(--accent-secondary); transform:translateY(-2px); box-shadow:0 4px 12px rgba(244,63,94,0.4); }
+@media print {
+    @page { size:A3 landscape; margin:10mm; }
+    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    .pdf-btn { display:none !important; }
+    body { padding:0 !important; }
+    .container { max-width:none !important; }
+    .stats-grid { grid-template-columns:repeat(6,1fr) !important; }
+    .two-col,.three-col { grid-template-columns:1fr 1fr !important; }
+    .chart-card,.card { break-inside:avoid; page-break-inside:avoid; }
+    .show-table-container { max-height:none !important; overflow:visible !important; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <div>
+        <div class="logo-text">⚾ 中華職棒37年 Rakuten主場例行賽</div>
+        <div class="logo-sub">2026 全季主場例行賽 專案銷售分析報表 ｜ 樂天桃園棒球場 ＋ 臺北大巨蛋</div>
+    </div>
+    <div style="text-align:right">
+        <div class="meta" id="meta-info"></div>
+        <button class="pdf-btn" onclick="window.print()">⬇ 下載 PDF</button>
+    </div>
+</header>
+
+<!-- KPI -->
+<div class="stats-grid" id="kpiGrid"></div>
+
+<!-- Show Breakdown -->
+<div class="chart-card" style="min-height:0">
+    <h3>各場次銷售概覽 (Show Breakdown — 共 <span id="showCount"></span> 場)</h3>
+    <div class="show-table-container">
+        <table id="showBreakdownTable">
+            <thead><tr>
+                <th>場次日期</th><th>場地</th>
+                <th class="text-right">成交金額</th><th class="text-right">銷售張數</th>
+                <th class="text-right">AOV</th><th class="text-right">淨營收</th>
+                <th class="text-right">退票張數</th><th class="text-right">退票金額</th><th class="text-right">退票手續費</th>
+            </tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Sub-event + Venue -->
+<div class="two-col">
+    <div class="chart-card" style="min-height:0">
+        <h3>子活動類型分析</h3>
+        <table id="subTable">
+            <thead><tr><th>活動類型</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">占比</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="chart-card"><h3>場地分析</h3><canvas id="venueChart"></canvas></div>
+</div>
+
+<!-- Monthly bar + Daily trend -->
+<div class="two-col">
+    <div class="chart-card"><h3>每月購票量趨勢</h3><canvas id="monthlyChart"></canvas></div>
+    <div class="chart-card"><h3>各場次銷售張數</h3><canvas id="showChart"></canvas></div>
+</div>
+
+<div class="chart-card"><h3>每日購票趨勢 (購票日)</h3><canvas id="dailyChart" style="max-height:300px"></canvas></div>
+
+<!-- Gender + Age -->
+<div class="two-col">
+    <div class="chart-card"><h3>性別分佈</h3><canvas id="genderChart"></canvas></div>
+    <div class="chart-card"><h3>年齡分佈</h3><canvas id="ageChart"></canvas></div>
+</div>
+
+<!-- City + Payment -->
+<div class="three-col">
+    <div class="chart-card"><h3>城市分佈 Top 10</h3><canvas id="cityChart"></canvas></div>
+    <div class="chart-card" style="min-height:0">
+        <h3>國籍統計</h3>
+        <table id="natTable"><thead><tr><th>國籍</th><th class="text-right">張數</th><th class="text-right">占比</th></tr></thead><tbody></tbody></table>
+        <br>
+        <h3 style="border-left:5px solid var(--accent-color);padding-left:14px;font-size:1.05rem">付款方式</h3>
+        <table id="payTable"><thead><tr><th>付款方式</th><th class="text-right">張數</th><th class="text-right">占比</th></tr></thead><tbody></tbody></table>
+        <br>
+        <h3 style="border-left:5px solid var(--accent-color);padding-left:14px;font-size:1.05rem">取票方式</h3>
+        <table id="pickupTable"><thead><tr><th>取票方式</th><th class="text-right">張數</th><th class="text-right">占比</th></tr></thead><tbody></tbody></table>
+    </div>
+</div>
+
+<!-- Ticket Type + Price -->
+<div class="two-col">
+    <div class="chart-card" style="min-height:0">
+        <h3>票別分析</h3>
+        <table id="typeTable"><thead><tr><th>票別</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">占比</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="chart-card" style="min-height:0">
+        <h3>票價分析</h3>
+        <table id="priceTable"><thead><tr><th>票價</th><th class="text-right">張數</th><th class="text-right">金額</th><th>占比</th></tr></thead><tbody></tbody></table>
+    </div>
+</div>
+
+<!-- Sales Channel -->
+<div class="chart-card" style="min-height:0">
+    <h3>銷售點分析 Top 20</h3>
+    <table id="channelTable"><thead><tr><th>銷售點</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">占比</th></tr></thead><tbody></tbody></table>
+</div>
+
+<!-- Peak -->
+<div class="chart-card" style="min-height:0">
+    <h3>開賣尖峰時段分析 (2026-03-04 10:00 – 11:00)</h3>
+    <div class="peak-table-container">
+        <table id="peakTable">
+            <thead><tr><th>時間</th><th class="text-right">當分鐘張數</th><th class="text-right">累計張數</th><th class="text-right">信用卡</th><th class="text-right">現金</th><th class="text-right">累計轉換率</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+</div>
+
+<script>
+const S = {"kpi":{"revenue":124107675,"tickets":269842,"orders":61417,"aov":2020.7381506748945,"refundTickets":8114,"refundAmt":4663916,"netRevenue":119443759,"totalRecords":277956},"showBreakdown":[{"date":"2026-03-28","spec":"2026-03-28 17:05:00","venue":"臺北大巨蛋","tickets":35036,"rev":33069900,"orders":10687,"aov":3094,"netRev":31951425,"refTickets":1045,"refAmt":1118475,"refFee":124275},{"date":"2026-03-29","spec":"2026-03-29 17:05:00","venue":"臺北大巨蛋","tickets":20981,"rev":14251550,"orders":4421,"aov":3224,"netRev":13685180,"refTickets":412,"refAmt":566370,"refFee":62930},{"date":"2026-03-31","spec":"2026-03-31 18:35:00","venue":"樂天桃園棒球場","tickets":7409,"rev":1917075,"orders":1937,"aov":990,"netRev":1876260,"refTickets":116,"refAmt":40815,"refFee":4535},{"date":"2026-04-01","spec":"2026-04-01 18:35:00","venue":"樂天桃園棒球場","tickets":5807,"rev":1471150,"orders":1082,"aov":1360,"netRev":1443610,"refTickets":74,"refAmt":27540,"refFee":3060},{"date":"2026-04-10","spec":"2026-04-10 18:35:00","venue":"樂天桃園棒球場","tickets":7853,"rev":2289750,"orders":2058,"aov":1113,"netRev":2212643,"refTickets":211,"refAmt":77107,"refFee":8568},{"date":"2026-04-11","spec":"2026-04-11 17:05:00","venue":"樂天桃園棒球場","tickets":12279,"rev":5267450,"orders":3718,"aov":1417,"netRev":5058021,"refTickets":491,"refAmt":209429,"refFee":23271},{"date":"2026-04-12","spec":"2026-04-12 17:05:00","venue":"樂天桃園棒球場","tickets":9799,"rev":4092350,"orders":2791,"aov":1466,"netRev":3957485,"refTickets":282,"refAmt":134865,"refFee":14985},{"date":"2026-04-15","spec":"2026-04-15 18:35:00","venue":"樂天桃園棒球場","tickets":6367,"rev":1381025,"orders":945,"aov":1461,"netRev":1346690,"refTickets":92,"refAmt":34335,"refFee":3815},{"date":"2026-04-16","spec":"2026-04-16 18:35:00","venue":"樂天桃園棒球場","tickets":6433,"rev":1185050,"orders":806,"aov":1470,"netRev":1158500,"refTickets":79,"refAmt":26550,"refFee":2950},{"date":"2026-04-21","spec":"2026-04-21 18:35:00","venue":"樂天桃園棒球場","tickets":7100,"rev":1197875,"orders":909,"aov":1318,"netRev":1166465,"refTickets":86,"refAmt":31410,"refFee":3490},{"date":"2026-04-22","spec":"2026-04-22 18:35:00","venue":"樂天桃園棒球場","tickets":7570,"rev":1252750,"orders":908,"aov":1380,"netRev":1223365,"refTickets":80,"refAmt":29385,"refFee":3265},{"date":"2026-04-24","spec":"2026-04-24 18:35:00","venue":"樂天桃園棒球場","tickets":5153,"rev":1277100,"orders":839,"aov":1522,"netRev":910796,"refTickets":979,"refAmt":366304,"refFee":7221},{"date":"2026-04-25","spec":"2026-04-25 17:05:00","venue":"樂天桃園棒球場","tickets":10685,"rev":4910325,"orders":2266,"aov":2167,"netRev":4711563,"refTickets":398,"refAmt":198762,"refFee":22088},{"date":"2026-04-26","spec":"2026-04-26 17:05:00","venue":"樂天桃園棒球場","tickets":9038,"rev":4065750,"orders":2090,"aov":1945,"netRev":3950861,"refTickets":228,"refAmt":114889,"refFee":12711},{"date":"2026-05-08","spec":"2026-05-08 18:35:00","venue":"樂天桃園棒球場","tickets":6349,"rev":1718750,"orders":1678,"aov":1024,"netRev":1625984,"refTickets":271,"refAmt":92766,"refFee":10309},{"date":"2026-05-09","spec":"2026-05-09 17:05:00","venue":"樂天桃園棒球場","tickets":10576,"rev":4805625,"orders":2749,"aov":1748,"netRev":4549605,"refTickets":494,"refAmt":256020,"refFee":28455},{"date":"2026-05-10","spec":"2026-05-10 17:05:00","venue":"樂天桃園棒球場","tickets":8484,"rev":3828925,"orders":2449,"aov":1563,"netRev":3646843,"refTickets":344,"refAmt":182082,"refFee":20243},{"date":"2026-05-20","spec":"2026-05-20 18:35:00","venue":"樂天桃園棒球場","tickets":10083,"rev":2051725,"orders":1737,"aov":1181,"netRev":1985620,"refTickets":206,"refAmt":66105,"refFee":7345},{"date":"2026-05-22","spec":"2026-05-22 18:35:00","venue":"樂天桃園棒球場","tickets":6420,"rev":1665150,"orders":1386,"aov":1201,"netRev":1629692,"refTickets":101,"refAmt":35458,"refFee":3942},{"date":"2026-05-23","spec":"2026-05-23 17:05:00","venue":"樂天桃園棒球場","tickets":12342,"rev":4979875,"orders":2423,"aov":2055,"netRev":4797582,"refTickets":383,"refAmt":182293,"refFee":20257},{"date":"2026-05-24","spec":"2026-05-24 17:05:00","venue":"樂天桃園棒球場","tickets":7623,"rev":3154975,"orders":1864,"aov":1693,"netRev":3057721,"refTickets":193,"refAmt":97254,"refFee":10846},{"date":"2026-05-29","spec":"2026-05-29 18:35:00","venue":"樂天桃園棒球場","tickets":6403,"rev":1747025,"orders":1514,"aov":1154,"netRev":1664766,"refTickets":240,"refAmt":82259,"refFee":9141},{"date":"2026-05-30","spec":"2026-05-30 17:05:00","venue":"樂天桃園棒球場","tickets":10865,"rev":4746175,"orders":2966,"aov":1600,"netRev":4546378,"refTickets":400,"refAmt":199797,"refFee":22203},{"date":"2026-05-31","spec":"2026-05-31 17:05:00","venue":"樂天桃園棒球場","tickets":7946,"rev":3313825,"orders":1947,"aov":1702,"netRev":3195026,"refTickets":234,"refAmt":118799,"refFee":13201},{"date":"2026-06-03","spec":"2026-06-03 18:35:00","venue":"樂天桃園棒球場","tickets":5845,"rev":932800,"orders":733,"aov":1273,"netRev":906925,"refTickets":75,"refAmt":25875,"refFee":2875},{"date":"2026-06-10","spec":"2026-06-10 18:35:00","venue":"樂天桃園棒球場","tickets":5657,"rev":711000,"orders":563,"aov":1263,"netRev":683190,"refTickets":76,"refAmt":27810,"refFee":3090},{"date":"2026-06-18","spec":"2026-06-18 18:35:00","venue":"樂天桃園棒球場","tickets":1837,"rev":715650,"orders":483,"aov":1482,"netRev":686715,"refTickets":83,"refAmt":28935,"refFee":3215},{"date":"2026-06-19","spec":"2026-06-19 17:05:00","venue":"樂天桃園棒球場","tickets":4366,"rev":2841450,"orders":1426,"aov":1993,"netRev":2759303,"refTickets":124,"refAmt":82147,"refFee":9128},{"date":"2026-06-20","spec":"2026-06-20 17:05:00","venue":"樂天桃園棒球場","tickets":6642,"rev":4840600,"orders":2026,"aov":2389,"netRev":4707110,"refTickets":201,"refAmt":133490,"refFee":14835},{"date":"2026-06-21","spec":"2026-06-21 17:05:00","venue":"樂天桃園棒球場","tickets":5554,"rev":3803925,"orders":1562,"aov":2435,"netRev":3727335,"refTickets":116,"refAmt":76590,"refFee":8510},{"date":"2026-07-10","spec":"2026-07-10 18:35:00","venue":"樂天桃園棒球場","tickets":1340,"rev":621100,"orders":6,"aov":103517,"netRev":621100,"refTickets":0,"refAmt":0,"refFee":0}],"subBreakdown":[{"name":"主場例行賽（主）","tickets":256825,"rev":118640975},{"name":"特色席位＆套票","tickets":9105,"rev":3293550},{"name":"黑松沙士快樂炒","tickets":2853,"rev":1765750},{"name":"小周末套票＿周五版","tickets":506,"rev":122400},{"name":"小周末套票＿周三版","tickets":451,"rev":91200},{"name":"動紫三日套票","tickets":102,"rev":193800}],"monthly":[{"month":"2026-03","count":131092,"rev":83836575},{"month":"2026-04","count":75594,"rev":20260600},{"month":"2026-05","count":63156,"rev":20010500}],"daily":[{"date":"2026-03-04","count":21160},{"date":"2026-03-05","count":14493},{"date":"2026-03-06","count":11699},{"date":"2026-03-07","count":1729},{"date":"2026-03-08","count":1163},{"date":"2026-03-09","count":5584},{"date":"2026-03-10","count":7266},{"date":"2026-03-11","count":10237},{"date":"2026-03-12","count":1426},{"date":"2026-03-13","count":1309},{"date":"2026-03-14","count":1163},{"date":"2026-03-15","count":1095},{"date":"2026-03-16","count":7235},{"date":"2026-03-17","count":7005},{"date":"2026-03-18","count":3519},{"date":"2026-03-19","count":1715},{"date":"2026-03-20","count":1587},{"date":"2026-03-21","count":1158},{"date":"2026-03-22","count":1032},{"date":"2026-03-23","count":1569},{"date":"2026-03-24","count":3853},{"date":"2026-03-25","count":8686},{"date":"2026-03-26","count":2345},{"date":"2026-03-27","count":3072},{"date":"2026-03-28","count":2732},{"date":"2026-03-29","count":2713},{"date":"2026-03-30","count":1754},{"date":"2026-03-31","count":2793},{"date":"2026-04-01","count":6538},{"date":"2026-04-02","count":3290},{"date":"2026-04-03","count":631},{"date":"2026-04-04","count":557},{"date":"2026-04-05","count":811},{"date":"2026-04-06","count":1004},{"date":"2026-04-07","count":3277},{"date":"2026-04-08","count":1373},{"date":"2026-04-09","count":1766},{"date":"2026-04-10","count":3432},{"date":"2026-04-11","count":3837},{"date":"2026-04-12","count":3241},{"date":"2026-04-13","count":1316},{"date":"2026-04-14","count":8041},{"date":"2026-04-15","count":2286},{"date":"2026-04-16","count":3214},{"date":"2026-04-17","count":2317},{"date":"2026-04-18","count":744},{"date":"2026-04-19","count":952},{"date":"2026-04-20","count":1182},{"date":"2026-04-21","count":4351},{"date":"2026-04-22","count":4839},{"date":"2026-04-23","count":5201},{"date":"2026-04-24","count":2058},{"date":"2026-04-25","count":2532},{"date":"2026-04-26","count":2379},{"date":"2026-04-27","count":602},{"date":"2026-04-28","count":690},{"date":"2026-04-29","count":503},{"date":"2026-04-30","count":2630},{"date":"2026-05-01","count":752},{"date":"2026-05-02","count":602},{"date":"2026-05-03","count":555},{"date":"2026-05-04","count":546},{"date":"2026-05-05","count":6674},{"date":"2026-05-06","count":1253},{"date":"2026-05-07","count":951},{"date":"2026-05-08","count":2203},{"date":"2026-05-09","count":2739},{"date":"2026-05-10","count":3098},{"date":"2026-05-11","count":614},{"date":"2026-05-12","count":598},{"date":"2026-05-13","count":623},{"date":"2026-05-14","count":5273},{"date":"2026-05-15","count":482},{"date":"2026-05-16","count":410},{"date":"2026-05-17","count":738},{"date":"2026-05-18","count":936},{"date":"2026-05-19","count":1199},{"date":"2026-05-20","count":3143},{"date":"2026-05-21","count":1668},{"date":"2026-05-22","count":3277},{"date":"2026-05-23","count":3009},{"date":"2026-05-24","count":2218},{"date":"2026-05-25","count":1001},{"date":"2026-05-26","count":798},{"date":"2026-05-27","count":4690},{"date":"2026-05-28","count":6556},{"date":"2026-05-29","count":2171},{"date":"2026-05-30","count":2511},{"date":"2026-05-31","count":1868}],"venues":[{"name":"樂天桃園棒球場","count":213825},{"name":"臺北大巨蛋","count":56017}],"genderMap":{"男":70054,"女":40609},"ageData":[{"label":"<20","count":163440},{"label":"20s","count":27711},{"label":"30s","count":31512},{"label":"40s","count":35870},{"label":"50+","count":11309}],"cities":[{"name":"桃園市","count":22180},{"name":"新北市","count":15596},{"name":"臺北市","count":8779},{"name":"新竹縣","count":2775},{"name":"臺中市","count":2586},{"name":"新竹市","count":1984},{"name":"高雄市","count":1516},{"name":"臺南市","count":1087},{"name":"苗栗縣","count":1062},{"name":"彰化縣","count":1052}],"nationalities":[{"name":"未知","count":200623},{"name":"台灣","count":68659},{"name":"其他","count":411},{"name":"日本","count":143},{"name":"韓國","count":5},{"name":"中國","count":1}],"payments":[{"name":"現金","count":159292},{"name":"信用卡","count":110550}],"pickups":[{"name":"已取","count":261913},{"name":"未列印","count":7929}],"ticketTypes":[{"name":"內野門票","count":71459,"rev":55565450},{"name":"內野門票．．","count":67156,"rev":0},{"name":"內野全票","count":45073,"rev":32406875},{"name":"內野半票．","count":19957,"rev":8959950},{"name":"外野門票","count":18541,"rev":7753800},{"name":"貴賓票","count":8320,"rev":249600},{"name":"內野半票","count":7725,"rev":4479900},{"name":"內野全票．","count":6226,"rev":2494850},{"name":"外野門票．","count":5652,"rev":1852600},{"name":"內野門票．","count":4535,"rev":2460700},{"name":"尊猿門票","count":2740,"rev":2370450},{"name":"快樂炒門票","count":2516,"rev":1464800},{"name":"身心障礙票.","count":2151,"rev":774200},{"name":"大樂票","count":1786,"rev":952650},{"name":"身心障礙陪同票.","count":1307,"rev":500550},{"name":"外野門票．．","count":1203,"rev":0},{"name":"桃捷套票","count":997,"rev":587450},{"name":"多人套票","count":635,"rev":430150},{"name":"周五套票","count":405,"rev":1200},{"name":"周三套票","count":375,"rev":0},{"name":"尊猿門票．","count":322,"rev":187650},{"name":"寵物樂園票","count":303,"rev":145650},{"name":"10號隊寵專區","count":141,"rev":49350},{"name":"動紫套票","count":102,"rev":193800},{"name":"週五套票","count":101,"rev":121200},{"name":"週三套票","count":76,"rev":91200},{"name":"輪椅身障票","count":23,"rev":13550},{"name":"尊猿門票．．","count":14,"rev":0},{"name":"差價票","count":1,"rev":100}],"prices":[{"price":8000,"count":5,"rev":40000},{"price":7200,"count":1,"rev":7200},{"price":7000,"count":3,"rev":21000},{"price":6400,"count":4,"rev":25600},{"price":6000,"count":7,"rev":42000},{"price":5200,"count":1,"rev":5200},{"price":4800,"count":27,"rev":129600},{"price":4500,"count":8,"rev":36000},{"price":4200,"count":2,"rev":8400},{"price":4000,"count":2,"rev":8000},{"price":3600,"count":9,"rev":32400},{"price":3500,"count":1,"rev":3500},{"price":3250,"count":1,"rev":3250},{"price":3200,"count":10,"rev":32000},{"price":3000,"count":4,"rev":12000},{"price":2400,"count":1,"rev":2400},{"price":2250,"count":4,"rev":9000},{"price":1900,"count":102,"rev":193800},{"price":1850,"count":193,"rev":357050},{"price":1800,"count":4762,"rev":8571600},{"price":1650,"count":148,"rev":244200},{"price":1600,"count":7933,"rev":12692800},{"price":1400,"count":7906,"rev":11068400},{"price":1350,"count":1065,"rev":1437750},{"price":1300,"count":1072,"rev":1393600},{"price":1200,"count":3310,"rev":3972000},{"price":1175,"count":44,"rev":51700},{"price":1150,"count":425,"rev":488750},{"price":1100,"count":632,"rev":695200},{"price":1075,"count":16,"rev":17200},{"price":1050,"count":267,"rev":280350},{"price":1025,"count":24,"rev":24600},{"price":1000,"count":1952,"rev":1952000},{"price":975,"count":152,"rev":148200},{"price":950,"count":102,"rev":96900},{"price":900,"count":1071,"rev":963900},{"price":850,"count":1333,"rev":1133050},{"price":825,"count":72,"rev":59400},{"price":800,"count":9772,"rev":7817600},{"price":775,"count":212,"rev":164300},{"price":750,"count":421,"rev":315750},{"price":725,"count":48,"rev":34800},{"price":700,"count":10132,"rev":7092400},{"price":675,"count":613,"rev":413775},{"price":650,"count":8174,"rev":5313100},{"price":625,"count":979,"rev":611875},{"price":600,"count":22403,"rev":13441800},{"price":575,"count":1809,"rev":1040175},{"price":550,"count":8446,"rev":4645300},{"price":525,"count":215,"rev":112875},{"price":500,"count":13871,"rev":6935500},{"price":475,"count":765,"rev":363375},{"price":450,"count":14554,"rev":6549300},{"price":425,"count":678,"rev":288150},{"price":400,"count":28266,"rev":11306400},{"price":375,"count":875,"rev":328125},{"price":350,"count":12910,"rev":4518500},{"price":325,"count":356,"rev":115700},{"price":300,"count":14863,"rev":4458900},{"price":275,"count":48,"rev":13200},{"price":250,"count":3713,"rev":928250},{"price":225,"count":201,"rev":45225},{"price":200,"count":4750,"rev":950000},{"price":175,"count":64,"rev":11200},{"price":150,"count":180,"rev":27000},{"price":100,"count":51,"rev":5100}],"maxPriceCount":28266,"channels":[{"name":"主辦售票(H)","count":143063,"rev":36458900},{"name":"網站手機","count":105532,"rev":75008725},{"name":"ibon","count":16103,"rev":9515750},{"name":"APP購票","count":5144,"rev":3124300}],"peakRows":[{"hm":"10:00","t":395,"cum":395,"c":376,"cash":19,"convRate":"0.1%"},{"hm":"10:01","t":529,"cum":924,"c":470,"cash":59,"convRate":"0.3%"},{"hm":"10:02","t":454,"cum":1378,"c":406,"cash":48,"convRate":"0.5%"},{"hm":"10:03","t":418,"cum":1796,"c":339,"cash":79,"convRate":"0.7%"},{"hm":"10:04","t":405,"cum":2201,"c":350,"cash":55,"convRate":"0.8%"},{"hm":"10:05","t":321,"cum":2522,"c":273,"cash":48,"convRate":"0.9%"},{"hm":"10:06","t":292,"cum":2814,"c":260,"cash":32,"convRate":"1.0%"},{"hm":"10:07","t":294,"cum":3108,"c":246,"cash":48,"convRate":"1.2%"},{"hm":"10:08","t":262,"cum":3370,"c":233,"cash":29,"convRate":"1.2%"},{"hm":"10:09","t":270,"cum":3640,"c":188,"cash":82,"convRate":"1.3%"},{"hm":"10:10","t":197,"cum":3837,"c":176,"cash":21,"convRate":"1.4%"},{"hm":"10:11","t":252,"cum":4089,"c":153,"cash":99,"convRate":"1.5%"},{"hm":"10:12","t":233,"cum":4322,"c":142,"cash":91,"convRate":"1.6%"},{"hm":"10:13","t":212,"cum":4534,"c":142,"cash":70,"convRate":"1.7%"},{"hm":"10:14","t":180,"cum":4714,"c":143,"cash":37,"convRate":"1.7%"},{"hm":"10:15","t":109,"cum":4823,"c":104,"cash":5,"convRate":"1.8%"},{"hm":"10:16","t":228,"cum":5051,"c":104,"cash":124,"convRate":"1.9%"},{"hm":"10:17","t":339,"cum":5390,"c":100,"cash":239,"convRate":"2.0%"},{"hm":"10:18","t":151,"cum":5541,"c":91,"cash":60,"convRate":"2.1%"},{"hm":"10:19","t":137,"cum":5678,"c":115,"cash":22,"convRate":"2.1%"},{"hm":"10:20","t":240,"cum":5918,"c":65,"cash":175,"convRate":"2.2%"},{"hm":"10:21","t":304,"cum":6222,"c":96,"cash":208,"convRate":"2.3%"},{"hm":"10:22","t":69,"cum":6291,"c":56,"cash":13,"convRate":"2.3%"},{"hm":"10:23","t":56,"cum":6347,"c":49,"cash":7,"convRate":"2.4%"},{"hm":"10:24","t":223,"cum":6570,"c":89,"cash":134,"convRate":"2.4%"},{"hm":"10:25","t":180,"cum":6750,"c":59,"cash":121,"convRate":"2.5%"},{"hm":"10:26","t":85,"cum":6835,"c":72,"cash":13,"convRate":"2.5%"},{"hm":"10:27","t":72,"cum":6907,"c":53,"cash":19,"convRate":"2.6%"},{"hm":"10:28","t":49,"cum":6956,"c":46,"cash":3,"convRate":"2.6%"},{"hm":"10:29","t":84,"cum":7040,"c":64,"cash":20,"convRate":"2.6%"},{"hm":"10:30","t":64,"cum":7104,"c":34,"cash":30,"convRate":"2.6%"},{"hm":"10:31","t":39,"cum":7143,"c":30,"cash":9,"convRate":"2.6%"},{"hm":"10:32","t":52,"cum":7195,"c":40,"cash":12,"convRate":"2.7%"},{"hm":"10:33","t":97,"cum":7292,"c":37,"cash":60,"convRate":"2.7%"},{"hm":"10:34","t":109,"cum":7401,"c":54,"cash":55,"convRate":"2.7%"},{"hm":"10:35","t":77,"cum":7478,"c":42,"cash":35,"convRate":"2.8%"},{"hm":"10:36","t":54,"cum":7532,"c":41,"cash":13,"convRate":"2.8%"},{"hm":"10:37","t":185,"cum":7717,"c":51,"cash":134,"convRate":"2.9%"},{"hm":"10:38","t":404,"cum":8121,"c":23,"cash":381,"convRate":"3.0%"},{"hm":"10:39","t":31,"cum":8152,"c":24,"cash":7,"convRate":"3.0%"},{"hm":"10:40","t":57,"cum":8209,"c":23,"cash":34,"convRate":"3.0%"},{"hm":"10:41","t":54,"cum":8263,"c":38,"cash":16,"convRate":"3.1%"},{"hm":"10:42","t":22,"cum":8285,"c":14,"cash":8,"convRate":"3.1%"},{"hm":"10:43","t":53,"cum":8338,"c":24,"cash":29,"convRate":"3.1%"},{"hm":"10:44","t":15,"cum":8353,"c":15,"cash":0,"convRate":"3.1%"},{"hm":"10:45","t":23,"cum":8376,"c":19,"cash":4,"convRate":"3.1%"},{"hm":"10:46","t":27,"cum":8403,"c":17,"cash":10,"convRate":"3.1%"},{"hm":"10:47","t":27,"cum":8430,"c":25,"cash":2,"convRate":"3.1%"},{"hm":"10:48","t":18,"cum":8448,"c":14,"cash":4,"convRate":"3.1%"},{"hm":"10:49","t":14,"cum":8462,"c":7,"cash":7,"convRate":"3.1%"},{"hm":"10:50","t":24,"cum":8486,"c":22,"cash":2,"convRate":"3.1%"},{"hm":"10:51","t":9,"cum":8495,"c":2,"cash":7,"convRate":"3.1%"},{"hm":"10:52","t":67,"cum":8562,"c":21,"cash":46,"convRate":"3.2%"},{"hm":"10:53","t":32,"cum":8594,"c":20,"cash":12,"convRate":"3.2%"},{"hm":"10:54","t":27,"cum":8621,"c":17,"cash":10,"convRate":"3.2%"},{"hm":"10:55","t":16,"cum":8637,"c":10,"cash":6,"convRate":"3.2%"},{"hm":"10:56","t":32,"cum":8669,"c":12,"cash":20,"convRate":"3.2%"},{"hm":"10:57","t":65,"cum":8734,"c":13,"cash":52,"convRate":"3.2%"},{"hm":"10:58","t":19,"cum":8753,"c":10,"cash":9,"convRate":"3.2%"},{"hm":"10:59","t":18,"cum":8771,"c":14,"cash":4,"convRate":"3.3%"},{"hm":"11:00","t":10,"cum":8781,"c":3,"cash":7,"convRate":"3.3%"}],"showChartData":{"labels":["03-28","03-29","03-31","04-01","04-10","04-11","04-12","04-15","04-16","04-21","04-22","04-24","04-25","04-26","05-08","05-09","05-10","05-20","05-22","05-23","05-24","05-29","05-30","05-31","06-03","06-10","06-18","06-19","06-20","06-21","07-10"],"tickets":[35036,20981,7409,5807,7853,12279,9799,6367,6433,7100,7570,5153,10685,9038,6349,10576,8484,10083,6420,12342,7623,6403,10865,7946,5845,5657,1837,4366,6642,5554,1340],"venues":["臺北大巨蛋","臺北大巨蛋","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場","樂天桃園棒球場"]},"reportTime":"2026/6/25 上午11:34:19"};
+
+function fmt(n){ return Math.round(n).toLocaleString(); }
+function fmtM(n){ return '$'+fmt(n); }
+function pct(a,b){ return b>0?(a/b*100).toFixed(1)+'%':'0%'; }
+
+// Meta
+document.getElementById('meta-info').innerHTML = '報表生成: '+S.reportTime+'<br>銷售紀錄: '+S.kpi.totalRecords.toLocaleString()+' 筆<br>場次: '+S.showBreakdown.length+' 場';
+
+// KPI
+const kpiDefs = [
+    { label:'總成交金額', val:fmtM(S.kpi.revenue), sub:'' },
+    { label:'總銷售張數', val:fmt(S.kpi.tickets), sub:'' },
+    { label:'總訂單筆數', val:fmt(S.kpi.orders), sub:'' },
+    { label:'客單價 (AOV)', val:fmtM(S.kpi.aov), sub:'' },
+    { label:'退票張數', val:fmt(S.kpi.refundTickets), sub:'退票金額 '+fmtM(S.kpi.refundAmt), color:'var(--danger)' },
+    { label:'淨營收 (Net)', val:fmtM(S.kpi.netRevenue), sub:'', color:'var(--success)' }
+];
+const grid = document.getElementById('kpiGrid');
+kpiDefs.forEach(k => {
+    const d = document.createElement('div'); d.className='card';
+    d.innerHTML = `<h3>${k.label}</h3><div class="value" style="color:${k.color||'var(--accent-color)'}">${k.val}</div><div class="sub">${k.sub}</div>`;
+    grid.appendChild(d);
+});
+
+// Show Breakdown
+document.getElementById('showCount').textContent = S.showBreakdown.length;
+const sbBody = document.querySelector('#showBreakdownTable tbody');
+S.showBreakdown.forEach(s => {
+    const isSD = s.venue.includes('大巨蛋');
+    const badge = isSD ? '<span class="venue-badge venue-dome">大巨蛋</span>' : '<span class="venue-badge venue-taoyuan">桃園</span>';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="font-weight:600;color:var(--accent-color)">${s.date}</td>
+        <td>${badge}</td>
+        <td class="text-right">${fmtM(s.rev)}</td>
+        <td class="text-right" style="font-weight:600">${fmt(s.tickets)}</td>
+        <td class="text-right" style="color:#ffd700">${fmtM(s.aov)}</td>
+        <td class="text-right" style="color:var(--success)">${fmtM(s.netRev)}</td>
+        <td class="text-right" style="color:var(--danger)">${fmt(s.refTickets)}</td>
+        <td class="text-right" style="color:var(--danger)">${fmtM(s.refAmt)}</td>
+        <td class="text-right">${fmtM(s.refFee)}</td>`;
+    sbBody.appendChild(tr);
+});
+// Total row
+const totalTr = document.createElement('tr');
+totalTr.style.cssText='background:rgba(244,63,94,0.08);border-top:2px solid rgba(244,63,94,0.4);font-weight:700';
+totalTr.innerHTML = `<td style="color:var(--accent-color)">總計 (TOTAL)</td><td></td>
+    <td class="text-right">${fmtM(S.kpi.revenue)}</td>
+    <td class="text-right" style="font-weight:700">${fmt(S.kpi.tickets)}</td>
+    <td class="text-right" style="color:#ffd700">${fmtM(S.kpi.aov)}</td>
+    <td class="text-right" style="color:var(--success)">${fmtM(S.kpi.netRevenue)}</td>
+    <td class="text-right" style="color:var(--danger)">${fmt(S.kpi.refundTickets)}</td>
+    <td class="text-right" style="color:var(--danger)">${fmtM(S.kpi.refundAmt)}</td>
+    <td class="text-right">${fmtM(S.showBreakdown.reduce((a,s)=>a+s.refFee,0))}</td>`;
+sbBody.appendChild(totalTr);
+
+// Sub-event table
+const subBody = document.querySelector('#subTable tbody');
+S.subBreakdown.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${s.name}</td><td class="text-right">${fmt(s.tickets)}</td><td class="text-right">${fmtM(s.rev)}</td><td class="text-right">${pct(s.tickets,S.kpi.tickets)}</td>`;
+    subBody.appendChild(tr);
+});
+
+// Venue Chart
+new Chart(document.getElementById('venueChart'),{
+    type:'doughnut', plugins:[ChartDataLabels],
+    data:{labels:S.venues.map(v=>v.name),datasets:[{data:S.venues.map(v=>v.count),backgroundColor:['#f43f5e','#fb923c','#38bdf8']}]},
+    options:{plugins:{datalabels:{color:'white',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return Math.round(v/t*100)+'%';}},legend:{labels:{color:'#94a3b8'}}}}
+});
+
+// Monthly Chart
+new Chart(document.getElementById('monthlyChart'),{
+    type:'bar', plugins:[ChartDataLabels],
+    data:{labels:S.monthly.map(m=>m.month),datasets:[{label:'購票張數',data:S.monthly.map(m=>m.count),backgroundColor:'#f43f5e',borderRadius:6}]},
+    options:{plugins:{legend:{display:false},datalabels:{color:'#f8fafc',anchor:'end',align:'top',font:{size:12,weight:'700'},formatter:v=>v.toLocaleString()}},scales:{y:{ticks:{color:'#94a3b8'}},x:{ticks:{color:'#94a3b8'}}}}
+});
+
+// Show Chart (bar, all 31 dates, color by venue)
+const showColors = S.showChartData.venues.map(v => v.includes('大巨蛋') ? '#f43f5e' : '#fb923c');
+new Chart(document.getElementById('showChart'),{
+    type:'bar', plugins:[ChartDataLabels],
+    data:{labels:S.showChartData.labels,datasets:[{label:'銷售張數',data:S.showChartData.tickets,backgroundColor:showColors,borderRadius:3}]},
+    options:{plugins:{legend:{display:false},datalabels:{color:'rgba(255,255,255,0.7)',anchor:'end',align:'top',font:{size:8},formatter:v=>v>=1000?(v/1000).toFixed(0)+'k':v}},scales:{y:{ticks:{color:'#94a3b8'}},x:{ticks:{color:'#94a3b8',maxRotation:90,font:{size:8}}}}}
+});
+
+// Daily Chart
+new Chart(document.getElementById('dailyChart'),{
+    type:'bar', plugins:[ChartDataLabels],
+    data:{labels:S.daily.map(d=>d.date.substring(5)),datasets:[{label:'每日購票張數',data:S.daily.map(d=>d.count),backgroundColor:'rgba(244,63,94,0.7)',borderRadius:3}]},
+    options:{plugins:{legend:{display:false},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>3000,color:'#f8fafc',anchor:'end',align:'top',font:{size:9,weight:'600'},formatter:v=>v.toLocaleString()}},scales:{y:{ticks:{color:'#94a3b8'}},x:{ticks:{color:'#94a3b8',maxRotation:90,font:{size:9}}}}}
+});
+
+// Gender
+const gKeys=Object.keys(S.genderMap), gVals=Object.values(S.genderMap);
+new Chart(document.getElementById('genderChart'),{
+    type:'doughnut', plugins:[ChartDataLabels],
+    data:{labels:gKeys,datasets:[{data:gVals,backgroundColor:['#fb7185','#f43f5e','#94a3b8','#a78bfa']}]},
+    options:{plugins:{datalabels:{color:'white',font:{weight:'bold'},formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return Math.round(v/t*100)+'%';}},legend:{labels:{color:'#94a3b8'}}}}
+});
+
+// Age
+new Chart(document.getElementById('ageChart'),{
+    type:'bar', plugins:[ChartDataLabels],
+    data:{labels:S.ageData.map(a=>a.label),datasets:[{data:S.ageData.map(a=>a.count),backgroundColor:'#f43f5e',borderRadius:6}]},
+    options:{plugins:{legend:{display:false},datalabels:{color:'#94a3b8',anchor:'end',align:'top',font:{size:11,weight:'600'},formatter:v=>v.toLocaleString()}},scales:{y:{ticks:{color:'#94a3b8'}},x:{ticks:{color:'#94a3b8'}}}}
+});
+
+// City
+new Chart(document.getElementById('cityChart'),{
+    type:'bar', plugins:[ChartDataLabels],
+    data:{labels:S.cities.map(c=>c.name),datasets:[{data:S.cities.map(c=>c.count),backgroundColor:'#818cf8',borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{color:'#f8fafc',anchor:'end',align:'right',font:{size:11,weight:'600'},formatter:v=>v.toLocaleString()}},scales:{y:{ticks:{color:'#94a3b8'}},x:{ticks:{color:'#94a3b8'}}}}
+});
+
+// Nationality
+const natBody=document.querySelector('#natTable tbody');
+S.nationalities.forEach(n=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${n.name}</td><td class="text-right">${n.count.toLocaleString()}</td><td class="text-right">${pct(n.count,S.kpi.tickets)}</td>`;natBody.appendChild(tr);});
+
+// Payment
+const payBody=document.querySelector('#payTable tbody');
+S.payments.forEach(p=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${p.name}</td><td class="text-right">${p.count.toLocaleString()}</td><td class="text-right">${pct(p.count,S.kpi.tickets)}</td>`;payBody.appendChild(tr);});
+
+// Pickup
+const pickBody=document.querySelector('#pickupTable tbody');
+S.pickups.forEach(p=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${p.name||'–'}</td><td class="text-right">${p.count.toLocaleString()}</td><td class="text-right">${pct(p.count,S.kpi.tickets)}</td>`;pickBody.appendChild(tr);});
+
+// Ticket Type
+const typeBody=document.querySelector('#typeTable tbody');
+S.ticketTypes.forEach(t=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${t.name}</td><td class="text-right">${fmt(t.count)}</td><td class="text-right">${fmtM(t.rev)}</td><td class="text-right">${pct(t.count,S.kpi.tickets)}</td>`;typeBody.appendChild(tr);});
+
+// Price
+const prBody=document.querySelector('#priceTable tbody');
+S.prices.forEach(p=>{const tr=document.createElement('tr');tr.innerHTML=`<td>$${p.price.toLocaleString()}</td><td class="text-right">${fmt(p.count)}</td><td class="text-right">${fmtM(p.rev)}</td><td><div class="progress-bar"><div class="progress-fill" style="width:${p.count/S.maxPriceCount*100}%"></div></div></td>`;prBody.appendChild(tr);});
+
+// Channel
+const chBody=document.querySelector('#channelTable tbody');
+S.channels.forEach(c=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${c.name}</td><td class="text-right">${fmt(c.count)}</td><td class="text-right">${fmtM(c.rev)}</td><td class="text-right">${pct(c.count,S.kpi.tickets)}</td>`;chBody.appendChild(tr);});
+
+// Peak
+const pkBody=document.querySelector('#peakTable tbody');
+S.peakRows.forEach(r=>{const tr=document.createElement('tr');if(r.t>0)tr.style.background='rgba(244,63,94,0.06)';tr.innerHTML=`<td>${r.hm}</td><td class="text-right">${r.t}</td><td class="text-right">${r.cum}</td><td class="text-right">${r.c}</td><td class="text-right">${r.cash}</td><td class="text-right">${r.convRate}</td>`;pkBody.appendChild(tr);});
+</script>
+</body>
+</html>
