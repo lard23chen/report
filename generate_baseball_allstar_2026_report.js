@@ -89,6 +89,7 @@ async function generateReport() {
     <\/script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"><\/script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -128,6 +129,10 @@ async function generateReport() {
         .show-split { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
         .progress-bar { background: rgba(255,255,255,0.05); width: 100%; border-radius: 10px; height: 8px; margin-top: 8px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--accent-color); border-radius: 10px; }
+        .pdf-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 10px 22px; background: var(--accent-color); color: #0f172a; border: none; border-radius: 10px; font-family: inherit; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .pdf-btn:hover { background: var(--accent-secondary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,211,153,0.4); }
+        .pdf-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        @media print { .pdf-btn { display: none !important; } }
     </style>
 </head>
 <body>
@@ -137,7 +142,10 @@ async function generateReport() {
             <div class="logo-text">⚾ 2026 台灣精品中華職棒明星對抗賽</div>
             <div class="logo-sub">7-ELEVEN 中華職棒明星對抗賽 專案銷售分析報表 ｜ 臺北大巨蛋</div>
         </div>
-        <div class="meta">報表生成: ${reportTime}<br>銷售紀錄: ${data.length.toLocaleString()} 筆<br>節目代碼: B0BN5Y8D</div>
+        <div style="text-align:right">
+            <div class="meta">報表生成: ${reportTime}<br>銷售紀錄: ${data.length.toLocaleString()} 筆<br>節目代碼: B0BN5Y8D</div>
+            <button class="pdf-btn" id="pdf-btn" onclick="downloadPDF()">⬇ 下載 PDF</button>
+        </div>
     </header>
 
     <!-- KPI Cards -->
@@ -526,6 +534,45 @@ function init() {
     });
 }
 init();
+
+function downloadPDF() {
+    const btn = document.getElementById('pdf-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ 產生中…';
+
+    // 讓所有 canvas 先完成繪製再截圖
+    requestAnimationFrame(() => {
+        const opt = {
+            margin:     [8, 6, 8, 6],
+            filename:   '2026台灣精品中華職棒明星對抗賽_銷售分析.pdf',
+            image:      { type: 'jpeg', quality: 0.93 },
+            html2canvas: {
+                scale:           1.8,
+                useCORS:         true,
+                logging:         false,
+                backgroundColor: '#0f172a',
+                windowWidth:     1480,
+                scrollX:         0,
+                scrollY:         0
+            },
+            jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf()
+            .set(opt)
+            .from(document.querySelector('.container'))
+            .save()
+            .then(() => {
+                btn.disabled = false;
+                btn.textContent = '⬇ 下載 PDF';
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.textContent = '⬇ 下載 PDF';
+            });
+    });
+}
 <\/script>
 </body>
 </html>`;
