@@ -152,6 +152,12 @@
 - 額外分析區塊：**座位區域分析 Top 20**（`座位資訊/票區` 欄位，棒球事件特有）
 - 峰值分析備注：現金付款顯示於「現金」欄（取代啤酒節的「ATM」欄）
 - 每日銷售：2026-06-22 (2,841) / 2026-06-23 (9,301) / 2026-06-24 (46,895)
+- **PDF 下載**：header 右側「⬇ 下載 PDF」按鈕，使用 `html2pdf.js 0.10.1`
+  - CDN：`https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js`
+  - 格式：A3 橫向（landscape），scale 1.8，JPEG 93%
+  - `windowWidth: 1480` 確保完整擷取 1400px 版面
+  - `pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }` 防止圖表/表格跨頁截斷
+  - 產生期間按鈕自動 disabled，完成後恢復
 
 ### 高雄啤酒音樂節 2025（A_KaohsiungBeerFestival_2025）
 - 篩選條件：`節目/商品名稱 === '2025 7-ELEVEN高雄啤酒音樂節'`
