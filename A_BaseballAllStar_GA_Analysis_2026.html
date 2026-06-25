@@ -56,7 +56,7 @@ tbody tr:hover td { background: rgba(52,211,153,0.05); }
         <div class="title">⚾ 2026 台灣精品中華職棒明星對抗賽 GA 流量分析</div>
         <div class="subtitle">ActivityID 39701 ｜ 台灣時間 10:30–11:59 ｜ 6/24 公眾開賣日分析 ｜ 場地：臺北大巨蛋</div>
     </div>
-    <div class="meta">報表生成: 2026/6/25 上午10:37:18<br>資料來源: QwareTrafficSession / QwareTrafficGAReadTime<br>監控時段: 90 分鐘</div>
+    <div class="meta">報表生成: 2026/6/25 上午10:42:45<br>資料來源: QwareTrafficSession / QwareTrafficGAReadTime<br>監控時段: 90 分鐘</div>
 </header>
 
 <div class="notice">⚠️ 本報表僅含 2026-06-22（會員預購）及 2026-06-23（早鳥預購）後的<strong>公眾開賣首日 6/24</strong> GA 監控資料，無次日比較。開賣時間 11:00，高峰 Session 於 11:09 達 3,439，D-Min 於 11:01 達 21,066，A-Min 於 11:17 達 9,766。</div>
@@ -589,29 +589,46 @@ const sData  = [32,55,68,37,61,53,59,59,57,55,83,54,114,116,85,61,79,90,70,81,93
 const dData  = [686,1221,716,768,1371,797,1504,1575,1624,1656,875,1085,2011,1161,1280,2320,2495,1591,1701,3166,3324,3872,2926,5034,5554,4175,4828,5806,7373,12355,12825,21066,4402,6467,4926,2371,2296,2549,2530,2661,2723,2709,2593,2467,4538,4750,2776,2842,4735,2683,2530,4444,4372,2477,2606,2291,2247,2201,3597,2119,3390,3292,1879,3036,2983,1688,1618,1504,1376,2391,1405,2381,2350,1359,1497,2451,1368,1410,1369,1437,1452,1322,2258,1407,1420,2241,2242,1277,1404,2285];
 const aData  = [73,67,75,68,75,79,70,72,71,80,89,64,79,67,86,86,93,80,92,91,104,87,111,120,135,147,140,130,122,108,85,177,1599,2801,3651,4446,5150,6014,6467,7107,7664,8145,8586,8736,9037,9471,9618,9766,9326,9361,9120,8450,8135,7570,7105,6470,6030,5750,5575,5456,5162,4803,4524,4458,4120,3893,3806,3544,3561,3656,3673,3641,3445,3340,3339,3505,3409,3306,3194,3155,3139,3164,3026,3048,2940,2963,3041,2833,2776,2811];
 
-const baseOpts = () => ({
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: '#81c784', font: { size: 12 } } }, datalabels: { display: false } },
-    scales: {
-        x: { ticks: { color: '#81c784', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(52,211,153,0.07)' } },
-        y: { ticks: { color: '#81c784' }, grid: { color: 'rgba(52,211,153,0.07)' } }
-    }
-});
+const abbr = v => v === 0 ? '' : v >= 10000 ? (v/1000).toFixed(0)+'k' : v >= 1000 ? (v/1000).toFixed(1)+'k' : v;
+
+const xScale = { ticks: { color: '#81c784', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(52,211,153,0.07)' } };
+const yScale = { ticks: { color: '#81c784' }, grid: { color: 'rgba(52,211,153,0.07)' } };
 
 new Chart(document.getElementById('sessionChart'), {
     type: 'line', plugins: [ChartDataLabels],
-    data: { labels, datasets: [{ label: '6/24 Sessions', data: sData, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.12)', tension: 0.3, pointRadius: 0, fill: true }] },
-    options: baseOpts()
+    data: { labels, datasets: [{ label: '6/24 Sessions', data: sData, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.12)', tension: 0.3, pointRadius: 2, pointHoverRadius: 5, fill: true }] },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: '#81c784', font: { size: 12 } } },
+            datalabels: { display: true, color: 'rgba(52,211,153,0.85)', font: { size: 9, weight: '600' }, align: 'top', offset: 2, formatter: abbr }
+        },
+        scales: { x: xScale, y: yScale }
+    }
 });
 new Chart(document.getElementById('aminChart'), {
     type: 'line', plugins: [ChartDataLabels],
-    data: { labels, datasets: [{ label: '6/24 A-Min', data: aData, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.12)', tension: 0.3, pointRadius: 0, fill: true }] },
-    options: baseOpts()
+    data: { labels, datasets: [{ label: '6/24 A-Min', data: aData, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.12)', tension: 0.3, pointRadius: 2, pointHoverRadius: 5, fill: true }] },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: '#81c784', font: { size: 12 } } },
+            datalabels: { display: true, color: 'rgba(74,222,128,0.85)', font: { size: 9, weight: '600' }, align: 'top', offset: 2, formatter: abbr }
+        },
+        scales: { x: xScale, y: yScale }
+    }
 });
 new Chart(document.getElementById('dminChart'), {
     type: 'bar', plugins: [ChartDataLabels],
     data: { labels, datasets: [{ label: '6/24 D-Min', data: dData, backgroundColor: 'rgba(56,189,248,0.6)', borderRadius: 2 }] },
-    options: { ...baseOpts(), scales: { x: { ticks: { color: '#81c784', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(52,211,153,0.07)' } }, y: { ticks: { color: '#81c784' }, grid: { color: 'rgba(52,211,153,0.07)' } } } }
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: '#81c784', font: { size: 12 } } },
+            datalabels: { display: true, color: 'rgba(56,189,248,0.9)', font: { size: 9, weight: '600' }, anchor: 'end', align: 'top', offset: 1, formatter: abbr }
+        },
+        scales: { x: xScale, y: yScale }
+    }
 });
 </script>
 </body>

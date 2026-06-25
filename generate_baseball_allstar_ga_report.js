@@ -221,29 +221,46 @@ const sData  = ${JSON.stringify(keys.map(k => byMin[k].session))};
 const dData  = ${JSON.stringify(keys.map(k => byMin[k].dMin))};
 const aData  = ${JSON.stringify(keys.map(k => byMin[k].aMin))};
 
-const baseOpts = () => ({
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: '#81c784', font: { size: 12 } } }, datalabels: { display: false } },
-    scales: {
-        x: { ticks: { color: '#81c784', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(52,211,153,0.07)' } },
-        y: { ticks: { color: '#81c784' }, grid: { color: 'rgba(52,211,153,0.07)' } }
-    }
-});
+const abbr = v => v === 0 ? '' : v >= 10000 ? (v/1000).toFixed(0)+'k' : v >= 1000 ? (v/1000).toFixed(1)+'k' : v;
+
+const xScale = { ticks: { color: '#81c784', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(52,211,153,0.07)' } };
+const yScale = { ticks: { color: '#81c784' }, grid: { color: 'rgba(52,211,153,0.07)' } };
 
 new Chart(document.getElementById('sessionChart'), {
     type: 'line', plugins: [ChartDataLabels],
-    data: { labels, datasets: [{ label: '6/24 Sessions', data: sData, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.12)', tension: 0.3, pointRadius: 0, fill: true }] },
-    options: baseOpts()
+    data: { labels, datasets: [{ label: '6/24 Sessions', data: sData, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.12)', tension: 0.3, pointRadius: 2, pointHoverRadius: 5, fill: true }] },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: '#81c784', font: { size: 12 } } },
+            datalabels: { display: true, color: 'rgba(52,211,153,0.85)', font: { size: 9, weight: '600' }, align: 'top', offset: 2, formatter: abbr }
+        },
+        scales: { x: xScale, y: yScale }
+    }
 });
 new Chart(document.getElementById('aminChart'), {
     type: 'line', plugins: [ChartDataLabels],
-    data: { labels, datasets: [{ label: '6/24 A-Min', data: aData, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.12)', tension: 0.3, pointRadius: 0, fill: true }] },
-    options: baseOpts()
+    data: { labels, datasets: [{ label: '6/24 A-Min', data: aData, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.12)', tension: 0.3, pointRadius: 2, pointHoverRadius: 5, fill: true }] },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: '#81c784', font: { size: 12 } } },
+            datalabels: { display: true, color: 'rgba(74,222,128,0.85)', font: { size: 9, weight: '600' }, align: 'top', offset: 2, formatter: abbr }
+        },
+        scales: { x: xScale, y: yScale }
+    }
 });
 new Chart(document.getElementById('dminChart'), {
     type: 'bar', plugins: [ChartDataLabels],
     data: { labels, datasets: [{ label: '6/24 D-Min', data: dData, backgroundColor: 'rgba(56,189,248,0.6)', borderRadius: 2 }] },
-    options: { ...baseOpts(), scales: { x: { ticks: { color: '#81c784', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(52,211,153,0.07)' } }, y: { ticks: { color: '#81c784' }, grid: { color: 'rgba(52,211,153,0.07)' } } } }
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: '#81c784', font: { size: 12 } } },
+            datalabels: { display: true, color: 'rgba(56,189,248,0.9)', font: { size: 9, weight: '600' }, anchor: 'end', align: 'top', offset: 1, formatter: abbr }
+        },
+        scales: { x: xScale, y: yScale }
+    }
 });
 </script>
 </body>
