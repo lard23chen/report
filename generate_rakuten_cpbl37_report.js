@@ -165,29 +165,6 @@ async function generate() {
     valid.forEach(d => { const c = d['銷售點']; if(c) { chMap[c]=chMap[c]||{count:0,rev:0}; chMap[c].count++; chMap[c].rev+=d['售價']; } });
     const channels = Object.entries(chMap).sort((a,b)=>b[1].count-a[1].count).slice(0,20).map(([name,v])=>({ name, ...v }));
 
-    // ── Opening Peak (2026-03-04 10:00–11:00) ─────────────────
-    const peakDate = '2026-03-04';
-    const peakMap = {};
-    for (let m = 0; m < 60; m++) {
-        const k = `10:${String(m).padStart(2,'0')}`;
-        peakMap[k] = { t: 0, c: 0, a: 0 };
-    }
-    peakMap['11:00'] = { t: 0, c: 0, a: 0 };
-    valid.forEach(d => {
-        if (!d['交易時間'] || !d['交易時間'].startsWith(peakDate)) return;
-        const hm = d['交易時間'].substring(11, 16);
-        if (!peakMap[hm]) return;
-        peakMap[hm].t++;
-        const pay = d['付款方式'] || '';
-        if (pay.includes('信用卡') || pay.includes('刷卡')) peakMap[hm].c++;
-        else peakMap[hm].a++;
-    });
-    let cum = 0;
-    const peakRows = Object.keys(peakMap).sort().map(k => {
-        cum += peakMap[k].t;
-        return { hm: k, t: peakMap[k].t, cum, c: peakMap[k].c, cash: peakMap[k].a, convRate: valid.length > 0 ? (cum/valid.length*100).toFixed(1)+'%' : '0%' };
-    });
-
     const reportTime = new Date().toLocaleString('zh-TW');
 
     // ── Pre-compute show chart data ───────────────────────────
@@ -202,7 +179,7 @@ async function generate() {
         kpi, showBreakdown, subBreakdown, monthly, daily,
         venues, genderMap, ageData, cities, nationalities,
         payments, pickups, ticketTypes, prices, maxPriceCount,
-        channels, peakRows, showChartData, reportTime
+        channels, showChartData, reportTime
     });
 
     const html = `<!DOCTYPE html>
@@ -262,7 +239,6 @@ tr:hover td { background:rgba(244,63,94,0.04); }
 .venue-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; }
 .venue-dome { background:rgba(244,63,94,0.2); color:#f43f5e; }
 .venue-taoyuan { background:rgba(251,146,60,0.2); color:#fb923c; }
-.peak-table-container { overflow-x:auto; border:1px solid rgba(255,255,255,0.08); border-radius:14px; background:rgba(15,23,42,0.5); }
 .show-table-container { overflow-x:auto; max-height:520px; overflow-y:auto; border:1px solid rgba(255,255,255,0.08); border-radius:14px; }
 .pdf-btn { display:inline-flex; align-items:center; gap:8px; margin-top:14px; padding:9px 20px; background:var(--accent-color); color:#fff; border:none; border-radius:10px; font-family:inherit; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all 0.2s; }
 .pdf-btn:hover { background:var(--accent-secondary); transform:translateY(-2px); box-shadow:0 4px 12px rgba(244,63,94,0.4); }
@@ -371,16 +347,6 @@ tr:hover td { background:rgba(244,63,94,0.04); }
     <table id="channelTable"><thead><tr><th>銷售點</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">占比</th></tr></thead><tbody></tbody></table>
 </div>
 
-<!-- Peak -->
-<div class="chart-card" style="min-height:0">
-    <h3>開賣尖峰時段分析 (2026-03-04 10:00 – 11:00)</h3>
-    <div class="peak-table-container">
-        <table id="peakTable">
-            <thead><tr><th>時間</th><th class="text-right">當分鐘張數</th><th class="text-right">累計張數</th><th class="text-right">信用卡</th><th class="text-right">現金</th><th class="text-right">累計轉換率</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</div>
 
 </div>
 
@@ -524,9 +490,6 @@ S.prices.forEach(p=>{const tr=document.createElement('tr');tr.innerHTML=\`<td>$\
 const chBody=document.querySelector('#channelTable tbody');
 S.channels.forEach(c=>{const tr=document.createElement('tr');tr.innerHTML=\`<td>\${c.name}</td><td class="text-right">\${fmt(c.count)}</td><td class="text-right">\${fmtM(c.rev)}</td><td class="text-right">\${pct(c.count,S.kpi.tickets)}</td>\`;chBody.appendChild(tr);});
 
-// Peak
-const pkBody=document.querySelector('#peakTable tbody');
-S.peakRows.forEach(r=>{const tr=document.createElement('tr');if(r.t>0)tr.style.background='rgba(244,63,94,0.06)';tr.innerHTML=\`<td>\${r.hm}</td><td class="text-right">\${r.t}</td><td class="text-right">\${r.cum}</td><td class="text-right">\${r.c}</td><td class="text-right">\${r.cash}</td><td class="text-right">\${r.convRate}</td>\`;pkBody.appendChild(tr);});
 <\/script>
 </body>
 </html>`;
