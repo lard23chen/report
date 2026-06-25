@@ -139,8 +139,25 @@ git push origin main
 受影響的功能（歷史上曾被覆蓋過）：
 - 4.3 資料記錄區間連結（`valTime` innerHTML / IP Geo cross-link）— 2026/05/07 被自動更新覆蓋，2026/05/08 已修復並同步 generator
 
-## 6. 相關連結
+## 6. 各事件 GA 報表對應表
+
+| 報表 | 腳本 | GA ActivityID | 監控日期 / 時段 | 比較模式 |
+|------|------|---|---|---|
+| A_BeerFestival_GA_Analysis_2026.html | generate_beer_festival_ga_report.js | 39590 | 5/13 vs 5/14，11:30–13:00 | 雙日比較 |
+| A_BaseballAllStar_GA_Analysis_2026.html | generate_baseball_allstar_ga_report.js | 39701 | 6/24，10:30–11:59 | 單日分析 |
+
+### 台灣精品中華職棒明星對抗賽 2026（A_BaseballAllStar_GA_Analysis_2026）
+- ActivityID：`39701`（`QwareTrafficSession` / `QwareTrafficGAReadTime`）
+- 監控日期：`2026-06-24`（公眾開賣日）；UTC 02:30–03:59 ＝ 台灣 10:30–11:59
+- 無次日比較資料（6/22 VIP 預購、6/23 早鳥預購使用不同 ActivityID）
+- 視覺主題：翠綠 `#34d399`（對應銷售分析報表）
+- 峰值摘要：Session 峰 3,439 @ 11:09 ｜ D-Min 峰 21,066 @ 11:01 ｜ A-Min 峰 9,766 @ 11:17
+- 開賣衝擊：11:00 Session 急升至 401，11:01 D-Min 爆衝 21,066（瀏覽人次最高），11:02 起 A-Min 持續攀升至 9,766
+- 30 分鐘分段：10:30–10:59（開賣前熱身）/ 11:00–11:29（開賣衝擊區）/ 11:30–11:59（持續購票區）
+
+## 7. 相關連結
 
 - IP 地理分析報表（本月）：`A_IP_Geo_Analysis_Report.html`
 - IP 地理分析報表（歷史）：`A_IP_Geo_Analysis_Report_Historical.html`
 - 規範文件：`REPORT_SPEC_IP_GEO_ANALYSIS.md` / `REPORT_SPEC_IP_GEO_HISTORICAL.md`
+- 銷售分析：`A_BaseballAllStar_2026.html` / `REPORT_SPEC_A_PROJECT_DEEP.md`

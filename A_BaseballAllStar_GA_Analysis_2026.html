@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 台灣精品中華職棒明星對抗賽 GA 流量分析</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #001a0a; --card: #002a10; --text: #e8f5e9; --sub: #81c784;
+    --gold: #34d399; --gold2: #10b981; --blue: #38bdf8; --green: #4ade80; --red: #f87171;
+    --shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+* { box-sizing: border-box; }
+body { font-family: 'Outfit','Noto Sans TC',sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 24px; }
+.container { max-width: 1500px; margin: 0 auto; }
+header { background: linear-gradient(135deg,#002a10,#001a0a); padding: 32px 40px; border-radius: 20px; border-bottom: 4px solid var(--gold); margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-end; box-shadow: var(--shadow); }
+.title { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg,#34d399,#10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { color: var(--gold); font-size: 0.95rem; margin-top: 6px; }
+.meta { text-align: right; font-size: 0.85rem; color: var(--sub); }
+.notice { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.3); border-radius: 12px; padding: 12px 20px; margin-bottom: 24px; font-size: 0.88rem; color: var(--sub); }
+.kpi-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 16px; margin-bottom: 28px; }
+.kpi { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid rgba(52,211,153,0.15); }
+.kpi h4 { margin: 0 0 8px; font-size: 0.75rem; text-transform: uppercase; color: var(--sub); letter-spacing: 0.5px; }
+.kpi .val { font-size: 1.6rem; font-weight: 700; color: var(--gold); }
+.kpi .sub-val { font-size: 0.8rem; margin-top: 4px; color: #64748b; }
+.card { background: var(--card); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); border: 1px solid rgba(52,211,153,0.1); margin-bottom: 28px; }
+.card h3 { border-left: 5px solid var(--gold); padding-left: 14px; margin: 0 0 20px; font-size: 1.05rem; color: var(--text); }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+thead th { color: var(--gold); font-weight: 600; font-size: 0.78rem; padding: 10px 12px; border-bottom: 2px solid rgba(52,211,153,0.3); white-space: nowrap; text-align: right; }
+thead th:first-child { text-align: left; }
+tbody td { padding: 8px 12px; border-bottom: 1px solid rgba(52,211,153,0.06); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+tbody td:first-child { text-align: left; font-weight: 600; color: var(--sub); }
+tbody tr:hover td { background: rgba(52,211,153,0.05); }
+.seg-table thead th { font-size: 0.82rem; }
+.seg-table tbody td { padding: 12px 14px; font-size: 0.9rem; }
+.peak-badge { display: inline-block; background: rgba(52,211,153,0.18); color: var(--gold); border-radius: 6px; padding: 1px 7px; font-size: 0.78rem; font-weight: 700; }
+.highlight-session { background: rgba(52,211,153,0.15) !important; }
+.highlight-session td { color: #fff !important; font-weight: 700; }
+.highlight-dmin { background: rgba(56,189,248,0.12) !important; }
+.highlight-dmin td { color: #bfdbfe !important; font-weight: 700; }
+.highlight-amin { background: rgba(74,222,128,0.12) !important; }
+.highlight-amin td { color: #bbf7d0 !important; font-weight: 700; }
+.divider-row td { background: rgba(52,211,153,0.08) !important; font-weight: 800; color: var(--gold) !important; font-size: 0.8rem; letter-spacing: 1px; text-align: center !important; }
+.chart-wrap { position: relative; height: 340px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <div>
+        <div class="title">⚾ 2026 台灣精品中華職棒明星對抗賽 GA 流量分析</div>
+        <div class="subtitle">ActivityID 39701 ｜ 台灣時間 10:30–11:59 ｜ 6/24 公眾開賣日分析 ｜ 場地：臺北大巨蛋</div>
+    </div>
+    <div class="meta">報表生成: 2026/6/25 上午10:37:18<br>資料來源: QwareTrafficSession / QwareTrafficGAReadTime<br>監控時段: 90 分鐘</div>
+</header>
+
+<div class="notice">⚠️ 本報表僅含 2026-06-22（會員預購）及 2026-06-23（早鳥預購）後的<strong>公眾開賣首日 6/24</strong> GA 監控資料，無次日比較。開賣時間 11:00，高峰 Session 於 11:09 達 3,439，D-Min 於 11:01 達 21,066，A-Min 於 11:17 達 9,766。</div>
+
+<!-- KPI -->
+<div class="kpi-grid">
+    <div class="kpi"><h4>峰值 Sessions</h4><div class="val">3,439</div><div class="sub-val">@ 11:09</div></div>
+    <div class="kpi"><h4>峰值 D-Min</h4><div class="val">21,066</div><div class="sub-val">@ 11:01</div></div>
+    <div class="kpi"><h4>峰值 A-Min</h4><div class="val">9,766</div><div class="sub-val">@ 11:17</div></div>
+    <div class="kpi"><h4>總 Sessions (90min)</h4><div class="val">87,998</div><div class="sub-val">10:30–11:59</div></div>
+    <div class="kpi"><h4>總 D-Min</h4><div class="val">266,135</div><div class="sub-val">頁面瀏覽人次</div></div>
+    <div class="kpi"><h4>總 A-Min</h4><div class="val">304,904</div><div class="sub-val">主動操作人次</div></div>
+</div>
+
+<!-- Charts -->
+<div class="two-col">
+    <div class="card"><h3>每分鐘 Sessions 走勢</h3><div class="chart-wrap"><canvas id="sessionChart"></canvas></div></div>
+    <div class="card"><h3>每分鐘 A-Min（主動操作）走勢</h3><div class="chart-wrap"><canvas id="aminChart"></canvas></div></div>
+</div>
+<div class="card"><h3>每分鐘 D-Min（頁面瀏覽人次）走勢</h3><div class="chart-wrap" style="height:260px"><canvas id="dminChart"></canvas></div></div>
+
+<!-- 30-min segment table -->
+<div class="card">
+<h3>每 30 分鐘分段彙整</h3>
+<table class="seg-table">
+<thead><tr>
+    <th>時段</th>
+    <th>Sessions</th><th>D-Min</th><th>A-Min</th><th>峰值時間 / Session</th>
+</tr></thead>
+<tbody>
+<tr>
+    <td>10:30–10:59（開賣前熱身）</td>
+    <td>2,995</td>
+    <td>84,850</td>
+    <td>2,761</td>
+    <td><span class="peak-badge">10:58（298）</span></td>
+</tr><tr>
+    <td>11:00–11:29（開賣衝擊區）</td>
+    <td>62,034</td>
+    <td>123,793</td>
+    <td>196,868</td>
+    <td><span class="peak-badge">11:09（3,439）</span></td>
+</tr><tr>
+    <td>11:30–11:59（持續購票區）</td>
+    <td>22,969</td>
+    <td>57,492</td>
+    <td>105,275</td>
+    <td><span class="peak-badge">11:33（1,191）</span></td>
+</tr>
+<tr style="background:rgba(52,211,153,0.08);font-weight:700;border-top:2px solid rgba(52,211,153,0.3)">
+    <td style="color:var(--gold)">合計 (10:30–11:59)</td>
+    <td>87,998</td>
+    <td>266,135</td>
+    <td>304,904</td>
+    <td><span class="peak-badge">Session 11:09 / D-Min 11:01 / A-Min 11:17</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Per-minute detail -->
+<div class="card">
+<h3>每分鐘詳細資料表（🟢 Session峰 ｜ 🔵 D-Min峰 ｜ 🟩 A-Min峰）</h3>
+<table id="minTable">
+<thead><tr>
+    <th>時間</th>
+    <th>Sessions</th><th>D-Min</th><th>A-Min</th>
+</tr></thead>
+<tbody>
+<tr>
+        <td>10:30</td>
+        <td>32</td>
+        <td>686</td>
+        <td>73</td>
+    </tr><tr>
+        <td>10:31</td>
+        <td>55</td>
+        <td>1,221</td>
+        <td>67</td>
+    </tr><tr>
+        <td>10:32</td>
+        <td>68</td>
+        <td>716</td>
+        <td>75</td>
+    </tr><tr>
+        <td>10:33</td>
+        <td>37</td>
+        <td>768</td>
+        <td>68</td>
+    </tr><tr>
+        <td>10:34</td>
+        <td>61</td>
+        <td>1,371</td>
+        <td>75</td>
+    </tr><tr>
+        <td>10:35</td>
+        <td>53</td>
+        <td>797</td>
+        <td>79</td>
+    </tr><tr>
+        <td>10:36</td>
+        <td>59</td>
+        <td>1,504</td>
+        <td>70</td>
+    </tr><tr>
+        <td>10:37</td>
+        <td>59</td>
+        <td>1,575</td>
+        <td>72</td>
+    </tr><tr>
+        <td>10:38</td>
+        <td>57</td>
+        <td>1,624</td>
+        <td>71</td>
+    </tr><tr>
+        <td>10:39</td>
+        <td>55</td>
+        <td>1,656</td>
+        <td>80</td>
+    </tr><tr>
+        <td>10:40</td>
+        <td>83</td>
+        <td>875</td>
+        <td>89</td>
+    </tr><tr>
+        <td>10:41</td>
+        <td>54</td>
+        <td>1,085</td>
+        <td>64</td>
+    </tr><tr>
+        <td>10:42</td>
+        <td>114</td>
+        <td>2,011</td>
+        <td>79</td>
+    </tr><tr>
+        <td>10:43</td>
+        <td>116</td>
+        <td>1,161</td>
+        <td>67</td>
+    </tr><tr>
+        <td>10:44</td>
+        <td>85</td>
+        <td>1,280</td>
+        <td>86</td>
+    </tr><tr>
+        <td>10:45</td>
+        <td>61</td>
+        <td>2,320</td>
+        <td>86</td>
+    </tr><tr>
+        <td>10:46</td>
+        <td>79</td>
+        <td>2,495</td>
+        <td>93</td>
+    </tr><tr>
+        <td>10:47</td>
+        <td>90</td>
+        <td>1,591</td>
+        <td>80</td>
+    </tr><tr>
+        <td>10:48</td>
+        <td>70</td>
+        <td>1,701</td>
+        <td>92</td>
+    </tr><tr>
+        <td>10:49</td>
+        <td>81</td>
+        <td>3,166</td>
+        <td>91</td>
+    </tr><tr>
+        <td>10:50</td>
+        <td>93</td>
+        <td>3,324</td>
+        <td>104</td>
+    </tr><tr>
+        <td>10:51</td>
+        <td>88</td>
+        <td>3,872</td>
+        <td>87</td>
+    </tr><tr>
+        <td>10:52</td>
+        <td>120</td>
+        <td>2,926</td>
+        <td>111</td>
+    </tr><tr>
+        <td>10:53</td>
+        <td>102</td>
+        <td>5,034</td>
+        <td>120</td>
+    </tr><tr>
+        <td>10:54</td>
+        <td>107</td>
+        <td>5,554</td>
+        <td>135</td>
+    </tr><tr>
+        <td>10:55</td>
+        <td>124</td>
+        <td>4,175</td>
+        <td>147</td>
+    </tr><tr>
+        <td>10:56</td>
+        <td>181</td>
+        <td>4,828</td>
+        <td>140</td>
+    </tr><tr>
+        <td>10:57</td>
+        <td>248</td>
+        <td>5,806</td>
+        <td>130</td>
+    </tr><tr>
+        <td>10:58</td>
+        <td>298</td>
+        <td>7,373</td>
+        <td>122</td>
+    </tr><tr>
+        <td>10:59</td>
+        <td>265</td>
+        <td>12,355</td>
+        <td>108</td>
+    </tr><tr class="divider-row"><td colspan="4">── 11:00 開賣衝擊區 ──</td></tr><tr>
+        <td>11:00</td>
+        <td>401</td>
+        <td>12,825</td>
+        <td>85</td>
+    </tr><tr class="highlight-dmin">
+        <td>11:01 🔵</td>
+        <td>1,315</td>
+        <td>21,066</td>
+        <td>177</td>
+    </tr><tr>
+        <td>11:02</td>
+        <td>2,721</td>
+        <td>4,402</td>
+        <td>1,599</td>
+    </tr><tr>
+        <td>11:03</td>
+        <td>2,161</td>
+        <td>6,467</td>
+        <td>2,801</td>
+    </tr><tr>
+        <td>11:04</td>
+        <td>2,453</td>
+        <td>4,926</td>
+        <td>3,651</td>
+    </tr><tr>
+        <td>11:05</td>
+        <td>2,496</td>
+        <td>2,371</td>
+        <td>4,446</td>
+    </tr><tr>
+        <td>11:06</td>
+        <td>2,815</td>
+        <td>2,296</td>
+        <td>5,150</td>
+    </tr><tr>
+        <td>11:07</td>
+        <td>3,002</td>
+        <td>2,549</td>
+        <td>6,014</td>
+    </tr><tr>
+        <td>11:08</td>
+        <td>3,169</td>
+        <td>2,530</td>
+        <td>6,467</td>
+    </tr><tr class="highlight-session">
+        <td>11:09 🟢</td>
+        <td>3,439</td>
+        <td>2,661</td>
+        <td>7,107</td>
+    </tr><tr>
+        <td>11:10</td>
+        <td>3,123</td>
+        <td>2,723</td>
+        <td>7,664</td>
+    </tr><tr>
+        <td>11:11</td>
+        <td>3,136</td>
+        <td>2,709</td>
+        <td>8,145</td>
+    </tr><tr>
+        <td>11:12</td>
+        <td>3,224</td>
+        <td>2,593</td>
+        <td>8,586</td>
+    </tr><tr>
+        <td>11:13</td>
+        <td>3,431</td>
+        <td>2,467</td>
+        <td>8,736</td>
+    </tr><tr>
+        <td>11:14</td>
+        <td>3,047</td>
+        <td>4,538</td>
+        <td>9,037</td>
+    </tr><tr>
+        <td>11:15</td>
+        <td>1,929</td>
+        <td>4,750</td>
+        <td>9,471</td>
+    </tr><tr>
+        <td>11:16</td>
+        <td>1,992</td>
+        <td>2,776</td>
+        <td>9,618</td>
+    </tr><tr class="highlight-amin">
+        <td>11:17 🟩</td>
+        <td>2,205</td>
+        <td>2,842</td>
+        <td>9,766</td>
+    </tr><tr>
+        <td>11:18</td>
+        <td>1,697</td>
+        <td>4,735</td>
+        <td>9,326</td>
+    </tr><tr>
+        <td>11:19</td>
+        <td>1,774</td>
+        <td>2,683</td>
+        <td>9,361</td>
+    </tr><tr>
+        <td>11:20</td>
+        <td>1,677</td>
+        <td>2,530</td>
+        <td>9,120</td>
+    </tr><tr>
+        <td>11:21</td>
+        <td>1,806</td>
+        <td>4,444</td>
+        <td>8,450</td>
+    </tr><tr>
+        <td>11:22</td>
+        <td>1,714</td>
+        <td>4,372</td>
+        <td>8,135</td>
+    </tr><tr>
+        <td>11:23</td>
+        <td>1,311</td>
+        <td>2,477</td>
+        <td>7,570</td>
+    </tr><tr>
+        <td>11:24</td>
+        <td>1,089</td>
+        <td>2,606</td>
+        <td>7,105</td>
+    </tr><tr>
+        <td>11:25</td>
+        <td>1,015</td>
+        <td>2,291</td>
+        <td>6,470</td>
+    </tr><tr>
+        <td>11:26</td>
+        <td>974</td>
+        <td>2,247</td>
+        <td>6,030</td>
+    </tr><tr>
+        <td>11:27</td>
+        <td>1,032</td>
+        <td>2,201</td>
+        <td>5,750</td>
+    </tr><tr>
+        <td>11:28</td>
+        <td>1,086</td>
+        <td>3,597</td>
+        <td>5,575</td>
+    </tr><tr>
+        <td>11:29</td>
+        <td>800</td>
+        <td>2,119</td>
+        <td>5,456</td>
+    </tr><tr class="divider-row"><td colspan="4">── 11:30 持續購票區 ──</td></tr><tr>
+        <td>11:30</td>
+        <td>808</td>
+        <td>3,390</td>
+        <td>5,162</td>
+    </tr><tr>
+        <td>11:31</td>
+        <td>863</td>
+        <td>3,292</td>
+        <td>4,803</td>
+    </tr><tr>
+        <td>11:32</td>
+        <td>734</td>
+        <td>1,879</td>
+        <td>4,524</td>
+    </tr><tr>
+        <td>11:33</td>
+        <td>1,191</td>
+        <td>3,036</td>
+        <td>4,458</td>
+    </tr><tr>
+        <td>11:34</td>
+        <td>624</td>
+        <td>2,983</td>
+        <td>4,120</td>
+    </tr><tr>
+        <td>11:35</td>
+        <td>618</td>
+        <td>1,688</td>
+        <td>3,893</td>
+    </tr><tr>
+        <td>11:36</td>
+        <td>548</td>
+        <td>1,618</td>
+        <td>3,806</td>
+    </tr><tr>
+        <td>11:37</td>
+        <td>585</td>
+        <td>1,504</td>
+        <td>3,544</td>
+    </tr><tr>
+        <td>11:38</td>
+        <td>742</td>
+        <td>1,376</td>
+        <td>3,561</td>
+    </tr><tr>
+        <td>11:39</td>
+        <td>759</td>
+        <td>2,391</td>
+        <td>3,656</td>
+    </tr><tr>
+        <td>11:40</td>
+        <td>711</td>
+        <td>1,405</td>
+        <td>3,673</td>
+    </tr><tr>
+        <td>11:41</td>
+        <td>767</td>
+        <td>2,381</td>
+        <td>3,641</td>
+    </tr><tr>
+        <td>11:42</td>
+        <td>573</td>
+        <td>2,350</td>
+        <td>3,445</td>
+    </tr><tr>
+        <td>11:43</td>
+        <td>748</td>
+        <td>1,359</td>
+        <td>3,340</td>
+    </tr><tr>
+        <td>11:44</td>
+        <td>661</td>
+        <td>1,497</td>
+        <td>3,339</td>
+    </tr><tr>
+        <td>11:45</td>
+        <td>925</td>
+        <td>2,451</td>
+        <td>3,505</td>
+    </tr><tr>
+        <td>11:46</td>
+        <td>788</td>
+        <td>1,368</td>
+        <td>3,409</td>
+    </tr><tr>
+        <td>11:47</td>
+        <td>677</td>
+        <td>1,410</td>
+        <td>3,306</td>
+    </tr><tr>
+        <td>11:48</td>
+        <td>998</td>
+        <td>1,369</td>
+        <td>3,194</td>
+    </tr><tr>
+        <td>11:49</td>
+        <td>609</td>
+        <td>1,437</td>
+        <td>3,155</td>
+    </tr><tr>
+        <td>11:50</td>
+        <td>673</td>
+        <td>1,452</td>
+        <td>3,139</td>
+    </tr><tr>
+        <td>11:51</td>
+        <td>753</td>
+        <td>1,322</td>
+        <td>3,164</td>
+    </tr><tr>
+        <td>11:52</td>
+        <td>696</td>
+        <td>2,258</td>
+        <td>3,026</td>
+    </tr><tr>
+        <td>11:53</td>
+        <td>636</td>
+        <td>1,407</td>
+        <td>3,048</td>
+    </tr><tr>
+        <td>11:54</td>
+        <td>1,034</td>
+        <td>1,420</td>
+        <td>2,940</td>
+    </tr><tr>
+        <td>11:55</td>
+        <td>904</td>
+        <td>2,241</td>
+        <td>2,963</td>
+    </tr><tr>
+        <td>11:56</td>
+        <td>1,087</td>
+        <td>2,242</td>
+        <td>3,041</td>
+    </tr><tr>
+        <td>11:57</td>
+        <td>743</td>
+        <td>1,277</td>
+        <td>2,833</td>
+    </tr><tr>
+        <td>11:58</td>
+        <td>752</td>
+        <td>1,404</td>
+        <td>2,776</td>
+    </tr><tr>
+        <td>11:59</td>
+        <td>762</td>
+        <td>2,285</td>
+        <td>2,811</td>
+    </tr>
+</tbody>
+</table>
+</div>
+
+</div><!-- /container -->
+
+<script>
+const labels = ["10:30","10:31","10:32","10:33","10:34","10:35","10:36","10:37","10:38","10:39","10:40","10:41","10:42","10:43","10:44","10:45","10:46","10:47","10:48","10:49","10:50","10:51","10:52","10:53","10:54","10:55","10:56","10:57","10:58","10:59","11:00","11:01","11:02","11:03","11:04","11:05","11:06","11:07","11:08","11:09","11:10","11:11","11:12","11:13","11:14","11:15","11:16","11:17","11:18","11:19","11:20","11:21","11:22","11:23","11:24","11:25","11:26","11:27","11:28","11:29","11:30","11:31","11:32","11:33","11:34","11:35","11:36","11:37","11:38","11:39","11:40","11:41","11:42","11:43","11:44","11:45","11:46","11:47","11:48","11:49","11:50","11:51","11:52","11:53","11:54","11:55","11:56","11:57","11:58","11:59"];
+const sData  = [32,55,68,37,61,53,59,59,57,55,83,54,114,116,85,61,79,90,70,81,93,88,120,102,107,124,181,248,298,265,401,1315,2721,2161,2453,2496,2815,3002,3169,3439,3123,3136,3224,3431,3047,1929,1992,2205,1697,1774,1677,1806,1714,1311,1089,1015,974,1032,1086,800,808,863,734,1191,624,618,548,585,742,759,711,767,573,748,661,925,788,677,998,609,673,753,696,636,1034,904,1087,743,752,762];
+const dData  = [686,1221,716,768,1371,797,1504,1575,1624,1656,875,1085,2011,1161,1280,2320,2495,1591,1701,3166,3324,3872,2926,5034,5554,4175,4828,5806,7373,12355,12825,21066,4402,6467,4926,2371,2296,2549,2530,2661,2723,2709,2593,2467,4538,4750,2776,2842,4735,2683,2530,4444,4372,2477,2606,2291,2247,2201,3597,2119,3390,3292,1879,3036,2983,1688,1618,1504,1376,2391,1405,2381,2350,1359,1497,2451,1368,1410,1369,1437,1452,1322,2258,1407,1420,2241,2242,1277,1404,2285];
+const aData  = [73,67,75,68,75,79,70,72,71,80,89,64,79,67,86,86,93,80,92,91,104,87,111,120,135,147,140,130,122,108,85,177,1599,2801,3651,4446,5150,6014,6467,7107,7664,8145,8586,8736,9037,9471,9618,9766,9326,9361,9120,8450,8135,7570,7105,6470,6030,5750,5575,5456,5162,4803,4524,4458,4120,3893,3806,3544,3561,3656,3673,3641,3445,3340,3339,3505,3409,3306,3194,3155,3139,3164,3026,3048,2940,2963,3041,2833,2776,2811];
+
+const baseOpts = () => ({
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#81c784', font: { size: 12 } } }, datalabels: { display: false } },
+    scales: {
+        x: { ticks: { color: '#81c784', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(52,211,153,0.07)' } },
+        y: { ticks: { color: '#81c784' }, grid: { color: 'rgba(52,211,153,0.07)' } }
+    }
+});
+
+new Chart(document.getElementById('sessionChart'), {
+    type: 'line', plugins: [ChartDataLabels],
+    data: { labels, datasets: [{ label: '6/24 Sessions', data: sData, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.12)', tension: 0.3, pointRadius: 0, fill: true }] },
+    options: baseOpts()
+});
+new Chart(document.getElementById('aminChart'), {
+    type: 'line', plugins: [ChartDataLabels],
+    data: { labels, datasets: [{ label: '6/24 A-Min', data: aData, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.12)', tension: 0.3, pointRadius: 0, fill: true }] },
+    options: baseOpts()
+});
+new Chart(document.getElementById('dminChart'), {
+    type: 'bar', plugins: [ChartDataLabels],
+    data: { labels, datasets: [{ label: '6/24 D-Min', data: dData, backgroundColor: 'rgba(56,189,248,0.6)', borderRadius: 2 }] },
+    options: { ...baseOpts(), scales: { x: { ticks: { color: '#81c784', maxRotation: 90, font: { size: 10 }, callback: (v, i) => (i % 5 === 0 ? labels[i] : '') }, grid: { color: 'rgba(52,211,153,0.07)' } }, y: { ticks: { color: '#81c784' }, grid: { color: 'rgba(52,211,153,0.07)' } } } }
+});
+</script>
+</body>
+</html>
