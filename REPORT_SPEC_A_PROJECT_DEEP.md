@@ -25,6 +25,7 @@
 | A_SamLee_Report_2025_Taipei.html | generate_sam_lee_report.js | Qware_Ticket_Data |
 | A_UniformLions_Order_Analysis_20260309.html | generate_lions_order_report.js | Qware_A_Ticket_data_Daily |
 | A_WeiBird_Report_2026.html | generate_weibird_report.js | Qware_A_Ticket_data_Daily |
+| A_BaseballAllStar_2026.html | generate_baseball_allstar_2026_report.js | Qware_A_Ticket_data_Daily + Qware_Member_data |
 | A_KaohsiungBeerFestival_2025.html | generate_kaohsiung_beer_festival_2025_report.js | Qware_Ticket_Data + Qware_Member_data |
 | A_KaohsiungBeerFestival_2026.html | generate_kaohsiung_beer_festival_report.js | Qware_A_Ticket_data_Daily + Qware_Member_data |
 | A_KaohsiungSakuraFestival_2025.html | generate_kaohsiung_sakura_festival_2025_report.js | Qware_Ticket_Data + Qware_Member_data |
@@ -134,6 +135,23 @@
 - 篩選條件：`節目/商品名稱 === '國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場'`
 - ActivityID：`39484`
 - GA 節目名稱（查流量用）：`'國泰世華銀行 2026 韋禮安 韋，您好 HI WE1巡迴演唱會'`
+
+### 台灣精品中華職棒明星對抗賽 2026（A_BaseballAllStar_2026）
+- 篩選條件：`節目/商品名稱 === '2026年台灣精品中華職棒明星對抗賽'`
+- 節目代碼：`B0BN5Y8D`
+- 場次：2 場，場地為臺北大巨蛋
+  - `2026-07-18`：7/18 (六) 18:05 Day 1
+  - `2026-07-19`：7/19 (日) 17:05 Day 2
+- 聯查集合：`Qware_A_Ticket_data_Daily`（票券主資料）+ `Qware_Member_data`（國籍 / 縣市）
+- 開賣日：`2026-06-22`（首筆交易 14:18:39）
+- 開賣尖峰：`2026-06-22 14:00–15:00`（峰值於 14:18 / 14:19，各 600 張）
+- 票別：全票、優惠票、身障輪椅席票、身障輪椅席陪同票、貴賓券
+- 票價：$0 ~ $4,390（20 個價格層級）
+- **流量趨勢圖**：無（`Qware_A_Traffic_session_data` 無此節目資料，已省略 viewChart 區塊）
+- 視覺格式：WeiBird 格式（navy 主題），**accent-color 改為翠綠 `#34d399`**（棒球場地配色）
+- 額外分析區塊：**座位區域分析 Top 20**（`座位資訊/票區` 欄位，棒球事件特有）
+- 峰值分析備注：現金付款顯示於「現金」欄（取代啤酒節的「ATM」欄）
+- 每日銷售：2026-06-22 (2,841) / 2026-06-23 (9,301) / 2026-06-24 (46,895)
 
 ### 高雄啤酒音樂節 2025（A_KaohsiungBeerFestival_2025）
 - 篩選條件：`節目/商品名稱 === '2025 7-ELEVEN高雄啤酒音樂節'`
