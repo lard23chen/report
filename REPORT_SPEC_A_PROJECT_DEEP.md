@@ -30,6 +30,7 @@
 | A_KaohsiungBeerFestival_2026.html | generate_kaohsiung_beer_festival_report.js | Qware_A_Ticket_data_Daily + Qware_Member_data |
 | A_KaohsiungSakuraFestival_2025.html | generate_kaohsiung_sakura_festival_2025_report.js | Qware_Ticket_Data + Qware_Member_data |
 | A_KaohsiungSakuraFestival_2026.html | generate_kaohsiung_sakura_festival_report.js | Qware_Ticket_Data + Qware_Member_data |
+| A_RakutenCPBL36_2025.html | generate_rakuten_cpbl36_report.js | Qware_A_Ticket_2025_Data + Qware_Member_data |
 | A_RakutenCPBL37_2026.html | generate_rakuten_cpbl37_report.js | Qware_Ticket_Data + Qware_Member_data |
 
 ---
@@ -160,6 +161,25 @@
   - `break-inside: avoid` 防止 chart-card / card 跨頁截斷
   - 按鈕本身在列印時隱藏（`display: none`）
   - 棄用 html2pdf.js（無法正確渲染 CSS Grid + Canvas 複合版面）
+
+### 中華職棒36年 Rakuten主場例行賽（A_RakutenCPBL36_2025）
+- 篩選條件：`節目/商品名稱 regex '中華職棒36年Rakuten'`（含所有子活動類型及總冠軍賽，共 7 種）
+- 資料來源：`Qware_A_Ticket_2025_Data`（**含 `$numberDecimal` 正規化**：售價 / 原價 / 實退金額 / 手續費）
+- 聯查集合：`Qware_Member_data`（依 `會員編號` 批次查，取國籍 / 縣市）
+- 場次：64 場（例行賽 61 場 2025-04-08 ~ 2025-09-29 + 總冠軍賽 3 場 2025-10-11 / 10/21 / 10/26）
+- 場地：樂天桃園棒球場 + 臺北大巨蛋
+- 子活動類型（共 7 種）：
+  - 主場例行賽（主）：582,567 筆 / 特色席位＆套票：29,441 筆 / 小周末套票：564 筆
+  - 動紫趴三日套票：145 筆 / 水蜜桃雙人套票：170 筆 / 遠東商銀寵物樂園：192 筆
+  - 主場總冠軍賽：70,426 筆
+- 總資料筆數：683,505 筆
+- 交易期間：2025-03-11 ~ 2025-10-26
+- 開賣日：2025-03-11 16:30（首筆交易）
+- **視覺格式**：WeiBird navy 主題，accent-color `#f43f5e`（Rakuten 品牌紅）
+- **場次表格**：場地徽章（大巨蛋紅 `#f43f5e` / 桃園橙 `#fb923c`）+ 總冠軍賽金黃徽章 `#facc15`
+- **各場次銷售張數圖**：大巨蛋=紅、桃園=橙、總冠軍賽=金黃
+- **預聚合 HTML 架構**：683k 筆 server 端聚合 → HTML 僅嵌入 JSON（50 KB）
+- **PDF 下載**：呼叫 `window.print()`，`@page { size: A3 landscape; margin: 10mm; }`
 
 ### 中華職棒37年 Rakuten主場例行賽（A_RakutenCPBL37_2026）
 - 篩選條件：`節目/商品名稱 regex '中華職棒37年Rakuten'`（含所有子活動類型，共 6 種）
