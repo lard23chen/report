@@ -1,4 +1,4 @@
-﻿const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
 
@@ -11,15 +11,70 @@ const client = new MongoClient(uri, {
     }
 });
 
+function formatDateStr(val) {
+    if (!val) return '';
+    const dt = new Date(val);
+    if (isNaN(dt.getTime())) return String(val).slice(0, 16);
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, '0');
+    const d = String(dt.getDate()).padStart(2, '0');
+    const h = String(dt.getHours()).padStart(2, '0');
+    const min = String(dt.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${d} ${h}:${min}`;
+}
+
 async function main() {
     try {
         console.log("Connecting to MongoDB...");
         await client.connect();
         const db = client.db("QwareAi");
 
-        // 1. 取得所有節目清單 (依照 MAX SessionCount 排序)
+        const now = new Date();
+        const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // ── 0. Load existing HTML for incremental update ──────────────────────
+        const htmlPath = path.join(__dirname, 'A_GA_Events_Traffic_Report.html');
+        let existingEntries = [];
+        let lastGeneratedAt = null;
+
+        if (fs.existsSync(htmlPath)) {
+            console.log("Loading existing HTML data for incremental update...");
+            const existingHtml = fs.readFileSync(htmlPath, 'utf8');
+            const genMatch = existingHtml.match(/const generatedAt = "([^"]+)"/);
+            const dataMatch = existingHtml.match(/\/\*SD_START\*\/([\s\S]*?)\/\*SD_END\*\//);
+            if (genMatch) {
+                lastGeneratedAt = new Date(genMatch[1]);
+                console.log(`Last generated at: ${lastGeneratedAt.toISOString()}`);
+            }
+            if (dataMatch) {
+                try { existingEntries = JSON.parse(dataMatch[1]); } catch(e) {
+                    console.warn("Failed to parse existing serverData, will rebuild from scratch.");
+                }
+            }
+        }
+
+        // Build existingMap: keep past-month entries unchanged, discard current-month (will rebuild)
+        const existingMap = new Map(); // `${activityId}_${date}` -> entry
+        let keptCount = 0;
+        let discardedCurrentMonth = 0;
+
+        for (const entry of existingEntries) {
+            const date = entry.start ? entry.start.slice(0, 10) : '';
+            if (!date) continue;
+            if (date.startsWith(currentMonthPrefix)) {
+                discardedCurrentMonth++;
+            } else {
+                existingMap.set(`${entry.activityId}_${date}`, entry);
+                keptCount++;
+            }
+        }
+
+        console.log(`Kept ${keptCount} past-month entries, discarding ${discardedCurrentMonth} current-month entries for refresh.`);
+
+        // ── 1. Get event list (always re-query, fast aggregation) ─────────────
         const topEvents = await db.collection("QwareTrafficSession").aggregate([
-            { $sort: { CreateTime: 1 } }, // Sort so $last gets the latest name
+            { $sort: { CreateTime: 1 } },
             {
                 $group: {
                     _id: "$ActivityID",
@@ -34,184 +89,170 @@ async function main() {
 
         const topEventIds = topEvents.map(e => e._id);
 
-        console.log(`fetching session details for ${topEventIds.length} events...`);
-        // 2. 獲取所有節目的 Session 資料
-        let allSessions = await db.collection("QwareTrafficSession")
-            .find({ ActivityID: { $in: topEventIds } })
-            .sort({ CreateTime: 1 })
-            .toArray();
+        // ── 2. Fetch only NEW session/readtime data (incremental) ─────────────
+        let sessionsToProcess = [];
+        let readsToProcess = [];
 
-        // 3. 獲取所有節目的 GAReadTime 資料
-        console.log(`fetching read time details for ${topEventIds.length} events...`);
-        let allReads = await db.collection("QwareTrafficGAReadTime")
-            .find({ ActivityID: { $in: topEventIds } })
-            .sort({ CreateTime: 1 })
-            .toArray();
+        if (lastGeneratedAt) {
+            // New records since last generation
+            console.log(`Fetching new sessions since ${lastGeneratedAt.toISOString()}...`);
+            const newSessions = await db.collection("QwareTrafficSession")
+                .find({ ActivityID: { $in: topEventIds }, CreateTime: { $gt: lastGeneratedAt } })
+                .sort({ CreateTime: 1 }).toArray();
 
-        console.log("Processing data structure for frontend...");
+            // Current month: always re-fetch completely (data keeps flowing in during the month)
+            console.log("Fetching all current-month sessions for refresh...");
+            const curMonthSessions = await db.collection("QwareTrafficSession")
+                .find({ ActivityID: { $in: topEventIds }, CreateTime: { $gte: currentMonthStart } })
+                .sort({ CreateTime: 1 }).toArray();
 
-        let clientData = [];
-
-        function formatDateStr(val) {
-            if (!val) return '';
-            const dt = new Date(val);
-            if (isNaN(dt.getTime())) {
-                return String(val).slice(0, 16);
+            // Merge + deduplicate by _id
+            const seen = new Set();
+            for (const s of [...newSessions, ...curMonthSessions]) {
+                const id = s._id.toString();
+                if (!seen.has(id)) { seen.add(id); sessionsToProcess.push(s); }
             }
-            const y = dt.getFullYear();
-            const m = String(dt.getMonth() + 1).padStart(2, '0');
-            const d = String(dt.getDate()).padStart(2, '0');
-            const h = String(dt.getHours()).padStart(2, '0');
-            const min = String(dt.getMinutes()).padStart(2, '0');
-            return y + '-' + m + '-' + d + ' ' + h + ':' + min;
+
+            const newReads = await db.collection("QwareTrafficGAReadTime")
+                .find({ ActivityID: { $in: topEventIds }, CreateTime: { $gt: lastGeneratedAt } })
+                .sort({ CreateTime: 1 }).toArray();
+
+            const curMonthReads = await db.collection("QwareTrafficGAReadTime")
+                .find({ ActivityID: { $in: topEventIds }, CreateTime: { $gte: currentMonthStart } })
+                .sort({ CreateTime: 1 }).toArray();
+
+            const seenR = new Set();
+            for (const r of [...newReads, ...curMonthReads]) {
+                const id = r._id.toString();
+                if (!seenR.has(id)) { seenR.add(id); readsToProcess.push(r); }
+            }
+        } else {
+            // Initial run: fetch everything
+            console.log("Initial run — fetching all sessions and read-time records...");
+            sessionsToProcess = await db.collection("QwareTrafficSession")
+                .find({ ActivityID: { $in: topEventIds } }).sort({ CreateTime: 1 }).toArray();
+            readsToProcess = await db.collection("QwareTrafficGAReadTime")
+                .find({ ActivityID: { $in: topEventIds } }).sort({ CreateTime: 1 }).toArray();
         }
 
-        for (let event of topEvents) {
-            let eId = event._id;
-            let eName = event.Name;
+        console.log(`Processing ${sessionsToProcess.length} sessions, ${readsToProcess.length} read-time records...`);
 
-            // Filter sessions for this event
-            let evSessions = allSessions.filter(s => s.ActivityID === eId);
-            let evReads = allReads.filter(r => r.ActivityID === eId);
+        // ── 3. Group new data by event → date → minute ────────────────────────
+        const eventDateMap = new Map(); // eId -> (date -> (timeKey -> dataPoint))
 
-            // Group by minute (hh:mm string)
-            let timeMap = new Map();
+        sessionsToProcess.forEach(s => {
+            const timeKey = formatDateStr(s.CreateTime);
+            if (!timeKey) return;
+            const date = timeKey.slice(0, 10);
+            const eId = s.ActivityID;
+            if (!eventDateMap.has(eId)) eventDateMap.set(eId, new Map());
+            const dateMap = eventDateMap.get(eId);
+            if (!dateMap.has(date)) dateMap.set(date, new Map());
+            const tMap = dateMap.get(date);
+            if (!tMap.has(timeKey)) {
+                tMap.set(timeKey, { time: timeKey, session: s.SessionCount, activeD: null, activeA: null, activeDMin: null, activeAMin: null, orders: 0, tickets: 0 });
+            } else {
+                tMap.get(timeKey).session = Math.max(tMap.get(timeKey).session, s.SessionCount);
+            }
+        });
 
-            evSessions.forEach(s => {
-                let timeKey = formatDateStr(s.CreateTime);
-                if (!timeKey) return;
+        readsToProcess.forEach(r => {
+            const timeKey = formatDateStr(r.CreateTime);
+            if (!timeKey) return;
+            const date = timeKey.slice(0, 10);
+            const eId = r.ActivityID;
+            if (!eventDateMap.has(eId)) eventDateMap.set(eId, new Map());
+            const dateMap = eventDateMap.get(eId);
+            if (!dateMap.has(date)) dateMap.set(date, new Map());
+            const tMap = dateMap.get(date);
+            const dCount   = r.ActiveUsersDCount    === 'NULL' ? 0 : Number(r.ActiveUsersDCount);
+            const aCount   = r.ActiveUsersACount    === 'NULL' ? 0 : Number(r.ActiveUsersACount);
+            const dMinCount = r.ActiveUsersDMinCount === 'NULL' ? 0 : Number(r.ActiveUsersDMinCount);
+            const aMinCount = r.ActiveUsersAMinCount === 'NULL' ? 0 : Number(r.ActiveUsersAMinCount);
+            if (!tMap.has(timeKey)) {
+                tMap.set(timeKey, { time: timeKey, session: null, activeD: dCount, activeA: aCount, activeDMin: dMinCount, activeAMin: aMinCount, orders: 0, tickets: 0 });
+            } else {
+                const d = tMap.get(timeKey);
+                d.activeD    = Math.max(d.activeD    || 0, dCount);
+                d.activeA    = Math.max(d.activeA    || 0, aCount);
+                d.activeDMin = Math.max(d.activeDMin || 0, dMinCount);
+                d.activeAMin = Math.max(d.activeAMin || 0, aMinCount);
+            }
+        });
 
-                if (!timeMap.has(timeKey)) {
-                    timeMap.set(timeKey, { time: timeKey, session: s.SessionCount, activeD: null, activeA: null, activeDMin: null, activeAMin: null, orders: 0, tickets: 0 });
-                } else {
-                    timeMap.get(timeKey).session = Math.max(timeMap.get(timeKey).session, s.SessionCount);
-                }
-            });
+        // ── 4. Fetch tickets and build entries for new/current-month combos ───
+        for (const [eId, dateMap] of eventDateMap.entries()) {
+            const event = topEvents.find(e => e._id === eId);
+            if (!event) continue;
+            const eName = event.Name;
 
-            evReads.forEach(r => {
-                let timeKey = formatDateStr(r.CreateTime);
-                if (!timeKey) return;
-
-                if (!timeMap.has(timeKey)) {
-                    timeMap.set(timeKey, { time: timeKey, session: null, activeD: (r.ActiveUsersDCount === 'NULL' ? 0 : Number(r.ActiveUsersDCount)), activeA: (r.ActiveUsersACount === 'NULL' ? 0 : Number(r.ActiveUsersACount)), activeDMin: (r.ActiveUsersDMinCount === 'NULL' ? 0 : Number(r.ActiveUsersDMinCount)), activeAMin: (r.ActiveUsersAMinCount === 'NULL' ? 0 : Number(r.ActiveUsersAMinCount)), orders: 0, tickets: 0 });
-                } else {
-                    let d = timeMap.get(timeKey);
-                    let dCount = (r.ActiveUsersDCount === 'NULL' ? 0 : Number(r.ActiveUsersDCount));
-                    let aCount = (r.ActiveUsersACount === 'NULL' ? 0 : Number(r.ActiveUsersACount));
-                    let dMinCount = (r.ActiveUsersDMinCount === 'NULL' ? 0 : Number(r.ActiveUsersDMinCount));
-                    let aMinCount = (r.ActiveUsersAMinCount === 'NULL' ? 0 : Number(r.ActiveUsersAMinCount));
-                    d.activeD = Math.max(d.activeD || 0, dCount);
-                    d.activeA = Math.max(d.activeA || 0, aCount);
-                    d.activeDMin = Math.max(d.activeDMin || 0, dMinCount);
-                    d.activeAMin = Math.max(d.activeAMin || 0, aMinCount);
-                }
-            });
-
-            let timeDataArr = Array.from(timeMap.values()).sort((a, b) => a.time.localeCompare(b.time));
-
-            // Group by Date (YYYY-MM-DD)
-            let dateGroups = new Map();
-            timeDataArr.forEach(item => {
-                let dateStr = item.time.slice(0, 10);
-                if (!dateGroups.has(dateStr)) {
-                    dateGroups.set(dateStr, []);
-                }
-                dateGroups.get(dateStr).push(item);
-            });
-
-            for (let [dateStr, dailyData] of dateGroups.entries()) {
-                // FETCH TICKET STATS for this event on this day
-                const now = new Date();
-                const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            for (const [dateStr, tMap] of dateMap.entries()) {
+                const key = `${eId}_${dateStr}`;
                 const isCurrentMonth = dateStr.startsWith(currentMonthPrefix);
+
+                // Skip past-month entries already in existingMap
+                if (!isCurrentMonth && existingMap.has(key)) {
+                    continue;
+                }
+
                 const ticketCollName = isCurrentMonth ? "Qware_A_Ticket_data_Daily" : "Qware_Ticket_Data";
-                
                 console.log(`fetching tickets for ${eName} on ${dateStr} from ${ticketCollName}...`);
-                
-                // Match by all associated event names and date
+
                 const ticketsData = await db.collection(ticketCollName).find({
                     "節目/商品名稱": { $in: event.AllNames },
                     "交易時間": { $regex: new RegExp(`^${dateStr}`) },
                     "狀態": "正常"
                 }).toArray();
 
-                // Group tickets by minute
                 const ticketTrend = {};
                 ticketsData.forEach(tick => {
                     const tTime = tick["交易時間"] ? tick["交易時間"].slice(0, 16) : null;
                     if (!tTime) return;
                     if (!ticketTrend[tTime]) ticketTrend[tTime] = { orders: new Set(), tickets: 0 };
-                    
                     const orderId = tick["訂單編號"] ? tick["訂單編號"].split('_')[0] : tick._id;
                     ticketTrend[tTime].orders.add(orderId);
                     ticketTrend[tTime].tickets += 1;
                 });
 
-                let maxSession = 0;
-                let maxActiveD = 0;
-                let maxActiveA = 0;
-                let maxActiveDMin = 0;
-                let maxActiveAMin = 0;
-                let maxSessionTime = '';
-                let maxActiveDTime = '';
-                let maxActiveATime = '';
-                let maxActiveDMinTime = '';
-                let maxActiveAMinTime = '';
+                const dailyData = Array.from(tMap.values()).sort((a, b) => a.time.localeCompare(b.time));
+
+                let maxSession = 0, maxActiveD = 0, maxActiveA = 0;
+                let maxActiveDMin = 0, maxActiveAMin = 0;
+                let maxSessionTime = '', maxActiveDTime = '', maxActiveATime = '';
+                let maxActiveDMinTime = '', maxActiveAMinTime = '';
 
                 dailyData.forEach(item => {
-                    // Update per-minute ticket stats
                     if (ticketTrend[item.time]) {
                         item.orders = ticketTrend[item.time].orders.size;
                         item.tickets = ticketTrend[item.time].tickets;
                     }
-
-                    if (item.session > maxSession) {
-                        maxSession = item.session;
-                        maxSessionTime = item.time;
-                    }
-                    if (item.activeD > maxActiveD) {
-                        maxActiveD = item.activeD;
-                        maxActiveDTime = item.time;
-                    }
-                    if (item.activeA > maxActiveA) {
-                        maxActiveA = item.activeA;
-                        maxActiveATime = item.time;
-                    }
-                    if (item.activeDMin > maxActiveDMin) {
-                        maxActiveDMin = item.activeDMin;
-                        maxActiveDMinTime = item.time;
-                    }
-                    if (item.activeAMin > maxActiveAMin) {
-                        maxActiveAMin = item.activeAMin;
-                        maxActiveAMinTime = item.time;
-                    }
+                    if (item.session > maxSession) { maxSession = item.session; maxSessionTime = item.time; }
+                    if (item.activeD > maxActiveD) { maxActiveD = item.activeD; maxActiveDTime = item.time; }
+                    if (item.activeA > maxActiveA) { maxActiveA = item.activeA; maxActiveATime = item.time; }
+                    if (item.activeDMin > maxActiveDMin) { maxActiveDMin = item.activeDMin; maxActiveDMinTime = item.time; }
+                    if (item.activeAMin > maxActiveAMin) { maxActiveAMin = item.activeAMin; maxActiveAMinTime = item.time; }
                 });
 
                 if (maxSession > 0) {
-                    clientData.push({
+                    existingMap.set(key, {
                         activityId: eId,
                         name: eName,
-                        maxSession: maxSession,
-                        maxActiveD: maxActiveD,
-                        maxActiveA: maxActiveA,
-                        maxActiveDMin: maxActiveDMin,
-                        maxActiveAMin: maxActiveAMin,
-                        maxSessionTime: maxSessionTime,
-                        maxActiveDTime: maxActiveDTime,
-                        maxActiveATime: maxActiveATime,
-                        maxActiveDMinTime: maxActiveDMinTime,
-                        maxActiveAMinTime: maxActiveAMinTime,
+                        maxSession, maxActiveD, maxActiveA, maxActiveDMin, maxActiveAMin,
+                        maxSessionTime, maxActiveDTime, maxActiveATime, maxActiveDMinTime, maxActiveAMinTime,
                         start: dailyData.length > 0 ? dailyData[0].time : '',
-                        end: dailyData.length > 0 ? dailyData[dailyData.length - 1].time : '',
+                        end:   dailyData.length > 0 ? dailyData[dailyData.length - 1].time : '',
                         data: dailyData
                     });
                 }
             }
         }
 
-        // 依據時間先後順序排序 (由新到舊)
+        // ── 5. Build final clientData ──────────────────────────────────────────
+        const generatedAtStr = now.toISOString();
+        let clientData = Array.from(existingMap.values());
         clientData.sort((a, b) => b.start.localeCompare(a.start));
 
+        console.log(`Total entries in report: ${clientData.length}`);
         console.log("Building HTML file...");
 
         const htmlContent = `
@@ -381,12 +422,12 @@ async function main() {
             position: absolute;
             left: 0; top: 0; bottom: 0; width: 4px;
         }
-        .card-1::before { background: #3b82f6; } /* Session */
-        .card-2::before { background: #f59e0b; } /* Active D 30 */
-        .card-3::before { background: #10b981; } /* Active A 30 */
-        .card-4::before { background: #fbbf24; } /* Active D Min */
-        .card-5::before { background: #34d399; } /* Active A Min */
-        .card-6::before { background: #ec4899; } /* Time Range */
+        .card-1::before { background: #3b82f6; }
+        .card-2::before { background: #f59e0b; }
+        .card-3::before { background: #10b981; }
+        .card-4::before { background: #fbbf24; }
+        .card-5::before { background: #34d399; }
+        .card-6::before { background: #ec4899; }
 
         .card h3 {
             margin: 0 0 10px 0;
@@ -414,7 +455,7 @@ async function main() {
             height: 500px;
             position: relative;
         }
-        
+
         .sys-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; color: #fff; background: rgba(255,255,255,0.1); }
 
         .table-container {
@@ -432,7 +473,6 @@ async function main() {
         td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); }
         tr:hover { background: rgba(255,255,255,0.02); }
 
-        /* Go Home Button */
         #goHomeBtn {
             position: fixed;
             bottom: 30px;
@@ -474,7 +514,7 @@ async function main() {
 <div class="layout">
     <div class="sidebar">
         <div class="sidebar-header">選擇節目</div>
-        <div style="padding: 6px 12px 4px; font-size: 0.75rem; color: #6b7280;">最近更新：${new Date().toLocaleString('zh-TW', {timeZone: 'Asia/Taipei', hour12: false})}</div>
+        <div style="padding: 6px 12px 4px; font-size: 0.75rem; color: #6b7280;">最近更新：${now.toLocaleString('zh-TW', {timeZone: 'Asia/Taipei', hour12: false})}</div>
         <div class="event-list" id="eventList">
             ${clientData.map((d, i) => d.maxSession > 2000 ? `
                 <div class="event-item" id="event-item-${i}" onclick="updateDashboard(${i})">
@@ -484,7 +524,7 @@ async function main() {
             ` : '').join('')}
         </div>
     </div>
-    
+
     <div class="main-wrapper">
         <div class="header">
             <div class="title">
@@ -557,7 +597,8 @@ async function main() {
 </div> <!-- End layout -->
 
 <script>
-    const serverData = ${JSON.stringify(clientData)};
+    const generatedAt = "${generatedAtStr}";
+    const serverData = /*SD_START*/${JSON.stringify(clientData)}/*SD_END*/;
     let chartInstance = null;
 
     function updateDashboard(idx) {
@@ -568,7 +609,6 @@ async function main() {
         const d = serverData[idx];
         document.getElementById('eventHeading').innerText = d.name;
 
-        // Calc peak tickets/orders
         let maxOrders = 0; let maxOrdersTime = '';
         let maxTickets = 0; let maxTicketsTime = '';
         d.data.forEach(item => {
@@ -576,19 +616,18 @@ async function main() {
             if (item.tickets > maxTickets) { maxTickets = item.tickets; maxTicketsTime = item.time; }
         });
 
-        // Update cards
         document.getElementById('valSession').innerText = d.maxSession.toLocaleString();
         document.getElementById('valActiveDMin').innerText = d.maxActiveDMin.toLocaleString();
         document.getElementById('valActiveAMin').innerText = d.maxActiveAMin.toLocaleString();
         document.getElementById('valMaxOrders').innerText = maxOrders.toLocaleString();
         document.getElementById('valMaxTickets').innerText = maxTickets.toLocaleString();
-        
+
         document.getElementById('subSessionTime').innerText = "發生時間點: " + (d.maxSessionTime || '-');
         document.getElementById('subActiveDMinTime').innerText = "發生時間點: " + (d.maxActiveDMinTime || '-');
         document.getElementById('subActiveAMinTime').innerText = "發生時間點: " + (d.maxActiveAMinTime || '-');
         document.getElementById('subMaxOrdersTime').innerText = "發生時間點: " + (maxOrdersTime || '-');
         document.getElementById('subMaxTicketsTime').innerText = "發生時間點: " + (maxTicketsTime || '-');
-        
+
         (function() {
             var _sd = d.start.slice(0, 10), _ed = d.end.slice(0, 10);
             var _sParts = d.start.slice(11).split(':'), _eParts = d.end.slice(11).split(':');
@@ -601,7 +640,6 @@ async function main() {
         })();
         document.getElementById('valTimeSub').innerText = "總數據點數: " + d.data.length;
 
-        // Update Table — show all data
         const tbody = document.querySelector('#dataTable tbody');
         const displayData = d.data;
         tbody.innerHTML = displayData.map(item => {
@@ -624,7 +662,7 @@ async function main() {
 
         const ctx = document.getElementById('mainChart').getContext('2d');
         Chart.register(ChartDataLabels);
-        
+
         chartInstance = new Chart(ctx, {
             type: 'line',
             plugins: [ChartDataLabels],
@@ -685,16 +723,13 @@ async function main() {
         });
     }
 
-    // Init
     window.onload = () => {
-        // Hide events with maxSession <= 2000
         serverData.forEach((d, i) => {
             if (d.maxSession <= 2000) {
                 const el = document.getElementById('event-item-' + i);
                 if (el) el.style.display = 'none';
             }
         });
-        // Find first visible event
         const firstVisible = serverData.findIndex(d => d.maxSession > 2000);
         updateDashboard(firstVisible >= 0 ? firstVisible : 0);
     };
@@ -704,9 +739,8 @@ async function main() {
 </html>
         `;
 
-        const outPath = path.join(__dirname, 'A_GA_Events_Traffic_Report.html');
-        fs.writeFileSync(outPath, htmlContent, 'utf8');
-        console.log('Report generated successfully at ' + outPath);
+        fs.writeFileSync(htmlPath, htmlContent, 'utf8');
+        console.log('Report updated successfully at ' + htmlPath);
 
     } catch (err) {
         console.error("Error:", err);

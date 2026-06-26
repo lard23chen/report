@@ -111,22 +111,41 @@ git push origin main
 
 更新頻率：**手動 / 依需求**（新活動開賣後執行）
 
-### ⚡ 增量更新原則（重要）
+### ⚡ 增量更新機制（已實作，2026-06-26）
 
-> **只需更新尚未有資料的日期，過去已有的資料不需重新抓取。**
+> **每次執行只更新新增資料，歷史資料直接沿用，大幅縮短執行時間。**
 
-目前 `generate_ga_events_report.js` 是全量重建（每次從 MongoDB 抓取所有 129+ 個活動的完整資料），執行時間長達數分鐘。
+#### 實作原理
 
-**下次修改 generator 時，請依此原則優化：**
+Generator 在產生 HTML 時，會在 `<script>` 區塊嵌入兩個機器可讀標記：
 
-1. 先讀取現有 HTML 中的 `serverData`，取出已有的最新日期 (`start` 欄位)
-2. 只從 MongoDB 查詢 **該日期之後** 的新 Session / GAReadTime / 票務資料
-3. 合併新舊資料後重新產生 HTML
-4. 歷史活動（所有日期均早於當前月份）若無新資料進入，可直接沿用舊資料跳過查詢
+```js
+const generatedAt = "2026-06-26T10:00:00.000Z";  // 上次產生時間（ISO 8601）
+const serverData = /*SD_START*/[...]/*SD_END*/;    // 資料本體（用於下次解析）
+```
 
-**適用場景：**
-- 日常例行更新（新開賣活動追加）→ 只需抓最近 N 天
-- 歷史資料（已結束活動）→ 完全不需重新查詢
+下次執行 `node generate_ga_events_report.js` 時：
+
+1. **讀取現有 HTML**，正規表達式解析 `generatedAt` 與 `/*SD_START*/.../*SD_END*/` 取出舊資料
+2. **保留過去月份** 的所有 event-date 條目，不再重新查詢 MongoDB
+3. **當月資料強制刷新**：丟棄當月舊條目，重新從 `QwareTrafficSession` / `QwareTrafficGAReadTime` 抓完整當月資料
+4. **查詢新資料**：`CreateTime > lastGeneratedAt` 篩選出新 Session/ReadTime 記錄
+5. **新 event-date 組合**：若發現過去月份中尚未有的組合（如新增補錄資料），則補充查詢票務並加入
+6. **合併**：新/更新條目覆蓋 existingMap，最終 sort by start desc 輸出
+
+#### 查詢成本比較
+
+| 情境 | 查詢次數（票務） | 耗時估計 |
+|------|---------|------|
+| 初次執行（全量） | ~330+ 次 | 5–10 分鐘 |
+| 日常增量更新 | 當月活動數（通常 < 30 次） | < 1 分鐘 |
+
+#### 邊界情況
+
+- **首次執行或 HTML 不存在**：自動降級為全量模式（`lastGeneratedAt = null`）
+- **現有 HTML 中缺少 markers**（舊版本）：`lastGeneratedAt = null`，同上全量執行
+- **解析失敗**：印出 warning，從空資料開始，不中斷流程
+- **當月跨月**：新月份第一次執行時，上個月資料自動升格為「過去月份」並保留，不再刷新
 
 ### ⚠️ 維護注意：HTML 與 Generator 必須同步
 
