@@ -1624,7 +1624,7 @@ function sortTable(key){
 }
 
 function renderTable(){
-  let data = [...(liveFunnelData || FUNNEL_DATA)];
+  let data = [...(liveFunnelData || FUNNEL_DATA)].filter(d=>d.pvRank!=null&&d.pvRank<=45);
   if(currentFilter==='both')     data=data.filter(d=>d.pv!=null&&d.clicks!=null);
   else if(currentFilter==='pvonly')    data=data.filter(d=>d.pv!=null&&d.clicks==null);
   else if(currentFilter==='clickonly') data=data.filter(d=>d.pv==null&&d.clicks!=null);
