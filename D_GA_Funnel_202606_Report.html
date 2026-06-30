@@ -249,15 +249,8 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
       <input id="pvTo" class="fp-input" placeholder="06/28" readonly>
     </div>
   </div>
-  <div class="fp-divider"></div>
-  <div class="filter-group">
-    <span class="filter-label">🖱 點擊日期區間</span>
-    <div class="fp-wrap">
-      <input id="clFrom" class="fp-input" placeholder="05/27" readonly>
-      <span class="fp-sep">–</span>
-      <input id="clTo" class="fp-input" placeholder="06/28" readonly>
-    </div>
-  </div>
+  <input id="clFrom" style="display:none" readonly>
+  <input id="clTo" style="display:none" readonly>
   <div class="filter-actions">
     <button class="filter-btn" onclick="applyFunnel()">套用篩選</button>
     <button class="filter-btn-ghost" onclick="resetFunnel()">重置</button>
