@@ -260,6 +260,13 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
 <!-- Table -->
 <div class="table-section">
   <h3>完整活動對照表</h3>
+  <div style="margin-bottom:10px">
+    <input id="nameSearch" type="text" placeholder="🔍 搜尋活動名稱…"
+      style="width:100%;background:#0f172a;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:7px 12px;outline:none;transition:.15s"
+      oninput="renderTable()"
+      onfocus="this.style.borderColor='var(--blue)'"
+      onblur="this.style.borderColor='var(--border)'">
+  </div>
   <div class="chip-row">
     <span class="chip active" onclick="filterTable('all',this)">全部</span>
     <span class="chip" onclick="filterTable('both',this)">兩者皆有</span>
@@ -4465,7 +4472,9 @@ function sortTable(key){
 }
 
 function renderTable(){
+  const kw = (document.getElementById('nameSearch')?.value||'').trim().toLowerCase();
   let data = [...(liveFunnelData || FUNNEL_DATA)].filter(d=>d.pvRank!=null&&d.pvRank<=45);
+  if(kw) data=data.filter(d=>d.name.toLowerCase().includes(kw));
   if(currentFilter==='both')     data=data.filter(d=>d.pv!=null&&d.clicks!=null);
   else if(currentFilter==='pvonly')    data=data.filter(d=>d.pv!=null&&d.clicks==null);
   else if(currentFilter==='clickonly') data=data.filter(d=>d.pv==null&&d.clicks!=null);
