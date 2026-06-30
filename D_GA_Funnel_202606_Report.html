@@ -239,6 +239,31 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
   </div>
 </div>
 
+<!-- Date Filter Bar -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">📄 PV 日期區間</span>
+    <div class="fp-wrap">
+      <input id="pvFrom" class="fp-input" placeholder="06/10" readonly>
+      <span class="fp-sep">–</span>
+      <input id="pvTo" class="fp-input" placeholder="06/28" readonly>
+    </div>
+  </div>
+  <div class="fp-divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">🖱 點擊日期區間</span>
+    <div class="fp-wrap">
+      <input id="clFrom" class="fp-input" placeholder="05/27" readonly>
+      <span class="fp-sep">–</span>
+      <input id="clTo" class="fp-input" placeholder="06/28" readonly>
+    </div>
+  </div>
+  <div class="filter-actions">
+    <button class="filter-btn" onclick="applyFunnel()">套用篩選</button>
+    <button class="filter-btn-ghost" onclick="resetFunnel()">重置</button>
+  </div>
+</div>
+
 <!-- Charts row 1 -->
 <div class="chart-row">
   <div class="chart-card full">
@@ -271,29 +296,6 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
 <!-- Table -->
 <div class="table-section">
   <h3>完整活動對照表</h3>
-  <div class="filter-bar" style="margin-bottom:12px">
-    <div class="filter-group">
-      <span class="filter-label">📄 PV 日期區間</span>
-      <div class="fp-wrap">
-        <input id="pvFrom" class="fp-input" placeholder="06/10" readonly>
-        <span class="fp-sep">–</span>
-        <input id="pvTo" class="fp-input" placeholder="06/28" readonly>
-      </div>
-    </div>
-    <div class="fp-divider"></div>
-    <div class="filter-group">
-      <span class="filter-label">🖱 點擊日期區間</span>
-      <div class="fp-wrap">
-        <input id="clFrom" class="fp-input" placeholder="05/27" readonly>
-        <span class="fp-sep">–</span>
-        <input id="clTo" class="fp-input" placeholder="06/28" readonly>
-      </div>
-    </div>
-    <div class="filter-actions">
-      <button class="filter-btn" onclick="applyFunnel()">套用篩選</button>
-      <button class="filter-btn-ghost" onclick="resetFunnel()">重置</button>
-    </div>
-  </div>
   <div class="chip-row">
     <span class="chip active" onclick="filterTable('all',this)">全部</span>
     <span class="chip" onclick="filterTable('both',this)">兩者皆有</span>
