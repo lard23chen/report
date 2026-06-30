@@ -264,35 +264,6 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
   </div>
 </div>
 
-<!-- Charts row 1 -->
-<div class="chart-row">
-  <div class="chart-card full">
-    <h3>瀏覽量 vs 點擊量 分布（共同活動 <span id="scatter-matched-count">27</span> 個）</h3>
-    <div class="chart-sub">對數座標 · 對角虛線 = 點擊/瀏覽比 100% 基準線 · 線上方 = 點擊超過瀏覽量</div>
-    <div class="legend-row" id="scatter-legend"></div>
-    <div class="chart-wrap" style="height:340px"><canvas id="scatterChart"></canvas></div>
-  </div>
-</div>
-
-<div class="chart-row">
-  <div class="chart-card">
-    <h3>點擊/瀏覽比排行（共同活動）</h3>
-    <div class="chart-sub">Clicks ÷ PV × 100%，依比值降序</div>
-    <div class="chart-wrap" style="height:480px"><canvas id="ctrChart"></canvas></div>
-  </div>
-  <div class="chart-card">
-    <h3>類別：瀏覽占比 vs 點擊占比</h3>
-    <div class="chart-sub">以共同活動為基準，顯示各類別在兩個行為層的相對份額差異</div>
-    <div class="chart-wrap" style="height:280px"><canvas id="catChart"></canvas></div>
-    <div style="margin-top:14px;font-size:11px;color:var(--muted);line-height:1.7">
-      <span style="color:var(--rose)">■</span> K-pop：瀏覽13.4% → 點擊25.5%（+12.1%，粉絲購買力強）<br>
-      <span style="color:var(--blue)">■</span> 運動：瀏覽51.6% → 點擊54.4%（+2.8%，穩定轉換）<br>
-      <span style="color:var(--purple)">■</span> 演唱會：瀏覽30.4% → 點擊17.2%（-13.2%，瀏覽多點擊少）<br>
-      <span style="color:var(--green)">■</span> 動漫/遊戲：瀏覽4.7% → 點擊2.9%（-1.8%，偏探索型瀏覽）
-    </div>
-  </div>
-</div>
-
 <!-- Table -->
 <div class="table-section">
   <h3>完整活動對照表</h3>
@@ -321,6 +292,35 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- Charts row 1 -->
+<div class="chart-row">
+  <div class="chart-card full">
+    <h3>瀏覽量 vs 點擊量 分布（共同活動 <span id="scatter-matched-count">27</span> 個）</h3>
+    <div class="chart-sub">對數座標 · 對角虛線 = 點擊/瀏覽比 100% 基準線 · 線上方 = 點擊超過瀏覽量</div>
+    <div class="legend-row" id="scatter-legend"></div>
+    <div class="chart-wrap" style="height:340px"><canvas id="scatterChart"></canvas></div>
+  </div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-card">
+    <h3>點擊/瀏覽比排行（共同活動）</h3>
+    <div class="chart-sub">Clicks ÷ PV × 100%，依比值降序</div>
+    <div class="chart-wrap" style="height:480px"><canvas id="ctrChart"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h3>類別：瀏覽占比 vs 點擊占比</h3>
+    <div class="chart-sub">以共同活動為基準，顯示各類別在兩個行為層的相對份額差異</div>
+    <div class="chart-wrap" style="height:280px"><canvas id="catChart"></canvas></div>
+    <div style="margin-top:14px;font-size:11px;color:var(--muted);line-height:1.7">
+      <span style="color:var(--rose)">■</span> K-pop：瀏覽13.4% → 點擊25.5%（+12.1%，粉絲購買力強）<br>
+      <span style="color:var(--blue)">■</span> 運動：瀏覽51.6% → 點擊54.4%（+2.8%，穩定轉換）<br>
+      <span style="color:var(--purple)">■</span> 演唱會：瀏覽30.4% → 點擊17.2%（-13.2%，瀏覽多點擊少）<br>
+      <span style="color:var(--green)">■</span> 動漫/遊戲：瀏覽4.7% → 點擊2.9%（-1.8%，偏探索型瀏覽）
+    </div>
   </div>
 </div>
 
