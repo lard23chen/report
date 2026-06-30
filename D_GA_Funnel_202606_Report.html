@@ -188,31 +188,6 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
   </div>
 </div>
 
-<!-- Date Filter Bar -->
-<div class="filter-bar">
-  <div class="filter-group">
-    <span class="filter-label">📄 PV 日期區間</span>
-    <div class="fp-wrap">
-      <input id="pvFrom" class="fp-input" placeholder="06/10" readonly>
-      <span class="fp-sep">–</span>
-      <input id="pvTo" class="fp-input" placeholder="06/20" readonly>
-    </div>
-  </div>
-  <div class="fp-divider"></div>
-  <div class="filter-group">
-    <span class="filter-label">🖱 點擊日期區間</span>
-    <div class="fp-wrap">
-      <input id="clFrom" class="fp-input" placeholder="05/27" readonly>
-      <span class="fp-sep">–</span>
-      <input id="clTo" class="fp-input" placeholder="06/20" readonly>
-    </div>
-  </div>
-  <div class="filter-actions">
-    <button class="filter-btn" onclick="applyFunnel()">套用篩選</button>
-    <button class="filter-btn-ghost" onclick="resetFunnel()">重置</button>
-  </div>
-</div>
-
 <!-- Funnel Visual -->
 <div class="funnel-row">
   <div class="funnel-step">
@@ -296,6 +271,29 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
 <!-- Table -->
 <div class="table-section">
   <h3>完整活動對照表</h3>
+  <div class="filter-bar" style="margin-bottom:12px">
+    <div class="filter-group">
+      <span class="filter-label">📄 PV 日期區間</span>
+      <div class="fp-wrap">
+        <input id="pvFrom" class="fp-input" placeholder="06/10" readonly>
+        <span class="fp-sep">–</span>
+        <input id="pvTo" class="fp-input" placeholder="06/20" readonly>
+      </div>
+    </div>
+    <div class="fp-divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">🖱 點擊日期區間</span>
+      <div class="fp-wrap">
+        <input id="clFrom" class="fp-input" placeholder="05/27" readonly>
+        <span class="fp-sep">–</span>
+        <input id="clTo" class="fp-input" placeholder="06/20" readonly>
+      </div>
+    </div>
+    <div class="filter-actions">
+      <button class="filter-btn" onclick="applyFunnel()">套用篩選</button>
+      <button class="filter-btn-ghost" onclick="resetFunnel()">重置</button>
+    </div>
+  </div>
   <div class="chip-row">
     <span class="chip active" onclick="filterTable('all',this)">全部</span>
     <span class="chip" onclick="filterTable('both',this)">兩者皆有</span>
@@ -312,8 +310,6 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
         <tr>
           <th onclick="sortTable('pvRank')">PV排名</th>
           <th onclick="sortTable('name')">活動名稱</th>
-          <th onclick="sortTable('cat')">類別</th>
-          <th>資料集</th>
           <th onclick="sortTable('pv')">瀏覽量</th>
           <th onclick="sortTable('clicks')">點擊量</th>
           <th onclick="sortTable('ctr')">點擊/瀏覽比</th>
@@ -1648,8 +1644,6 @@ function renderTable(){
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = data.map(d=>{
     const ds = getDS(d);
-    const dsBadge = ds==='both'?`<span class="badge ds-both">兩者</span>`:ds==='pvonly'?`<span class="badge ds-pv">僅瀏覽</span>`:`<span class="badge ds-click">僅點擊</span>`;
-    const catBadge = `<span class="badge badge-${d.cat}">${CAT_COLOR[d.cat]?.label||d.cat}</span>`;
     const ctrFill = d.ctr!=null ? `<span style="color:${d.ctr>=100?'var(--green)':d.ctr>=50?'var(--amber)':'var(--rose)'}">${d.ctr.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(d.ctr/maxCtr*100,100)}%;background:${d.ctr>=100?'var(--green)':d.ctr>=50?'var(--amber)':'var(--rose)'}"></div></div>` : '<span style="color:var(--muted)">—</span>';
 
     const delta = (d.pvRank!=null&&d.clickRank!=null) ? d.pvRank-d.clickRank : null;
@@ -1661,8 +1655,6 @@ function renderTable(){
     return `<tr data-ds="${ds}" data-cat="${d.cat}">
       <td style="color:var(--muted)">${d.pvRank!=null?'#'+d.pvRank:'—'}</td>
       <td><span style="font-size:11px;font-weight:500">${d.name}</span><br><span style="font-size:10px;color:var(--muted)">${d.id}</span></td>
-      <td>${catBadge}</td>
-      <td>${dsBadge}</td>
       <td style="text-align:right">${d.pv!=null?d.pv.toLocaleString():'—'}</td>
       <td style="text-align:right">${d.clicks!=null?d.clicks.toLocaleString():'—'}</td>
       <td>${ctrFill}</td>
