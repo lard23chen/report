@@ -267,7 +267,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
 <!-- Charts row 1 -->
 <div class="chart-row">
   <div class="chart-card full">
-    <h3>瀏覽量 vs 點擊量 分布（共同活動 27 個）</h3>
+    <h3>瀏覽量 vs 點擊量 分布（共同活動 <span id="scatter-matched-count">27</span> 個）</h3>
     <div class="chart-sub">對數座標 · 對角虛線 = 點擊/瀏覽比 100% 基準線 · 線上方 = 點擊超過瀏覽量</div>
     <div class="legend-row" id="scatter-legend"></div>
     <div class="chart-wrap" style="height:340px"><canvas id="scatterChart"></canvas></div>
@@ -4341,6 +4341,8 @@ function updateScatter(data) {
     scatterInst.data.datasets[i].data = matched.filter(d=>d.cat===cat).map(d=>({x:d.pv,y:d.clicks,name:d.name,ctr:d.ctr,id:d.id}));
   });
   scatterInst.update();
+  const el = document.getElementById('scatter-matched-count');
+  if(el) el.textContent = matched.length;
 }
 
 // ── CTR Bar Chart ──────────────────────────────────────────────────────────
