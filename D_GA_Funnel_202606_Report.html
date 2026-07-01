@@ -4132,7 +4132,7 @@ function updateFunnelRow(data) {
 
 function applyFunnel() {
   const pvF = pvFpFrom.selectedDates[0] ? padDate(pvFpFrom.input.value) : '06/10';
-  const pvT = pvFpTo.selectedDates[0]   ? padDate(pvFpTo.input.value)   : '06/20';
+  const pvT = pvFpTo.selectedDates[0]   ? padDate(pvFpTo.input.value)   : ((pvMaxDate.getUTCMonth()+1).toString().padStart(2,'0')+'/'+(pvMaxDate.getUTCDate()).toString().padStart(2,'0'));
   const clF = clFpFrom.selectedDates[0] ? padDate(clFpFrom.input.value) : '05/27';
   const clT = clFpTo.selectedDates[0]   ? padDate(clFpTo.input.value)   : '06/20';
   liveFunnelData = computeFunnel(pvF, pvT, clF, clT);
@@ -4146,9 +4146,9 @@ function applyFunnel() {
 
 function resetFunnel() {
   pvFpFrom.setDate(pvAvail[0], true);
-  pvFpTo.setDate(pvAvail[pvAvail.length-1], true);
+  pvFpTo.setDate(pvMaxDate, true);
   pvFpFrom.set('maxDate', null);
-  pvFpTo.set('minDate', null);
+  pvFpTo.set('minDate', pvAvail[0]);
   clFpFrom.setDate(clAvail[0], true);
   clFpTo.setDate(clAvail[clAvail.length-1], true);
   clFpFrom.set('maxDate', null);
@@ -4345,13 +4345,19 @@ const clAvail = mkDateObjs(CL_DATES);
 
 let pvFpFrom, pvFpTo, clFpFrom, clFpTo;
 
+// 昨日（台灣時間 UTC+8）
+const pvMaxDate = (function(){
+  const now = new Date(Date.now() + 8*3600000);
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
+})();
+
 pvFpFrom = flatpickr('#pvFrom',{
   dateFormat:'m/d', enable:pvAvail, defaultDate:pvAvail[0], disableMobile:true,
-  onChange(dates){ if(!dates[0])return; const fi=pvAvail.findIndex(d=>d.getTime()===dates[0].getTime()); if(pvFpTo)pvFpTo.set('minDate',pvAvail[fi]); }
+  onChange(dates){ if(!dates[0])return; if(pvFpTo)pvFpTo.set('minDate',dates[0]); }
 });
 pvFpTo = flatpickr('#pvTo',{
-  dateFormat:'m/d', enable:pvAvail, defaultDate:pvAvail[pvAvail.length-1], disableMobile:true,
-  onChange(dates){ if(!dates[0])return; const fi=pvAvail.findIndex(d=>d.getTime()===dates[0].getTime()); if(pvFpFrom)pvFpFrom.set('maxDate',pvAvail[fi]); }
+  dateFormat:'m/d', minDate:pvAvail[0], maxDate:pvMaxDate, defaultDate:pvMaxDate, disableMobile:true,
+  onChange(dates){ if(!dates[0])return; if(pvFpFrom)pvFpFrom.set('maxDate',dates[0]); }
 });
 clFpFrom = flatpickr('#clFrom',{
   dateFormat:'m/d', enable:clAvail, defaultDate:clAvail[0], disableMobile:true,
