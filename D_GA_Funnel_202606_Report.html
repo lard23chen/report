@@ -203,7 +203,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
           <th onclick="sortTable('ctr')">點擊/瀏覽比</th>
           <th onclick="sortTable('cart')" style="text-align:right">A購物車</th>
           <th onclick="sortTable('purchase')" style="text-align:right">A結帳</th>
-          <th onclick="sortTable('cartRate')" style="text-align:right">購物/結帳比</th>
+          <th onclick="sortTable('cartRate')">結帳/購物車比</th>
           <th onclick="sortTable('clickRank')">點擊排名</th>
           <th onclick="sortTable('rankDelta')">排名變化</th>
         </tr>
@@ -4407,7 +4407,7 @@ function renderTable(){
   else if(['sports','concert','kpop','anime'].includes(currentFilter)) data=data.filter(d=>d.cat===currentFilter);
 
   data.sort((a,b)=>{
-    const getExtra = (d,k) => k==='cart'?(CART_DATA[d.id]??null):k==='purchase'?(PURCHASE_DATA[d.id]??null):k==='cartRate'?((CART_DATA[d.id]!=null&&PURCHASE_DATA[d.id]>0)?CART_DATA[d.id]/PURCHASE_DATA[d.id]:null):d[k];
+    const getExtra = (d,k) => k==='cart'?(CART_DATA[d.id]??null):k==='purchase'?(PURCHASE_DATA[d.id]??null):k==='cartRate'?((CART_DATA[d.id]>0&&PURCHASE_DATA[d.id]!=null)?PURCHASE_DATA[d.id]/CART_DATA[d.id]*100:null):d[k];
     let va = getExtra(a,sortKey);
     let vb = getExtra(b,sortKey);
     if(va==null) va=sortAsc?Infinity:-Infinity;
@@ -4426,7 +4426,7 @@ function renderTable(){
 
     const cart = CART_DATA[d.id] ?? null;
     const purchase = PURCHASE_DATA[d.id] ?? null;
-    const cartRate = (cart!=null&&purchase!=null&&purchase>0) ? +(cart/purchase).toFixed(2) : null;
+    const cartRate = (cart!=null&&purchase!=null&&cart>0) ? +(purchase/cart*100).toFixed(1) : null;
     const delta = (d.pvRank!=null&&d.clickRank!=null) ? d.pvRank-d.clickRank : null;
     const deltaStr = delta==null ? '<span class="rank-eq">—</span>'
       : delta>0 ? `<span class="rank-up">▲ ${delta}</span>`
@@ -4441,7 +4441,7 @@ function renderTable(){
       <td>${ctrFill}</td>
       <td style="text-align:right">${cart!=null?cart.toLocaleString():'—'}</td>
       <td style="text-align:right">${purchase!=null?purchase.toLocaleString():'—'}</td>
-      <td style="text-align:right">${cartRate!=null?cartRate.toFixed(2):'—'}</td>
+      <td>${cartRate!=null?`<span style="color:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}">${cartRate.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(cartRate,100)}%;background:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}"></div></div>`:'<span style="color:var(--muted)">—</span>'}</td>
       <td style="color:var(--muted)">${d.clickRank!=null?'#'+d.clickRank:'—'}</td>
       <td>${deltaStr}</td>
     </tr>`;
