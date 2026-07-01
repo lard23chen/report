@@ -4321,6 +4321,8 @@ function renderTable(){
     const cart = CART_DATA[d.id] ?? null;
     const purchase = PURCHASE_DATA[d.id] ?? null;
     const cartRate = (cart!=null&&purchase!=null&&cart>0) ? +(purchase/cart*100).toFixed(1) : null;
+    const pvStartDate = PV_BY_DATE[d.id] ? Object.keys(PV_BY_DATE[d.id]).sort()[0] : null;
+    const clStartDate = CLICK_ACT_DAILY[d.id]?.length ? [...CLICK_ACT_DAILY[d.id]].sort((a,b)=>a.date<b.date?-1:1)[0].date : null;
     const delta = (d.pvRank!=null&&d.clickRank!=null) ? d.pvRank-d.clickRank : null;
     const deltaStr = delta==null ? '<span class="rank-eq">—</span>'
       : delta>0 ? `<span class="rank-up">▲ ${delta}</span>`
@@ -4331,8 +4333,8 @@ function renderTable(){
       <td style="color:var(--muted)">${d.pvRank!=null?'#'+d.pvRank:'—'}</td>
       <td style="color:var(--muted)">${d.clickRank!=null?'#'+d.clickRank:'—'}</td>
       <td><a href="https://ticket.ibon.com.tw/ActivityInfo/Details/${d.id}" target="_blank" style="font-size:11px;font-weight:500;color:var(--text);text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text)'">${d.name}</a><br><span style="font-size:10px;color:var(--muted)">${d.id}</span></td>
-      <td style="text-align:right">${d.pv!=null?d.pv.toLocaleString():'—'}</td>
-      <td style="text-align:right">${d.clicks!=null?d.clicks.toLocaleString():'—'}</td>
+      <td style="text-align:right">${d.pv!=null?d.pv.toLocaleString():'—'}${pvStartDate?`<br><span style="font-size:10px;color:var(--muted)">${pvStartDate}起</span>`:''}</td>
+      <td style="text-align:right">${d.clicks!=null?d.clicks.toLocaleString():'—'}${clStartDate?`<br><span style="font-size:10px;color:var(--muted)">${clStartDate}起</span>`:''}</td>
       <td>${ctrFill}</td>
       <td style="text-align:right">${cart!=null?cart.toLocaleString():'—'}</td>
       <td style="text-align:right">${purchase!=null?purchase.toLocaleString():'—'}</td>
