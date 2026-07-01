@@ -4210,6 +4210,7 @@ function bubbleR(id) {
 })();
 
 function updateScatter(data) {
+  if(!scatterInst) return;
   const catOrder = ['sports','concert','kpop','anime'];
   const matched = data.filter(d=>d.pv!=null&&d.clicks!=null);
   catOrder.forEach((cat,i) => {
