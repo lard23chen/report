@@ -139,9 +139,9 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
       <h1>A系統購票流量轉換</h1>
       <div class="sub">消費者行為旅程：節目介紹頁瀏覽（PageView）→ 場次購票點擊（ClickData）</div>
       <div class="hdr-tags">
-        <span class="tag tag-pv">📄 瀏覽量資料：2026/06/10 – 06/20</span>
-        <span class="tag tag-click">🖱 點擊量資料：2026/05/26 – 06/06</span>
-        <span class="tag tag-info">共同活動 27 個</span>
+        <span class="tag tag-pv" id="hdr-pv-dates">📄 瀏覽量資料：—</span>
+        <span class="tag tag-click" id="hdr-cl-dates">🖱 點擊量資料：—</span>
+        <span class="tag tag-info" id="hdr-matched">共同活動 — 個</span>
         <span class="tag tag-info">更新：<span id="updateTimeLabel">2026/07/01 08:40</span></span>
       </div>
     </div>
@@ -4334,6 +4334,16 @@ function renderTable(){
 }
 
 renderTable();
+
+// ── Header tags (dynamic) ──────────────────────────────────────────────────
+(function(){
+  const pvFirst = PV_DATES[0], pvLast = PV_DATES[PV_DATES.length-1];
+  const clFirst = CL_DATES[0], clLast = CL_DATES[CL_DATES.length-1];
+  const el = id => document.getElementById(id);
+  if(el('hdr-pv-dates')) el('hdr-pv-dates').textContent = `📄 瀏覽量資料：${pvFirst} – ${pvLast}`;
+  if(el('hdr-cl-dates')) el('hdr-cl-dates').textContent = `🖱 點擊量資料：${clFirst} – ${clLast}`;
+  if(el('hdr-matched'))  el('hdr-matched').textContent  = `共同活動 ${SUMMARY.matchedCount} 個`;
+})();
 
 // ── Date Pickers ────────────────────────────────────────────────────────────
 const PV_DATES = ["06/10","06/11","06/12","06/13","06/14","06/15","06/16","06/17","06/18","06/19","06/20","06/21","06/22","06/23","06/24","06/25","06/26","06/27","06/28"];
