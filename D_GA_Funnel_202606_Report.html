@@ -4143,8 +4143,8 @@ function applyFunnel() {
 }
 
 function resetFunnel() {
-  pvFpFrom.setDate(pvAvailCapped[0], true);
-  pvFpTo.setDate(pvAvailCapped[pvAvailCapped.length-1], true);
+  pvFpFrom.setDate(pvFromAvail[0], true);
+  pvFpTo.setDate(pvToAvail[pvToAvail.length-1], true);
   pvFpFrom.set('maxDate', null);
   pvFpTo.set('minDate', null);
   clFpFrom.setDate(clAvail[0], true);
@@ -4358,17 +4358,24 @@ const clAvail = mkDateObjs(CL_DATES);
 
 let pvFpFrom, pvFpTo, clFpFrom, clFpTo;
 
-// 昨日（local time，與 mkDateObjs 相同時區）
+// 昨日（local time）
 const _yd = new Date(); _yd.setDate(_yd.getDate()-1); _yd.setHours(0,0,0,0);
-const pvAvailCapped = pvAvail.filter(d => d <= _yd);
+
+// pvFrom：僅限有資料的日期
+const pvFromAvail = pvAvail.filter(d => d <= _yd);
+
+// pvTo：從第一個 PV 日到昨天的連續序列（無資料日貢獻 0）
+const pvToAvail = [];
+for(const d = new Date(pvAvail[0]); d <= _yd; d.setDate(d.getDate()+1))
+  pvToAvail.push(new Date(d));
 
 pvFpFrom = flatpickr('#pvFrom',{
-  dateFormat:'m/d', enable:pvAvailCapped, defaultDate:pvAvailCapped[0], disableMobile:true,
-  onChange(dates){ if(!dates[0])return; const fi=pvAvailCapped.findIndex(d=>d.getTime()===dates[0].getTime()); if(pvFpTo)pvFpTo.set('minDate',pvAvailCapped[fi]); }
+  dateFormat:'m/d', enable:pvFromAvail, defaultDate:pvFromAvail[0], disableMobile:true,
+  onChange(dates){ if(!dates[0])return; if(pvFpTo)pvFpTo.set('minDate',dates[0]); }
 });
 pvFpTo = flatpickr('#pvTo',{
-  dateFormat:'m/d', enable:pvAvailCapped, defaultDate:pvAvailCapped[pvAvailCapped.length-1], disableMobile:true,
-  onChange(dates){ if(!dates[0])return; const fi=pvAvailCapped.findIndex(d=>d.getTime()===dates[0].getTime()); if(pvFpFrom)pvFpFrom.set('maxDate',pvAvailCapped[fi]); }
+  dateFormat:'m/d', enable:pvToAvail, defaultDate:pvToAvail[pvToAvail.length-1], disableMobile:true,
+  onChange(dates){ if(!dates[0])return; if(pvFpFrom)pvFpFrom.set('maxDate',dates[0]); }
 });
 clFpFrom = flatpickr('#clFrom',{
   dateFormat:'m/d', enable:clAvail, defaultDate:clAvail[0], disableMobile:true,
