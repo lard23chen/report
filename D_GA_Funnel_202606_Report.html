@@ -205,7 +205,6 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
           <th onclick="sortTable('cart')" style="text-align:right">A購物車</th>
           <th onclick="sortTable('purchase')" style="text-align:right">A結帳</th>
           <th onclick="sortTable('cartRate')">結帳/購物車比</th>
-          <th onclick="sortTable('rankDelta')">排名變化</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
@@ -4145,10 +4144,10 @@ function applyFunnel() {
 }
 
 function resetFunnel() {
-  pvFpFrom.setDate(pvAvail[0], true);
-  pvFpTo.setDate(pvMaxDate, true);
+  pvFpFrom.setDate(pvAvailCapped[0], true);
+  pvFpTo.setDate(pvAvailCapped[pvAvailCapped.length-1], true);
   pvFpFrom.set('maxDate', null);
-  pvFpTo.set('minDate', pvAvail[0]);
+  pvFpTo.set('minDate', null);
   clFpFrom.setDate(clAvail[0], true);
   clFpTo.setDate(clAvail[clAvail.length-1], true);
   clFpFrom.set('maxDate', null);
@@ -4323,11 +4322,6 @@ function renderTable(){
     const cartRate = (cart!=null&&purchase!=null&&cart>0) ? +(purchase/cart*100).toFixed(1) : null;
     const pvStartDate = PV_BY_DATE[d.id] ? Object.keys(PV_BY_DATE[d.id]).sort()[0] : null;
     const clStartDate = CLICK_ACT_DAILY[d.id]?.length ? [...CLICK_ACT_DAILY[d.id]].sort((a,b)=>a.date<b.date?-1:1)[0].date : null;
-    const delta = (d.pvRank!=null&&d.clickRank!=null) ? d.pvRank-d.clickRank : null;
-    const deltaStr = delta==null ? '<span class="rank-eq">—</span>'
-      : delta>0 ? `<span class="rank-up">▲ ${delta}</span>`
-      : delta<0 ? `<span class="rank-dn">▼ ${Math.abs(delta)}</span>`
-      : `<span class="rank-eq">—</span>`;
 
     return `<tr data-ds="${ds}" data-cat="${d.cat}">
       <td style="color:var(--muted)">${d.pvRank!=null?'#'+d.pvRank:'—'}</td>
@@ -4339,7 +4333,6 @@ function renderTable(){
       <td style="text-align:right">${cart!=null?cart.toLocaleString():'—'}</td>
       <td style="text-align:right">${purchase!=null?purchase.toLocaleString():'—'}</td>
       <td>${cartRate!=null?`<span style="color:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}">${cartRate.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(cartRate,100)}%;background:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}"></div></div>`:'<span style="color:var(--muted)">—</span>'}</td>
-      <td>${deltaStr}</td>
     </tr>`;
   }).join('');
 }
@@ -4366,19 +4359,17 @@ const clAvail = mkDateObjs(CL_DATES);
 
 let pvFpFrom, pvFpTo, clFpFrom, clFpTo;
 
-// 昨日（台灣時間 UTC+8）
-const pvMaxDate = (function(){
-  const now = new Date(Date.now() + 8*3600000);
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
-})();
+// 昨日（local time，與 mkDateObjs 相同時區）
+const _yd = new Date(); _yd.setDate(_yd.getDate()-1); _yd.setHours(0,0,0,0);
+const pvAvailCapped = pvAvail.filter(d => d <= _yd);
 
 pvFpFrom = flatpickr('#pvFrom',{
-  dateFormat:'m/d', enable:pvAvail, defaultDate:pvAvail[0], disableMobile:true,
-  onChange(dates){ if(!dates[0])return; if(pvFpTo)pvFpTo.set('minDate',dates[0]); }
+  dateFormat:'m/d', enable:pvAvailCapped, defaultDate:pvAvailCapped[0], disableMobile:true,
+  onChange(dates){ if(!dates[0])return; const fi=pvAvailCapped.findIndex(d=>d.getTime()===dates[0].getTime()); if(pvFpTo)pvFpTo.set('minDate',pvAvailCapped[fi]); }
 });
 pvFpTo = flatpickr('#pvTo',{
-  dateFormat:'m/d', minDate:pvAvail[0], maxDate:pvMaxDate, defaultDate:pvMaxDate, disableMobile:true,
-  onChange(dates){ if(!dates[0])return; if(pvFpFrom)pvFpFrom.set('maxDate',dates[0]); }
+  dateFormat:'m/d', enable:pvAvailCapped, defaultDate:pvAvailCapped[pvAvailCapped.length-1], disableMobile:true,
+  onChange(dates){ if(!dates[0])return; const fi=pvAvailCapped.findIndex(d=>d.getTime()===dates[0].getTime()); if(pvFpFrom)pvFpFrom.set('maxDate',pvAvailCapped[fi]); }
 });
 clFpFrom = flatpickr('#clFrom',{
   dateFormat:'m/d', enable:clAvail, defaultDate:clAvail[0], disableMobile:true,
