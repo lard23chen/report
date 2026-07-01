@@ -287,6 +287,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
           <th onclick="sortTable('clicks')" style="text-align:right">D點擊量</th>
           <th onclick="sortTable('ctr')">點擊/瀏覽比</th>
           <th onclick="sortTable('cart')" style="text-align:right">A購物車</th>
+          <th onclick="sortTable('purchase')" style="text-align:right">A結帳</th>
           <th onclick="sortTable('clickRank')">點擊排名</th>
           <th onclick="sortTable('rankDelta')">排名變化</th>
         </tr>
@@ -1210,6 +1211,9 @@ const SUMMARY = {
 
 // A購物車：加入購物車次數（bu:"A", name:"add_to_cart"），keyed by ActivityId
 const CART_DATA = {"39190":30239,"39226":39927,"39428":301453,"39451":4187,"39453":6032,"39455":288847,"39458":377,"39470":19608,"39490":5547,"39494":2236,"39496":3581,"39511":955,"39524":996,"39526":4155,"39529":7871,"39549":29919,"39550":4307,"39555":2600,"39556":3827,"39559":22947,"39575":2319,"39576":75966,"39584":62073,"39590":71746,"39603":78538,"39605":69435,"39607":48158,"39610":311,"39611":19040,"39619":3646,"39648":817,"39649":10518,"39664":4308,"39665":1580,"39666":294,"39667":8806,"39673":9982,"39678":77083,"39680":7297,"39687":3330,"39689":90072,"39690":3178,"39692":2314,"39696":3521,"39697":63548,"39701":114140,"39703":10128};
+
+// A結帳：完成購買次數（bu:"A", name:"purchase"），keyed by ActivityId
+const PURCHASE_DATA = {"39190":16096,"39226":16936,"39428":153363,"39451":4305,"39453":3393,"39455":141274,"39458":114,"39470":4553,"39490":2091,"39494":1576,"39496":1275,"39511":3542,"39524":457,"39526":644,"39529":2820,"39549":2126,"39550":640,"39555":767,"39556":915,"39559":8456,"39575":489,"39576":37260,"39584":8781,"39590":33448,"39603":3728,"39605":2053,"39607":3964,"39610":137,"39611":5755,"39619":371,"39648":486,"39649":1477,"39664":1786,"39665":534,"39666":100,"39667":4060,"39673":516,"39678":1604,"39680":570,"39687":1652,"39689":36985,"39690":553,"39692":360,"39696":2530,"39697":38668,"39701":43294,"39703":3554};
 
 // Per-activity daily PV (for date range filtering)
 const PV_BY_DATE = {
@@ -4487,8 +4491,8 @@ function renderTable(){
   else if(['sports','concert','kpop','anime'].includes(currentFilter)) data=data.filter(d=>d.cat===currentFilter);
 
   data.sort((a,b)=>{
-    let va = sortKey==='cart' ? (CART_DATA[a.id]??null) : a[sortKey];
-    let vb = sortKey==='cart' ? (CART_DATA[b.id]??null) : b[sortKey];
+    let va = sortKey==='cart' ? (CART_DATA[a.id]??null) : sortKey==='purchase' ? (PURCHASE_DATA[a.id]??null) : a[sortKey];
+    let vb = sortKey==='cart' ? (CART_DATA[b.id]??null) : sortKey==='purchase' ? (PURCHASE_DATA[b.id]??null) : b[sortKey];
     if(va==null) va=sortAsc?Infinity:-Infinity;
     if(vb==null) vb=sortAsc?Infinity:-Infinity;
     return sortAsc?va-vb:vb-va;
@@ -4504,6 +4508,7 @@ function renderTable(){
     const ctrFill = d.ctr!=null ? `<span style="color:${d.ctr>=100?'var(--green)':d.ctr>=50?'var(--amber)':'var(--rose)'}">${d.ctr.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(d.ctr/maxCtr*100,100)}%;background:${d.ctr>=100?'var(--green)':d.ctr>=50?'var(--amber)':'var(--rose)'}"></div></div>` : '<span style="color:var(--muted)">—</span>';
 
     const cart = CART_DATA[d.id] ?? null;
+    const purchase = PURCHASE_DATA[d.id] ?? null;
     const delta = (d.pvRank!=null&&d.clickRank!=null) ? d.pvRank-d.clickRank : null;
     const deltaStr = delta==null ? '<span class="rank-eq">—</span>'
       : delta>0 ? `<span class="rank-up">▲ ${delta}</span>`
@@ -4517,6 +4522,7 @@ function renderTable(){
       <td style="text-align:right">${d.clicks!=null?d.clicks.toLocaleString():'—'}</td>
       <td>${ctrFill}</td>
       <td style="text-align:right">${cart!=null?cart.toLocaleString():'—'}</td>
+      <td style="text-align:right">${purchase!=null?purchase.toLocaleString():'—'}</td>
       <td style="color:var(--muted)">${d.clickRank!=null?'#'+d.clickRank:'—'}</td>
       <td>${deltaStr}</td>
     </tr>`;
