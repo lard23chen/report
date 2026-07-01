@@ -4436,7 +4436,7 @@ function renderTable(){
     return `<tr data-ds="${ds}" data-cat="${d.cat}">
       <td style="color:var(--muted)">${d.pvRank!=null?'#'+d.pvRank:'—'}</td>
       <td style="color:var(--muted)">${d.clickRank!=null?'#'+d.clickRank:'—'}</td>
-      <td><span style="font-size:11px;font-weight:500">${d.name}</span><br><span style="font-size:10px;color:var(--muted)">${d.id}</span></td>
+      <td><a href="https://ticket.ibon.com.tw/ActivityInfo/Details/${d.id}" target="_blank" style="font-size:11px;font-weight:500;color:var(--text);text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text)'">${d.name}</a><br><span style="font-size:10px;color:var(--muted)">${d.id}</span></td>
       <td style="text-align:right">${d.pv!=null?d.pv.toLocaleString():'—'}</td>
       <td style="text-align:right">${d.clicks!=null?d.clicks.toLocaleString():'—'}</td>
       <td>${ctrFill}</td>
