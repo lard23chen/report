@@ -4162,8 +4162,15 @@ function resetFunnel() {
   renderTable();
 }
 
-// ── Scatter Chart ──────────────────────────────────────────────────────────
+// ── Bubble Chart ──────────────────────────────────────────────────────────
 let scatterInst;
+
+function bubbleR(id) {
+  const cart = CART_DATA[id] ?? 0;
+  const maxCart = 310000;
+  return Math.max(5, Math.round(Math.sqrt(cart / maxCart) * 30 + 5));
+}
+
 (function(){
   const matched = FUNNEL_DATA.filter(d=>d.pv!=null&&d.clicks!=null);
   const catOrder = ['sports','concert','kpop','anime'];
@@ -4175,24 +4182,23 @@ let scatterInst;
     leg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${d.border}"></div>${d.label}</div>`;
   });
   leg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:rgba(148,163,184,.4);border:1px dashed #94a3b8"></div>點擊/瀏覽比 = 100% 參考線</div>`;
+  leg.innerHTML += `<div class="legend-item" style="margin-left:8px;color:var(--muted);font-size:10px">● 泡泡大小 = A購物車數量</div>`;
 
   const datasets = catOrder.map(cat => ({
     label: CAT_COLOR[cat].label,
     data: matched.filter(d=>d.cat===cat).map(d=>({
-      x: d.pv, y: d.clicks, name: d.name, ctr: d.ctr, id: d.id
+      x: d.pv, y: d.clicks, r: bubbleR(d.id), name: d.name, ctr: d.ctr, id: d.id
     })),
     backgroundColor: CAT_COLOR[cat].bg,
     borderColor: CAT_COLOR[cat].border,
     borderWidth: 1.5,
-    pointRadius: 7,
-    pointHoverRadius: 10,
   }));
 
-  // Reference line: y=x from min to max
+  // Reference line y=x
   const maxV = 180000;
   datasets.push({
     label: 'CTR=100% 參考線',
-    data: [{x:500,y:500},{x:maxV,y:maxV}],
+    data: [{x:500,y:500,r:0},{x:maxV,y:maxV,r:0}],
     type:'line', borderColor:'rgba(148,163,184,.35)',
     borderDash:[5,4], borderWidth:1.5, pointRadius:0,
     backgroundColor:'transparent', fill:false,
@@ -4200,7 +4206,7 @@ let scatterInst;
   });
 
   scatterInst = new Chart(document.getElementById('scatterChart'),{
-    type:'scatter',
+    type:'bubble',
     data:{ datasets },
     options:{
       responsive:true, maintainAspectRatio:false,
@@ -4211,15 +4217,16 @@ let scatterInst;
             label(ctx){
               const p=ctx.raw;
               if(!p.name) return '';
-              return [`${p.name}`,`PV：${p.x.toLocaleString()}`,`點擊：${p.y.toLocaleString()}`,`點擊/瀏覽比：${p.ctr?.toFixed(1)}%`];
+              const cart = CART_DATA[p.id]!=null ? CART_DATA[p.id].toLocaleString() : '—';
+              const pur  = PURCHASE_DATA[p.id]!=null ? PURCHASE_DATA[p.id].toLocaleString() : '—';
+              return [`${p.name}`,`PV：${p.x.toLocaleString()}`,`點擊：${p.y.toLocaleString()}`,`點擊/瀏覽比：${p.ctr?.toFixed(1)}%`,`A購物車：${cart}`,`A結帳：${pur}`];
             }
           }
         },
         datalabels:{
           display(ctx){ return ctx.dataset.data[ctx.dataIndex]?.name!=null; },
           formatter(v){ return v.name?.substring(0,8)||''; },
-          color:'#94a3b8', font:{size:9}, anchor:'end', align:'end',
-          offset:4,
+          color:'#94a3b8', font:{size:9}, anchor:'end', align:'end', offset:4,
         }
       },
       scales:{
@@ -4244,7 +4251,9 @@ function updateScatter(data) {
   const catOrder = ['sports','concert','kpop','anime'];
   const matched = data.filter(d=>d.pv!=null&&d.clicks!=null);
   catOrder.forEach((cat,i) => {
-    scatterInst.data.datasets[i].data = matched.filter(d=>d.cat===cat).map(d=>({x:d.pv,y:d.clicks,name:d.name,ctr:d.ctr,id:d.id}));
+    scatterInst.data.datasets[i].data = matched.filter(d=>d.cat===cat).map(d=>({
+      x:d.pv, y:d.clicks, r:bubbleR(d.id), name:d.name, ctr:d.ctr, id:d.id
+    }));
   });
   scatterInst.update();
   const el = document.getElementById('scatter-matched-count');
