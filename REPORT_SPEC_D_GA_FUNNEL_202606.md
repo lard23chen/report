@@ -1,6 +1,6 @@
-# D系統 瀏覽→點擊轉換分析報表 技術規範說明
+# A系統購票流量轉換報表 技術規範說明
 
-本文件定義「D系統瀏覽→點擊轉換分析報表（2026年6月）」的產出標準，未來更新或重新產出時請遵循本規範。
+本文件定義「A系統購票流量轉換報表（2026年6月）」的產出標準，未來更新或重新產出時請遵循本規範。
 
 ## 1. 基本資訊
 
@@ -8,15 +8,16 @@
 |------|------|
 | 報表名稱 | `D_GA_Funnel_202606_Report.html` |
 | 產生腳本 | `generate_d_ga_funnel_report.js` |
-| 資料來源 | MongoDB `QwareAi` / `GA_D_PageViewData_Webb_202606` + `GA_D_ClickData_Webb_202606` |
-| 瀏覽量資料期間 | 2026/06/10 – 06/20（持續更新） |
-| 點擊量資料期間 | 2026/05/26 – 06/06（持續更新） |
+| 資料來源 | MongoDB `QwareAi`（for-aws-loadtest cluster）+ `trek-first-party-dmp`（qware-dmp-ver-7 cluster） |
+| 瀏覽量資料期間 | 2026/06/10 – 06/28（持續更新） |
+| 點擊量資料期間 | 2026/05/27 – 06/28（持續更新） |
+| DMP 資料期間 | 2025/12/30 起持續累計 |
 | 負責人 | 陳俊良 |
-| 主要目的 | 分析同一活動在「節目介紹頁瀏覽（PageView）→ 場次點擊（ClickData）」兩個消費者行為層的差異，找出高轉換與低轉換活動 |
+| 主要目的 | 分析同一活動在「節目介紹頁瀏覽（PV）→ 場次購票點擊（Click）→ 加入購物車（Cart）→ 結帳（Purchase）」四個消費者行為層的差異 |
 
 ## 2. 核心概念
 
-### 消費者旅程假設
+### 消費者旅程
 
 ```
 消費者看到活動資訊
@@ -25,20 +26,18 @@
     ↓
 點擊場次選購票券（GA_D_ClickData 記錄 click 事件）
     ↓
-完成購票
+加入購物車（DMP event：bu="A", name="add_to_cart"）
+    ↓
+完成結帳（DMP event：bu="A", name="purchase"）
 ```
 
 ### 時間差注意事項
 
-兩份資料**涵蓋不同時段**（PV: 06/10–06/20，Click: 05/26–06/06），因此「點擊/瀏覽比（CTR）」可能超過 100%。這並非錯誤，而是反映：
-- ClickData 記錄的是開賣期間的點擊（購買行為旺盛）
-- PageView 記錄的是開賣後持續的瀏覽（潛在消費者持續關注）
-
-本報表以 **ActivityId** 為連結鍵，分析同一活動在兩個行為層的**相對關聯性**。
+兩份 D 系統資料**涵蓋不同時段**，CTR 可能超過 100%。這並非錯誤，反映開賣旺盛期與持續瀏覽期的時間差。本報表以 **ActivityId** 為連結鍵，分析同一活動在各行為層的**相對關聯性**。
 
 ## 3. 資料結構
 
-### 3.1 FUNNEL_DATA 陣列格式
+### 3.1 FUNNEL_DATA 陣列格式（generator 注入）
 
 ```js
 {
@@ -52,104 +51,44 @@
   ctr:        203.5,            // 點擊/瀏覽比 = clicks/pv*100（null = 未匹配）
   pvShare:    14.9,             // PV 占總 PV 百分比
   clickShare: 19.3,             // 點擊占總點擊百分比
-  loggedIn:   76712,            // 已登入點擊數（來自 ClickData）
+  loggedIn:   76712,            // 已登入點擊數
   notIn:      79491,            // 未登入點擊數
   perf:       279,              // 場次數
 }
 ```
 
-### 3.2 SUMMARY 物件格式
+### 3.2 SUMMARY 物件格式（generator 注入）
 
 ```js
 {
-  pvTotal:      516544,          // 所有 PV 活動合計瀏覽量
-  clickTotal:   810590,          // 所有點擊活動合計點擊量
-  matchedCount: 27,              // 同時出現在兩份資料的活動數
-  pvOnlyCount:  8,               // 僅有 PV 資料的活動數
-  clickOnlyCount:12,             // 僅有點擊資料的活動數
-  matchedPV:    489597,          // 共同活動合計 PV
-  matchedClicks:654308,          // 共同活動合計點擊
-  pvDates:      "2026/06/10...", // PV 資料期間字串
-  clickDates:   "2026/05/26...", // 點擊資料期間字串
+  pvTotal:       2022310,
+  clickTotal:    1599678,
+  matchedCount:  39,            // 兩份資料皆有的活動數
+  pvOnlyCount:   9,
+  clickOnlyCount:9,
+  matchedPV:     1999954,
+  matchedClicks: 1524846,
+  pvDates:       "2026/06/18 – 2026/06/23",  // generator 計算的區間字串
+  clickDates:    "2026/05/26 – 06/06",
 }
 ```
 
-## 4. 活動類別（CAT_MAP）
+### 3.3 靜態資料（Charts 區塊，不被 generator 覆蓋）
 
-| 類別 key | 標籤 | 顏色 |
-|----------|------|------|
-| `sports`  | 運動 | 藍 #3b82f6 |
-| `concert` | 演唱會 | 紫 #8b5cf6 |
-| `kpop`    | K-pop | 玫紅 #f43f5e |
-| `anime`   | 動漫/遊戲 | 綠 #10b981 |
+| 常數 | 說明 | 結構 |
+|------|------|------|
+| `CART_DATA` | A購物車次數，keyed by ActivityId | `{"39428": 301453, ...}` |
+| `PURCHASE_DATA` | A結帳次數，keyed by ActivityId | `{"39428": 153363, ...}` |
+| `PV_BY_DATE` | 每日 PV，keyed by ActivityId → date | `{"39428": {"06/10": 500, ...}}` |
+| `CLICK_ACT_DAILY` | 每日點擊，keyed by ActivityId | `{"39190": [{date:"05/28", total:1519}, ...]}` |
 
-`generate_d_ga_funnel_report.js` 維護完整的 `CAT_MAP`，新增活動時需手動補上。
+**CART_DATA / PURCHASE_DATA 資料來源：**
+- MongoDB cluster：`qware-dmp-ver-7.f0fpg.mongodb.net`
+- DB：`trek-first-party-dmp`，Collection：`event`
+- 篩選條件：`bu:"A"`，`name:"add_to_cart"` / `name:"purchase"`
+- join key：DMP 的 `attribution_id` ↔ Click collection 的 `ProductId`
 
-## 5. 關鍵組件與圖表
-
-### 5.1 KPI 卡片（6 張）
-
-| 卡片 | 說明 |
-|------|------|
-| 總瀏覽量（PV） | 所有 PV 活動合計 |
-| 總點擊量 | 所有點擊活動合計 |
-| 共同活動數 | 兩份資料皆有的活動數 |
-| 最高點擊/瀏覽比 | CTR 最高活動名稱與比值 |
-| 高瀏覽低轉換 | CTR 最低活動（高瀏覽但少點擊）|
-| 匹配整體點擊/瀏覽比 | matchedClicks / matchedPV × 100% |
-
-### 5.2 漏斗視覺列（Funnel Row）
-
-4步驟水平卡片：總 PV → 共同活動 → 總點擊 → 整體比值
-
-### 5.3 散點圖（Scatter Chart）
-
-- 對數雙軸（X = PV，Y = 點擊量）
-- 每點代表一個共同活動，顏色依類別
-- 加入 y=x 虛線作為「點擊/瀏覽比=100%」參考線
-- 線上方 = 點擊量超過瀏覽量（強購買意圖）
-
-### 5.4 點擊/瀏覽比橫條圖（CTR Bar）
-
-- 共同活動依 CTR 降序排列
-- 顏色依類別，值 ≥ 200% 才顯示數字標籤
-
-### 5.5 類別占比對比圖（Category Comparison）
-
-- X 軸：4 個類別
-- 2 組 bar：瀏覽占比 vs 點擊占比
-- 用於快速識別哪個類別在兩個層面的份額差異
-
-### 5.6 完整活動對照表
-
-- 篩選 chips：全部 / 兩者皆有 / 僅瀏覽 / 僅點擊 / 各類別
-- 可排序欄位：PV排名、名稱、類別、瀏覽量、點擊量、CTR、點擊排名、排名變化
-- 排名變化 = pvRank - clickRank（▲正 = 點擊排名優於瀏覽排名）
-
-## 5.7 日期區間篩選（Date Range Filter）
-
-報表頂部提供兩組 Flatpickr 日期選擇器：
-
-| 篩選器 | 可選範圍 | 對應資料 |
-|--------|---------|---------|
-| PV 日期區間 | 06/10 – 06/20 | `PV_BY_DATE[actId][date]` |
-| 點擊日期區間 | 05/27 – 06/20 | `CLICK_ACT_DAILY[actId][]` |
-
-點擊「套用篩選」後呼叫 `applyFunnel()`，依選定日期區間重新計算：
-- 各活動 pv / clicks（加總該區間有的日期）
-- ctr（重新計算比值）
-- pvRank / clickRank（依新數值重新排序）
-- pvShare / clickShare（依新合計重新計算）
-
-並同步更新：KPI 卡片、漏斗視覺列、散點圖、CTR 橫條圖、類別比較圖、完整表格。
-
-「重置」按鈕還原到全期間數據。
-
-### 靜態每日資料（非 generator 自動更新）
-
-`PV_BY_DATE` 和 `CLICK_ACT_DAILY` 目前為靜態資料，嵌入在 HTML Charts 區塊（`// ── Charts ──` 之後），**不會被 generator 覆蓋**。若需更新，需手動從 `D_GA_PageViewData_Webb_202606_Report.html`（`DATA` 陣列的 `pvByDate`）和 `D_GA_ClickData_Webb_202606_Report.html`（`ACT_DAILY`）同步。
-
-## 6. Section Markers（Generator 注入點）
+### 3.4 Section Markers（Generator 注入點）
 
 ```
 // ── Data ──────────────────────────────────────────────────────────────────
@@ -160,6 +99,98 @@ const SUMMARY = {...};       ← generator 注入
 
 ⚠️ **勿修改 marker 字串**，否則 generator 找不到注入點。
 
+## 4. 活動類別（CAT_MAP）
+
+| 類別 key | 標籤 | 顏色 |
+|----------|------|------|
+| `sports`  | 運動 | 藍 #3b82f6 |
+| `concert` | 演唱會 | 紫 #8b5cf6 |
+| `kpop`    | K-pop | 玫紅 #f43f5e |
+| `anime`   | 動漫/遊戲 | 綠 #10b981 |
+
+## 5. 關鍵組件
+
+### 5.1 Header Tags（動態填入）
+
+三個 tag 在頁面載入後由 JS 從實際資料動態填入，不再硬編碼：
+
+```js
+// 來源：PV_DATES[0]/最後一個、CL_DATES[0]/最後一個、SUMMARY.matchedCount
+el('hdr-pv-dates').textContent = `📄 瀏覽量資料：${pvFirst} – ${pvLast}`;
+el('hdr-cl-dates').textContent = `🖱 點擊量資料：${clFirst} – ${clLast}`;
+el('hdr-matched').textContent  = `共同活動 ${SUMMARY.matchedCount} 個`;
+```
+
+### 5.2 日期區間篩選（Date Range Filter）
+
+僅顯示 PV 日期篩選器（Click 篩選器為隱藏 input，保留 JS 相容性）。
+
+| 篩選器 | 元件 | 可選範圍 |
+|--------|------|---------|
+| PV 起始日 | `#pvFrom` flatpickr | 僅限 PV_DATES 內的日期（白名單） |
+| PV 結束日 | `#pvTo` flatpickr | pvAvail[0] 到**昨天**（動態計算，Taiwan UTC+8） |
+
+**pvTo maxDate 計算：**
+```js
+const pvMaxDate = (function(){
+  const now = new Date(Date.now() + 8*3600000);
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
+})();
+```
+
+套用篩選後呼叫 `applyFunnel()`，重新計算各活動 pv/clicks/ctr/pvRank/clickRank，並同步更新泡泡圖與表格。
+
+### 5.3 泡泡圖（Bubble Chart）
+
+- **Chart.js `type:'bubble'`**
+- **X 軸**：瀏覽量（對數，min 500 – max 200,000）
+- **Y 軸**：點擊量（對數，min 200 – max 300,000）
+- **泡泡大小（r）**：A購物車數量，公式：`Math.max(5, Math.sqrt(cart/310000)*30+5)`
+- **顏色**：依類別（CAT_COLOR）
+- **參考線**：y=x 虛線（點擊/瀏覽比=100%）
+- **Tooltip**：活動名稱、PV、點擊量、點擊/瀏覽比、A購物車、A結帳
+- **Legend**：類別顏色 + 「泡泡大小 = A購物車數量」說明
+- **篩選同步**：套用日期篩選後呼叫 `updateScatter(filteredData)` 更新
+
+### 5.4 完整活動對照表
+
+顯示 PV 前 45 名活動，欄位由左到右：
+
+| 欄位 | 說明 |
+|------|------|
+| PV排名 | pvRank |
+| 點擊排名 | clickRank |
+| 活動名稱 | 可點擊連結至 `ticket.ibon.com.tw/ActivityInfo/Details/{id}`，下方顯示 ActivityId |
+| D瀏覽量 | 數字右對齊；下方小字顯示**PV資料起始日**（`PV_BY_DATE` 最早 key） |
+| D點擊量 | 數字右對齊；下方小字顯示**點擊資料起始日**（`CLICK_ACT_DAILY` 最早 date） |
+| 點擊/瀏覽比 | 顏色：綠≥100%、橘≥50%、紅<50%；含比例條 |
+| A購物車 | 來自 CART_DATA，數字右對齊 |
+| A結帳 | 來自 PURCHASE_DATA，數字右對齊 |
+| 結帳/購物車比 | purchase/cart×100%；顏色：綠≥50%、橘≥30%、紅<30%；含比例條 |
+| 排名變化 | pvRank−clickRank；▲正=點擊排名優、▼負=瀏覽排名優 |
+
+**關鍵字搜尋**：`#nameSearch` input，即時過濾活動名稱（含泡泡圖同步）。
+
+**排序**：點擊欄位 header 切換升/降序，`getExtra()` 函式處理 cart/purchase/cartRate 的取值邏輯。
+
+### 5.5 已移除組件
+
+下列組件已從報表移除（對應 JS 保留空函式 stub 避免錯誤）：
+
+| 移除組件 | stub 函式 |
+|----------|-----------|
+| KPI 卡片（6 張） | — |
+| 漏斗視覺列 | — |
+| 點擊/瀏覽比橫條圖（ctrChart） | `function updateCtr(){}` |
+| 類別占比對比圖（catChart） | `function updateCat(){}` |
+
+## 6. MongoDB 連線資訊
+
+| 用途 | Cluster URI | DB | Collection |
+|------|-------------|-------|------------|
+| PV / Click 資料 | `for-aws-loadtest.f0fpg.mongodb.net` | `QwareAi` | `GA_D_PageViewData_Webb_202606`、`GA_D_ClickData_Webb_202606` |
+| DMP 購物車/結帳 | `qware-dmp-ver-7.f0fpg.mongodb.net` | `trek-first-party-dmp` | `event` |
+
 ## 7. 更新方式
 
 ```bash
@@ -169,19 +200,9 @@ git commit -m "Update funnel report"
 git push origin main
 ```
 
-更新頻率：手動執行，或配合 PV / Click 兩份報表同步更新。
+CART_DATA / PURCHASE_DATA 為靜態資料，需另行從 DMP cluster 查詢後手動更新 Charts 區塊。
 
-## 8. 關鍵洞察（初版基準）
-
-| 洞察 | 數值 |
-|------|------|
-| 匹配整體 CTR | 133.6% |
-| K-pop 類別 CTR 中位數 | 約 188–945%（粉絲購買力強） |
-| 動漫/遊戲類別 CTR 中位數 | 約 7–18%（瀏覽偏探索型）|
-| 排名躍升最多 | ONE PACT (PV#27 → 點擊#17), Girl Rules (PV#17 → 點擊#8) |
-| 排名下滑最多 | Square Enix (PV#18 → 點擊#32, -14) |
-
-## 9. 相關連結
+## 8. 相關連結
 
 - 目錄：`HTML_Report_Catalog.html`
 - 瀏覽量報表：`D_GA_PageViewData_Webb_202606_Report.html`
@@ -189,4 +210,4 @@ git push origin main
 - 規範：`REPORT_SPEC_D_GA_PAGEVIEWDATA_202606.md` / `REPORT_SPEC_D_GA_CLICKDATA_202606.md`
 
 ---
-*建立日期：2026/06/22*
+*建立日期：2026/06/22｜最後更新：2026/07/01*
