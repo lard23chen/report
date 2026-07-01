@@ -4292,7 +4292,7 @@ function renderTable(){
   const base = liveFunnelData || FUNNEL_DATA;
   const kwFiltered = kw ? base.filter(d=>d.name.toLowerCase().includes(kw)) : base;
   if(scatterInst) updateScatter(kwFiltered);
-  let data = kwFiltered.filter(d=>d.pvRank!=null&&d.pvRank<=40&&(d.clicks==null||d.clicks>0));
+  let data = kwFiltered.filter(d=>d.pvRank!=null&&d.pvRank<=40&&d.clicks!=null&&d.clicks>0);
   if(currentFilter==='both')     data=data.filter(d=>d.pv!=null&&d.clicks!=null);
   else if(currentFilter==='pvonly')    data=data.filter(d=>d.pv!=null&&d.clicks==null);
   else if(currentFilter==='clickonly') data=data.filter(d=>d.pv==null&&d.clicks!=null);
