@@ -4131,7 +4131,7 @@ function updateFunnelRow(data) {
 
 function applyFunnel() {
   const pvF = pvFpFrom.selectedDates[0] ? padDate(pvFpFrom.input.value) : '06/10';
-  const pvT = pvFpTo.selectedDates[0]   ? padDate(pvFpTo.input.value)   : ((pvMaxDate.getUTCMonth()+1).toString().padStart(2,'0')+'/'+(pvMaxDate.getUTCDate()).toString().padStart(2,'0'));
+  const pvT = pvFpTo.selectedDates[0]   ? padDate(pvFpTo.input.value)   : PV_DATES[PV_DATES.length-1];
   const clF = clFpFrom.selectedDates[0] ? padDate(clFpFrom.input.value) : '05/27';
   const clT = clFpTo.selectedDates[0]   ? padDate(clFpTo.input.value)   : '06/20';
   liveFunnelData = computeFunnel(pvF, pvT, clF, clT);
@@ -4339,6 +4339,10 @@ function renderTable(){
 
 renderTable();
 
+// ── Date Pickers ────────────────────────────────────────────────────────────
+const PV_DATES = ["06/10","06/11","06/12","06/13","06/14","06/15","06/16","06/17","06/18","06/19","06/20","06/21","06/22","06/23","06/24","06/25","06/26","06/27","06/28"];
+const CL_DATES = ["05/27","05/28","05/29","05/30","05/31","06/01","06/02","06/03","06/04","06/05","06/06","06/07","06/08","06/09","06/10","06/11","06/12","06/13","06/14","06/15","06/16","06/17","06/18","06/19","06/20","06/21","06/22","06/23","06/24","06/25","06/26","06/27","06/28"];
+
 // ── Header tags (dynamic) ──────────────────────────────────────────────────
 (function(){
   const pvFirst = PV_DATES[0], pvLast = PV_DATES[PV_DATES.length-1];
@@ -4348,10 +4352,6 @@ renderTable();
   if(el('hdr-cl-dates')) el('hdr-cl-dates').textContent = `🖱 點擊量資料：${clFirst} – ${clLast}`;
   if(el('hdr-matched'))  el('hdr-matched').textContent  = `共同活動 ${SUMMARY.matchedCount} 個`;
 })();
-
-// ── Date Pickers ────────────────────────────────────────────────────────────
-const PV_DATES = ["06/10","06/11","06/12","06/13","06/14","06/15","06/16","06/17","06/18","06/19","06/20","06/21","06/22","06/23","06/24","06/25","06/26","06/27","06/28"];
-const CL_DATES = ["05/27","05/28","05/29","05/30","05/31","06/01","06/02","06/03","06/04","06/05","06/06","06/07","06/08","06/09","06/10","06/11","06/12","06/13","06/14","06/15","06/16","06/17","06/18","06/19","06/20","06/21","06/22","06/23","06/24","06/25","06/26","06/27","06/28"];
 
 function mkDateObjs(arr){ return arr.map(d=>{ const p=d.split('/'); return new Date(2026,+p[0]-1,+p[1]); }); }
 const pvAvail = mkDateObjs(PV_DATES);
