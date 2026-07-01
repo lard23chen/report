@@ -4089,44 +4089,8 @@ function computeFunnel(pvFrom, pvTo, clFrom, clTo) {
   return result;
 }
 
-function updateKPI(data) {
-  const pvTot  = data.reduce((s,d)=>s+(d.pv||0),0);
-  const clTot  = data.reduce((s,d)=>s+(d.clicks||0),0);
-  const matched = data.filter(d=>d.pv!=null&&d.clicks!=null);
-  const mPV    = matched.reduce((s,d)=>s+d.pv,0);
-  const mCl    = matched.reduce((s,d)=>s+d.clicks,0);
-  const oCtr   = mPV ? +(mCl/mPV*100).toFixed(1) : 0;
-  const byCtrs = matched.slice().sort((a,b)=>b.ctr-a.ctr);
-  const top    = byCtrs[0], low = byCtrs[byCtrs.length-1];
-  document.getElementById('kpi-pv-total').textContent    = pvTot.toLocaleString();
-  document.getElementById('kpi-click-total').textContent = clTot.toLocaleString();
-  document.getElementById('kpi-matched').textContent     = matched.length;
-  if (top) { document.getElementById('kpi-top-ctr').textContent     = top.ctr.toFixed(1)+'%';
-             document.getElementById('kpi-top-ctr-name').textContent = top.name.substring(0,20); }
-  if (low) { document.getElementById('kpi-low-ctr').textContent     = low.ctr.toFixed(1)+'%';
-             document.getElementById('kpi-low-ctr-name').textContent = low.name.substring(0,16)+'（'+low.pv.toLocaleString()+' PV）'; }
-  document.getElementById('kpi-overall-ctr').textContent = oCtr+'%';
-}
-
-function updateFunnelRow(data) {
-  const pvTot  = data.reduce((s,d)=>s+(d.pv||0),0);
-  const clTot  = data.reduce((s,d)=>s+(d.clicks||0),0);
-  const matched = data.filter(d=>d.pv!=null&&d.clicks!=null);
-  const mPV    = matched.reduce((s,d)=>s+d.pv,0);
-  const mCl    = matched.reduce((s,d)=>s+d.clicks,0);
-  const oCtr   = mPV ? +(mCl/mPV*100).toFixed(1) : 0;
-  const top    = matched.slice().sort((a,b)=>b.ctr-a.ctr)[0];
-  const pvActs = data.filter(d=>d.pv!=null).length;
-  const clActs = data.filter(d=>d.clicks!=null).length;
-  const el = id => document.getElementById(id);
-  if(el('f-pv-total'))    el('f-pv-total').textContent    = pvTot.toLocaleString();
-  if(el('f-pv-acts'))     el('f-pv-acts').textContent     = pvActs+' 個活動';
-  if(el('f-matched'))     el('f-matched').textContent     = matched.length;
-  if(el('f-cl-total'))    el('f-cl-total').textContent    = clTot.toLocaleString();
-  if(el('f-cl-acts'))     el('f-cl-acts').textContent     = clActs+' 個活動';
-  if(el('f-overall-ctr')) el('f-overall-ctr').textContent = oCtr+'%';
-  if(el('f-top-ctr-badge')&&top) el('f-top-ctr-badge').textContent = (CAT_COLOR[top.cat]?.label||top.cat)+'最高 '+top.ctr.toFixed(1)+'%';
-}
+function updateKPI(){}
+function updateFunnelRow(){}
 
 function applyFunnel() {
   const pvF = pvFpFrom.selectedDates[0] ? padDate(pvFpFrom.input.value) : '06/10';
