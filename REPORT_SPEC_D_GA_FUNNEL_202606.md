@@ -125,18 +125,21 @@ el('hdr-matched').textContent  = `共同活動 ${SUMMARY.matchedCount} 個`;
 
 僅顯示 PV 日期篩選器（Click 篩選器為隱藏 input，保留 JS 相容性）。
 
-| 篩選器 | 元件 | 可選範圍 |
-|--------|------|---------|
-| PV 起始日 | `#pvFrom` flatpickr | 僅限 PV_DATES 內的日期（白名單） |
-| PV 結束日 | `#pvTo` flatpickr | pvAvail[0] 到**昨天**（動態計算，Taiwan UTC+8） |
+| 篩選器 | 元件 | enable 白名單 | 說明 |
+|--------|------|--------------|------|
+| PV 起始日 | `#pvFrom` flatpickr | `pvFromAvail` = PV_DATES 內 ≤ 昨天的日期 | 只能選有實際資料的日期 |
+| PV 結束日 | `#pvTo` flatpickr | `pvToAvail` = 從第一個 PV 日到昨天的連續序列 | 無資料日期套用時貢獻 0 |
 
-**pvTo maxDate 計算：**
+**日期序列計算（local time，與 mkDateObjs 一致）：**
 ```js
-const pvMaxDate = (function(){
-  const now = new Date(Date.now() + 8*3600000);
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
-})();
+const _yd = new Date(); _yd.setDate(_yd.getDate()-1); _yd.setHours(0,0,0,0);
+const pvFromAvail = pvAvail.filter(d => d <= _yd);
+const pvToAvail = [];
+for(const d = new Date(pvAvail[0]); d <= _yd; d.setDate(d.getDate()+1))
+  pvToAvail.push(new Date(d));
 ```
+
+⚠️ `PV_DATES` / `CL_DATES` 必須在 Header tags IIFE **之前**定義，否則 `const` 不會 hoist，IIFE 執行時會 throw `ReferenceError`，導致後續 flatpickr 無法初始化。
 
 套用篩選後呼叫 `applyFunnel()`，重新計算各活動 pv/clicks/ctr/pvRank/clickRank，並同步更新泡泡圖與表格。
 
@@ -167,7 +170,6 @@ const pvMaxDate = (function(){
 | A購物車 | 來自 CART_DATA，數字右對齊 |
 | A結帳 | 來自 PURCHASE_DATA，數字右對齊 |
 | 結帳/購物車比 | purchase/cart×100%；顏色：綠≥50%、橘≥30%、紅<30%；含比例條 |
-| 排名變化 | pvRank−clickRank；▲正=點擊排名優、▼負=瀏覽排名優 |
 
 **關鍵字搜尋**：`#nameSearch` input，即時過濾活動名稱（含泡泡圖同步）。
 
@@ -210,4 +212,4 @@ CART_DATA / PURCHASE_DATA 為靜態資料，需另行從 DMP cluster 查詢後�
 - 規範：`REPORT_SPEC_D_GA_PAGEVIEWDATA_202606.md` / `REPORT_SPEC_D_GA_CLICKDATA_202606.md`
 
 ---
-*建立日期：2026/06/22｜最後更新：2026/07/01*
+*建立日期：2026/06/22｜最後更新：2026/07/01（移除 header subtitle、排名變化欄位；修正日期選擇器 ReferenceError；pvTo 擴展至昨天）*
