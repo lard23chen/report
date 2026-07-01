@@ -197,6 +197,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
       <thead>
         <tr>
           <th onclick="sortTable('pvRank')">PV排名</th>
+          <th onclick="sortTable('clickRank')">點擊排名</th>
           <th onclick="sortTable('name')">活動名稱</th>
           <th onclick="sortTable('pv')" style="text-align:right">D瀏覽量</th>
           <th onclick="sortTable('clicks')" style="text-align:right">D點擊量</th>
@@ -204,7 +205,6 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
           <th onclick="sortTable('cart')" style="text-align:right">A購物車</th>
           <th onclick="sortTable('purchase')" style="text-align:right">A結帳</th>
           <th onclick="sortTable('cartRate')">結帳/購物車比</th>
-          <th onclick="sortTable('clickRank')">點擊排名</th>
           <th onclick="sortTable('rankDelta')">排名變化</th>
         </tr>
       </thead>
@@ -4435,6 +4435,7 @@ function renderTable(){
 
     return `<tr data-ds="${ds}" data-cat="${d.cat}">
       <td style="color:var(--muted)">${d.pvRank!=null?'#'+d.pvRank:'—'}</td>
+      <td style="color:var(--muted)">${d.clickRank!=null?'#'+d.clickRank:'—'}</td>
       <td><span style="font-size:11px;font-weight:500">${d.name}</span><br><span style="font-size:10px;color:var(--muted)">${d.id}</span></td>
       <td style="text-align:right">${d.pv!=null?d.pv.toLocaleString():'—'}</td>
       <td style="text-align:right">${d.clicks!=null?d.clicks.toLocaleString():'—'}</td>
@@ -4442,7 +4443,6 @@ function renderTable(){
       <td style="text-align:right">${cart!=null?cart.toLocaleString():'—'}</td>
       <td style="text-align:right">${purchase!=null?purchase.toLocaleString():'—'}</td>
       <td>${cartRate!=null?`<span style="color:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}">${cartRate.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(cartRate,100)}%;background:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}"></div></div>`:'<span style="color:var(--muted)">—</span>'}</td>
-      <td style="color:var(--muted)">${d.clickRank!=null?'#'+d.clickRank:'—'}</td>
       <td>${deltaStr}</td>
     </tr>`;
   }).join('');
