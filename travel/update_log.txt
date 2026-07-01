@@ -1539,3 +1539,8 @@ Found 61 products.
 Processed 23 orders. Total Revenue: 13281
 Successfully generated Shopping Report with ID-based Photo Linking!
 Pushing to GitHub... 
+To https://github.com/lard23chen/report.git
+ ! [remote rejected] main -> main (cannot lock ref 'refs/heads/main': is at 96b48a2ffeb05415cfd9b7c7305395da7c358fbd but expected a83b81e917d87385151e9369b208c3eeeb8ba966)
+error: failed to push some refs to 'https://github.com/lard23chen/report.git'
+Update finished. 
+[LINE] OK: travel
