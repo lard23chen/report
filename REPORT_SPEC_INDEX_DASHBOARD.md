@@ -137,6 +137,7 @@ background:
 - **月報卡片依年月由新到舊排列**，最新月份置於左上角
 - 非月報類型（如「歷史 IP 地理分析」）置於月報列表之後
 - 新增月份卡片時，插入至最上方（tab1 的當月卡片移入 tab3 後，同樣放到最前面）
+- **此移入動作自 2026-07 起已自動化**，由 `update_index_stats.js` 於每次更新 Tab1 月份卡片時一併處理，無需手動搬移（詳見 §5.6）
 
 ---
 
@@ -155,11 +156,11 @@ background:
 
 | 腳本 | 用途 |
 |------|------|
-| `update_index_stats.js` | **主要維護腳本**：從 MongoDB 聚合所有月份數據，自動更新統計表、趨勢圖、頁首時間、Tab1 月份卡片；每日由 `daily_update.bat` 呼叫 |
+| `update_index_stats.js` | **主要維護腳本**：從 MongoDB 聚合所有月份數據，自動更新統計表、趨勢圖、頁首時間、Tab1 月份卡片，並在月份卡片被取代時自動移入 Tab3 歷史列表最上方（§5.6）；每日由 `daily_update.bat` 呼叫 |
 | `generate_monthly_report.js` | **通用月報 generator**：自動偵測上月（每月 2 日執行），可手動指定月份：`node generate_monthly_report.js 2026-05`；輸出 `A_Qware_Revenue_Report_YYYY年MM月_分析報表.html` |
 | `generate_report_may_2026.js` | 2026 年 5 月報表（已產出，由此腳本產生；後續月份改用 `generate_monthly_report.js`） |
 | `update_all_verified.js` | ⚠️ 已知使用錯誤數字，勿使用 |
 
 ---
 
-*最後更新日期：2026/06/02*
+*最後更新日期：2026/07/02*
