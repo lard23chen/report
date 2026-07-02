@@ -317,6 +317,7 @@ async function updateIndexStats() {
             const monthLabel = `${ly}年${lm}月`;
             const CHINESE_MONTHS = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
             const chineseMon = CHINESE_MONTHS[parseInt(lm, 10) - 1];
+            const newHref = `A_Qware_Revenue_Report_${monthLabel}_分析報表.html`;
             const newCard = `<!-- TAB1_MONTH_CARD_START -->
                 <div class="card">
                     <div class="card-icon icon-revenue">📊</div>
@@ -326,16 +327,48 @@ async function updateIndexStats() {
                     </div>
                     <div class="card-meta">
                         <span class="badge">Monthly</span>
-                        <a href="A_Qware_Revenue_Report_${monthLabel}_分析報表.html" class="btn-link">查看報表</a>
+                        <a href="${newHref}" class="btn-link">查看報表</a>
                     </div>
                 </div>
 <!-- TAB1_MONTH_CARD_END -->`;
 
             let updatedHtml = fs.readFileSync(indexPath, 'utf-8');
+
+            // Capture the outgoing Tab1 card before it's overwritten, so that if the
+            // month rolled over we can migrate it into Tab3 (history) instead of
+            // relying on someone remembering to do it manually.
+            const oldCardMatch = updatedHtml.match(/<!-- TAB1_MONTH_CARD_START -->([\s\S]*?)<!-- TAB1_MONTH_CARD_END -->/);
+            const oldHrefMatch = oldCardMatch && oldCardMatch[1].match(/href="(A_Qware_Revenue_Report_(\d{4})年(\d{2})月_分析報表\.html)"/);
+
             updatedHtml = updatedHtml.replace(
                 /<!-- TAB1_MONTH_CARD_START -->[\s\S]*?<!-- TAB1_MONTH_CARD_END -->/,
                 newCard
             );
+
+            if (oldHrefMatch && oldHrefMatch[1] !== newHref && !updatedHtml.includes(oldHrefMatch[1])) {
+                const [, oldHref, oldYear, oldMonthNum] = oldHrefMatch;
+                const oldChineseMon = CHINESE_MONTHS[parseInt(oldMonthNum, 10) - 1];
+                const tab3Card = `                <div class="card">
+                    <div class="card-icon icon-revenue">📊</div>
+                    <div class="card-content">
+                        <h3>${oldYear}年${oldMonthNum}月 分析報表 (A系統)</h3>
+                        <p>完整的${oldChineseMon}月份營收數據分析。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Monthly</span>
+                        <a href="${oldHref}" class="btn-link">查看報表</a>
+                    </div>
+                </div>
+`;
+                const tab3GridOpen = /(<!-- Tab 3: History -->\s*<div id="tab3" class="tab-content">\s*<div class="grid">\s*)/;
+                if (tab3GridOpen.test(updatedHtml)) {
+                    updatedHtml = updatedHtml.replace(tab3GridOpen, `$1${tab3Card}`);
+                    console.log(`Migrated ${oldYear}年${oldMonthNum}月 card into Tab3 history`);
+                } else {
+                    console.warn("Could not find Tab3 grid insertion point; old month card NOT migrated automatically.");
+                }
+            }
+
             fs.writeFileSync(indexPath, updatedHtml, 'utf-8');
             console.log(`Updated Tab1 monthly card to: ${monthLabel}`);
         }
