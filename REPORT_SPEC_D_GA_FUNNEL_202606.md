@@ -73,31 +73,59 @@
 }
 ```
 
-### 3.3 靜態資料（Charts 區塊，不被 generator 覆蓋）
+### 3.3 靜態資料（Charts 區塊，不被主 generator 覆蓋）
 
 | 常數 | 說明 | 結構 |
 |------|------|------|
-| `CART_DATA` | A購物車次數，keyed by ActivityId | `{"39428": 301453, ...}` |
-| `PURCHASE_DATA` | A結帳次數，keyed by ActivityId | `{"39428": 153363, ...}` |
+| `CART_DATA` | A購物車次數（全期間總計），keyed by ActivityId | `{"39428": 301453, ...}` |
+| `PURCHASE_DATA` | A結帳次數（全期間總計），keyed by ActivityId | `{"39428": 153363, ...}` |
+| `CART_BY_DATE` | 每日 A購物車，keyed by ActivityId → date（2026-07 起新增，供日期篩選用） | `{"39428": {"06/10": 500, ...}}` |
+| `PURCHASE_BY_DATE` | 每日 A結帳，keyed by ActivityId → date（2026-07 起新增，供日期篩選用） | `{"39428": {"06/10": 200, ...}}` |
 | `PV_BY_DATE` | 每日 PV，keyed by ActivityId → date | `{"39428": {"06/10": 500, ...}}` |
 | `CLICK_ACT_DAILY` | 每日點擊，keyed by ActivityId | `{"39190": [{date:"05/28", total:1519}, ...]}` |
 
-**CART_DATA / PURCHASE_DATA 資料來源：**
+**CART_DATA / PURCHASE_DATA / CART_BY_DATE / PURCHASE_BY_DATE 資料來源（2026-07 起由 `generate_d_ga_funnel_cart_data.js` 自動產生，不再手動查詢貼上）：**
 - MongoDB cluster：`qware-dmp-ver-7.f0fpg.mongodb.net`
 - DB：`trek-first-party-dmp`，Collection：`event`
 - 篩選條件：`bu:"A"`，`name:"add_to_cart"` / `name:"purchase"`
-- join key：DMP 的 `attribution_id` ↔ Click collection 的 `ProductId`
+- join key：DMP 的 `attribution_id` ↔ Click collection（`GA_D_ClickData_Webb_202606`）的 `ProductId` → `ActivityId`
+- 依 `time` 欄位（UTC）以 `+08:00` 時區換算為 `MM/DD` 做每日分桶（`$dateToString` timezone `+08:00`），加總欄位為 `quantity`（不可用文件數 `$sum:1`，因單筆 purchase 事件的 `quantity` 可能 >1，count 與 qty 加總會不一致）
+- 由 `CART_BY_DATE` / `PURCHASE_BY_DATE` 加總即得 `CART_DATA` / `PURCHASE_DATA`，兩者保證一致
 
 ### 3.4 Section Markers（Generator 注入點）
 
 ```
 // ── Data ──────────────────────────────────────────────────────────────────
-const FUNNEL_DATA = [...];   ← generator 注入
-const SUMMARY = {...};       ← generator 注入
+const FUNNEL_DATA = [...];   ← generator 注入（generate_d_ga_funnel_report.js）
+const SUMMARY = {...};       ← generator 注入（generate_d_ga_funnel_report.js）
 // ── Charts ─────────────────────────────────────────────────────────────────
+
+// ── CartPurchase Data Start ──────────────────────────────────────────────
+const CART_DATA = {...};          ← generator 注入（generate_d_ga_funnel_cart_data.js）
+const PURCHASE_DATA = {...};      ← generator 注入
+const CART_BY_DATE = {...};       ← generator 注入
+const PURCHASE_BY_DATE = {...};   ← generator 注入
+// ── CartPurchase Data End ────────────────────────────────────────────────
 ```
 
 ⚠️ **勿修改 marker 字串**，否則 generator 找不到注入點。
+
+### 3.5 日期篩選對 A購物車/A結帳 的影響（2026-07 新增）
+
+`applyFunnel()` 套用 PV 日期篩選時，`computeFunnel()` 會一併依**相同的 PV 日期範圍**（非獨立範圍，見 §5.2）從 `CART_BY_DATE` / `PURCHASE_BY_DATE` 加總出當前範圍的 A購物車 / A結帳，並寫入每筆資料的 `cart` / `purchase` 欄位：
+
+```js
+r.cart     = CART_BY_DATE[d.id]     ? sumByDateRange(CART_BY_DATE[d.id], pvFrom, pvTo)     : (CART_DATA[d.id] ?? null);
+r.purchase = PURCHASE_BY_DATE[d.id] ? sumByDateRange(PURCHASE_BY_DATE[d.id], pvFrom, pvTo) : (PURCHASE_DATA[d.id] ?? null);
+```
+
+- 若某活動沒有 `CART_BY_DATE` / `PURCHASE_BY_DATE` 資料（例如該活動在 A 系統無銷售），則退回使用全期間靜態總計 `CART_DATA` / `PURCHASE_DATA`。
+- 表格（`renderTable`）、排序（`getExtra`）、泡泡圖大小（`bubbleR`）與 tooltip 皆改由 `getCart(d)` / `getPurchase(d)` 輔助函式讀值，而非直接讀取 `CART_DATA[d.id]`：
+  ```js
+  function getCart(d){ return d.cart !== undefined ? d.cart : (CART_DATA[d.id] ?? null); }
+  function getPurchase(d){ return d.purchase !== undefined ? d.purchase : (PURCHASE_DATA[d.id] ?? null); }
+  ```
+  這讓「未篩選（`resetFunnel`，`liveFunnelData=null`）」與「已篩選（`liveFunnelData` 來自 `computeFunnel`）」兩種狀態都能取得正確數字，不需在每個讀取點各自判斷。
 
 ## 4. 活動類別（CAT_MAP）
 
@@ -141,19 +169,19 @@ for(const d = new Date(pvAvail[0]); d <= _yd; d.setDate(d.getDate()+1))
 
 ⚠️ `PV_DATES` / `CL_DATES` 必須在 Header tags IIFE **之前**定義，否則 `const` 不會 hoist，IIFE 執行時會 throw `ReferenceError`，導致後續 flatpickr 無法初始化。
 
-套用篩選後呼叫 `applyFunnel()`，重新計算各活動 pv/clicks/ctr/pvRank/clickRank，並同步更新泡泡圖與表格。
+套用篩選後呼叫 `applyFunnel()`，重新計算各活動 pv/clicks/ctr/pvRank/clickRank/**cart/purchase**（2026-07 起，cart/purchase 套用同一組 PV 日期範圍，見 §3.5），並同步更新泡泡圖與表格。
 
 ### 5.3 泡泡圖（Bubble Chart）
 
 - **Chart.js `type:'bubble'`**
 - **X 軸**：瀏覽量（對數，min 500 – max 200,000）
 - **Y 軸**：點擊量（對數，min 200 – max 300,000）
-- **泡泡大小（r）**：A購物車數量，公式：`Math.max(5, Math.sqrt(cart/310000)*30+5)`
+- **泡泡大小（r）**：A購物車數量（隨 PV 日期篩選變動，見 §3.5），公式：`bubbleR(cart) = Math.max(5, Math.sqrt(cart/310000)*30+5)`（`bubbleR` 直接接收已解析的 cart 數值，不再自行查表）
 - **顏色**：依類別（CAT_COLOR）
 - **參考線**：y=x 虛線（點擊/瀏覽比=100%）
-- **Tooltip**：活動名稱、PV、點擊量、點擊/瀏覽比、A購物車、A結帳
+- **Tooltip**：活動名稱、PV、點擊量、點擊/瀏覽比、A購物車、A結帳（皆讀取資料點上已附帶的 `cart`/`purchase` 欄位，非即時查 `CART_DATA`）
 - **Legend**：類別顏色 + 「泡泡大小 = A購物車數量」說明
-- **篩選同步**：套用日期篩選後呼叫 `updateScatter(filteredData)` 更新
+- **篩選同步**：套用日期篩選後呼叫 `updateScatter(filteredData)` 更新，每個泡泡的 `cart`/`purchase` 由 `getCart(d)`/`getPurchase(d)` 解析
 
 ### 5.4 完整活動對照表
 
@@ -167,8 +195,8 @@ for(const d = new Date(pvAvail[0]); d <= _yd; d.setDate(d.getDate()+1))
 | D瀏覽量 | 數字右對齊；下方小字顯示**PV資料起始日**（`PV_BY_DATE` 最早 key） |
 | D點擊量 | 數字右對齊；下方小字顯示**點擊資料起始日**（`CLICK_ACT_DAILY` 最早 date） |
 | 點擊/瀏覽比 | 顏色：綠≥100%、橘≥50%、紅<50%；含比例條 |
-| A購物車 | 來自 CART_DATA，數字右對齊 |
-| A結帳 | 來自 PURCHASE_DATA，數字右對齊 |
+| A購物車 | 來自 `getCart(d)`（隨 PV 日期篩選變動，見 §3.5），數字右對齊 |
+| A結帳 | 來自 `getPurchase(d)`（隨 PV 日期篩選變動，見 §3.5），數字右對齊 |
 | 結帳/購物車比 | purchase/cart×100%；顏色：綠≥50%、橘≥30%、紅<30%；含比例條 |
 
 **關鍵字搜尋**：`#nameSearch` input，即時過濾活動名稱（含泡泡圖同步）。
@@ -196,13 +224,16 @@ for(const d = new Date(pvAvail[0]); d <= _yd; d.setDate(d.getDate()+1))
 ## 7. 更新方式
 
 ```bash
-node generate_d_ga_funnel_report.js
-git add D_GA_Funnel_202606_Report.html generate_d_ga_funnel_report.js
+node generate_d_ga_funnel_report.js       # 更新 FUNNEL_DATA / SUMMARY（PV/Click 總計、排名）
+node generate_d_ga_funnel_cart_data.js    # 更新 CART_DATA / PURCHASE_DATA / CART_BY_DATE / PURCHASE_BY_DATE（DMP 購物車/結帳，含每日分桶）
+git add D_GA_Funnel_202606_Report.html generate_d_ga_funnel_report.js generate_d_ga_funnel_cart_data.js
 git commit -m "Update funnel report"
 git push origin main
 ```
 
-CART_DATA / PURCHASE_DATA 為靜態資料，需另行從 DMP cluster 查詢後手動更新 Charts 區塊。
+⚠️ 兩支 generator 各自用獨立 marker 區塊（`// ── Data ──` / `// ── Charts ──` 和 `// ── CartPurchase Data Start/End ──`），互不影響，可分開執行。
+
+`PV_BY_DATE` / `CLICK_ACT_DAILY` 目前仍為靜態資料，無對應 generator，需另行手動更新（維持原有流程）。
 
 ## 8. 相關連結
 
@@ -212,4 +243,5 @@ CART_DATA / PURCHASE_DATA 為靜態資料，需另行從 DMP cluster 查詢後�
 - 規範：`REPORT_SPEC_D_GA_PAGEVIEWDATA_202606.md` / `REPORT_SPEC_D_GA_CLICKDATA_202606.md`
 
 ---
-*建立日期：2026/06/22｜最後更新：2026/07/01（移除 header subtitle、排名變化欄位；修正日期選擇器 ReferenceError；pvTo 擴展至昨天）*
+*建立日期：2026/06/22｜最後更新：2026/07/02（新增 CART_BY_DATE/PURCHASE_BY_DATE，A購物車/A結帳 改為隨 PV 日期篩選連動；新增 generate_d_ga_funnel_cart_data.js 自動化 DMP 查詢，取代原手動更新流程）*
+*2026/07/01：移除 header subtitle、排名變化欄位；修正日期選擇器 ReferenceError；pvTo 擴展至昨天*
