@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloudflare Access 設定手冊 · 報表 IP 存取控管</title>
+<style>
+  :root{
+    --bg:#0a0e1a; --card:#141a2e; --card2:#1b2440; --border:#26304f;
+    --text:#e6ebf5; --muted:#94a3b8; --dim:#64748b;
+    --accent:#f6821f; --accent2:#f472b6; --green:#22c55e; --red:#ef4444; --blue:#3b82f6;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:radial-gradient(1200px 600px at 20% -10%,#16213f 0%,var(--bg) 55%);
+    color:var(--text);font-family:"Outfit","Segoe UI","Microsoft JhengHei",system-ui,sans-serif;
+    line-height:1.7;padding:0 16px 80px;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  header.hero{padding:48px 0 24px;text-align:center}
+  .badge{display:inline-block;background:rgba(246,130,31,.12);color:var(--accent);
+    border:1px solid rgba(246,130,31,.35);padding:4px 14px;border-radius:999px;font-size:.8rem;font-weight:600;letter-spacing:.5px}
+  h1{font-size:2.1rem;margin:16px 0 8px;font-weight:800;letter-spacing:-.5px}
+  .sub{color:var(--muted);font-size:1rem;margin:0}
+  .meta{color:var(--dim);font-size:.82rem;margin-top:14px}
+
+  .callout{border-radius:14px;padding:16px 18px;margin:22px 0;border:1px solid var(--border);background:var(--card)}
+  .callout.warn{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.07)}
+  .callout.info{border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.07)}
+  .callout.ok{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.07)}
+  .callout .t{font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+
+  .arch{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin:24px 0;
+    font-family:"Cascadia Code",Consolas,monospace;font-size:.86rem;color:var(--muted);white-space:pre;overflow-x:auto;line-height:1.5}
+  .arch b{color:var(--accent)} .arch .g{color:var(--green)} .arch .r{color:var(--red)}
+
+  section.part{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 26px;margin:20px 0}
+  section.part h2{margin:0 0 4px;font-size:1.35rem;display:flex;align-items:center;gap:12px}
+  .chip{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:8px}
+  .chip.you{background:rgba(246,130,31,.15);color:var(--accent);border:1px solid rgba(246,130,31,.4)}
+  .chip.me{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.4)}
+  .part .desc{color:var(--muted);font-size:.92rem;margin:2px 0 18px}
+
+  ol.steps{list-style:none;counter-reset:s;padding:0;margin:0}
+  ol.steps>li{counter-increment:s;position:relative;padding:12px 0 12px 52px;border-top:1px dashed var(--border)}
+  ol.steps>li:first-child{border-top:none}
+  ol.steps>li::before{content:counter(s);position:absolute;left:0;top:12px;width:34px;height:34px;
+    background:var(--card2);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-weight:700;color:var(--accent);font-size:.95rem}
+  .chk{display:flex;align-items:flex-start;gap:10px}
+  .chk input{margin-top:5px;width:17px;height:17px;accent-color:var(--green);flex:none;cursor:pointer}
+  .chk .body{flex:1}
+  .chk.done .body{opacity:.5;text-decoration:line-through}
+  .path{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1px 8px;font-family:Consolas,monospace;font-size:.85em;color:var(--accent2)}
+  code.k{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1px 7px;font-family:Consolas,monospace;font-size:.85em;color:#7dd3fc}
+
+  .iplist{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:12px 0;position:relative;
+    font-family:Consolas,monospace;font-size:.86rem;color:#7dd3fc;white-space:pre-wrap;line-height:1.8}
+  .copy{position:absolute;top:10px;right:10px;background:var(--card2);border:1px solid var(--border);color:var(--muted);
+    border-radius:8px;padding:5px 12px;font-size:.78rem;cursor:pointer;font-family:inherit}
+  .copy:hover{color:var(--text);border-color:var(--accent)}
+
+  .progress-bar{position:sticky;top:0;z-index:10;background:rgba(10,14,26,.9);backdrop-filter:blur(8px);
+    padding:12px 0;margin-bottom:8px;border-bottom:1px solid var(--border)}
+  .progress-bar .track{height:8px;background:var(--card2);border-radius:99px;overflow:hidden}
+  .progress-bar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+  .progress-bar .lbl{font-size:.8rem;color:var(--muted);margin-top:6px;text-align:center}
+
+  footer{color:var(--dim);font-size:.82rem;text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--border)}
+  a{color:var(--accent2)}
+  .reset{background:none;border:1px solid var(--border);color:var(--dim);border-radius:8px;padding:4px 12px;font-size:.78rem;cursor:pointer}
+  .reset:hover{color:var(--red);border-color:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="badge">內部運維手冊 · OPS RUNBOOK</span>
+    <h1>把報表存取改成 Cloudflare 真正擋 IP</h1>
+    <p class="sub">用 Cloudflare Pages + Access,在 edge 層做 IP 白名單,取代目前擋不住人的前端 JS guard</p>
+    <p class="meta">目標網址將從 <code class="k">lard23chen.github.io/report/</code> 改成 <code class="k">xxx.pages.dev</code> · 建立於 2026-07-02</p>
+  </header>
+
+  <div class="progress-bar">
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="lbl"><span id="pct">0</span>% 完成(<span id="cnt">0</span>/<span id="total">0</span> 步驟) &nbsp;·&nbsp; <button class="reset" onclick="resetAll()">清除進度</button></div>
+  </div>
+
+  <div class="callout info">
+    <div class="t">💡 為什麼要改?</div>
+    目前頁面用 <code class="k">api.ipify.org</code> 在瀏覽器端比對 IP 白名單,但整份 HTML 內容<strong>還是會先下載到瀏覽器</strong>,只是被 CSS 藏起來。關掉 JavaScript、看網頁原始碼、或用 <code class="k">curl</code> 都能繞過,而且走 IPv6 的人會被誤擋。真正的存取控制必須擋在伺服器 / CDN 層。
+  </div>
+
+  <div class="arch">架構圖:
+
+  訪客 ──► <b>xxx.pages.dev</b> ──► [ <b>Cloudflare Access</b> IP 閘門 ] ──► <b>Cloudflare Pages</b>(靜態報表)
+                                        │
+                              白名單內 → <span class="g">放行(不需登入)</span>
+                              白名單外 → <span class="r">擋掉(edge 層,拿不到內容)</span>
+
+  ⚠ 同時必須關掉 GitHub Pages,否則 lard23chen.github.io/report/ 這個原始網址是後門</div>
+
+  <div class="callout warn">
+    <div class="t">🔑 事前準備</div>
+    一個 Cloudflare 免費帳號即可。全程<strong>不需要買網域</strong>(用免費的 <code class="k">*.pages.dev</code>)。進 Zero Trust 第一次可能會要你填卡號做身分驗證,但免費方案 50 人以內不會扣款。
+  </div>
+
+  <!-- PART A -->
+  <section class="part">
+    <h2>Part A · 部署到 Cloudflare Pages <span class="chip you">你操作</span></h2>
+    <p class="desc">把同一個 GitHub repo 接到 Cloudflare Pages,產生一個 <code class="k">.pages.dev</code> 網址。這時網站還是公開的,先確認報表正常。</p>
+    <ol class="steps">
+      <li><div class="chk"><input type="checkbox"><div class="body">註冊 / 登入 <a href="https://dash.cloudflare.com" target="_blank">Cloudflare Dashboard</a></div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">左側 <span class="path">Workers &amp; Pages → Create → Pages → Connect to Git</span></div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">授權 GitHub,選 <code class="k">lard23chen/report</code> 這個 repo</div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">建置設定:<br>• Framework preset → <code class="k">None</code><br>• Build command → <strong>留空</strong><br>• Build output directory → <code class="k">/</code>(repo 根目錄就是網站根目錄)</div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">按 <span class="path">Save and Deploy</span>,完成後記下網址,例如 <code class="k">report-xxx.pages.dev</code></div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">用瀏覽器開一次,確認報表正常顯示(此時任何人都看得到,正常)</div></div></li>
+    </ol>
+  </section>
+
+  <!-- PART B -->
+  <section class="part">
+    <h2>Part B · 用 Access 設 IP 白名單 <span class="chip you">你操作</span></h2>
+    <p class="desc">在 Cloudflare edge 層擋 IP。符合白名單的直接放行、不用登入,其他人一律擋掉。</p>
+    <ol class="steps">
+      <li><div class="chk"><input type="checkbox"><div class="body">左側進 <span class="path">Zero Trust</span>(第一次要選免費方案;可能要填卡號驗證,不扣款)</div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body"><span class="path">Access → Applications → Add an application → Self-hosted</span></div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">Application domain 填你的 Pages 網址:<code class="k">report-xxx.pages.dev</code><br>⚠️ 再加一條 <code class="k">*.report-xxx.pages.dev</code> 一起保護 preview 部署(preview 會產生隨機子網域,不擋會有漏洞);或在 Pages 設定關掉 preview</div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">新增 Policy:<strong>Action = Allow</strong>,Include 選 <code class="k">IP Ranges</code>,填入下方 9 個 IP(每個加 <code class="k">/32</code>)
+        <div class="iplist" id="ips">211.75.181.109/32
+211.75.181.110/32
+220.130.6.196/32
+220.130.6.197/32
+220.130.6.198/32
+220.130.134.238/32
+220.130.134.239/32
+220.130.134.240/32
+133.149.194.24/32<button class="copy" onclick="copyIPs()">複製</button></div>
+        <span style="color:var(--dim);font-size:.85rem">只用 IP 這一個條件時,符合的 IP 直接放行、不需登入;其他人預設 deny。</span>
+      </div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">Save,然後用白名單外的網路(例如手機 4G)開一次,<strong>確認被擋</strong>才算成功</div></div></li>
+    </ol>
+  </section>
+
+  <!-- PART C -->
+  <section class="part">
+    <h2>Part C · 關掉 GitHub Pages 後門 <span class="chip you">你操作</span></h2>
+    <p class="desc">Access 擋得住之後,一定要把原本公開的 github.io 網址收掉,不然後門還開著。</p>
+    <ol class="steps">
+      <li><div class="chk"><input type="checkbox"><div class="body">確認 Part B 擋 IP 正常後,到 <code class="k">lard23chen/report</code> → <span class="path">Settings → Pages → Source 設為 None</span>(停用 GitHub Pages)</div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">(或改為把 repo 設 Private;Cloudflare Pages 已透過 GitHub App 有讀取權,不影響自動部署)</div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">確認 <code class="k">lard23chen.github.io/report/</code> 已失效,對外唯一入口只剩 <code class="k">pages.dev</code></div></div></li>
+    </ol>
+  </section>
+
+  <!-- PART D -->
+  <section class="part">
+    <h2>Part D · 清掉多餘的前端 guard <span class="chip me">我幫你做</span></h2>
+    <p class="desc">Access 上線後,HTML 裡那段 api.ipify.org 前端白名單就沒用了(也是 IPv6 誤擋的元凶)。這部分叫我做即可。</p>
+    <ol class="steps">
+      <li><div class="chk"><input type="checkbox"><div class="body">我寫反向腳本,移除所有 HTML + generator 裡的 guard(對應現有的 <code class="k">inject_ip_guard.js</code>)</div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">我補一份 <code class="k">REPORT_SPEC_ACCESS_CONTROL.md</code> 記錄新架構,並更新總目錄</div></div></li>
+      <li><div class="chk"><input type="checkbox"><div class="body">我 commit &amp; push</div></div></li>
+    </ol>
+    <div class="callout warn" style="margin:16px 0 0">
+      <div class="t">⏱️ 順序很重要</div>
+      請等 <strong>Part A~C 都完成、確認擋得住之後</strong>,再叫我執行 Part D 移除 guard。否則萬一 GitHub Pages 還沒關,就會變成完全不設防。
+    </div>
+  </section>
+
+  <div class="callout ok">
+    <div class="t">✅ 完成後的狀態</div>
+    報表只能透過 <code class="k">xxx.pages.dev</code> 存取,擋在 Cloudflare edge,未授權 IP <strong>連內容都下載不到</strong>;IPv4 / IPv6 都正確處理;白名單集中在 Cloudflare 一處管理,要加減 IP 直接改 Access policy 即可,不用再改一堆 HTML。
+  </div>
+
+  <footer>
+    Cloudflare Access 設定手冊 · 進度會存在這台瀏覽器(localStorage)· 由 Claude Code 協助整理<br>
+    有問題或要開始 Part D,回 Claude Code 說一聲即可。
+  </footer>
+</div>
+
+<script>
+  const KEY='cf_access_guide_progress_v1';
+  const boxes=[...document.querySelectorAll('.chk input[type=checkbox]')];
+  document.getElementById('total').textContent=boxes.length;
+
+  function save(){localStorage.setItem(KEY,JSON.stringify(boxes.map(b=>b.checked)))}
+  function load(){
+    try{const s=JSON.parse(localStorage.getItem(KEY)||'[]');boxes.forEach((b,i)=>b.checked=!!s[i]);}catch(e){}
+  }
+  function render(){
+    let n=0;
+    boxes.forEach(b=>{b.closest('.chk').classList.toggle('done',b.checked);if(b.checked)n++;});
+    const pct=boxes.length?Math.round(n/boxes.length*100):0;
+    document.getElementById('fill').style.width=pct+'%';
+    document.getElementById('pct').textContent=pct;
+    document.getElementById('cnt').textContent=n;
+  }
+  boxes.forEach(b=>b.addEventListener('change',()=>{save();render();}));
+  function resetAll(){localStorage.removeItem(KEY);boxes.forEach(b=>b.checked=false);render();}
+
+  function copyIPs(){
+    const txt=document.getElementById('ips').childNodes[0].textContent.trim();
+    navigator.clipboard.writeText(txt).then(()=>{
+      const btn=document.querySelector('#ips .copy');const o=btn.textContent;btn.textContent='已複製 ✓';
+      setTimeout(()=>btn.textContent=o,1500);
+    });
+  }
+
+  load();render();
+</script>
+</body>
+</html>
