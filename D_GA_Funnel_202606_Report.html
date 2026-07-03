@@ -203,6 +203,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
           <th onclick="sortTable('ctr')">點擊/瀏覽比</th>
           <th onclick="sortTable('cart')" style="text-align:right">A購物車</th>
           <th onclick="sortTable('purchase')" style="text-align:right">A結帳</th>
+          <th onclick="sortTable('purClickRate')">結帳/點擊量比</th>
           <th onclick="sortTable('cartRate')">結帳/購物車比</th>
         </tr>
       </thead>
@@ -8384,7 +8385,7 @@ function renderTable(){
   else if(['sports','concert','kpop','anime'].includes(currentFilter)) data=data.filter(d=>d.cat===currentFilter);
 
   data.sort((a,b)=>{
-    const getExtra = (d,k) => k==='cart'?getCart(d):k==='purchase'?getPurchase(d):k==='cartRate'?((getCart(d)>0&&getPurchase(d)!=null)?getPurchase(d)/getCart(d)*100:null):d[k];
+    const getExtra = (d,k) => k==='cart'?getCart(d):k==='purchase'?getPurchase(d):k==='cartRate'?((getCart(d)>0&&getPurchase(d)!=null)?getPurchase(d)/getCart(d)*100:null):k==='purClickRate'?((d.clicks>0&&getPurchase(d)!=null)?getPurchase(d)/d.clicks*100:null):d[k];
     let va = getExtra(a,sortKey);
     let vb = getExtra(b,sortKey);
     if(va==null) va=sortAsc?Infinity:-Infinity;
@@ -8404,6 +8405,7 @@ function renderTable(){
     const cart = getCart(d);
     const purchase = getPurchase(d);
     const cartRate = (cart!=null&&purchase!=null&&cart>0) ? +(purchase/cart*100).toFixed(1) : null;
+    const purClickRate = (purchase!=null&&d.clicks!=null&&d.clicks>0) ? +(purchase/d.clicks*100).toFixed(1) : null;
     const pvStartDate = PV_BY_DATE[d.id] ? Object.keys(PV_BY_DATE[d.id]).sort()[0] : null;
     const clStartDate = CLICK_ACT_DAILY[d.id]?.length ? [...CLICK_ACT_DAILY[d.id]].sort((a,b)=>a.date<b.date?-1:1)[0].date : null;
 
@@ -8416,6 +8418,7 @@ function renderTable(){
       <td>${ctrFill}</td>
       <td style="text-align:right">${cart!=null?cart.toLocaleString():'—'}</td>
       <td style="text-align:right">${purchase!=null?purchase.toLocaleString():'—'}</td>
+      <td>${purClickRate!=null?`<span style="color:${purClickRate>=50?'var(--green)':purClickRate>=30?'var(--amber)':'var(--rose)'}">${purClickRate.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(purClickRate,100)}%;background:${purClickRate>=50?'var(--green)':purClickRate>=30?'var(--amber)':'var(--rose)'}"></div></div>`:'<span style="color:var(--muted)">—</span>'}</td>
       <td>${cartRate!=null?`<span style="color:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}">${cartRate.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(cartRate,100)}%;background:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}"></div></div>`:'<span style="color:var(--muted)">—</span>'}</td>
     </tr>`;
   }).join('');

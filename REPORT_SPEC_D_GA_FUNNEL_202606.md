@@ -197,11 +197,12 @@ for(const d = new Date(pvAvail[0]); d <= _yd; d.setDate(d.getDate()+1))
 | 點擊/瀏覽比 | 顏色：綠≥100%、橘≥50%、紅<50%；含比例條 |
 | A購物車 | 來自 `getCart(d)`（隨 PV 日期篩選變動，見 §3.5），數字右對齊 |
 | A結帳 | 來自 `getPurchase(d)`（隨 PV 日期篩選變動，見 §3.5），數字右對齊 |
+| 結帳/點擊量比 | purchase/clicks×100%（`getPurchase(d)`/`d.clicks`，皆隨 PV 日期篩選變動）；顏色：綠≥50%、橘≥30%、紅<30%；含比例條。排序 key = `purClickRate` |
 | 結帳/購物車比 | purchase/cart×100%；顏色：綠≥50%、橘≥30%、紅<30%；含比例條 |
 
 **關鍵字搜尋**：`#nameSearch` input，即時過濾活動名稱（含泡泡圖同步）。
 
-**排序**：點擊欄位 header 切換升/降序，`getExtra()` 函式處理 cart/purchase/cartRate 的取值邏輯。
+**排序**：點擊欄位 header 切換升/降序，`getExtra()` 函式處理 cart/purchase/cartRate/**purClickRate** 的取值邏輯。
 
 ### 5.5 已移除組件
 
@@ -245,3 +246,4 @@ git push origin main
 ---
 *建立日期：2026/06/22｜最後更新：2026/07/02（新增 CART_BY_DATE/PURCHASE_BY_DATE，A購物車/A結帳 改為隨 PV 日期篩選連動；新增 generate_d_ga_funnel_cart_data.js 自動化 DMP 查詢，取代原手動更新流程）*
 *2026/07/01：移除 header subtitle、排名變化欄位；修正日期選擇器 ReferenceError；pvTo 擴展至昨天*
+*2026/07/03：完整活動對照表於 A結帳 右側新增「結帳/點擊量比」欄（purchase/clicks×100%，排序 key purClickRate，隨 PV 日期篩選連動）*
