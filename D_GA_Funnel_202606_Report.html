@@ -200,9 +200,9 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
           <th onclick="sortTable('name')">活動名稱</th>
           <th onclick="sortTable('pv')" style="text-align:right">D瀏覽量</th>
           <th onclick="sortTable('clicks')" style="text-align:right">D點擊量</th>
-          <th onclick="sortTable('ctr')">點擊/瀏覽比</th>
           <th onclick="sortTable('cart')" style="text-align:right">A購物車</th>
           <th onclick="sortTable('purchase')" style="text-align:right">A結帳</th>
+          <th onclick="sortTable('ctr')">點擊/瀏覽比</th>
           <th onclick="sortTable('cartClickRate')">購物車/點擊量比</th>
           <th onclick="sortTable('purClickRate')">結帳/點擊量比</th>
           <th onclick="sortTable('cartRate')">結帳/購物車比</th>
@@ -8417,9 +8417,9 @@ function renderTable(){
       <td><a href="https://ticket.ibon.com.tw/ActivityInfo/Details/${d.id}" target="_blank" style="font-size:11px;font-weight:500;color:var(--text);text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text)'">${d.name}</a><br><span style="font-size:10px;color:var(--muted)">${d.id}</span></td>
       <td style="text-align:right">${d.pv!=null?d.pv.toLocaleString():'—'}${pvStartDate?`<br><span style="font-size:10px;color:var(--muted)">${pvStartDate}起</span>`:''}</td>
       <td style="text-align:right">${d.clicks!=null?d.clicks.toLocaleString():'—'}${clStartDate?`<br><span style="font-size:10px;color:var(--muted)">${clStartDate}起</span>`:''}</td>
-      <td>${ctrFill}</td>
       <td style="text-align:right">${cart!=null?cart.toLocaleString():'—'}</td>
       <td style="text-align:right">${purchase!=null?purchase.toLocaleString():'—'}</td>
+      <td>${ctrFill}</td>
       <td>${cartClickRate!=null?`<span style="color:${cartClickRate>=50?'var(--green)':cartClickRate>=30?'var(--amber)':'var(--rose)'}">${cartClickRate.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(cartClickRate,100)}%;background:${cartClickRate>=50?'var(--green)':cartClickRate>=30?'var(--amber)':'var(--rose)'}"></div></div>`:'<span style="color:var(--muted)">—</span>'}</td>
       <td>${purClickRate!=null?`<span style="color:${purClickRate>=50?'var(--green)':purClickRate>=30?'var(--amber)':'var(--rose)'}">${purClickRate.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(purClickRate,100)}%;background:${purClickRate>=50?'var(--green)':purClickRate>=30?'var(--amber)':'var(--rose)'}"></div></div>`:'<span style="color:var(--muted)">—</span>'}</td>
       <td>${cartRate!=null?`<span style="color:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}">${cartRate.toFixed(1)}%</span><div class="ctr-bar-wrap"><div class="ctr-bar-fill" style="width:${Math.min(cartRate,100)}%;background:${cartRate>=50?'var(--green)':cartRate>=30?'var(--amber)':'var(--rose)'}"></div></div>`:'<span style="color:var(--muted)">—</span>'}</td>

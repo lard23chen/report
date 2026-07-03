@@ -194,9 +194,9 @@ for(const d = new Date(pvAvail[0]); d <= _yd; d.setDate(d.getDate()+1))
 | 活動名稱 | 可點擊連結至 `ticket.ibon.com.tw/ActivityInfo/Details/{id}`，下方顯示 ActivityId |
 | D瀏覽量 | 數字右對齊；下方小字顯示**PV資料起始日**（`PV_BY_DATE` 最早 key） |
 | D點擊量 | 數字右對齊；下方小字顯示**點擊資料起始日**（`CLICK_ACT_DAILY` 最早 date） |
-| 點擊/瀏覽比 | 顏色：綠≥100%、橘≥50%、紅<50%；含比例條 |
 | A購物車 | 來自 `getCart(d)`（隨 PV 日期篩選變動，見 §3.5），數字右對齊 |
 | A結帳 | 來自 `getPurchase(d)`（隨 PV 日期篩選變動，見 §3.5），數字右對齊 |
+| 點擊/瀏覽比 | 顏色：綠≥100%、橘≥50%、紅<50%；含比例條 |
 | 購物車/點擊量比 | cart/clicks×100%（`getCart(d)`/`d.clicks`，皆隨 PV 日期篩選變動）；可 >100%（同 ctr，比例條 `Math.min` 封頂 100%）；顏色：綠≥50%、橘≥30%、紅<30%；含比例條。排序 key = `cartClickRate` |
 | 結帳/點擊量比 | purchase/clicks×100%（`getPurchase(d)`/`d.clicks`，皆隨 PV 日期篩選變動）；顏色：綠≥50%、橘≥30%、紅<30%；含比例條。排序 key = `purClickRate` |
 | 結帳/購物車比 | purchase/cart×100%；顏色：綠≥50%、橘≥30%、紅<30%；含比例條 |
@@ -249,3 +249,4 @@ git push origin main
 *2026/07/01：移除 header subtitle、排名變化欄位；修正日期選擇器 ReferenceError；pvTo 擴展至昨天*
 *2026/07/03：完整活動對照表於 A結帳 右側新增「結帳/點擊量比」欄（purchase/clicks×100%，排序 key purClickRate，隨 PV 日期篩選連動）*
 *2026/07/03：再於 A結帳 右側、結帳/點擊量比 左側新增「購物車/點擊量比」欄（cart/clicks×100%，排序 key cartClickRate，隨 PV 日期篩選連動）。欄位順序：A結帳 ｜ 購物車/點擊量比 ｜ 結帳/點擊量比 ｜ 結帳/購物車比*
+*2026/07/03：調整欄序，A購物車/A結帳 移至 D點擊量 右側（點擊/瀏覽比 之前）。完整欄序：PV排名 ｜ 點擊排名 ｜ 活動名稱 ｜ D瀏覽量 ｜ D點擊量 ｜ A購物車 ｜ A結帳 ｜ 點擊/瀏覽比 ｜ 購物車/點擊量比 ｜ 結帳/點擊量比 ｜ 結帳/購物車比*
