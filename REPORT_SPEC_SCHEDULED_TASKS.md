@@ -8,12 +8,12 @@
 
 | 排程名稱 | BAT 檔 | 觸發時間 | 最後執行 | 狀態 |
 |---------|--------|---------|---------|------|
-| `Qware_Daily_Report_Update` | `daily_update.bat` | 每日 08:00 | 2026/06/10 09:13（失敗） | Ready |
-| `Qware_Daily_Report_Update_Final` | `daily_update.bat` | 每日 08:00 | 2026/06/09 08:34 | Ready |
-| `Qware_Monthly_Report_Update` | `daily_update.bat` | 每月 2 日 08:30 | 2026/05/02 07:56 | Ready |
-| `Update_GA_Report_0800` | `update_ga_report.bat` | 每日 08:00 | — | Ready |
-| `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | — | Ready |
-| `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/06/10 09:14 | Ready |
+| `Qware_Daily_Report_Update` | `daily_update.bat` | 每日 08:00 | 2026/07/06 09:07（成功，git 記錄） | Ready |
+| `Qware_Daily_Report_Update_Final` | `daily_update.bat` | 每日 08:00 | 同上（兩排程共用 BAT，依重複執行保護擇一生效） | Ready |
+| `Qware_Monthly_Report_Update` | `daily_update.bat` | 每月 2 日 08:30 | 2026/07/02 08:42（成功，git 記錄） | Ready |
+| `Update_GA_Report_0800` | `update_ga_report.bat` | 每日 08:00 | 2026/07/06 15:00（成功，git 記錄） | Ready |
+| `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | 同上 | Ready |
+| `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/07/06 09:10（成功，git 記錄） | Ready |
 | `QwareDailyReport`（HKCU Run） | `daily_update.bat` | 每次使用者登入 | — | 常駐 |
 
 > **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 執行相同的 BAT，前者為原始排程，後者為補強版（設有 WorkingDirectory）。兩者並存確保至少一個成功觸發。
@@ -41,11 +41,16 @@ if daily_log.txt 已有今日 "Update Completed" → exit /b 0（寫入 "Already
 node generate_a_daily_report.js                    → A_Qware_Revenue_Report_Daily.html
 node generate_kaohsiung_beer_festival_report.js    → A_KaohsiungBeerFestival_2026.html
 node generate_d_ga_clickdata_report.js             → D_GA_ClickData_Webb_202606_Report.html
+node generate_d_ga_pageview_report.js              → D_GA_PageViewData_Webb_202606_Report.html
+node generate_d_ga_funnel_report.js                → D_GA_Funnel_202606_Report.html
 node update_index_stats.js                         → report_index.html（統計表 + Tab1 月份卡片）
 if 今日為2日:  node generate_monthly_report.js     → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
 if 今日為10日: node generate_ga_report.js          → A_GA_Traffic_Analysis_Report.html
 git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin main
+powershell send_line_notify.ps1 -Template "daily"  → LINE 完成通知
 ```
+
+> ⚠️ 結尾的 `git add .` 會把**當下工作區所有未提交變更**一起 commit 進去。若在排程觸發時段（08:00 前後、登入補跑、15:00 GA 排程）有進行中的手動修改，可能被自動 commit 收走（2026/07/06 曾發生，見 git `f0e940e`）。
 
 ### 2.3 產出報表
 
@@ -54,6 +59,8 @@ git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin m
 | `generate_a_daily_report.js` | `A_Qware_Revenue_Report_Daily.html` | MongoDB `Qware_A_Ticket_data_Daily` | A 系統每日營業快訊 |
 | `generate_kaohsiung_beer_festival_report.js` | `A_KaohsiungBeerFestival_2026.html` | MongoDB `Qware_A_Ticket_data_Daily` + `Qware_A_Traffic_session_data` | 2026 高雄啤酒音樂節專案分析 |
 | `generate_d_ga_clickdata_report.js` | `D_GA_ClickData_Webb_202606_Report.html` | MongoDB `QwareAi.GA_D_ClickData_Webb_202606` | D 系統節目點擊量分析（GA）；patch-in-place 方式更新資料常數 |
+| `generate_d_ga_pageview_report.js` | `D_GA_PageViewData_Webb_202606_Report.html` | MongoDB `QwareAi.GA_D_PageViewData_Webb_202606` | D 系統節目瀏覽量分析（GA） |
+| `generate_d_ga_funnel_report.js` | `D_GA_Funnel_202606_Report.html` | MongoDB `QwareAi.GA_D_PageViewData_Webb_202606` + `GA_D_ClickData_Webb_202606` | 瀏覽→點擊轉換漏斗；2026/07/06 起含每日明細與日期陣列（PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES）全自動更新。A購物車/結帳的 `generate_d_ga_funnel_cart_data.js` **不在排程內**，需手動執行 |
 | `update_index_stats.js` | `report_index.html` | MongoDB `Qware_Ticket_Data` | 月份統計表、趨勢圖、Tab1 本月報表卡片；每日執行 |
 | `generate_monthly_report.js` | `A_Qware_Revenue_Report_YYYY年MM月_分析報表.html` | MongoDB `Qware_Ticket_Data` | 上月完整分析報表；**僅每月 2 日執行**（bat 內有日期判斷） |
 
@@ -187,5 +194,9 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 
 - 每日營業報表規範：`REPORT_SPEC_A_DAILY_REVENUE.md`
 - GA 流量報表規範：`REPORT_SPEC_GA_EVENTS_TRAFFIC.md`
+- GA 點擊/瀏覽/漏斗報表規範：`REPORT_SPEC_D_GA_CLICKDATA_202606.md` / `REPORT_SPEC_D_GA_PAGEVIEWDATA_202606.md` / `REPORT_SPEC_D_GA_FUNNEL_202606.md`
 - Azure 費用報表規範：`REPORT_SPEC_AZURE_DAILY.md`
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
+
+---
+*最後更新：2026/07/06（補記 daily_update.bat 實際步驟：pageview / funnel generator 與 LINE 通知；更新排程總覽最後執行紀錄；註記 git add . 會收走工作區未提交變更）*
