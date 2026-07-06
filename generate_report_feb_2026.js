@@ -221,6 +221,18 @@ async function generateReport() {
 
         .text-right { text-align: right; }
         .font-bold { font-weight: bold; }
+        .rank-toggle-btn {
+            border: 1px solid var(--accent-color);
+            background: transparent;
+            color: var(--accent-color);
+            padding: 3px 14px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .rank-toggle-btn:first-child { border-radius: 999px 0 0 999px; }
+        .rank-toggle-btn:last-child { border-radius: 0 999px 999px 0; margin-left: -1px; }
+        .rank-toggle-btn.active { background: var(--accent-color); color: white; }
 
         @media print {
             body { background: white; }
@@ -376,7 +388,13 @@ async function generateReport() {
     
     <!-- Top 5 Events Table -->
     <div class="table-container">
-        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🏆 銷售排行 Top 5 (By Revenue)</h3>
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <span>🏆 銷售排行 Top 5 (By Revenue)</span>
+            <span id="rankViewToggle">
+                <button type="button" class="rank-toggle-btn active" data-mode="all" onclick="switchRankView('all')">全部</button>
+                <button type="button" class="rank-toggle-btn" data-mode="noSports" onclick="switchRankView('noSports')">排除體育</button>
+            </span>
+        </h3>
         <table id="topEventsTable">
             <thead>
                 <tr>

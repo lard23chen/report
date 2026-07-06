@@ -42,7 +42,7 @@ async function generateReport() {
         console.log(`Fetching and aggregating ${targetMonth} data...`);
         const rawData = await collection.find(
             { "交易時間": { $regex: `^${targetMonth}` } },
-            { projection: { "交易時間": 1, "售價": 1, "狀態": 1, "訂單編號": 1, "節目/商品名稱": 1, "付款方式": 1, "銷售點": 1, "手續費": 1, "實退金額": 1, "退票時間": 1, "退票因素": 1, "會員編號": 1 } }
+            { projection: { "交易時間": 1, "售價": 1, "狀態": 1, "訂單編號": 1, "節目/商品名稱": 1, "業態別": 1, "付款方式": 1, "銷售點": 1, "手續費": 1, "實退金額": 1, "退票時間": 1, "退票因素": 1, "會員編號": 1 } }
         ).toArray();
 
         console.log(`Processing ${rawData.length} records...`);
@@ -104,7 +104,7 @@ async function generateReport() {
             const name = item['節目/商品名稱'] || 'Unknown';
             const date = item['交易時間'].split(' ')[0];
 
-            if (!eventSummaryMap[name]) eventSummaryMap[name] = { revenue: 0, tickets: 0, orders: new Set(), refunds: 0, refundTickets: 0, priceStats: {}, pointStats: {}, refundReasons: {}, refundOrders: new Set(), dailyTrend: {} };
+            if (!eventSummaryMap[name]) eventSummaryMap[name] = { category: item['業態別'] || '未知', revenue: 0, tickets: 0, orders: new Set(), refunds: 0, refundTickets: 0, priceStats: {}, pointStats: {}, refundReasons: {}, refundOrders: new Set(), dailyTrend: {} };
             const es = eventSummaryMap[name];
             es.revenue += p;
             es.tickets += 1;
@@ -185,13 +185,18 @@ async function generateReport() {
         const topByTickets = [...eventList].sort((a,b) => b.tickets - a.tickets).slice(0, 5);
         const topByRefunds = [...eventList].sort((a,b) => b.refunds - a.refunds).slice(0, 5);
 
+        // 排除體育項目（業態別 = 運動票）的銷售排行；佔比分母維持全月總營收
+        const nonSportsEventList = eventList.filter(e => e.category !== '運動票');
+        const topByRevenueNoSports = [...nonSportsEventList].sort((a,b) => b.revenue - a.revenue).slice(0, 5);
+        const topByTicketsNoSports = [...nonSportsEventList].sort((a,b) => b.tickets - a.tickets).slice(0, 5);
+
         const paymentList = Object.entries(payMap).map(([name, s]) => ({ name, revenue: s.revenue, tickets: s.tickets, orderCount: s.orders.size, share: (s.revenue/totalRevenue*100).toFixed(1) })).sort((a,b) => b.revenue - a.revenue);
         const spList = Object.entries(pointMap).map(([name, s]) => ({ name, revenue: s.revenue, tickets: s.tickets, orderCount: s.orders.size, share: (s.revenue/totalRevenue*100).toFixed(1) })).sort((a,b) => b.revenue - a.revenue);
 
         const summaryData = {
             totalRevenue, totalTickets, orderCount, aov, totalRefundTickets: totalRefundedTickets, totalRefundedValue, totalRefundFees,
             trendDates, trendSales, peakAnnotations, refundDates, refundAmounts,
-            topByRevenue, topByTickets, topByRefunds, paymentList, spList,
+            topByRevenue, topByTickets, topByRefunds, topByRevenueNoSports, topByTicketsNoSports, paymentList, spList,
             eventSummaryMap: Object.fromEntries(eventList.map(e => [e.name, e])),
             nationalityList,
             meta: { totalRows: rawData.length, reportTime: new Date().toLocaleString('zh-TW') }
@@ -251,8 +256,17 @@ async function generateReport() {
             list.forEach((item, i) => tbody.innerHTML += templateFn(item, i));
         };
 
-        renderTable('#topEventsTable', s.topByRevenue, (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right" style="color:#888;">\${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>\`);
-        renderTable('#topTicketsEventsTable', s.topByTickets, (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td></tr>\`);
+        const revenueRowTpl = (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right" style="color:#888;">\${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>\`;
+        const ticketsRowTpl = (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td></tr>\`;
+        // 銷售排行「全部 / 排除體育」切換（排除體育 = 業態別為運動票的節目不列入）
+        window.switchRankView = function(mode) {
+            const rev = (mode === 'noSports' && s.topByRevenueNoSports) ? s.topByRevenueNoSports : s.topByRevenue;
+            const tik = (mode === 'noSports' && s.topByTicketsNoSports) ? s.topByTicketsNoSports : s.topByTickets;
+            renderTable('#topEventsTable', rev, revenueRowTpl);
+            renderTable('#topTicketsEventsTable', tik, ticketsRowTpl);
+            document.querySelectorAll('#rankViewToggle .rank-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+        };
+        window.switchRankView('all');
         renderTable('#topRefundTable', s.topByRefunds, (item, i) => \`<tr><td><span style="background:#c62828; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.refundOrderCount.toLocaleString()}</td><td class="text-right">\${item.refundTickets.toLocaleString()}</td><td class="text-right" style="color: #c62828; font-weight:bold;">NT$ \${item.refunds.toLocaleString()}</td></tr>\`);
 
         renderTable('#paymentTable', s.paymentList, (item) => \`<tr><td class="font-bold">\${item.name}</td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right">\${item.share}%</td></tr>\`);

@@ -52,6 +52,12 @@
 
 ### 4.3 分析表格 (Data Tables)
 - **銷售排行 Top 5**: 分別依據「金額」與「張數」進行排行，必須嚴格限制僅顯示前 5 名。
+- **銷售排行「全部 / 排除體育」切換鈕**（2026/07/06 新增，2026年06月報表起適用）:
+  - 位於「銷售排行 Top 5 (By Revenue)」標題列右側（`#rankViewToggle`），一鍵同時切換金額與張數兩張表，預設「全部」。
+  - **排除邏輯**: 過濾 `業態別 === '運動票'` 的節目後重新取 Top 5（資料庫欄位，非名稱關鍵字比對）。退票排行不套用。
+  - **佔比分母維持全月總營收**，切換前後百分比可直接比較。
+  - 資料由 `generate_monthly_report.js` 產出 `summaryData.topByRevenueNoSports` / `topByTicketsNoSports`；抓數據的 projection **必須包含 `業態別` 欄位**（漏掉會使 category 全為「未知」、排除失效）。
+  - 切換函式 `window.switchRankView(mode)` 在 `generate_monthly_report.js` 注入的 JS 內；按鈕 HTML 與 `.rank-toggle-btn` CSS 在 `generate_report_feb_2026.js` 的 `htmlContent` 模板內，**兩者必須同步維護**。
 - **退票排行 Top 5**: 依據「退票手續費金額」進行排行，必須嚴格限制僅顯示前 5 名。
 - **維度分析完整性**: 「付款方式分析」與「銷售點分析」表格中，除營收與佔比外，**必須包含該維度的「訂單筆數」與「票券張數」**。
 
