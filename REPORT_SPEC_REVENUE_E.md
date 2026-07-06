@@ -89,10 +89,16 @@ collection.find({ "交易時間": { $regex: "^YYYY-MM" } })
 
 ## 6. 建立新月份報表流程
 
-1. 複製現有月份腳本（例 `generate_e_report_mar_2026.js`）
+> 完整每月更新 SOP（含首頁 `E_report_index.html` 統計區塊與 Tab 卡片更新）見 `REPORT_SPEC_E_INDEX_DASHBOARD.md`。
+
+1. 複製現有月份腳本（例 `generate_e_report_may_2026.js`）
+   - ⚠️ **必須用 Node.js 讀檔 + `.replace()` 替換月份字串後以 `'utf8'` 寫入，禁止用 PowerShell `-replace`**（UTF-16 LE 編碼會破壞中文字元）
 2. 修改篩選月份 regex（`^YYYY-MM`）及標題文字
 3. 執行：`node generate_e_report_<新月份>.js`
-4. 更新 HTML_Report_Catalog.html 的對應連結
+4. 更新 `E_report_index.html`（執行 `node update_e_index_stats.js` + 手動調 Tab 卡片）
+5. 在 `HTML_Report_Catalog.html` E 系統區段新增對應列（規則見 `REPORT_SPEC_CATALOG.md`）
+
+現有月份腳本：jan / feb / mar / apr / may / jun（2026）。
 
 ---
 
@@ -106,3 +112,6 @@ git push origin main
 ```
 
 更新頻率：**月次**（每月月初）
+
+---
+*Last Updated: 2026/07/06（新增 2026年06月 報表；補流程交叉引用與 PowerShell 編碼警告）*
