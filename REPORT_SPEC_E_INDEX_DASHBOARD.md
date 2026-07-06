@@ -40,20 +40,20 @@
 *   **歷史報表分析 (Tab 3)**: 收納三個月前（含）的所有歷史分析報告，避免首頁過於擁擠；新卡片插入至最頂端。
 *   **各節目報表分析 (Tab 4)**: 預留給特定大型活動或專案的專屬報表。
 
-**Tab 1 現況（2026-06-09 更新）**：
+**Tab 1 現況（2026-07-06 更新）**：
 
 | 位置 | 月份 | Badge |
 |------|------|-------|
-| Tab 1 第 1 張 | 2026年05月 | 本月 |
-| Tab 1 第 2 張 | 2026年04月 | 上月 |
-| Tab 3 最新 | 2026年03月 | Historical |
+| Tab 1 第 1 張 | 2026年06月 | 本月 |
+| Tab 1 第 2 張 | 2026年05月 | 上月 |
+| Tab 3 最新 | 2026年04月 | Historical |
 
 ### 3. 資料來源與更新機制 (Data Engine)
 *   **資料庫**: MongoDB (Cluster0)。
 *   **集合 (Collection)**: `QwareAi / Qware_Ticket_Data_Esys` (E系統專屬資料表)。
 *   **`交易時間` 欄位格式**: `YYYY-MM-DD HH:mm:ss`（dash 分隔），查詢用 `$regex: "^YYYY-MM"`。
 *   **腳本工具**:
-    *   `generate_e_report_<mon>_2026.js`（jan / feb / mar / apr / may）: 負責抓取單月數據並生成單一月份的 HTML 報表。
+    *   `generate_e_report_<mon>_2026.js`（jan / feb / mar / apr / may / jun）: 負責抓取單月數據並生成單一月份的 HTML 報表。
     *   `update_e_index_stats.js`: 負責聚合所有月份數據，重新計算統計表與趨勢圖，並更新 `E_report_index.html`（只替換 `<!-- STATS_START -->` 至 `<!-- Tabs Navigation -->` 之間的內容，**Tab 1–4 的卡片需手動更新**）。
 *   **排程策略**: 每月一號 08:30 自動執行全量更新。
 *   **⚠️ 新 generator 建立方式**: 用 Node.js 讀取上月 `.js` 檔案後以 `.replace()` 替換月份字串，再以 `'utf8'` 寫入。**禁止用 PowerShell `-replace`**，因為 Windows 預設 UTF-16 LE 編碼會破壞中文字元（檔名、標題、query string 全部損毀）。
@@ -100,4 +100,4 @@
 4. **commit & push**
 
 ---
-*Last Updated: 2026/06/09*
+*Last Updated: 2026/07/06*
