@@ -81,8 +81,8 @@
 | `PURCHASE_DATA` | A結帳次數（全期間總計），keyed by ActivityId | `{"39428": 153363, ...}` |
 | `CART_BY_DATE` | 每日 A購物車，keyed by ActivityId → date（2026-07 起新增，供日期篩選用） | `{"39428": {"06/10": 500, ...}}` |
 | `PURCHASE_BY_DATE` | 每日 A結帳，keyed by ActivityId → date（2026-07 起新增，供日期篩選用） | `{"39428": {"06/10": 200, ...}}` |
-| `PV_BY_DATE` | 每日 PV，keyed by ActivityId → date | `{"39428": {"06/10": 500, ...}}` |
-| `CLICK_ACT_DAILY` | 每日點擊，keyed by ActivityId | `{"39190": [{date:"05/28", total:1519}, ...]}` |
+| `PV_BY_DATE` | 每日 PV，keyed by ActivityId → date（2026-07-06 起由主 generator 自動產生） | `{"39428": {"06/10": 500, ...}}` |
+| `CLICK_ACT_DAILY` | 每日點擊，keyed by ActivityId（2026-07-06 起由主 generator 自動產生） | `{"39190": [{date:"05/28", total:1519}, ...]}` |
 
 **CART_DATA / PURCHASE_DATA / CART_BY_DATE / PURCHASE_BY_DATE 資料來源（2026-07 起由 `generate_d_ga_funnel_cart_data.js` 自動產生，不再手動查詢貼上）：**
 - MongoDB cluster：`qware-dmp-ver-7.f0fpg.mongodb.net`
@@ -106,7 +106,14 @@ const PURCHASE_DATA = {...};      ← generator 注入
 const CART_BY_DATE = {...};       ← generator 注入
 const PURCHASE_BY_DATE = {...};   ← generator 注入
 // ── CartPurchase Data End ────────────────────────────────────────────────
+
+// ── DailyData Start ──────────────────────────────────────────────────────
+const PV_BY_DATE = {...};         ← generator 注入（generate_d_ga_funnel_report.js，2026-07-06 起）
+const CLICK_ACT_DAILY = {...};    ← generator 注入
+// ── DailyData End ────────────────────────────────────────────────────────
 ```
+
+另外兩個單行常數 `const PV_DATES = [...];` / `const CL_DATES = [...];`（Date Pickers 區）由 `generate_d_ga_funnel_report.js` 以整行 regex 替換更新，**勿改寫成多行或改名**。
 
 ⚠️ **勿修改 marker 字串**，否則 generator 找不到注入點。
 
@@ -226,16 +233,16 @@ for(const d = new Date(pvAvail[0]); d <= _yd; d.setDate(d.getDate()+1))
 ## 7. 更新方式
 
 ```bash
-node generate_d_ga_funnel_report.js       # 更新 FUNNEL_DATA / SUMMARY（PV/Click 總計、排名）
+node generate_d_ga_funnel_report.js       # 更新 FUNNEL_DATA / SUMMARY / PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES
 node generate_d_ga_funnel_cart_data.js    # 更新 CART_DATA / PURCHASE_DATA / CART_BY_DATE / PURCHASE_BY_DATE（DMP 購物車/結帳，含每日分桶）
 git add D_GA_Funnel_202606_Report.html generate_d_ga_funnel_report.js generate_d_ga_funnel_cart_data.js
 git commit -m "Update funnel report"
 git push origin main
 ```
 
-⚠️ 兩支 generator 各自用獨立 marker 區塊（`// ── Data ──` / `// ── Charts ──` 和 `// ── CartPurchase Data Start/End ──`），互不影響，可分開執行。
+⚠️ 兩支 generator 各自用獨立 marker 區塊（`// ── Data ──` / `// ── Charts ──`、`// ── DailyData Start/End ──` 和 `// ── CartPurchase Data Start/End ──`），互不影響，可分開執行。
 
-`PV_BY_DATE` / `CLICK_ACT_DAILY` 目前仍為靜態資料，無對應 generator，需另行手動更新（維持原有流程）。
+**2026-07-06 起每日資料全自動**：`PV_BY_DATE` / `CLICK_ACT_DAILY` / `PV_DATES` / `CL_DATES` 已改由 `generate_d_ga_funnel_report.js` 每次執行時從 MongoDB 重新聚合（`$group` by ActivityId + EventDate，EventDate UTC +08:00 換算為 `MM/DD`），頁首日期區間、日期篩選器白名單與每日明細因此跟隨 `daily_update.bat` 每日更新，不再手動維護。`generate_d_ga_funnel_cart_data.js` 仍不在每日排程內，需要更新 A購物車/結帳時手動執行。
 
 ## 8. 相關連結
 
@@ -245,7 +252,8 @@ git push origin main
 - 規範：`REPORT_SPEC_D_GA_PAGEVIEWDATA_202606.md` / `REPORT_SPEC_D_GA_CLICKDATA_202606.md`
 
 ---
-*建立日期：2026/06/22｜最後更新：2026/07/02（新增 CART_BY_DATE/PURCHASE_BY_DATE，A購物車/A結帳 改為隨 PV 日期篩選連動；新增 generate_d_ga_funnel_cart_data.js 自動化 DMP 查詢，取代原手動更新流程）*
+*建立日期：2026/06/22｜最後更新：2026/07/06（PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES 改由主 generator 自動產生，新增 DailyData marker 區塊；頁首日期區間與日期篩選器隨每日排程自動更新，修正先前總量已含新資料但頁首仍顯示 06/28 的不一致）*
+*2026/07/02：新增 CART_BY_DATE/PURCHASE_BY_DATE，A購物車/A結帳 改為隨 PV 日期篩選連動；新增 generate_d_ga_funnel_cart_data.js 自動化 DMP 查詢，取代原手動更新流程*
 *2026/07/01：移除 header subtitle、排名變化欄位；修正日期選擇器 ReferenceError；pvTo 擴展至昨天*
 *2026/07/03：完整活動對照表於 A結帳 右側新增「結帳/點擊量比」欄（purchase/clicks×100%，排序 key purClickRate，隨 PV 日期篩選連動）*
 *2026/07/03：再於 A結帳 右側、結帳/點擊量比 左側新增「購物車/點擊量比」欄（cart/clicks×100%，排序 key cartClickRate，隨 PV 日期篩選連動）。欄位順序：A結帳 ｜ 購物車/點擊量比 ｜ 結帳/點擊量比 ｜ 結帳/購物車比*

@@ -67,6 +67,44 @@ async function main() {
             { $sort: { clicks: -1 } }
         ]).toArray();
 
+        // ── Query per-day PV / Click (for PV_BY_DATE / CLICK_ACT_DAILY / date pickers) ──
+        console.log('Querying daily PV/Click...');
+        const twMMDD = d => {
+            const t = new Date(d.getTime() + 8 * 3600000); // EventDate UTC → 台北
+            return `${String(t.getUTCMonth()+1).padStart(2,'0')}/${String(t.getUTCDate()).padStart(2,'0')}`;
+        };
+        const pvDailyRaw = await db.collection(COLL_PV).aggregate([
+            { $group: { _id: { id:'$ActivityId', date:'$EventDate' }, n: { $sum:'$EventCount' } } }
+        ]).toArray();
+        const clDailyRaw = await db.collection(COLL_CLICK).aggregate([
+            { $group: { _id: { id:'$ActivityId', date:'$EventDate' }, n: { $sum:'$EventCount' } } }
+        ]).toArray();
+
+        const PV_BY_DATE_OBJ = {};
+        pvDailyRaw.forEach(r => {
+            const id = r._id.id, date = twMMDD(r._id.date);
+            (PV_BY_DATE_OBJ[id] = PV_BY_DATE_OBJ[id] || {})[date] = (PV_BY_DATE_OBJ[id][date] || 0) + r.n;
+        });
+        // 日期鍵依序排列（MM/DD 零補齊，字串排序即時間序）
+        for (const id of Object.keys(PV_BY_DATE_OBJ)) {
+            PV_BY_DATE_OBJ[id] = Object.fromEntries(Object.entries(PV_BY_DATE_OBJ[id]).sort((a,b) => a[0].localeCompare(b[0])));
+        }
+
+        const clDailyMap = {};
+        clDailyRaw.forEach(r => {
+            const id = r._id.id, date = twMMDD(r._id.date);
+            (clDailyMap[id] = clDailyMap[id] || {})[date] = (clDailyMap[id][date] || 0) + r.n;
+        });
+        const CLICK_ACT_DAILY_OBJ = {};
+        for (const id of Object.keys(clDailyMap)) {
+            CLICK_ACT_DAILY_OBJ[id] = Object.entries(clDailyMap[id])
+                .sort((a,b) => a[0].localeCompare(b[0]))
+                .map(([date, total]) => ({ date, total }));
+        }
+
+        const PV_DATES_ARR = [...new Set(pvDailyRaw.map(r => twMMDD(r._id.date)))].sort((a,b) => a.localeCompare(b));
+        const CL_DATES_ARR = [...new Set(clDailyRaw.map(r => twMMDD(r._id.date)))].sort((a,b) => a.localeCompare(b));
+
         // ── Merge by ActivityId ──────────────────────────────────────────────
         const pvMap  = {};
         pvRaw.forEach((r,i) => { pvMap[r._id]  = { name:r.name,  pv:r.pv,  pvRank:i+1  }; });
@@ -108,17 +146,20 @@ async function main() {
             d.clickShare = d.clicks!= null ? +(d.clicks/clickTotal*100).toFixed(1): null;
         });
 
-        // pvDate range
-        const pvDates = pvRaw.length
-            ? `2026/${pvRaw.map(r=>r.minDate).sort()[0]?.toISOString?.()?.slice(5,10)?.replace('-','/')||'06/10'} – 2026/${pvRaw.map(r=>r.maxDate).sort().at(-1)?.toISOString?.()?.slice(5,10)?.replace('-','/')||'06/20'}`
-            : '2026/06/10 – 2026/06/20';
+        // pvDate / clickDate range（取自每日聚合的日期陣列，與 header tags 一致）
+        const pvDates = PV_DATES_ARR.length
+            ? `2026/${PV_DATES_ARR[0]} – 2026/${PV_DATES_ARR.at(-1)}`
+            : '—';
+        const clickDates = CL_DATES_ARR.length
+            ? `2026/${CL_DATES_ARR[0]} – 2026/${CL_DATES_ARR.at(-1)}`
+            : '—';
 
         const now = toTWTStr(new Date());
 
         const SUMMARY_OBJ = {
             pvTotal, clickTotal, matchedCount, pvOnlyCount, clickOnlyCount,
             matchedPV, matchedClicks,
-            pvDates, clickDates:'2026/05/26 – 06/06',
+            pvDates, clickDates,
         };
 
         // ── Build data section ───────────────────────────────────────────────
@@ -137,6 +178,29 @@ const SUMMARY = ${JSON.stringify(SUMMARY_OBJ, null, 2)};
         const ei = html.indexOf(DATA_END);
         if(si===-1||ei===-1) throw new Error('Data section markers not found');
         html = html.slice(0,si) + newData + html.slice(ei);
+
+        // ── Patch DailyData block（PV_BY_DATE / CLICK_ACT_DAILY）─────────────
+        const DAILY_START = '// ── DailyData Start ──────────────────────────────────────────────────────';
+        const DAILY_END   = '// ── DailyData End ────────────────────────────────────────────────────────';
+        const dsi = html.indexOf(DAILY_START);
+        const dei = html.indexOf(DAILY_END);
+        if(dsi===-1||dei===-1) throw new Error('DailyData section markers not found');
+        const newDaily =
+`${DAILY_START}
+// Per-activity daily PV (for date range filtering)
+const PV_BY_DATE = ${JSON.stringify(PV_BY_DATE_OBJ, null, 2)};
+
+
+// Per-activity daily click totals (for date range filtering)
+const CLICK_ACT_DAILY = ${JSON.stringify(CLICK_ACT_DAILY_OBJ, null, 2)};
+`;
+        html = html.slice(0,dsi) + newDaily + html.slice(dei);
+
+        // ── Patch PV_DATES / CL_DATES（date picker 白名單與 header tags 來源）──
+        if(!/const PV_DATES = \[[^\]]*\];/.test(html) || !/const CL_DATES = \[[^\]]*\];/.test(html))
+            throw new Error('PV_DATES / CL_DATES declarations not found');
+        html = html.replace(/const PV_DATES = \[[^\]]*\];/, `const PV_DATES = ${JSON.stringify(PV_DATES_ARR)};`);
+        html = html.replace(/const CL_DATES = \[[^\]]*\];/, `const CL_DATES = ${JSON.stringify(CL_DATES_ARR)};`);
 
         // Update timestamp
         html = html.replace(/(<span id="updateTimeLabel">)[^<]*(<\/span>)/, `$1${now}$2`);
