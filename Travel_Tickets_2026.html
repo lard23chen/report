@@ -398,7 +398,7 @@
         <div class="trip">
             <div class="trip-header">
                 <span class="trip-num">Trip 1</span>
-                <div><div class="trip-dest">🇹🇭 Bangkok (BKK)</div><div class="trip-dates">2027/02/02(二) – 2027/02/15(日)</div></div>
+                <div><div class="trip-dest">🇹🇭 Bangkok (BKK)</div><div class="trip-dates">2027/02/02(二) – 2027/02/15(一)</div></div>
                 <span class="trip-tag">春節旅遊</span>
             </div>
             <div class="passenger-section">
@@ -2218,17 +2218,27 @@ function addDayOfWeek() {
         return '(' + DOW[new Date(+y, +m-1, +d).getDay()] + ')';
     }
 
-    // Full YYYY/MM/DD dates in trip headers and flight departure cells
+    // Full YYYY/MM/DD dates in trip headers and flight departure cells.
+    // Strip ALL existing weekday annotations first, then recompute. This
+    // repairs two classes of bad data that may sit in the HTML or persisted
+    // tripEdits: (1) corruption from an earlier buggy run whose (?!\()
+    // lookahead let the day match backtrack to a single digit (e.g.
+    // "2027/02/0(日)2(二)"), and (2) hand-typed annotations with the wrong
+    // weekday. Recomputing makes the function idempotent and canonical.
     document.querySelectorAll('.trip-dates, .time-main').forEach(function(el) {
-        el.textContent = el.textContent.replace(
-            /(\d{4})\/(\d{1,2})\/(\d{1,2})(?!\()/g,
-            function(match, y, m, d) { return match + dow(y, m, d); }
-        );
+        el.textContent = el.textContent
+            .replace(/\((?:[日一二三四五六])\)(?=\d)/g, '')
+            .replace(/(\d{4}\/\d{1,2}\/\d{1,2})\((?:[日一二三四五六])\)/g, '$1')
+            .replace(
+                /(\d{4})\/(\d{1,2})\/(\d{1,2})(?![\d(])/g,
+                function(match, y, m, d) { return match + dow(y, m, d); }
+            );
     });
 
-    // Hotel check-in / check-out: "M/D" format — infer year from parent trip
+    // Hotel check-in / check-out: "M/D" format — infer year from parent trip.
+    // An existing weekday annotation is stripped and recomputed (canonical).
     document.querySelectorAll('.hotel-dates').forEach(function(el) {
-        var t = el.textContent.trim();
+        var t = el.textContent.trim().replace(/\((?:[日一二三四五六])\)$/, '');
         if (!/^\d{1,2}\/\d{1,2}$/.test(t)) return;
         var parts = t.split('/'), hm = +parts[0], hd = +parts[1];
         var yr = new Date().getFullYear();
