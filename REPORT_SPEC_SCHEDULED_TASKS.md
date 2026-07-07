@@ -43,6 +43,7 @@ node generate_kaohsiung_beer_festival_report.js    → A_KaohsiungBeerFestival_2
 node generate_d_ga_clickdata_report.js             → D_GA_ClickData_Webb_202606_Report.html
 node generate_d_ga_pageview_report.js              → D_GA_PageViewData_Webb_202606_Report.html
 node generate_d_ga_funnel_report.js                → D_GA_Funnel_202606_Report.html
+node generate_e_dmp_funnel_report.js               → E_DMP_Funnel_Report.html
 node update_index_stats.js                         → report_index.html（統計表 + Tab1 月份卡片）
 if 今日為2日:  node generate_monthly_report.js     → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
 if 今日為10日: node generate_ga_report.js          → A_GA_Traffic_Analysis_Report.html
@@ -61,6 +62,7 @@ powershell send_line_notify.ps1 -Template "daily"  → LINE 完成通知
 | `generate_d_ga_clickdata_report.js` | `D_GA_ClickData_Webb_202606_Report.html` | MongoDB `QwareAi.GA_D_ClickData_Webb_202606` | D 系統節目點擊量分析（GA）；patch-in-place 方式更新資料常數 |
 | `generate_d_ga_pageview_report.js` | `D_GA_PageViewData_Webb_202606_Report.html` | MongoDB `QwareAi.GA_D_PageViewData_Webb_202606` | D 系統節目瀏覽量分析（GA） |
 | `generate_d_ga_funnel_report.js` | `D_GA_Funnel_202606_Report.html` | MongoDB `QwareAi.GA_D_PageViewData_Webb_202606` + `GA_D_ClickData_Webb_202606` | 瀏覽→點擊轉換漏斗；2026/07/06 起含每日明細與日期陣列（PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES）全自動更新。A購物車/結帳的 `generate_d_ga_funnel_cart_data.js` **不在排程內**，需手動執行 |
+| `generate_e_dmp_funnel_report.js` | `E_DMP_Funnel_Report.html` | MongoDB `trek-first-party-dmp.event`（bu:"E"） | E 系統瀏覽→購買轉換漏斗（張數/金額/轉換率）；單一腳本重新聚合全部資料並注入 Data marker 區塊；2026/07/07 起加入排程 |
 | `update_index_stats.js` | `report_index.html` | MongoDB `Qware_Ticket_Data` | 月份統計表、趨勢圖、Tab1 本月報表卡片；每日執行 |
 | `generate_monthly_report.js` | `A_Qware_Revenue_Report_YYYY年MM月_分析報表.html` | MongoDB `Qware_Ticket_Data` | 上月完整分析報表；**僅每月 2 日執行**（bat 內有日期判斷） |
 
@@ -195,8 +197,10 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 每日營業報表規範：`REPORT_SPEC_A_DAILY_REVENUE.md`
 - GA 流量報表規範：`REPORT_SPEC_GA_EVENTS_TRAFFIC.md`
 - GA 點擊/瀏覽/漏斗報表規範：`REPORT_SPEC_D_GA_CLICKDATA_202606.md` / `REPORT_SPEC_D_GA_PAGEVIEWDATA_202606.md` / `REPORT_SPEC_D_GA_FUNNEL_202606.md`
+- E 系統轉換漏斗規範：`REPORT_SPEC_E_DMP_FUNNEL.md`
 - Azure 費用報表規範：`REPORT_SPEC_AZURE_DAILY.md`
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/06（補記 daily_update.bat 實際步驟：pageview / funnel generator 與 LINE 通知；更新排程總覽最後執行紀錄；註記 git add . 會收走工作區未提交變更）*
+*最後更新：2026/07/07（daily_update.bat 新增 generate_e_dmp_funnel_report.js，E 系統轉換漏斗報表改為每日 08:00 自動更新）*
+*2026/07/06：補記 daily_update.bat 實際步驟：pageview / funnel generator 與 LINE 通知；更新排程總覽最後執行紀錄；註記 git add . 會收走工作區未提交變更*

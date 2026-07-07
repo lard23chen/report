@@ -9,7 +9,7 @@
 | 報表名稱 | `E_DMP_Funnel_Report.html` |
 | 產生腳本 | `generate_e_dmp_funnel_report.js` |
 | 資料來源 | MongoDB `trek-first-party-dmp`（qware-dmp-ver-7 cluster）`event` collection |
-| 資料期間 | 2026/01/05 起持續累計（執行 generator 即更新） |
+| 資料期間 | 2026/01/05 起持續累計（每日排程自動更新，頁首日期區間隨資料延伸） |
 | 負責人 | 陳俊良 |
 | 主要目的 | 分析 E 系統（tour.ibon.com.tw）同一活動在「節目頁瀏覽（page_view）→ 完成購買（purchase）」兩個消費者行為層的轉換表現，含票券張數與銷售金額 |
 
@@ -164,7 +164,7 @@ git commit -m "Update E funnel report"
 git push origin main
 ```
 
-目前為手動更新，未列入 `daily_update.bat` 排程；如需每日自動更新，將上述指令加入排程即可（單一 generator 即完成全部資料）。
+**2026/07/07 起已列入 `daily_update.bat` 每日排程**（每日 08:00，於 `generate_d_ga_funnel_report.js` 之後執行），單一 generator 即完成全部資料，git push 由 bat 統一處理。手動更新時執行上述指令即可。排程細節見 `REPORT_SPEC_SCHEDULED_TASKS.md` §2。
 
 ## 7. 相關連結
 
@@ -173,3 +173,4 @@ git push origin main
 
 ---
 *建立日期：2026/07/07｜原需求 page_view → add_cart → payment 三階段，因 DMP 無 E 系統 add_cart/payment 事件，經用戶確認改為 page_view → purchase 兩階段（含張數與金額）*
+*2026/07/07：加入 daily_update.bat 每日 08:00 排程，改為自動更新*
