@@ -26,3 +26,7 @@
 | `generate_xxx.js` | 報表產出腳本（與 HTML 必須同步） |
 | `server.js` | Express 本地 server（port 3000），含 `/api/prompt-log` 等 API |
 | `public/` | server.js 靜態檔案目錄 |
+
+## 容量與封存
+
+- GitHub Pages 站台上限 1GB，主站需維持在此之下；已結案的歷史報表依 `REPORT_SPEC_ARCHIVE.md` 的 SOP 搬到 `report-archive-YYYY` 封存庫（本機副本在 `D:\2025\AI\report-archive-*`），並改寫主站連結。

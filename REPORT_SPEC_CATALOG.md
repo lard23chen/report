@@ -46,9 +46,15 @@
 
 依 CLAUDE.md 規範：**每月新報表產出時，同步在目錄加入對應列**。A 系統月報（`generate_monthly_report.js` 每月 2 日自動產出）與 E 系統月報（依 `REPORT_SPEC_E_INDEX_DASHBOARD.md` SOP 手動產出）都適用；目錄列目前不會自動新增，需手動補。
 
+### 3.5 封存報表的連結
+
+- 已結案報表搬到封存庫後（規則見 `REPORT_SPEC_ARCHIVE.md`），目錄**保留原列**，僅將檔名超連結改指 `https://lard23chen.github.io/report-archive-YYYY/<檔名>`。
+- 主控台區段有封存庫入口列（編號 43、44）。
+
 ## 4. 變更紀錄
 
+- **2026/07/08**：歷史報表封存 — 19 檔搬至 `report-archive-2025` / `report-archive-2026`，對應列連結改指封存庫；主控台區段新增封存庫入口列（編號 43、44）。詳見 `REPORT_SPEC_ARCHIVE.md`。
 - **2026/07/06**：補齊落後的月報列 — A系統 2026年04/05/06月（編號 36–38）、E系統 2026年03/05/06月（編號 39–41）；主控台兩列更新時間同步至當日。建立本規範文檔。
 
 ---
-*Last Updated: 2026/07/06*
+*Last Updated: 2026/07/08*
