@@ -116,6 +116,9 @@ async function generateWeeklyReport() {
         console.log(`Rows in weekly range: ${data.length}`);
 
         // ============ SERVER-SIDE AGGREGATION ============
+        // 電子票/紙票判定（沿用 generate_report_dec_2025_final.js 慣例）：取票方式 未列印=電子票、已取=紙票
+        const isETicket = (item) => item['取票方式'] === '未列印';
+        const isPaper = (item) => item['取票方式'] === '已取';
         const totalRows = data.length;
         const validOrders = data.filter(d => d['狀態'] === '正常');
         const refundDocs = data.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票');
@@ -142,7 +145,7 @@ async function generateWeeklyReport() {
             }
             if (!dateStr) return;
             const date = dateStr.split(' ')[0];
-            if (!dailyMap[date]) dailyMap[date] = { orders: new Set(), tickets: 0, revenue: 0, refundTickets: 0, refundFees: 0 };
+            if (!dailyMap[date]) dailyMap[date] = { orders: new Set(), tickets: 0, revenue: 0, eTickets: 0, pTickets: 0, refundTickets: 0, refundFees: 0 };
             const d = dailyMap[date];
             const price = parsePrice(item['售價']);
             const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
@@ -150,6 +153,8 @@ async function generateWeeklyReport() {
                 d.orders.add(orderId);
                 d.tickets += 1;
                 d.revenue += price;
+                if (isETicket(item)) d.eTickets += 1;
+                else if (isPaper(item)) d.pTickets += 1;
             } else if (item['狀態'] === '已退票' || item['狀態'] === '退票') {
                 d.refundTickets += 1;
                 d.refundFees += parsePrice(item['手續費']);
@@ -160,6 +165,8 @@ async function generateWeeklyReport() {
             orders: dailyMap[date].orders.size,
             tickets: dailyMap[date].tickets,
             revenue: dailyMap[date].revenue,
+            eTickets: dailyMap[date].eTickets,
+            pTickets: dailyMap[date].pTickets,
             refundTickets: dailyMap[date].refundTickets,
             refundFees: dailyMap[date].refundFees
         }));
@@ -209,10 +216,12 @@ async function generateWeeklyReport() {
             const name = item['節目/商品名稱'] || 'Unknown';
             const price = parsePrice(item['售價']);
             const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
-            if (!eventStats[name]) eventStats[name] = { orders: new Set(), tickets: 0, revenue: 0 };
+            if (!eventStats[name]) eventStats[name] = { orders: new Set(), tickets: 0, revenue: 0, eTickets: 0, pTickets: 0 };
             eventStats[name].orders.add(orderId);
             eventStats[name].tickets += 1;
             eventStats[name].revenue += price;
+            if (isETicket(item)) eventStats[name].eTickets += 1;
+            else if (isPaper(item)) eventStats[name].pTickets += 1;
 
             // Session tracking
             if (!eventSessions[name]) eventSessions[name] = {};
@@ -246,11 +255,11 @@ async function generateWeeklyReport() {
                             return b.revenue - a.revenue;
                         });
                 }
-                return { name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue, share: totalRevenue ? (s.revenue / totalRevenue * 100).toFixed(1) : '0', sessions };
+                return { name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue, eTickets: s.eTickets, pTickets: s.pTickets, share: totalRevenue ? (s.revenue / totalRevenue * 100).toFixed(1) : '0', sessions };
             })
             .sort((a, b) => b.revenue - a.revenue).slice(0, 5);
         const topByTickets = Object.entries(eventStats)
-            .map(([name, s]) => ({ name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue }))
+            .map(([name, s]) => ({ name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue, eTickets: s.eTickets, pTickets: s.pTickets }))
             .sort((a, b) => b.tickets - a.tickets).slice(0, 5);
 
         // Top 5 refund events
@@ -441,13 +450,15 @@ async function generateWeeklyReport() {
                 <th>日期 (Date)</th>
                 <th class="text-right">購票筆數 (Orders)</th>
                 <th class="text-right">購票張數 (Tickets)</th>
+                <th class="text-right">電子票 (E-Ticket)</th>
+                <th class="text-right">紙票 (Paper)</th>
                 <th class="text-right">購票金額 (Revenue)</th>
                 <th class="text-right">退票張數 (Refund)</th>
                 <th class="text-right">退票手續費 (Fees)</th>
             </tr></thead>
             <tbody></tbody>
         </table>
-        <div style="margin-top: 8px; text-align: right; font-size: 0.8em; color: #888;">* 購票筆數: 不重複訂單編號數 / 購票張數: 實際票券數量</div>
+        <div style="margin-top: 8px; text-align: right; font-size: 0.8em; color: #888;">* 購票筆數: 不重複訂單編號數 / 購票張數: 實際票券數量 / 電子票=取票方式「未列印」、紙票=「已取」，括號內為占當日(或該節目)張數比例</div>
     </div>
 
     <div class="charts-row"><div class="chart-container" style="flex:100%;"><canvas id="trendChart"></canvas></div></div>
@@ -456,7 +467,7 @@ async function generateWeeklyReport() {
         <div class="table-container">
         <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🏆 銷售排行 Top 5 (By Revenue)</h3>
         <table id="topEventsTable"><thead><tr>
-            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">佔比</th>
+            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">電子票</th><th class="text-right">紙票</th><th class="text-right">金額</th><th class="text-right">佔比</th>
         </tr></thead><tbody></tbody></table>
         <div id="eventDetailModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
            <div style="background:white; margin:auto; margin-top:5%; padding:20px; border-radius:12px; max-width:800px; width:90%; max-height:80vh; overflow-y:auto; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
@@ -473,7 +484,7 @@ async function generateWeeklyReport() {
     <div class="table-container">
         <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🎟️ 銷售排行 Top 5 (By Tickets)</h3>
         <table id="topTicketsTable"><thead><tr>
-            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th>
+            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">電子票</th><th class="text-right">紙票</th><th class="text-right">金額</th>
         </tr></thead><tbody></tbody></table>
     </div>
 
@@ -505,6 +516,7 @@ const D = '__AGG_DATA__';
 function fmt(n) { return n.toLocaleString(); }
 function ntd(n) { return 'NT$ ' + fmt(n); }
 function wan(n) { return 'NT$ ' + (n / 10000).toFixed(1) + ' 萬'; }
+function cntPct(n, total) { return fmt(n) + ' <span style="color:#888;font-size:0.85em;">(' + (total ? (n / total * 100).toFixed(1) : '0.0') + '%)</span>'; }
 
 function init() {
     document.getElementById('meta-total-rows').innerText = fmt(D.totalRows);
@@ -517,13 +529,15 @@ function init() {
 
     // Daily Stats Table
     const dtb = document.querySelector('#dailyStatsTable tbody');
-    let sO=0,sT=0,sR=0,sRT=0,sRF=0;
+    let sO=0,sT=0,sR=0,sE=0,sP=0,sRT=0,sRF=0;
     D.dailyStats.forEach(d => {
-        sO+=d.orders; sT+=d.tickets; sR+=d.revenue; sRT+=d.refundTickets; sRF+=d.refundFees;
+        sO+=d.orders; sT+=d.tickets; sR+=d.revenue; sE+=(d.eTickets||0); sP+=(d.pTickets||0); sRT+=d.refundTickets; sRF+=d.refundFees;
         const tr = document.createElement('tr');
         tr.innerHTML = '<td style="font-weight:500;">'+d.date+'</td>'
             +'<td class="text-right">'+fmt(d.orders)+'</td>'
             +'<td class="text-right">'+fmt(d.tickets)+'</td>'
+            +'<td class="text-right">'+cntPct(d.eTickets||0, d.tickets)+'</td>'
+            +'<td class="text-right">'+cntPct(d.pTickets||0, d.tickets)+'</td>'
             +'<td class="text-right">'+wan(d.revenue)+'</td>'
             +'<td class="text-right" style="color:#c62828;">'+fmt(d.refundTickets)+'</td>'
             +'<td class="text-right" style="color:#c62828;">'+(d.refundFees>0?ntd(d.refundFees):'-')+'</td>';
@@ -534,6 +548,8 @@ function init() {
     ttr.innerHTML = '<td style="font-weight:700;">總計 (Total)</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sO)+'</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sT)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+cntPct(sE, sT)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+cntPct(sP, sT)+'</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+wan(sR)+'</td>'
         +'<td class="text-right" style="color:#c62828;">'+fmt(sRT)+'</td>'
         +'<td class="text-right" style="color:#c62828;">'+(sRF>0?ntd(sRF):'-')+'</td>';
@@ -557,9 +573,9 @@ function init() {
     });
 
     // Top Events by Revenue
-    renderRankTable('#topEventsTable', D.topByRevenue, ['orders','tickets','revenue','share'], 'var(--accent-color)');
+    renderRankTable('#topEventsTable', D.topByRevenue, ['orders','tickets','eTickets','pTickets','revenue','share'], 'var(--accent-color)');
     // Top Events by Tickets
-    renderRankTable('#topTicketsTable', D.topByTickets, ['orders','tickets','revenue'], 'var(--accent-color)');
+    renderRankTable('#topTicketsTable', D.topByTickets, ['orders','tickets','eTickets','pTickets','revenue'], 'var(--accent-color)');
     // Top Refunds
     renderRankTable('#topRefundTable', D.topRefunds, ['orders','tickets','amount'], '#c62828');
 
@@ -571,7 +587,7 @@ function init() {
 
 function renderRankTable(sel, items, fields, color) {
     const tb = document.querySelector(sel+' tbody');
-    if (!items.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">無資料</td></tr>'; return; }
+    if (!items.length) { tb.innerHTML = '<tr><td colspan="8" style="text-align:center;">無資料</td></tr>'; return; }
     items.forEach((ev,i) => {
         const tr = document.createElement('tr');
         let html = '<td><span style="background:'+color+'; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">'+(i+1)+'</span></td>';
@@ -583,6 +599,7 @@ function renderRankTable(sel, items, fields, color) {
         fields.forEach(f => {
             if (f==='revenue'||f==='amount') html += '<td class="text-right" style="color:'+color+'; font-weight:bold;">'+ntd(ev[f])+'</td>';
             else if (f==='share') html += '<td class="text-right" style="color:#888;">'+ev[f]+'%</td>';
+            else if (f==='eTickets'||f==='pTickets') html += '<td class="text-right">'+cntPct(ev[f]||0, ev.tickets)+'</td>';
             else html += '<td class="text-right">'+fmt(ev[f])+'</td>';
         });
         tr.innerHTML = html;

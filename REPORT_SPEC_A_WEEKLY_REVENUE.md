@@ -38,6 +38,13 @@
 
 ---
 
+### 2.5 電子票/紙票統計（2026/07/09 新增，每日報表沒有）
+
+- **判定規則**（沿用 `generate_report_dec_2025_final.js` 慣例）：`取票方式 === '未列印'` → **電子票**；`取票方式 === '已取'` → **紙票**。僅統計正常交易。
+- **每日交易統計表**：在「購票張數」後新增「電子票 (E-Ticket)」「紙票 (Paper)」兩欄，格式 `張數 (占比%)`，占比為佔**當日購票張數**比例；總計列同格式，占比為佔週總張數比例。
+- **銷售排行 Top 5（by 金額 & by 張數）**：在「張數」後新增「電子票」「紙票」兩欄，格式相同，占比為佔**該節目張數**比例。
+- 對應 `aggData` 欄位：`dailyStats[].eTickets / .pTickets`、`topByRevenue[].eTickets / .pTickets`、`topByTickets[].eTickets / .pTickets`；前端以 `cntPct(n, total)` 渲染。
+
 ## 3. 沿用每日報表的部分
 
 以下皆與 `REPORT_SPEC_A_DAILY_REVENUE.md` 相同，不再重複：

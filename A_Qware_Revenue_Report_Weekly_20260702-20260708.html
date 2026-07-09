@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ibon售票系統 2026年07月02日 - 2026年07月08日 週報分析報表 (A系統) - 2026/7/9 上午10:30:37</title>
+    <title>ibon售票系統 2026年07月02日 - 2026年07月08日 週報分析報表 (A系統) - 2026/7/9 上午10:36:27</title>
     <!-- IP Allowlist: internal network only -->
     <style>html { visibility: hidden; }</style>
     <script>
@@ -96,7 +96,7 @@
             </div>
         </div>
         <div class="meta">
-            產出時間: 2026/7/9 上午10:30:37<br>
+            產出時間: 2026/7/9 上午10:36:27<br>
             總資料筆數: <span id="meta-total-rows">--</span><br>
             製表者: 自動產出
         </div>
@@ -119,13 +119,15 @@
                 <th>日期 (Date)</th>
                 <th class="text-right">購票筆數 (Orders)</th>
                 <th class="text-right">購票張數 (Tickets)</th>
+                <th class="text-right">電子票 (E-Ticket)</th>
+                <th class="text-right">紙票 (Paper)</th>
                 <th class="text-right">購票金額 (Revenue)</th>
                 <th class="text-right">退票張數 (Refund)</th>
                 <th class="text-right">退票手續費 (Fees)</th>
             </tr></thead>
             <tbody></tbody>
         </table>
-        <div style="margin-top: 8px; text-align: right; font-size: 0.8em; color: #888;">* 購票筆數: 不重複訂單編號數 / 購票張數: 實際票券數量</div>
+        <div style="margin-top: 8px; text-align: right; font-size: 0.8em; color: #888;">* 購票筆數: 不重複訂單編號數 / 購票張數: 實際票券數量 / 電子票=取票方式「未列印」、紙票=「已取」，括號內為占當日(或該節目)張數比例</div>
     </div>
 
     <div class="charts-row"><div class="chart-container" style="flex:100%;"><canvas id="trendChart"></canvas></div></div>
@@ -134,7 +136,7 @@
         <div class="table-container">
         <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🏆 銷售排行 Top 5 (By Revenue)</h3>
         <table id="topEventsTable"><thead><tr>
-            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">佔比</th>
+            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">電子票</th><th class="text-right">紙票</th><th class="text-right">金額</th><th class="text-right">佔比</th>
         </tr></thead><tbody></tbody></table>
         <div id="eventDetailModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
            <div style="background:white; margin:auto; margin-top:5%; padding:20px; border-radius:12px; max-width:800px; width:90%; max-height:80vh; overflow-y:auto; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
@@ -151,7 +153,7 @@
     <div class="table-container">
         <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🎟️ 銷售排行 Top 5 (By Tickets)</h3>
         <table id="topTicketsTable"><thead><tr>
-            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th>
+            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">電子票</th><th class="text-right">紙票</th><th class="text-right">金額</th>
         </tr></thead><tbody></tbody></table>
     </div>
 
@@ -178,11 +180,12 @@
 </div>
 
 <script>
-const D = {"totalRows":17245,"totalRevenue":14285694,"totalTickets":16403,"totalOrders":8268,"aov":1728,"totalRefundedTickets":842,"totalRefundFees":68386,"dailyStats":[{"date":"2026-07-08","orders":1161,"tickets":2333,"revenue":2010558,"refundTickets":206,"refundFees":13085},{"date":"2026-07-07","orders":1689,"tickets":3303,"revenue":2617258,"refundTickets":177,"refundFees":15268},{"date":"2026-07-06","orders":1487,"tickets":3000,"revenue":2199116,"refundTickets":148,"refundFees":11412},{"date":"2026-07-05","orders":869,"tickets":1758,"revenue":1622398,"refundTickets":63,"refundFees":7640},{"date":"2026-07-04","orders":890,"tickets":1774,"revenue":1696622,"refundTickets":94,"refundFees":7827},{"date":"2026-07-03","orders":962,"tickets":1857,"revenue":1852981,"refundTickets":65,"refundFees":6509},{"date":"2026-07-02","orders":1210,"tickets":2378,"revenue":2286761,"refundTickets":89,"refundFees":6645}],"trendDates":["2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08"],"trendSales":[2286761,1852981,1696622,1622398,2199116,2617258,2010558],"dailyTopTicketEvent":[{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":813},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":650},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":610},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":756},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":1180},{"name":"2026年台灣精品中華職棒明星對抗賽","tickets":1312},{"name":"2026年台灣精品中華職棒明星對抗賽","tickets":911}],"refundTrendDates":["2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08"],"refundTrendAmounts":[6645,6509,7827,7640,11412,15268,13085],"topByRevenue":[{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":1156,"tickets":2463,"revenue":3821150,"share":"26.7","sessions":[{"name":"富邦悍將-樂天桃猿 (2026-07-24)","orders":229,"tickets":504,"revenue":587400,"shareName":"15.4","date":"2026-07-24"},{"name":"富邦悍將-樂天桃猿 (2026-07-25)","orders":486,"tickets":1108,"revenue":1787650,"shareName":"46.8","date":"2026-07-25"},{"name":"富邦悍將-樂天桃猿 (2026-07-26)","orders":181,"tickets":333,"revenue":552500,"shareName":"14.5","date":"2026-07-26"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-28)","orders":41,"tickets":82,"revenue":100700,"shareName":"2.6","date":"2026-08-28"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-29)","orders":108,"tickets":237,"revenue":420900,"shareName":"11.0","date":"2026-08-29"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-30)","orders":111,"tickets":199,"revenue":372000,"shareName":"9.7","date":"2026-08-30"}]},{"name":"中華職棒37年例行賽統一獅主場（下）","orders":2773,"tickets":5745,"revenue":2780095,"share":"19.5","sessions":[{"name":"中信兄弟-統一7-ELEVEn獅 (2026-07-07)","orders":680,"tickets":1348,"revenue":541625,"shareName":"19.5","date":"2026-07-07"},{"name":"中信兄弟-統一7-ELEVEn獅 (2026-07-08)","orders":617,"tickets":1170,"revenue":442700,"shareName":"15.9","date":"2026-07-08"},{"name":"味全龍-統一7-ELEVEn獅 (2026-07-10)","orders":132,"tickets":243,"revenue":109700,"shareName":"3.9","date":"2026-07-10"},{"name":"味全龍-統一7-ELEVEn獅 (2026-07-11)","orders":124,"tickets":263,"revenue":249930,"shareName":"9.0","date":"2026-07-11"},{"name":"味全龍-統一7-ELEVEn獅 (2026-07-12)","orders":151,"tickets":323,"revenue":233610,"shareName":"8.4","date":"2026-07-12"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-07-22)","orders":106,"tickets":216,"revenue":90450,"shareName":"3.3","date":"2026-07-22"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-07-23)","orders":105,"tickets":214,"revenue":95100,"shareName":"3.4","date":"2026-07-23"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-07-28)","orders":76,"tickets":180,"revenue":64695,"shareName":"2.3","date":"2026-07-28"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-07-29)","orders":60,"tickets":136,"revenue":53000,"shareName":"1.9","date":"2026-07-29"},{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-07-31)","orders":90,"tickets":221,"revenue":97850,"shareName":"3.5","date":"2026-07-31"},{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-08-01)","orders":147,"tickets":373,"revenue":226030,"shareName":"8.1","date":"2026-08-01"},{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-08-02)","orders":63,"tickets":144,"revenue":89410,"shareName":"3.2","date":"2026-08-02"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-08-14)","orders":55,"tickets":131,"revenue":54200,"shareName":"1.9","date":"2026-08-14"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-08-15)","orders":97,"tickets":227,"revenue":116690,"shareName":"4.2","date":"2026-08-15"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-08-16)","orders":66,"tickets":144,"revenue":79980,"shareName":"2.9","date":"2026-08-16"},{"name":"味全龍-統一7-ELEVEn獅 (2026-08-25)","orders":24,"tickets":44,"revenue":14150,"shareName":"0.5","date":"2026-08-25"},{"name":"味全龍-統一7-ELEVEn獅 (2026-08-26)","orders":27,"tickets":49,"revenue":16850,"shareName":"0.6","date":"2026-08-26"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-09-04)","orders":17,"tickets":23,"revenue":10875,"shareName":"0.4","date":"2026-09-04"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-09-05)","orders":56,"tickets":136,"revenue":98400,"shareName":"3.5","date":"2026-09-05"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-09-06)","orders":23,"tickets":45,"revenue":32750,"shareName":"1.2","date":"2026-09-06"},{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-09-15)","orders":11,"tickets":27,"revenue":7400,"shareName":"0.3","date":"2026-09-15"},{"name":"味全龍-統一7-ELEVEn獅 (2026-09-24)","orders":14,"tickets":20,"revenue":7900,"shareName":"0.3","date":"2026-09-24"},{"name":"味全龍-統一7-ELEVEn獅 (2026-09-25)","orders":32,"tickets":68,"revenue":46800,"shareName":"1.7","date":"2026-09-25"}]},{"name":"2026年台灣精品中華職棒明星對抗賽","orders":2020,"tickets":4062,"revenue":2313745,"share":"16.2","sessions":[{"name":"明星隊-中華隊 (2026-07-18)","orders":1144,"tickets":2401,"revenue":1227395,"shareName":"53.0","date":"2026-07-18"},{"name":"明星隊-中華隊 (2026-07-19)","orders":876,"tickets":1661,"revenue":1086350,"shareName":"47.0","date":"2026-07-19"}]},{"name":"2026 角頭GATAO唱演會—情義到高雄","orders":195,"tickets":363,"revenue":1049421,"share":"7.3","sessions":[{"name":"2026 角頭GATAO唱演會—情義到高雄 (2026-08-22)","orders":64,"tickets":119,"revenue":400913,"shareName":"38.2","date":"2026-08-22"},{"name":"2026 角頭GATAO唱演會—情義到高雄 (2026-08-23)","orders":131,"tickets":244,"revenue":648508,"shareName":"61.8","date":"2026-08-23"}]},{"name":"2026 7–ELEVEN 高雄啤酒音樂節","orders":486,"tickets":709,"revenue":959155,"share":"6.7","sessions":[{"name":"2026 7–ELEVEN 高雄啤酒音樂節 (2026-07-03)","orders":165,"tickets":221,"revenue":220946,"shareName":"23.0","date":"2026-07-03"},{"name":"2026 7–ELEVEN 高雄啤酒音樂節 (2026-07-04)","orders":143,"tickets":235,"revenue":322585,"shareName":"33.6","date":"2026-07-04"},{"name":"2026 7–ELEVEN 高雄啤酒音樂節 (2026-07-05)","orders":178,"tickets":253,"revenue":415624,"shareName":"43.3","date":"2026-07-05"}]}],"topByTickets":[{"name":"中華職棒37年例行賽統一獅主場（下）","orders":2773,"tickets":5745,"revenue":2780095},{"name":"2026年台灣精品中華職棒明星對抗賽","orders":2020,"tickets":4062,"revenue":2313745},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":1156,"tickets":2463,"revenue":3821150},{"name":"中華職棒37年Rakuten主場例行賽","orders":924,"tickets":1855,"revenue":827700},{"name":"2026 7–ELEVEN 高雄啤酒音樂節","orders":486,"tickets":709,"revenue":959155}],"topRefunds":[{"name":"2026年台灣精品中華職棒明星對抗賽","orders":163,"tickets":280,"amount":17641},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":48,"tickets":77,"amount":13580},{"name":"中華職棒37年例行賽統一獅主場（下）","orders":112,"tickets":236,"amount":10563},{"name":"2026 角頭GATAO唱演會—情義到高雄","orders":18,"tickets":40,"amount":6760},{"name":"中華職棒37年Rakuten主場例行賽","orders":67,"tickets":108,"amount":5240}],"paymentList":[{"name":"信用卡","orders":6776,"tickets":13673,"revenue":11686745,"share":"81.8"},{"name":"現金","orders":1341,"tickets":2495,"revenue":1892344,"share":"13.2"},{"name":"LINE Pay","orders":122,"tickets":190,"revenue":584306,"share":"4.1"},{"name":"行動支付","orders":20,"tickets":32,"revenue":86839,"share":"0.6"},{"name":"ATM虛擬帳號","orders":9,"tickets":13,"revenue":35460,"share":"0.2"}],"salesPointList":[{"name":"網站手機","orders":6858,"tickets":13719,"revenue":12234480,"share":"85.6"},{"name":"ibon","orders":1307,"tickets":2456,"revenue":1878589,"share":"13.2"},{"name":"APP購票","orders":103,"tickets":228,"revenue":172625,"share":"1.2"}]};
+const D = {"totalRows":17245,"totalRevenue":14285694,"totalTickets":16403,"totalOrders":8268,"aov":1728,"totalRefundedTickets":842,"totalRefundFees":68386,"dailyStats":[{"date":"2026-07-08","orders":1161,"tickets":2333,"revenue":2010558,"eTickets":1281,"pTickets":1052,"refundTickets":206,"refundFees":13085},{"date":"2026-07-07","orders":1689,"tickets":3303,"revenue":2617258,"eTickets":1649,"pTickets":1654,"refundTickets":177,"refundFees":15268},{"date":"2026-07-06","orders":1487,"tickets":3000,"revenue":2199116,"eTickets":1178,"pTickets":1822,"refundTickets":148,"refundFees":11412},{"date":"2026-07-05","orders":869,"tickets":1758,"revenue":1622398,"eTickets":582,"pTickets":1176,"refundTickets":63,"refundFees":7640},{"date":"2026-07-04","orders":890,"tickets":1774,"revenue":1696622,"eTickets":527,"pTickets":1247,"refundTickets":94,"refundFees":7827},{"date":"2026-07-03","orders":962,"tickets":1857,"revenue":1852981,"eTickets":608,"pTickets":1249,"refundTickets":65,"refundFees":6509},{"date":"2026-07-02","orders":1210,"tickets":2378,"revenue":2286761,"eTickets":842,"pTickets":1536,"refundTickets":89,"refundFees":6645}],"trendDates":["2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08"],"trendSales":[2286761,1852981,1696622,1622398,2199116,2617258,2010558],"dailyTopTicketEvent":[{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":813},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":650},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":610},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":756},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":1180},{"name":"2026年台灣精品中華職棒明星對抗賽","tickets":1312},{"name":"2026年台灣精品中華職棒明星對抗賽","tickets":911}],"refundTrendDates":["2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08"],"refundTrendAmounts":[6645,6509,7827,7640,11412,15268,13085],"topByRevenue":[{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":1156,"tickets":2463,"revenue":3821150,"eTickets":1077,"pTickets":1386,"share":"26.7","sessions":[{"name":"富邦悍將-樂天桃猿 (2026-07-24)","orders":229,"tickets":504,"revenue":587400,"shareName":"15.4","date":"2026-07-24"},{"name":"富邦悍將-樂天桃猿 (2026-07-25)","orders":486,"tickets":1108,"revenue":1787650,"shareName":"46.8","date":"2026-07-25"},{"name":"富邦悍將-樂天桃猿 (2026-07-26)","orders":181,"tickets":333,"revenue":552500,"shareName":"14.5","date":"2026-07-26"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-28)","orders":41,"tickets":82,"revenue":100700,"shareName":"2.6","date":"2026-08-28"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-29)","orders":108,"tickets":237,"revenue":420900,"shareName":"11.0","date":"2026-08-29"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-30)","orders":111,"tickets":199,"revenue":372000,"shareName":"9.7","date":"2026-08-30"}]},{"name":"中華職棒37年例行賽統一獅主場（下）","orders":2773,"tickets":5745,"revenue":2780095,"eTickets":907,"pTickets":4838,"share":"19.5","sessions":[{"name":"中信兄弟-統一7-ELEVEn獅 (2026-07-07)","orders":680,"tickets":1348,"revenue":541625,"shareName":"19.5","date":"2026-07-07"},{"name":"中信兄弟-統一7-ELEVEn獅 (2026-07-08)","orders":617,"tickets":1170,"revenue":442700,"shareName":"15.9","date":"2026-07-08"},{"name":"味全龍-統一7-ELEVEn獅 (2026-07-10)","orders":132,"tickets":243,"revenue":109700,"shareName":"3.9","date":"2026-07-10"},{"name":"味全龍-統一7-ELEVEn獅 (2026-07-11)","orders":124,"tickets":263,"revenue":249930,"shareName":"9.0","date":"2026-07-11"},{"name":"味全龍-統一7-ELEVEn獅 (2026-07-12)","orders":151,"tickets":323,"revenue":233610,"shareName":"8.4","date":"2026-07-12"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-07-22)","orders":106,"tickets":216,"revenue":90450,"shareName":"3.3","date":"2026-07-22"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-07-23)","orders":105,"tickets":214,"revenue":95100,"shareName":"3.4","date":"2026-07-23"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-07-28)","orders":76,"tickets":180,"revenue":64695,"shareName":"2.3","date":"2026-07-28"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-07-29)","orders":60,"tickets":136,"revenue":53000,"shareName":"1.9","date":"2026-07-29"},{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-07-31)","orders":90,"tickets":221,"revenue":97850,"shareName":"3.5","date":"2026-07-31"},{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-08-01)","orders":147,"tickets":373,"revenue":226030,"shareName":"8.1","date":"2026-08-01"},{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-08-02)","orders":63,"tickets":144,"revenue":89410,"shareName":"3.2","date":"2026-08-02"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-08-14)","orders":55,"tickets":131,"revenue":54200,"shareName":"1.9","date":"2026-08-14"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-08-15)","orders":97,"tickets":227,"revenue":116690,"shareName":"4.2","date":"2026-08-15"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-08-16)","orders":66,"tickets":144,"revenue":79980,"shareName":"2.9","date":"2026-08-16"},{"name":"味全龍-統一7-ELEVEn獅 (2026-08-25)","orders":24,"tickets":44,"revenue":14150,"shareName":"0.5","date":"2026-08-25"},{"name":"味全龍-統一7-ELEVEn獅 (2026-08-26)","orders":27,"tickets":49,"revenue":16850,"shareName":"0.6","date":"2026-08-26"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-09-04)","orders":17,"tickets":23,"revenue":10875,"shareName":"0.4","date":"2026-09-04"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-09-05)","orders":56,"tickets":136,"revenue":98400,"shareName":"3.5","date":"2026-09-05"},{"name":"台鋼雄鷹-統一7-ELEVEn獅 (2026-09-06)","orders":23,"tickets":45,"revenue":32750,"shareName":"1.2","date":"2026-09-06"},{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-09-15)","orders":11,"tickets":27,"revenue":7400,"shareName":"0.3","date":"2026-09-15"},{"name":"味全龍-統一7-ELEVEn獅 (2026-09-24)","orders":14,"tickets":20,"revenue":7900,"shareName":"0.3","date":"2026-09-24"},{"name":"味全龍-統一7-ELEVEn獅 (2026-09-25)","orders":32,"tickets":68,"revenue":46800,"shareName":"1.7","date":"2026-09-25"}]},{"name":"2026年台灣精品中華職棒明星對抗賽","orders":2020,"tickets":4062,"revenue":2313745,"eTickets":3140,"pTickets":922,"share":"16.2","sessions":[{"name":"明星隊-中華隊 (2026-07-18)","orders":1144,"tickets":2401,"revenue":1227395,"shareName":"53.0","date":"2026-07-18"},{"name":"明星隊-中華隊 (2026-07-19)","orders":876,"tickets":1661,"revenue":1086350,"shareName":"47.0","date":"2026-07-19"}]},{"name":"2026 角頭GATAO唱演會—情義到高雄","orders":195,"tickets":363,"revenue":1049421,"eTickets":261,"pTickets":102,"share":"7.3","sessions":[{"name":"2026 角頭GATAO唱演會—情義到高雄 (2026-08-22)","orders":64,"tickets":119,"revenue":400913,"shareName":"38.2","date":"2026-08-22"},{"name":"2026 角頭GATAO唱演會—情義到高雄 (2026-08-23)","orders":131,"tickets":244,"revenue":648508,"shareName":"61.8","date":"2026-08-23"}]},{"name":"2026 7–ELEVEN 高雄啤酒音樂節","orders":486,"tickets":709,"revenue":959155,"eTickets":1,"pTickets":708,"share":"6.7","sessions":[{"name":"2026 7–ELEVEN 高雄啤酒音樂節 (2026-07-03)","orders":165,"tickets":221,"revenue":220946,"shareName":"23.0","date":"2026-07-03"},{"name":"2026 7–ELEVEN 高雄啤酒音樂節 (2026-07-04)","orders":143,"tickets":235,"revenue":322585,"shareName":"33.6","date":"2026-07-04"},{"name":"2026 7–ELEVEN 高雄啤酒音樂節 (2026-07-05)","orders":178,"tickets":253,"revenue":415624,"shareName":"43.3","date":"2026-07-05"}]}],"topByTickets":[{"name":"中華職棒37年例行賽統一獅主場（下）","orders":2773,"tickets":5745,"revenue":2780095,"eTickets":907,"pTickets":4838},{"name":"2026年台灣精品中華職棒明星對抗賽","orders":2020,"tickets":4062,"revenue":2313745,"eTickets":3140,"pTickets":922},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":1156,"tickets":2463,"revenue":3821150,"eTickets":1077,"pTickets":1386},{"name":"中華職棒37年Rakuten主場例行賽","orders":924,"tickets":1855,"revenue":827700,"eTickets":429,"pTickets":1426},{"name":"2026 7–ELEVEN 高雄啤酒音樂節","orders":486,"tickets":709,"revenue":959155,"eTickets":1,"pTickets":708}],"topRefunds":[{"name":"2026年台灣精品中華職棒明星對抗賽","orders":163,"tickets":280,"amount":17641},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":48,"tickets":77,"amount":13580},{"name":"中華職棒37年例行賽統一獅主場（下）","orders":112,"tickets":236,"amount":10563},{"name":"2026 角頭GATAO唱演會—情義到高雄","orders":18,"tickets":40,"amount":6760},{"name":"中華職棒37年Rakuten主場例行賽","orders":67,"tickets":108,"amount":5240}],"paymentList":[{"name":"信用卡","orders":6776,"tickets":13673,"revenue":11686745,"share":"81.8"},{"name":"現金","orders":1341,"tickets":2495,"revenue":1892344,"share":"13.2"},{"name":"LINE Pay","orders":122,"tickets":190,"revenue":584306,"share":"4.1"},{"name":"行動支付","orders":20,"tickets":32,"revenue":86839,"share":"0.6"},{"name":"ATM虛擬帳號","orders":9,"tickets":13,"revenue":35460,"share":"0.2"}],"salesPointList":[{"name":"網站手機","orders":6858,"tickets":13719,"revenue":12234480,"share":"85.6"},{"name":"ibon","orders":1307,"tickets":2456,"revenue":1878589,"share":"13.2"},{"name":"APP購票","orders":103,"tickets":228,"revenue":172625,"share":"1.2"}]};
 
 function fmt(n) { return n.toLocaleString(); }
 function ntd(n) { return 'NT$ ' + fmt(n); }
 function wan(n) { return 'NT$ ' + (n / 10000).toFixed(1) + ' 萬'; }
+function cntPct(n, total) { return fmt(n) + ' <span style="color:#888;font-size:0.85em;">(' + (total ? (n / total * 100).toFixed(1) : '0.0') + '%)</span>'; }
 
 function init() {
     document.getElementById('meta-total-rows').innerText = fmt(D.totalRows);
@@ -195,13 +198,15 @@ function init() {
 
     // Daily Stats Table
     const dtb = document.querySelector('#dailyStatsTable tbody');
-    let sO=0,sT=0,sR=0,sRT=0,sRF=0;
+    let sO=0,sT=0,sR=0,sE=0,sP=0,sRT=0,sRF=0;
     D.dailyStats.forEach(d => {
-        sO+=d.orders; sT+=d.tickets; sR+=d.revenue; sRT+=d.refundTickets; sRF+=d.refundFees;
+        sO+=d.orders; sT+=d.tickets; sR+=d.revenue; sE+=(d.eTickets||0); sP+=(d.pTickets||0); sRT+=d.refundTickets; sRF+=d.refundFees;
         const tr = document.createElement('tr');
         tr.innerHTML = '<td style="font-weight:500;">'+d.date+'</td>'
             +'<td class="text-right">'+fmt(d.orders)+'</td>'
             +'<td class="text-right">'+fmt(d.tickets)+'</td>'
+            +'<td class="text-right">'+cntPct(d.eTickets||0, d.tickets)+'</td>'
+            +'<td class="text-right">'+cntPct(d.pTickets||0, d.tickets)+'</td>'
             +'<td class="text-right">'+wan(d.revenue)+'</td>'
             +'<td class="text-right" style="color:#c62828;">'+fmt(d.refundTickets)+'</td>'
             +'<td class="text-right" style="color:#c62828;">'+(d.refundFees>0?ntd(d.refundFees):'-')+'</td>';
@@ -212,6 +217,8 @@ function init() {
     ttr.innerHTML = '<td style="font-weight:700;">總計 (Total)</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sO)+'</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sT)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+cntPct(sE, sT)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+cntPct(sP, sT)+'</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+wan(sR)+'</td>'
         +'<td class="text-right" style="color:#c62828;">'+fmt(sRT)+'</td>'
         +'<td class="text-right" style="color:#c62828;">'+(sRF>0?ntd(sRF):'-')+'</td>';
@@ -235,9 +242,9 @@ function init() {
     });
 
     // Top Events by Revenue
-    renderRankTable('#topEventsTable', D.topByRevenue, ['orders','tickets','revenue','share'], 'var(--accent-color)');
+    renderRankTable('#topEventsTable', D.topByRevenue, ['orders','tickets','eTickets','pTickets','revenue','share'], 'var(--accent-color)');
     // Top Events by Tickets
-    renderRankTable('#topTicketsTable', D.topByTickets, ['orders','tickets','revenue'], 'var(--accent-color)');
+    renderRankTable('#topTicketsTable', D.topByTickets, ['orders','tickets','eTickets','pTickets','revenue'], 'var(--accent-color)');
     // Top Refunds
     renderRankTable('#topRefundTable', D.topRefunds, ['orders','tickets','amount'], '#c62828');
 
@@ -249,7 +256,7 @@ function init() {
 
 function renderRankTable(sel, items, fields, color) {
     const tb = document.querySelector(sel+' tbody');
-    if (!items.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">無資料</td></tr>'; return; }
+    if (!items.length) { tb.innerHTML = '<tr><td colspan="8" style="text-align:center;">無資料</td></tr>'; return; }
     items.forEach((ev,i) => {
         const tr = document.createElement('tr');
         let html = '<td><span style="background:'+color+'; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">'+(i+1)+'</span></td>';
@@ -261,6 +268,7 @@ function renderRankTable(sel, items, fields, color) {
         fields.forEach(f => {
             if (f==='revenue'||f==='amount') html += '<td class="text-right" style="color:'+color+'; font-weight:bold;">'+ntd(ev[f])+'</td>';
             else if (f==='share') html += '<td class="text-right" style="color:#888;">'+ev[f]+'%</td>';
+            else if (f==='eTickets'||f==='pTickets') html += '<td class="text-right">'+cntPct(ev[f]||0, ev.tickets)+'</td>';
             else html += '<td class="text-right">'+fmt(ev[f])+'</td>';
         });
         tr.innerHTML = html;
