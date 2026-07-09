@@ -58,6 +58,31 @@
     <div class="chart-wrap"><canvas id="chart"></canvas></div>
   </div>
 
+  <div class="card">
+    <h3 style="color:#34d399; margin:0 0 6px; font-size:1.05rem;">🧘 無活動日基線比較（排除所有賽事/活動日）</h3>
+    <div class="subtitle" style="margin-bottom:16px;">只看「活動名稱為空」的日子，觀察 D系統純基礎設施費用的水位與穩定度</div>
+    <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:18px;">
+      <thead><tr style="color:#94a3b8; text-align:right;">
+        <th style="text-align:left; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.1);">月份</th>
+        <th style="padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.1);">無活動天數</th>
+        <th style="padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.1);">平均</th>
+        <th style="padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.1);">中位數</th>
+        <th style="padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.1);">範圍</th>
+      </tr></thead>
+      <tbody style="text-align:right;">
+        <tr><td class="april" style="text-align:left; padding:8px 10px; font-weight:700;">4月</td><td style="padding:8px 10px;">7 天</td><td style="padding:8px 10px;">$4,722</td><td style="padding:8px 10px;">$4,597</td><td style="padding:8px 10px;">$4,345 – $5,430</td></tr>
+        <tr><td class="may" style="text-align:left; padding:8px 10px; font-weight:700;">5月</td><td style="padding:8px 10px;">10 天</td><td style="padding:8px 10px;">$5,177 <span style="color:#64748b;">(剔除活動翌日 $4,871)</span></td><td style="padding:8px 10px;">$4,827</td><td style="padding:8px 10px;">$3,988 – $7,928</td></tr>
+        <tr><td class="june" style="text-align:left; padding:8px 10px; font-weight:700;">6月</td><td style="padding:8px 10px;">12 天</td><td style="padding:8px 10px; font-weight:800;">$4,663</td><td style="padding:8px 10px;">$4,695</td><td style="padding:8px 10px; font-weight:800;">$4,240 – $4,971</td></tr>
+      </tbody>
+    </table>
+    <div style="height:300px; margin-bottom:16px;"><canvas id="baselineChart"></canvas></div>
+    <div class="insight-box" style="margin-bottom:0; background:rgba(52,211,153,0.07); border-color:rgba(52,211,153,0.3);">
+      <h3 style="color:#34d399;">📌 基線結論</h3>
+      <b>6月基線最便宜也最穩定</b>：平均 $4,663，比 4月低 1.2%、比 5月（修正後）低約 4%；12 個無活動日全部落在 $4,240–4,971（波動僅 ±8%），對比 4月會漂到 $5,430、5月甚至出現 $7,928 的無活動日。金額改善幅度不大，但穩定度明顯提升。<br>
+      <b>5月暴露「大活動後縮編延遲」成本</b>：05/18 無任何活動卻花 $7,928，05/19–20 也在 $5,500+ — 正是啤酒節（05/13–14）＋ACON（05/17）爆量後的殘留，資源未即時縮回。若要找省錢空間，<b>加快活動結束後的資源縮編</b>比壓低日常基線更有效。
+    </div>
+  </div>
+
   <div class="spike-box">
     <h3>⚡ 各月峰值事件 (D系統高費用日)</h3>
     <div class="spike-row"><span class="spike-date">05/14</span><span class="spike-val may">$90,618</span><span class="spike-act">7-ELEVEN 高雄啤酒音樂節（全面）＋ 角頭GATAO唱演會</span></div>
@@ -154,6 +179,57 @@ const chart = new Chart(ctx, {
         grid: { display: false },
         ticks: { color: '#94a3b8' },
         title: { display: true, text: '當月日期', color: '#64748b', font: { size: 12 } }
+      }
+    }
+  }
+});
+
+// ── 無活動日基線散點圖 ──
+const baseCtx = document.getElementById('baselineChart').getContext('2d');
+new Chart(baseCtx, {
+  type: 'scatter',
+  data: {
+    datasets: MONTH_META.map(m => ({
+      label: m.key + ' 無活動日',
+      data: m.data.map((v,i) => (v !== null && !m.acts[i]) ? { x: i+1, y: v } : null).filter(Boolean),
+      backgroundColor: m.color,
+      pointRadius: 6,
+      pointHoverRadius: 8
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { color: '#e2e8f0', font: { size: 12 }, padding: 16 } },
+      tooltip: {
+        backgroundColor: 'rgba(15,23,42,0.97)',
+        callbacks: {
+          label: (c) => MONTH_META[c.datasetIndex].key + ' 第' + c.parsed.x + '日: $' + c.parsed.y.toLocaleString()
+        }
+      },
+      datalabels: {
+        display: (c) => c.dataset.data[c.dataIndex].y > 5400,
+        align: 'top', offset: 4,
+        color: (c) => MONTH_META[c.datasetIndex].color,
+        backgroundColor: 'rgba(15,23,42,0.9)',
+        borderRadius: 4,
+        padding: {top:2,bottom:2,left:5,right:5},
+        font: {size:10, weight:'bold'},
+        formatter: (v) => '$' + v.y.toLocaleString()
+      }
+    },
+    scales: {
+      y: {
+        grid: { color: 'rgba(255,255,255,0.05)' },
+        ticks: { color: '#94a3b8', callback: v => '$' + v.toLocaleString() },
+        suggestedMin: 3500
+      },
+      x: {
+        min: 0, max: 32,
+        grid: { display: false },
+        ticks: { color: '#94a3b8', stepSize: 1, callback: v => (v >= 1 && v <= 31) ? String(v).padStart(2,'0') : '' },
+        title: { display: true, text: '當月日期（僅標出無活動日）', color: '#64748b', font: { size: 12 } }
       }
     }
   }
