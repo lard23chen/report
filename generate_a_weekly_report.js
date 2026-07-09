@@ -444,17 +444,17 @@ async function generateWeeklyReport() {
 
     <!-- Daily Transaction Stats Table -->
     <div class="table-container">
-        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">📊 每日交易統計 (Daily Transaction Statistics)</h3>
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">📊 每日交易統計</h3>
         <table id="dailyStatsTable">
             <thead><tr>
-                <th>日期 (Date)</th>
-                <th class="text-right">購票筆數 (Orders)</th>
-                <th class="text-right">購票張數 (Tickets)</th>
-                <th class="text-right">電子票 (E-Ticket)</th>
-                <th class="text-right">紙票 (Paper)</th>
-                <th class="text-right">購票金額 (Revenue)</th>
-                <th class="text-right">退票張數 (Refund)</th>
-                <th class="text-right">退票手續費 (Fees)</th>
+                <th>日期</th>
+                <th class="text-right">購票筆數</th>
+                <th class="text-right">購票張數</th>
+                <th class="text-right">電子票</th>
+                <th class="text-right">紙票</th>
+                <th class="text-right">購票金額</th>
+                <th class="text-right">退票張數</th>
+                <th class="text-right">退票手續費</th>
             </tr></thead>
             <tbody></tbody>
         </table>
@@ -545,7 +545,7 @@ function init() {
     });
     const ttr = document.createElement('tr');
     ttr.style.fontWeight='bold'; ttr.style.borderTop='2px solid var(--accent-color)';
-    ttr.innerHTML = '<td style="font-weight:700;">總計 (Total)</td>'
+    ttr.innerHTML = '<td style="font-weight:700;">總計</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sO)+'</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sT)+'</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+cntPct(sE, sT)+'</td>'
