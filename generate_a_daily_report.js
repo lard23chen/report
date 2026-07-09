@@ -21,8 +21,8 @@ async function generateDailyReport() {
         const db = client.db("QwareAi");
         const collection = db.collection('Qware_A_Ticket_data_Daily');
 
-        console.log("Fetching all data from Qware_A_Ticket_data_Daily...");
-        const data = await collection.find({}).toArray();
+        console.log("Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...");
+        const data = await collection.find({ "訂單編號": { $not: /^B/ } }).toArray();
         console.log(`Fetched ${data.length} records.`);
 
         // Normalize date format
@@ -333,7 +333,7 @@ async function generateDailyReport() {
         <div style="display: flex; align-items: center; gap: 20px;">
             <img src="${logoSrc}" alt="ibon Logo" style="height: 45px;">
             <div>
-                <h1>ibon售票系統 ${dateTitle}</h1>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data_Daily)\n</div>
+                <h1>ibon售票系統 ${dateTitle}</h1>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data_Daily) &middot; 已排除訂單編號 B 開頭之訂單\n</div>
                 
             </div>
         </div>
