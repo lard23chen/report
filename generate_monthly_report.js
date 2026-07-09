@@ -41,7 +41,7 @@ async function generateReport() {
 
         console.log(`Fetching and aggregating ${targetMonth} data...`);
         const rawData = await collection.find(
-            { "交易時間": { $regex: `^${targetMonth}` } },
+            { "交易時間": { $regex: `^${targetMonth}` }, "訂單編號": { $not: /^B/ } },
             { projection: { "交易時間": 1, "售價": 1, "狀態": 1, "訂單編號": 1, "節目/商品名稱": 1, "業態別": 1, "付款方式": 1, "銷售點": 1, "手續費": 1, "實退金額": 1, "退票時間": 1, "退票因素": 1, "會員編號": 1 } }
         ).toArray();
 
@@ -225,7 +225,8 @@ async function generateReport() {
             .replace(/\\n/g, '\n')
             .replace(/\$\{dateTitle\}/g, titleFull)
             .replace(/\$\{reportTime\}/g, reportTime)
-            .replace("${logoBase64 ? logoBase64 : 'https://ticket.ibon.com.tw/assets/img/logo.png'}", logoBase64 || 'https://ticket.ibon.com.tw/assets/img/logo.png');
+            .replace("${logoBase64 ? logoBase64 : 'https://ticket.ibon.com.tw/assets/img/logo.png'}", logoBase64 || 'https://ticket.ibon.com.tw/assets/img/logo.png')
+            .replace('Data Source: MongoDB (QwareAi / Qware_A_Ticket_data)', 'Data Source: MongoDB (QwareAi / Qware_Ticket_Data) &middot; 已排除訂單編號 B 開頭之訂單');
 
         const uiPart = uiTemplate.split("    const dbData = '__DB_DATA_PLACEHOLDER__';")[0];
 
