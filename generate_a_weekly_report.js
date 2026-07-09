@@ -26,6 +26,50 @@ function getWeekRange() {
     return { start: iso(start), end: iso(end), startDate: start, endDate: end };
 }
 
+// 在 report_index.html「週報報表分析」Tab (tab7) grid 最上方插入本週卡片；已存在同檔名連結則略過
+function updateIndexTab7(fileName, week) {
+    const indexPath = path.join(__dirname, 'report_index.html');
+    if (!fs.existsSync(indexPath)) { console.log('report_index.html not found, skip tab7 update.'); return; }
+    let html = fs.readFileSync(indexPath, 'utf-8');
+    if (html.includes(fileName)) { console.log('Tab7 card already exists, skip.'); return; }
+    const slash = (s) => s.replace(/-/g, '/');
+    const card = `
+                <div class="card">
+                    <div class="card-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">🗓️</div>
+                    <div class="card-content">
+                        <h3>週報 分析報表 (A系統) ${slash(week.start)}~${slash(week.end)}</h3>
+                        <p>${slash(week.start)}（週四）～${slash(week.end)}（週三）整週營收分析（排除 B 開頭訂單），包含每日趨勢、銷售排行、付款方式與銷售點分析。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">Weekly</span>
+                        <a href="${fileName}" class="btn-link" style="background-color: #06b6d4;">查看報表</a>
+                    </div>
+                </div>`;
+    const gridOpen = /(<div id="tab7" class="tab-content">\s*<div class="grid">)/;
+    if (!gridOpen.test(html)) { console.log('Tab7 grid not found, skip.'); return; }
+    html = html.replace(gridOpen, `$1${card}`);
+    fs.writeFileSync(indexPath, html, 'utf-8');
+    console.log('report_index.html tab7 card inserted.');
+}
+
+// 更新 HTML_Report_Catalog.html 週報列：連結/顯示檔名換成最新一週，並更新時間戳
+function updateCatalogRow(fileName) {
+    const catPath = path.join(__dirname, 'HTML_Report_Catalog.html');
+    if (!fs.existsSync(catPath)) { console.log('HTML_Report_Catalog.html not found, skip catalog update.'); return; }
+    let html = fs.readFileSync(catPath, 'utf-8');
+    if (!/A_Qware_Revenue_Report_Weekly[^"<]*\.html/.test(html)) { console.log('Weekly row not found in catalog, skip.'); return; }
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const nowStr = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    html = html.replace(/A_Qware_Revenue_Report_Weekly[^"<]*\.html/g, fileName);
+    html = html.replace(/<td class="update-time">[^<]*<\/td>(\s*<td><a href="[^"]*A_Qware_Revenue_Report_Weekly)/,
+        `<td class="update-time">${nowStr}</td>$1`);
+    html = html.replace(/(每週四 08:30[\s\S]{0,300}?<span class="run-time">)[^<]*/,
+        `$1${nowStr}`);
+    fs.writeFileSync(catPath, html, 'utf-8');
+    console.log('HTML_Report_Catalog.html weekly row updated.');
+}
+
 async function generateWeeklyReport() {
     try {
         console.log("Connecting to MongoDB...");
@@ -593,7 +637,9 @@ init();
 </body>
 </html>`;
 
-        const fileName = 'A_Qware_Revenue_Report_Weekly.html';
+        // 檔名帶上週期日期，避免每週覆蓋（例：A_Qware_Revenue_Report_Weekly_20260702-20260708.html）
+        const compact = (s) => s.replace(/-/g, '');
+        const fileName = `A_Qware_Revenue_Report_Weekly_${compact(week.start)}-${compact(week.end)}.html`;
         const filePath = path.join(__dirname, fileName);
 
         const safeAggData = JSON.stringify(aggData);
@@ -601,6 +647,9 @@ init();
 
         fs.writeFileSync(filePath, finalHtml);
         console.log(`Report generated: ${filePath} (${(Buffer.byteLength(finalHtml) / 1024).toFixed(0)} KB)`);
+
+        updateIndexTab7(fileName, week);
+        updateCatalogRow(fileName);
 
     } catch (e) {
         console.error("Error:", e);

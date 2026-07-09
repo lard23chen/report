@@ -17,7 +17,7 @@ echo Running generate_a_weekly_report.js...
 echo [%date% %time%] Weekly Update Completed. >> weekly_log.txt
 
 echo Pushing to Git...
-git add A_Qware_Revenue_Report_Weekly.html weekly_log.txt
+git add A_Qware_Revenue_Report_Weekly_*.html report_index.html HTML_Report_Catalog.html weekly_log.txt
 git commit -m "Auto Update Weekly Report: %date% %time%"
 git push origin main >> weekly_log.txt 2>&1
 

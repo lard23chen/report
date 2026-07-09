@@ -8,7 +8,7 @@
 
 | 項目 | 說明 |
 |------|------|
-| 報表名稱 | `A_Qware_Revenue_Report_Weekly.html` |
+| 報表名稱 | `A_Qware_Revenue_Report_Weekly_YYYYMMDD-YYYYMMDD.html`（檔名帶週期起訖日，例：`A_Qware_Revenue_Report_Weekly_20260702-20260708.html`） |
 | 產生腳本 | `generate_a_weekly_report.js` |
 | 資料來源 | MongoDB `QwareAi` / `Qware_A_Ticket_data_Daily` |
 | 負責人 | 陳俊良 |
@@ -66,9 +66,16 @@ git commit -m "Update A weekly revenue report"
 git push origin main
 ```
 
+### 2.4 檔名帶週期日期，每週累積不覆蓋（2026/07/09 起）
+
+- 每週產出**獨立檔案** `A_Qware_Revenue_Report_Weekly_{起始YYYYMMDD}-{結束YYYYMMDD}.html`，歷週報表保留不互相覆蓋。
+- generator 產出報表後會自動做兩件事（皆為冪等，同週重跑不會重複插入）：
+  1. **`report_index.html` tab7 插入本週卡片**：卡片標題與說明文字都帶週期日期（`週報 分析報表 (A系統) YYYY/MM/DD~YYYY/MM/DD`），插在 grid 最上方（最新在前）；若該檔名連結已存在則略過。
+  2. **`HTML_Report_Catalog.html` 週報列改指最新一週**：連結 href、顯示檔名、更新時間、執行狀態時間戳全部換新。
+
 ## 5. 入口連結
 
-- `report_index.html` 導覽儀表板已於 2026/07/09 新增「**週報報表分析**」Tab（`tab7`，位於「本月/上月報表」之後），本報表卡片置於其下（青色 `#06b6d4` 色系、Badge 為 `Weekly`）。
+- `report_index.html` 導覽儀表板已於 2026/07/09 新增「**週報報表分析**」Tab（`tab7`，位於「本月/上月報表」之後），歷週報表卡片依週期由新到舊排列（青色 `#06b6d4` 色系、Badge 為 `Weekly`）。卡片由 generator 自動插入（見 §2.4），**勿手動增刪 tab7 grid 內的卡片結構**。
 
 ## 6. 注意事項
 

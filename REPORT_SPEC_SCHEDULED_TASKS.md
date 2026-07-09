@@ -163,8 +163,11 @@ git add . && git commit -m "Auto-update GA Traffic Reports: ..." && git push
 
 ```bat
 # 0. 重複執行保護：weekly_log.txt 已有今日 "Weekly Update Completed" → skip
-node generate_a_weekly_report.js   → A_Qware_Revenue_Report_Weekly.html（上週四~本週三，排除B開頭訂單）
-git add A_Qware_Revenue_Report_Weekly.html weekly_log.txt
+node generate_a_weekly_report.js
+#   → A_Qware_Revenue_Report_Weekly_YYYYMMDD-YYYYMMDD.html（上週四~本週三，排除B開頭訂單，每週獨立檔案）
+#   → 自動在 report_index.html tab7 插入本週卡片（最新在最上方）
+#   → 自動更新 HTML_Report_Catalog.html 週報列連結與時間戳
+git add A_Qware_Revenue_Report_Weekly_*.html report_index.html HTML_Report_Catalog.html weekly_log.txt
 git commit -m "Auto Update Weekly Report: ..." && git push origin main
 ```
 

@@ -342,11 +342,15 @@
                 <li>
                     <span class="step-num">1</span>
                     <span><span class="mono">generate_a_weekly_report.js</span> <span class="arrow">→</span>
-                    <a href="https://lard23chen.github.io/report/A_Qware_Revenue_Report_Weekly.html" target="_blank">A_Qware_Revenue_Report_Weekly.html</a>（上週四~本週三，排除B開頭訂單）</span>
+                    <span class="mono">A_Qware_Revenue_Report_Weekly_YYYYMMDD-YYYYMMDD.html</span>（上週四~本週三，排除B開頭訂單，每週獨立檔案）</span>
                 </li>
                 <li>
                     <span class="step-num">2</span>
-                    <span>git add（僅週報 HTML 與 log）· commit · push origin main</span>
+                    <span>自動插入 report_index.html tab7 本週卡片 · 更新 HTML_Report_Catalog.html 週報列</span>
+                </li>
+                <li>
+                    <span class="step-num">3</span>
+                    <span>git add（僅週報相關檔案與 log）· commit · push origin main</span>
                 </li>
             </ul>
             <div>資料來源：<span class="src-tag">Qware_A_Ticket_data_Daily</span></div>
