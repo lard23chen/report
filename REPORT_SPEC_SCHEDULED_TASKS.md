@@ -14,6 +14,7 @@
 | `Update_GA_Report_0800` | `update_ga_report.bat` | 每日 08:00 | 2026/07/06 15:00（成功，git 記錄） | Ready |
 | `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | 同上 | Ready |
 | `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/07/06 09:10（成功，git 記錄） | Ready |
+| `Qware_Weekly_Report_Update` | `weekly_update.bat` | 每週四 08:30 | 2026/07/09 10:21（建立時手動驗證成功，git `fe5673f`） | Ready |
 | `QwareDailyReport`（HKCU Run） | `daily_update.bat` | 每次使用者登入 | — | 常駐 |
 
 > **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 執行相同的 BAT，前者為原始排程，後者為補強版（設有 WorkingDirectory）。兩者並存確保至少一個成功觸發。
@@ -146,9 +147,40 @@ git add . && git commit -m "Auto-update GA Traffic Reports: ..." && git push
 
 ---
 
-## 5. 維護注意事項
+## 5. weekly_update.bat
 
-### 5.1 常見錯誤碼
+### 5.1 基本資訊
+
+| 項目 | 說明 |
+|------|------|
+| 路徑 | `D:\2025\AI\MongoDB\weekly_update.bat` |
+| 對應排程 | `Qware_Weekly_Report_Update`（每週四 08:30，設有 `StartWhenAvailable` 錯過補跑） |
+| 執行目錄 | `D:\2025\AI\MongoDB` |
+| Log 檔 | `weekly_log.txt` |
+| 建立日期 | 2026/07/09 |
+
+### 5.2 執行步驟
+
+```bat
+# 0. 重複執行保護：weekly_log.txt 已有今日 "Weekly Update Completed" → skip
+node generate_a_weekly_report.js   → A_Qware_Revenue_Report_Weekly.html（上週四~本週三，排除B開頭訂單）
+git add A_Qware_Revenue_Report_Weekly.html weekly_log.txt
+git commit -m "Auto Update Weekly Report: ..." && git push origin main
+```
+
+> 與 `daily_update.bat` 不同，此 BAT 的 `git add` **只加入週報 HTML 與 log**（非 `git add .`），避免把工作區其他未提交變更一起收走（§2.2 已知問題）。
+> 重複執行保護的日期比對使用 `findstr /c:"%TODAY%"`（不含 `[` 前綴），因 `%date%` 格式在互動 shell 與排程器下可能不同（`週四 2026/07/09` vs `2026/07/09 週四`）。
+
+### 5.3 執行時間設計
+
+- **每週四 08:30**：此時「上週四～本週三」一整週資料已完整；資料來源 `Qware_A_Ticket_data_Daily` 為滾動集合（約保留 8 天），週四執行可趕在週初資料被清掉前取得完整一週。
+- 錯過時段（電腦關機/鎖定）由 `StartWhenAvailable` 於下次開機可用時補跑；BAT 內重複執行保護避免同日重跑。
+
+---
+
+## 6. 維護注意事項
+
+### 6.1 常見錯誤碼
 
 | 錯誤碼 | 代號 | 常見原因 | 處理方式 |
 |--------|------|---------|---------|
@@ -160,7 +192,7 @@ git add . && git commit -m "Auto-update GA Traffic Reports: ..." && git push
 2. 確認 `Qware_Daily_Report_Update_Final` 是否成功（Result: 0）
 3. 手動執行 BAT 確認錯誤訊息
 
-### 5.2 登入補跑機制（HKCU Run）
+### 6.2 登入補跑機制（HKCU Run）
 
 因帳號為非系統管理員，無法將排程 Logon Mode 改為「不論是否登入都執行」，改採以下替代方案：
 
@@ -176,7 +208,7 @@ Get-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "Qw
 Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "QwareDailyReport"
 ```
 
-### 5.3 新增排程程式規範
+### 6.3 新增排程程式規範
 
 若需新增排程：
 1. 撰寫 `.bat` 或 `.ps1`，輸出 log 至 `*_log.txt`
@@ -186,7 +218,7 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 
 ---
 
-## 6. 相關連結
+## 7. 相關連結
 
 ### 視覺化儀表板
 
@@ -195,6 +227,7 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 ### 相關規範文檔
 
 - 每日營業報表規範：`REPORT_SPEC_A_DAILY_REVENUE.md`
+- 週報分析報表規範：`REPORT_SPEC_A_WEEKLY_REVENUE.md`
 - GA 流量報表規範：`REPORT_SPEC_GA_EVENTS_TRAFFIC.md`
 - GA 點擊/瀏覽/漏斗報表規範：`REPORT_SPEC_D_GA_CLICKDATA_202606.md` / `REPORT_SPEC_D_GA_PAGEVIEWDATA_202606.md` / `REPORT_SPEC_D_GA_FUNNEL_202606.md`
 - E 系統轉換漏斗規範：`REPORT_SPEC_E_DMP_FUNNEL.md`
@@ -202,5 +235,6 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/07（daily_update.bat 新增 generate_e_dmp_funnel_report.js，E 系統轉換漏斗報表改為每日 08:00 自動更新）*
+*最後更新：2026/07/09（新增 `Qware_Weekly_Report_Update` 排程 + `weekly_update.bat`，A 系統週報每週四 08:30 自動產出）*
+*2026/07/07：daily_update.bat 新增 generate_e_dmp_funnel_report.js，E 系統轉換漏斗報表改為每日 08:00 自動更新*
 *2026/07/06：補記 daily_update.bat 實際步驟：pageview / funnel generator 與 LINE 通知；更新排程總覽最後執行紀錄；註記 git add . 會收走工作區未提交變更*

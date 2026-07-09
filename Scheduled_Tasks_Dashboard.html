@@ -245,6 +245,15 @@
                     <td><span class="badge ok">Ready</span></td>
                 </tr>
                 <tr>
+                    <td><span class="mono">Qware_Weekly_Report_Update</span></td>
+                    <td><a href="https://github.com/lard23chen/report/blob/main/weekly_update.bat" target="_blank">weekly_update.bat</a></td>
+                    <td>每週四 08:30</td>
+                    <td>2026/07/09 10:21</td>
+                    <td><span class="badge ok">✓ 成功 (0)</span></td>
+                    <td>2026/07/16 08:30</td>
+                    <td><span class="badge ok">Ready</span></td>
+                </tr>
+                <tr>
                     <td><span class="mono">TravelExpenseUpdate</span></td>
                     <td><a href="https://github.com/lard23chen/report/blob/main/travel/auto_update.bat" target="_blank">travel/auto_update.bat</a></td>
                     <td>每日 06:00</td>
@@ -320,6 +329,28 @@
             <div style="margin-top:10px;font-size:0.82rem;color:var(--muted);">
                 08:00 取前日完整數據 ／ 15:00 取當日即時更新
             </div>
+        </div>
+
+        <!-- weekly_update.bat -->
+        <div class="bat-card">
+            <h3>📁 weekly_update.bat</h3>
+            <div class="trigger">
+                排程：<span class="mono">Qware_Weekly_Report_Update</span><br>
+                觸發：每週四 08:30（StartWhenAvailable 錯過補跑）／ 執行目錄：<code style="color:#ce93d8">D:\2025\AI\MongoDB</code>
+            </div>
+            <ul class="step-list">
+                <li>
+                    <span class="step-num">1</span>
+                    <span><span class="mono">generate_a_weekly_report.js</span> <span class="arrow">→</span>
+                    <a href="https://lard23chen.github.io/report/A_Qware_Revenue_Report_Weekly.html" target="_blank">A_Qware_Revenue_Report_Weekly.html</a>（上週四~本週三，排除B開頭訂單）</span>
+                </li>
+                <li>
+                    <span class="step-num">2</span>
+                    <span>git add（僅週報 HTML 與 log）· commit · push origin main</span>
+                </li>
+            </ul>
+            <div>資料來源：<span class="src-tag">Qware_A_Ticket_data_Daily</span></div>
+            <div style="margin-top:10px;">Log：<span class="mono">weekly_log.txt</span></div>
         </div>
 
         <!-- travel/auto_update.bat -->

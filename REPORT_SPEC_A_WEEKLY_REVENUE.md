@@ -52,6 +52,13 @@
 
 ## 4. 更新方式
 
+更新頻率：**每週四 08:30 自動排程**（2026/07/09 起）。
+
+- Windows 工作排程器任務：`Qware_Weekly_Report_Update`，執行 `weekly_update.bat`（含重複執行保護與 `StartWhenAvailable` 錯過補跑），log 寫入 `weekly_log.txt`。排程細節見 `REPORT_SPEC_SCHEDULED_TASKS.md` §5。
+- 週四執行時「上週四～本週三」資料已完整，且趕在滾動集合清掉週初資料之前。
+
+手動更新：
+
 ```bash
 node generate_a_weekly_report.js
 git add A_Qware_Revenue_Report_Weekly.html
@@ -59,13 +66,11 @@ git commit -m "Update A weekly revenue report"
 git push origin main
 ```
 
-更新頻率：**手動 / 週次**（尚未排程；如需自動化建議每週四早上執行，此時上週四～本週三資料已完整）。
-
 ## 5. 入口連結
 
 - `report_index.html` 導覽儀表板已於 2026/07/09 新增「**週報報表分析**」Tab（`tab7`，位於「本月/上月報表」之後），本報表卡片置於其下（青色 `#06b6d4` 色系、Badge 為 `Weekly`）。
 
 ## 6. 注意事項
 
-- 資料來源 `Qware_A_Ticket_data_Daily` 為滾動集合（實測約保留 8 天資料），**必須在週三結束後、舊資料被清掉前執行**，否則週初資料可能缺漏。
+- 資料來源 `Qware_A_Ticket_data_Daily` 為滾動集合（實測約保留 8 天資料），**必須在週三結束後、舊資料被清掉前執行**，否則週初資料可能缺漏（每週四 08:30 排程即為此設計）。
 - 修改 HTML 元件時必須同步修改 `generate_a_weekly_report.js`（HTML 由腳本 template 產出，重跑會覆蓋手動修改）。
