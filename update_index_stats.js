@@ -16,11 +16,12 @@ async function updateIndexStats() {
 
         // Pipeline to safely count distinct orders and total tickets
         const pipeline = [
-            // 1. Filter
+            // 1. Filter（排除訂單編號 B 開頭的訂單）
             {
                 $match: {
                     "交易時間": { $exists: true, $ne: null },
-                    "狀態": { $in: ["正常", "退票"] }
+                    "狀態": { $in: ["正常", "退票"] },
+                    "訂單編號": { $not: /^B/ }
                 }
             },
             // 2. Project
@@ -263,7 +264,7 @@ async function updateIndexStats() {
                 ${momHtml}
             </div>
             <div style="margin-top: 1rem; text-align: right; font-size: 0.85rem; color: var(--text-secondary);">
-                * 購票/退票筆數: 不重複訂單編號數 (Orders) / 購票張數: 實際票券數量 (Tickets)
+                * 購票/退票筆數: 不重複訂單編號數 (Orders) / 購票張數: 實際票券數量 (Tickets) / 已排除訂單編號 B 開頭之訂單
             </div>
         </div>
         <!-- STATS_END -->

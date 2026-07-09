@@ -109,6 +109,8 @@ background:
 
 > ⚠️ **重要**：數字必須從 MongoDB `Qware_Ticket_Data` 以 `交易時間` 欄位過濾月份（`$regex: "^YYYY-MM"`），不可使用其他日期欄位（`演出時間`、`退票時間` 等），否則會造成跨月重複計算。
 
+> ⚠️ **排除 B 開頭訂單（2026/07/09 起）**：`update_index_stats.js` 聚合 `$match` 階段以 `"訂單編號": { $not: /^B/ }` 排除訂單編號 B 開頭的訂單，月份統計表、總計列、MoM 分析與趨勢圖數字**皆不含 B 訂單**；表格下方註腳已標明。與週報（`REPORT_SPEC_A_WEEKLY_REVENUE.md`）的排除規則一致。
+
 ### 4.3 趨勢圖 (`revenueTrendChart`)
 
 - **套件**：`Chart.js` + `chartjs-plugin-datalabels@2.0.0`
