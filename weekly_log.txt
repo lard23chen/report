@@ -1,0 +1,9 @@
+[週四 2026/07/09 10:21:21.64] Starting Weekly Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily...
+Fetched 51797 records.
+Weekly range: 2026-07-02 ~ 2026-07-08
+Excluded 32226 B-prefix rows.
+Rows in weekly range: 17245
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Weekly.html (37 KB)
+[週四 2026/07/09 10:21:34.92] Weekly Update Completed. 
