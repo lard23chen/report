@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>D系統 4月 / 5月 / 6月 費用比較</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Outfit','Noto Sans TC',sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 30px 20px; }
+  .container { max-width: 1300px; margin: 0 auto; }
+  h1 { color: #f472b6; font-size: 1.8rem; margin: 0 0 4px; font-weight: 800; }
+  .subtitle { color: #94a3b8; font-size: 0.9rem; margin-bottom: 24px; }
+  .card { background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 28px; margin-bottom: 24px; }
+  .chart-wrap { height: 480px; }
+  .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 20px; }
+  .stat { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px 20px; }
+  .stat .label { color: #94a3b8; font-size: 0.82rem; margin-bottom: 6px; }
+  .stat .val  { font-size: 1.45rem; font-weight: 800; }
+  .stat .sub  { color: #64748b; font-size: 0.8rem; margin-top: 6px; line-height: 1.5; }
+  .april { color: #60a5fa; }
+  .may   { color: #f472b6; }
+  .june  { color: #fbbf24; }
+  .insight-box { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.3); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; line-height: 1.9; font-size: 0.92rem; color: #cbd5e1; }
+  .insight-box h3 { color: #60a5fa; margin: 0 0 10px; font-size: 1rem; }
+  .insight-box b { color: #f8fafc; }
+  .spike-box { background: rgba(244,114,182,0.08); border: 1px solid rgba(244,114,182,0.3); border-radius: 10px; padding: 16px 20px; }
+  .spike-box h3 { color: #f472b6; margin: 0 0 12px; font-size: 1rem; }
+  .spike-row { display: flex; gap: 12px; align-items: baseline; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 7px 0; font-size: 0.88rem; }
+  .spike-row:last-child { border-bottom: none; }
+  .spike-date { color: #e2e8f0; width: 60px; flex-shrink: 0; font-weight: 700; }
+  .spike-val  { width: 90px; flex-shrink: 0; font-weight: 800; }
+  .spike-act  { color: #94a3b8; }
+  .scale-btn { background: rgba(96,165,250,0.15); border: 1px solid rgba(96,165,250,0.4); color: #60a5fa; border-radius: 8px; padding: 6px 16px; font-size: 0.85rem; cursor: pointer; font-family: inherit; margin-bottom: 12px; }
+  .scale-btn:hover { background: rgba(96,165,250,0.3); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>D系統 (AWS) — 2026年 4月 / 5月 / 6月 每日費用比較</h1>
+  <div class="subtitle">Source: daily_expense_report / AzureMonthlyCost_Daily · 單位：元（未稅）</div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">4月 月總計 / 日均</div><div class="val april">$152,445 / $5,082</div><div class="sub">峰值 04/18 $7,832（EXID演唱會）</div></div>
+    <div class="stat"><div class="label">5月 月總計 / 日均</div><div class="val may">$345,919 / $11,159</div><div class="sub">峰值 05/14 $90,618（高雄啤酒音樂節）</div></div>
+    <div class="stat"><div class="label">6月 月總計 / 日均</div><div class="val june">$155,962 / $5,199</div><div class="sub">峰值 06/24 $8,631（大巨蛋運動賽事開賣）</div></div>
+  </div>
+
+  <div class="insight-box">
+    <h3>📌 三個月分析摘要</h3>
+    <b>5月為異常月</b>：月總計 $345,919 是 4月（$152,445）與 6月（$155,962）的約 <b>2.2 倍</b>，異常幾乎全部來自 05/13–14 高雄啤酒音樂節兩天（合計 <b>$163,475，佔 5月全月 47%</b>）；扣除這兩天後 5月其餘 29 天合計 $182,444（日均 $6,291），僅比 4/6 月略高。<br>
+    <b>4月與 6月為正常水位</b>：月總計僅相差 +2.3%（6月略高），日均皆在 $5,100 上下；無活動日基線三個月一致穩定在 $4,200–$5,000，代表 D系統基礎設施費用穩定，費用波動由開賣活動驅動。<br>
+    <b>6月峰值型態健康</b>：高點集中在 06/23–27 中華職棒大巨蛋場次開賣週（最高 $8,631，約日常 1.8 倍），與 5月啤酒節單日衝到日常 18 倍的爆量型態不同，屬正常開賣負載。
+  </div>
+
+  <div class="card">
+    <button class="scale-btn" id="scaleBtn" onclick="toggleScale()">切換 Y 軸：對數（看清 4/6 月細節）</button>
+    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  </div>
+
+  <div class="spike-box">
+    <h3>⚡ 各月峰值事件 (D系統高費用日)</h3>
+    <div class="spike-row"><span class="spike-date">05/14</span><span class="spike-val may">$90,618</span><span class="spike-act">7-ELEVEN 高雄啤酒音樂節（全面）＋ 角頭GATAO唱演會</span></div>
+    <div class="spike-row"><span class="spike-date">05/13</span><span class="spike-val may">$72,857</span><span class="spike-act">7-ELEVEN 高雄啤酒音樂節（中信卡友優先購）</span></div>
+    <div class="spike-row"><span class="spike-date">05/17</span><span class="spike-val may">$24,275</span><span class="spike-act">ACON 2026 IN TAIPEI ＋ COSMOS 1st music concert</span></div>
+    <div class="spike-row"><span class="spike-date">06/24</span><span class="spike-val june">$8,631</span><span class="spike-act">運動賽事開賣（尚未公告）＋ 統一獅主場（下）優先購</span></div>
+    <div class="spike-row"><span class="spike-date">04/18</span><span class="spike-val april">$7,832</span><span class="spike-act">2026 EXID CONCERT EXtra ID in TAIPEI</span></div>
+    <div class="spike-row"><span class="spike-date">06/27</span><span class="spike-val june">$7,270</span><span class="spike-act">中職樂天主場 臺北大巨蛋場次（樂天卡優先購＋全面啟售）＋ FTISLAND</span></div>
+    <div class="spike-row"><span class="spike-date">04/26</span><span class="spike-val april">$6,879</span><span class="spike-act">春魚創意 3D/2D Live《NEXUS 虛實之側》＋ 蔡琴演唱會</span></div>
+    <div class="spike-row"><span class="spike-date">06/06</span><span class="spike-val june">$6,339</span><span class="spike-act">中職樂天主場（樂天聯名卡優先購＋全面販售）</span></div>
+  </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const april = [4477,4616,5457,4377,4345,4601,4906,4586,4591,6057,4597,4824,4867,6394,5205,4662,5430,7832,5241,4702,5185,4645,4660,4977,5416,6879,4912,4770,4793,4441,null];
+const may   = [4959,4265,3988,4100,4417,4155,4578,4778,5668,4756,5083,12075,72857,90618,11661,11567,24275,7928,5633,5551,5446,4875,4673,4677,4945,4802,4569,4593,5055,4630,4742];
+const june  = [4727,4822,4718,5023,5850,6339,5611,4775,4723,4743,4906,4742,4660,4489,4487,4672,5500,4487,4523,5009,4240,4740,5445,8631,6070,5667,7270,4971,5346,4776,null];
+
+const aprilActs = ["","《女神異聞錄5》Persona5加場","Jane Yeh Birthday Tour","","","The Sweet Escape–MablePangjie","Tk Nur A Queens Time福利","豐田裕大FM–SVIP","豐田裕大FM–VIP","Jane Yeh+2am Concert","","OomBam 1st FM","KAO SUPASSARA BIRTHDAY","NEXZ GLOBAL SHOWCASE","Solar+臺南總舖師春季場","LA LA LAND IN CONCERT","","EXID CONCERT EXtra ID","APPLEMIM 1st Weddind Meeting","KAO SUPASSARA周邊","","","TPE48期別FM+Special Performance","GCS春季賽+EXILE AKIRA","春魚3D Live+蔡琴演唱會","春魚2D Live+蔡琴+Yang Yoseop","EXID加開5樓+TPE48全面","統一獅嘉義季票","統一獅嘉義獅卡PLUS","統一獅嘉義全面啟售",""];
+const mayActs   = ["博麗神社+丙午年+EXILE AKIRA加場","Pami in Taipei 2026","","夢想家季後賽","統一獅X三麗鷗季票","屏東黑鮪魚+統一獅三麗鷗兆豐","統一獅X三麗鷗全面開賣","","LUCY 9TH CONCERT","","2026 T CONCERT早鳥","Jane Yeh周邊商品(2場)","7-ELEVEN高雄啤酒音樂節(中信優先)","7-ELEVEN高雄啤酒音樂節+角頭GATAO","蔡琴返場+東海岸大地藝術節+T CONCERT","FTISLAND TOUR FaTe","ACON 2026+COSMOS 1st concert","","","","斯巴達小勇士+夢想家冠軍賽","","CooMIC","角頭GATAO(uniopen優先)","","斯巴達新北(中信優先)","","斯巴達新北(OPENPOINT)","角頭GATAO全面+TPBL+桃園猿主場","斯巴達新北三色周末",""];
+const juneActs  = ["","","","中職樂天主場金猿卡+年間席優先購","中職樂天主場樂猿卡+TPBL冠軍賽+統一獅三麗鷗核銷","中職樂天主場樂天聯名卡優先購+全面販售","統一獅三麗鷗核銷+KIM JI WOONG FM","TRENDY TAIPEI 潮臺北+兩岸電影展","桃園璞園領航猿主場","TRENDY TAIPEI 潮臺北","","","","角頭GATAO唱演會全面開賣","","","桃園璞園領航猿主場 G7","","","LMSY Love in Our Sweet Yard","","Zenless Live 2026","統一獅主場(下)季票+統一獅卡優先購","運動賽事(未公告)+閻奕格+統一獅主場(下)兆豐獅卡","大巨蛋金猿優先+UNDERTALE+統一獅主場(下)全面","大巨蛋樂猿卡優先購+台北羽球公開賽","大巨蛋樂天卡優先購+全面啟售+FTISLAND","","UNDERTALE：The Determination","2026星光女孩日",""];
+
+const labels = Array.from({length:31}, (_,i) => String(i+1).padStart(2,'0'));
+const MONTH_META = [
+  { key: '4月', data: april, acts: aprilActs, color: '#60a5fa', dim: 'rgba(96,165,250,0.4)',  fill: 'rgba(96,165,250,0.08)', align: 'top' },
+  { key: '5月', data: may,   acts: mayActs,   color: '#f472b6', dim: 'rgba(244,114,182,0.4)', fill: 'rgba(244,114,182,0.06)', align: 'bottom' },
+  { key: '6月', data: june,  acts: juneActs,  color: '#fbbf24', dim: 'rgba(251,191,36,0.4)',  fill: 'rgba(251,191,36,0.06)', align: 'top' }
+];
+
+const ctx = document.getElementById('chart').getContext('2d');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: MONTH_META.map(m => ({
+      label: m.key + ' D系統',
+      data: m.data,
+      borderColor: m.color,
+      backgroundColor: m.fill,
+      fill: true,
+      tension: 0.3,
+      borderWidth: 2.5,
+      pointRadius: m.data.map((v,i) => v && m.acts[i] ? 5 : 3),
+      pointBackgroundColor: m.data.map((v,i) => m.acts[i] ? m.color : m.dim),
+      datalabels: {
+        display: (c) => { const v = m.data[c.dataIndex]; return v !== null && v > 6000; },
+        align: m.align, anchor: m.align === 'top' ? 'end' : 'center', offset: m.align === 'top' ? 4 : 6,
+        color: m.color,
+        backgroundColor: 'rgba(15,23,42,0.9)',
+        borderRadius: 4,
+        padding: {top:3,bottom:3,left:6,right:6},
+        font: {size:10, weight:'bold'},
+        formatter: v => '$' + v.toLocaleString()
+      }
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', labels: { color: '#e2e8f0', font: { size: 13 }, padding: 20 } },
+      tooltip: {
+        backgroundColor: 'rgba(15,23,42,0.97)',
+        padding: 14,
+        titleFont: { size: 13 },
+        bodyFont: { size: 13 },
+        callbacks: {
+          title: (items) => '第 ' + items[0].label + ' 日',
+          label: (c) => {
+            const meta = MONTH_META[c.datasetIndex];
+            const v = c.parsed.y;
+            return v !== null ? meta.key + ': $' + v.toLocaleString() : meta.key + ': —';
+          },
+          afterBody: (items) => {
+            const i = items[0].dataIndex;
+            const lines = [];
+            MONTH_META.forEach(m => { if (m.acts[i]) lines.push(m.key + '活動: ' + m.acts[i]); });
+            return lines.length ? ['',...lines] : [];
+          }
+        }
+      },
+      datalabels: { display: false }
+    },
+    scales: {
+      y: {
+        type: 'linear',
+        grid: { color: 'rgba(255,255,255,0.05)' },
+        ticks: { color: '#94a3b8', callback: v => '$' + v.toLocaleString() }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#94a3b8' },
+        title: { display: true, text: '當月日期', color: '#64748b', font: { size: 12 } }
+      }
+    }
+  }
+});
+
+function toggleScale() {
+  const isLinear = chart.options.scales.y.type === 'linear';
+  chart.options.scales.y.type = isLinear ? 'logarithmic' : 'linear';
+  document.getElementById('scaleBtn').innerText = isLinear
+    ? '切換 Y 軸：線性（看清 5月峰值規模）'
+    : '切換 Y 軸：對數（看清 4/6 月細節）';
+  chart.update();
+}
+</script>
+</body>
+</html>
