@@ -226,13 +226,19 @@ const topByRefunds = [...eventList].sort((a,b) => b.refunds - a.refunds).slice(0
 
 ## 8. 報表生成腳本對照表 (Script Reference)
 
-| 月份 | 建議使用腳本 | 備註 |
-|------|------------|------|
-| 2026年01月 | `generate_report_jan_2026_v3.js` | v3 版本，伺服器端預聚合 |
-| 2026年02月 | `generate_report_feb_2026_v3.js` | v3 版本，伺服器端預聚合 |
-| 2026年03月 | `generate_report_mar_2026_v3.js` | v3 版本，伺服器端預聚合 |
+**2026/07/09 起統一使用通用腳本 `generate_monthly_report.js`**（UI 模板動態抽取自 `generate_report_feb_2026.js`）：
 
-> **原則**：未來新增月份報表，請以 v3 腳本為基礎複製修改，僅需調整 MongoDB 查詢月份、`dateTitle`、輸出檔名三處。
+```bash
+node generate_monthly_report.js            # 自動偵測上月（每月 2 日排程執行）
+node generate_monthly_report.js 2026-05    # 手動指定月份
+```
+
+| 月份 | 產出腳本 | 備註 |
+|------|------------|------|
+| 2026年01月～06月 | `generate_monthly_report.js` | 2026/07/09 以新口徑（排除 B 開頭訂單）回溯重產，版面為現行標準模板 |
+| 2025年12月以前 | 各月獨立腳本（jan/feb/mar `_v3` 等） | 舊口徑（含 B 訂單），已封存至 report-archive 庫，未重產 |
+
+> **原則**：新增月份不再複製各月獨立腳本，直接用 `generate_monthly_report.js`（每月 2 日 `daily_update.bat` 已自動執行）。修改報表 UI 元件時，需改 `generate_report_feb_2026.js` 內的 HTML 模板（通用腳本從該檔動態抽取）。
 
 ## 9. Git 管理規範 (Git Management)
 - **提交頻率**: 每完成一項子任務或功能修正後，**必須立即進行 Git 提交 (Commit)**。
@@ -240,5 +246,5 @@ const topByRefunds = [...eventList].sort((a,b) => b.refunds - a.refunds).slice(0
 - **流程確認**: 提交後執行 `git status` 確認工作目錄狀態。
 
 ---
-*最後更新日期: 2026/04/02*
+*最後更新日期: 2026/07/09（新增排除 B 開頭訂單口徑；2026年01月～06月回溯重產；§8 改為通用腳本 generate_monthly_report.js）*
 

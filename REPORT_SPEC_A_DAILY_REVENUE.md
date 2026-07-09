@@ -119,11 +119,7 @@ git push origin main
 
 ## 6. 月度分析報表（A_Qware_Revenue_Report_YYYY年MM月_分析報表）
 
-月度報表與每日報表為不同系列，各月份有獨立腳本。
-
-| 月份 | 腳本 |
-|------|------|
-| 2026年03月 | `generate_report_mar_2026_v3.js` |
+月度報表與每日報表為不同系列。**2026/07 起統一由通用腳本 `generate_monthly_report.js` 產出**（每月 2 日排程自動執行，可帶參數手動指定月份；UI 模板抽取自 `generate_report_feb_2026.js`），並自 2026/07/09 起排除訂單編號 B 開頭之訂單。詳見 `REPORT_SPEC_REVENUE_A.md` §8。
 
 ### 6.1 月度報表特有元件
 
