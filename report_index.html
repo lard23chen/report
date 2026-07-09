@@ -732,6 +732,7 @@
         <!-- Tabs Navigation -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tab1')">本月/上月報表</button>
+            <button class="tab-btn" onclick="switchTab('tab7')">週報報表分析</button>
             <button class="tab-btn" onclick="switchTab('tab3')">歷史報表分析</button>
             <button class="tab-btn" onclick="switchTab('tab4')">各節目報表分析</button>
             <button class="tab-btn" onclick="switchTab('tab5')">會員資料分析</button>
@@ -781,6 +782,23 @@
             </div>
         </div>
 
+
+        <!-- Tab 7: Weekly Reports -->
+        <div id="tab7" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">🗓️</div>
+                    <div class="card-content">
+                        <h3>週報 分析報表 (A系統)</h3>
+                        <p>上週四～本週三整週營收分析（排除 B 開頭訂單），包含每日趨勢、銷售排行、付款方式與銷售點分析。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">Weekly</span>
+                        <a href="A_Qware_Revenue_Report_Weekly.html" class="btn-link" style="background-color: #06b6d4;">查看報表</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Tab 3: History -->
         <div id="tab3" class="tab-content">
@@ -1085,6 +1103,7 @@
         function getTabName(id) {
             const names = {
                 'tab1': '本月/上月報表',
+                'tab7': '週報報表分析',
                 'tab3': '歷史報表分析',
                 'tab4': '各節目報表分析',
                 'tab5': '會員資料分析',

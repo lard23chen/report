@@ -65,8 +65,9 @@ background:
   ├── 📈 趨勢圖區塊
   │   └── <canvas id="revenueTrendChart">
   ├── <div.tabs>  Tab 導覽列
-  └── <div.tab-content> × 5  各 Tab 內容
+  └── <div.tab-content> × 6  各 Tab 內容
       ├── tab1: 本月/上月報表
+      ├── tab7: 週報報表分析
       ├── tab3: 歷史報表分析
       ├── tab4: 各節目報表分析
       ├── tab5: 會員資料分析
@@ -120,7 +121,8 @@ background:
 
 ### 4.4 Tab 導覽列
 
-- 共 5 個 Tab（tab1, tab3, tab4, tab5, tab6）
+- 共 6 個 Tab（tab1, tab7, tab3, tab4, tab5, tab6；tab7「週報報表分析」於 2026/07/09 新增，位於 tab1 之後）
+- 新增 Tab 需同步三處：`.tabs` 內的 `<button>`、對應的 `<div class="tab-content">`、JS `getTabName()` 的名稱對照表
 - 切換動畫：`fadeIn`（`opacity: 0 → 1` + `translateY(10px → 0)`，0.5s）
 - `.tab-btn.active`：藍色文字 + 半透明藍色背景
 
