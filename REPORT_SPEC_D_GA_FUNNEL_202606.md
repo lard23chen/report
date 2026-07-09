@@ -250,6 +250,8 @@ git push origin main
 - 瀏覽量報表：`D_GA_PageViewData_Webb_202606_Report.html`
 - 點擊量報表：`D_GA_ClickData_Webb_202606_Report.html`
 - 規範：`REPORT_SPEC_D_GA_PAGEVIEWDATA_202606.md` / `REPORT_SPEC_D_GA_CLICKDATA_202606.md`
+- E 版對照報表：`E_DMP_Funnel_Report.html`（規範：`REPORT_SPEC_E_DMP_FUNNEL.md`）
+- **頁首互連（2026/07/09 新增）**：header `hdr-tags` 最後有一顆藍色連結標籤「🔗 E系統購票流量轉換 →」（相對路徑連到 `E_DMP_Funnel_Report.html`），對方頁面也有反向連結回本報表。此連結直接寫在 HTML（generator 為 marker 注入式、不會覆蓋），重建頁面模板時需保留。
 
 ---
 *建立日期：2026/06/22｜最後更新：2026/07/06（PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES 改由主 generator 自動產生，新增 DailyData marker 區塊；頁首日期區間與日期篩選器隨每日排程自動更新，修正先前總量已含新資料但頁首仍顯示 06/28 的不一致）*

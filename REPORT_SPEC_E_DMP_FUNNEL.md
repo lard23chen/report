@@ -170,6 +170,7 @@ git push origin main
 
 - 目錄：`HTML_Report_Catalog.html`
 - D 版對照報表：`D_GA_Funnel_202606_Report.html`（規範：`REPORT_SPEC_D_GA_FUNNEL_202606.md`）
+- **頁首互連（2026/07/09 新增）**：header `hdr-tags` 最後有一顆藍色連結標籤「🔗 A系統購票流量轉換 →」（相對路徑連到 `D_GA_Funnel_202606_Report.html`），對方頁面也有反向連結回本報表。此連結直接寫在 HTML（generator 為 marker 注入式、不會覆蓋），重建頁面模板時需保留。
 
 ---
 *建立日期：2026/07/07｜原需求 page_view → add_cart → payment 三階段，因 DMP 無 E 系統 add_cart/payment 事件，經用戶確認改為 page_view → purchase 兩階段（含張數與金額）*
