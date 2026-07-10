@@ -144,7 +144,7 @@ body.edit-on .act-btn{display:inline-block}
   <div class="table-wrap">
     <table id="products-table">
       <thead><tr>
-        <th>類型</th><th>ISIN</th><th>發行商</th><th>銀行</th><th>連結標的</th>
+        <th>類型</th><th>ISIN</th><th>發行商</th><th>銀行</th><th class="num">金額</th><th>連結標的</th>
         <th class="num">距 KI %</th><th class="num">距 KO %</th><th>狀態</th>
         <th>下次觀察日</th><th>到期日</th><th>提示</th><th style="min-width:70px"></th>
       </tr></thead>
@@ -321,6 +321,7 @@ function renderProducts(){
       '<td class="code">'+(p.isin||'—')+'</td>'+
       '<td>'+(p.issuer||'—')+'</td>'+
       '<td>'+(p.custodianBank||'—')+'</td>'+
+      '<td class="num">'+(p.currency||'')+' '+fmt(p.principalAmount)+'</td>'+
       '<td>'+underlyingNames+'</td>'+
       '<td class="num">'+fmtPct(worst.distToKI)+'</td>'+
       '<td class="num">'+fmtPct(worst.distToKO)+'</td>'+
@@ -333,7 +334,7 @@ function renderProducts(){
         '<button class="act-btn act-del" onclick="deleteProduct(\''+p._id+'\')">刪除</button>'+
       '</td>'+
     '</tr>';
-  }).join('') || '<tr><td colspan="12" class="muted" style="text-align:center;padding:20px">尚無資料</td></tr>';
+  }).join('') || '<tr><td colspan="13" class="muted" style="text-align:center;padding:20px">尚無資料</td></tr>';
 }
 
 function renderHistory(){
