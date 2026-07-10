@@ -226,6 +226,20 @@ app.get('/api/structured-products/risk', async (req, res) => {
             const withKI = underlyingResults.filter(u => u.distToKI != null);
             const worst = withKI.length ? withKI.reduce((a, b) => (a.distToKI < b.distToKI ? a : b)) : null;
 
+            // CDRAN 等無股權標的（conditions 為信用/利率連結）的商品，不套用股權 KI/KO 風險模型
+            if (!product.underlyings || product.underlyings.length === 0) {
+                return {
+                    productId: product._id,
+                    riskScore: null,
+                    status: '不適用',
+                    hint: null,
+                    daysToNextFixing,
+                    worstUnderlying: null,
+                    underlyings: [],
+                    conditions: product.conditions || []
+                };
+            }
+
             let riskScore = 0;
             if (worst) {
                 riskScore = 0.40 * worst.proximityScore + 0.20 * daysScore + 0.25 * worst.volScore + 0.15 * worst.breachedScore;
