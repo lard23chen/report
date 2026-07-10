@@ -122,7 +122,7 @@
   <main>
     <header class="doc-header">
       <h1>結構型商品追蹤看板 — 系統分析文件</h1>
-      <div class="meta">版本 v0.1（草稿）・對象:個人 / 理專使用・涵蓋商品:FCN、RCN、DCN、CDRAN 等結構型商品</div>
+      <div class="meta">版本 v1.0（已上線）・對象:個人 / 理專使用・涵蓋商品:FCN、RCN、DCN、CDRAN、SN 等結構型商品・對應規格文件：REPORT_SPEC_STRUCTURED_PRODUCTS.md</div>
     </header>
 
     <section id="overview">
@@ -158,7 +158,7 @@
         <div class="flow-step"><span class="n">3</span><br><b>Email 通知解析</b><br>讀取「Early/Maturity Redemption」通知信,自動登記出場事件與 ISIN</div>
         <div class="flow-step"><span class="n">4</span><br><b>股價 API</b><br>每日抓取連結標的最新價格,自動計算距離障礙價 %</div>
       </div>
-      <p class="card-note">MVP 階段建議先做「手動建檔 + Excel/CSV 匯入」，PDF/Email 自動解析可以列為第二階段（需要針對每家銀行對帳單格式個別寫解析規則）。</p>
+      <p class="card-note">實際上線後採「管理員手動建檔（前端編輯模式）＋ 對帳單資料人工擷取後一次性匯入資料庫」的方式：27 檔商品中，8 檔 UBS/CAKE RCN/DCN 有完整標的/履約價/障礙價，3 檔 UBS CDRAN 用 <code>conditions</code> 記錄信用/利率/匯率條件，其餘 13 檔（HSBC 7、玉山 3、星展 3）僅有金額/到期日等基本資料，待補齊申購確認書後升級。PDF/Email 全自動解析目前尚未實作，列為後續階段。</p>
     </section>
 
     <section id="modules">
@@ -184,17 +184,16 @@
       <p>每一列代表一檔商品，一檔商品可能連結多個標的（worst-of 一籃子股票，如你 RCN 表格中的 NVDA/TSMC 雙標的）：</p>
       <table>
         <tr><th>欄位</th><th>說明</th></tr>
-        <tr><td>商品類型</td><td>FCN / RCN / DCN / CDRAN</td></tr>
-        <tr><td>發行商</td><td>如 BNP、SG、GS、UBS</td></tr>
-        <tr><td>託管銀行</td><td>UBS / HSBC / 玉山 / 星展</td></tr>
-        <tr><td>連結標的</td><td>可多檔（worst-of），各自履約價(strike)</td></tr>
-        <tr><td>KI 障礙價 / 距離%</td><td>入場價與目前價的差距</td></tr>
-        <tr><td>KO 障礙價 / 距離%</td><td>出場價與目前價的差距</td></tr>
-        <tr><td>額外連動條件</td><td>如利率(CMS)、信用事件、匯率條件</td></tr>
-        <tr><td>票息 / 配息頻率</td><td></td></tr>
-        <tr><td>下一觀察日 / 到期日</td><td></td></tr>
-        <tr><td>狀態燈號</td><td><span class="tag safe">安全</span> <span class="tag warn">接近障礙</span> <span class="tag danger">高風險</span></td></tr>
-        <tr><td>風險評分</td><td>系統自動計算（見第 7 節）</td></tr>
+        <tr><td>商品類型</td><td>FCN / RCN / DCN / CDRAN / SN</td></tr>
+        <tr><td>ISIN</td><td>商品識別碼（部分商品尚無 ISIN）</td></tr>
+        <tr><td>發行商 / 託管銀行</td><td>如 BARC、BNP、SG、GS、UBS / UBS、HSBC、玉山證券、星展</td></tr>
+        <tr><td>金額</td><td>幣別 + 本金</td></tr>
+        <tr><td>連結標的</td><td>可多檔（worst-of），各自履約價(strike)；CDRAN 等無股權標的商品則為空，改用「額外連動條件」</td></tr>
+        <tr><td>距 KI % / 距 KO %</td><td>取 worst-of 中距離敲入(KI)最小的標的計算風險；KO 僅作為提前出場提示，不計入風險分數</td></tr>
+        <tr><td>額外連動條件</td><td>CDRAN 等商品的利率(CMS)、信用事件、匯率條件，存於 <code>conditions</code></td></tr>
+        <tr><td>下一觀察日 / 到期日</td><td>到期日僅在真正確定時才填寫，多數商品以下次觀察日（fixings）呈現</td></tr>
+        <tr><td>狀態燈號</td><td><span class="tag safe">安全</span> <span class="tag warn">警戒</span> <span class="tag danger">高風險</span> 灰色「不適用」（無股權標的或資料不全）</td></tr>
+        <tr><td>風險評分</td><td>系統自動計算（見第 7 節），無股權標的商品回傳 null</td></tr>
       </table>
 
       <h3>4.4 已出場歷史紀錄</h3>
@@ -254,67 +253,67 @@
     </section>
 
     <section id="model">
-      <h2>6. 資料模型（ER 結構建議）</h2>
+      <h2>6. 資料模型（已實作）</h2>
       <table>
-        <tr><th>資料表</th><th>關鍵欄位</th></tr>
-        <tr><td><b>products</b>（商品主檔）</td><td>id, product_type(FCN/RCN/DCN/CDRAN), isin, issuer, custodian_bank, currency, principal_amount, coupon_rate, issue_date, maturity_date, status</td></tr>
-        <tr><td><b>underlyings</b>（連結標的，一檔商品對多筆）</td><td>id, product_id(FK), ticker, strike_price, ki_barrier_pct, ko_barrier_pct, last_price, last_price_date</td></tr>
-        <tr><td><b>conditions</b>（額外連動條件，如 CMS 利率、信用事件）</td><td>id, product_id(FK), condition_type, description, threshold</td></tr>
-        <tr><td><b>fixings</b>（觀察日排程）</td><td>id, product_id(FK), fixing_date, is_final, result</td></tr>
-        <tr><td><b>cashflows</b>（出入金 / 配息紀錄）</td><td>id, product_id(FK), date, type(申購/配息/提前贖回/到期贖回), amount</td></tr>
-        <tr><td><b>events_log</b>（已出場歷史）</td><td>id, product_id(FK), event_date, event_type(KO/到期/提前贖回), realized_pnl, source(如來自哪封通知信)</td></tr>
+        <tr><th>Collection</th><th>關鍵欄位</th></tr>
+        <tr><td><b>Structured_Products</b>（商品主檔，一檔商品一筆文件）</td><td>_id, productType(FCN/RCN/DCN/CDRAN/SN), isin, issuer, custodianBank, currency, principalAmount, couponRate, issueDate, maturityDate, status, underlyings[]（內嵌：ticker/strikePrice/koBarrierPct/kiBarrierPct/lastPrice/lastPriceDate）, conditions[]（內嵌：type/description/threshold）, fixings[]（內嵌：date/isFinal/result）, person, note</td></tr>
+        <tr><td><b>Structured_Products_Events</b>（現金流/事件紀錄，一筆事件一筆文件）</td><td>_id, productId(ref), date, type(申購/配息/提前贖回KO/到期贖回), amount, note</td></tr>
       </table>
+      <p class="card-note">實作採 MongoDB 內嵌陣列（underlyings/conditions/fixings 皆為商品主檔內的子陣列），而非原草稿設想的多張正規化資料表；僅現金流事件獨立成另一個 collection。詳細欄位定義請見 <code>REPORT_SPEC_STRUCTURED_PRODUCTS.md</code>。</p>
     </section>
 
     <section id="risk">
-      <h2>7. 風險評分邏輯（建議，需與你確認公式）</h2>
+      <h2>7. 風險評分邏輯（已實作）</h2>
       <table>
-        <tr><th>因子</th><th>權重（建議）</th><th>說明</th></tr>
-        <tr><td>距離 KO 障礙價 %</td><td>40%</td><td>越接近障礙價分數越低（風險越高）</td></tr>
-        <tr><td>剩餘天數至下次觀察日</td><td>20%</td><td>越接近觀察日且逼近障礙，警示等級提高</td></tr>
-        <tr><td>標的近期波動度</td><td>25%</td><td>可用近 20 日歷史波動率估算</td></tr>
-        <tr><td>是否曾經穿價</td><td>15%</td><td>曾經穿過障礙價的標的列為需持續關注</td></tr>
+        <tr><th>因子</th><th>權重</th><th>說明</th></tr>
+        <tr><td>距離 KI（敲入）障礙價 %</td><td>40%</td><td>越接近或已跌破 KI 分數越高（風險越高）；worst-of 取所有標的中距 KI 最小者代表整檔商品</td></tr>
+        <tr><td>剩餘天數至下次觀察日</td><td>20%</td><td>越接近觀察日，警示等級提高</td></tr>
+        <tr><td>標的近 20 日年化波動度</td><td>25%</td><td>日報酬標準差 × √252 × 100</td></tr>
+        <tr><td>是否曾經收盤跌破 KI</td><td>15%</td><td>MVP 假設美式障礙，曾經穿價的標的列為需持續關注</td></tr>
       </table>
-      <p>燈號規則（範例，可調整）：<span class="tag safe">安全</span> 距障礙價 &gt; 15%　<span class="tag warn">警戒</span> 5%–15%　<span class="tag danger">高風險</span> &lt; 5%</p>
+      <p class="card-note"><b>與草稿版的差異</b>：風險主要來自 KI（下方保護障礙），並非 KO。KO（提前贖回）對投資人是正向事件，僅作為「即將提前出場」提示，不計入風險分數（v0.1 草稿原先誤將 KO 列為風險因子，已於實作階段修正）。</p>
+      <p>燈號規則（已實作）：<span class="tag safe">安全</span> 風險分數 &lt; 30　<span class="tag warn">警戒</span> 30–60　<span class="tag danger">高風險</span> &gt; 60。無股權標的商品（CDRAN 及資料不全的 SN/FCN）不套用此模型，直接回傳灰色「不適用」。</p>
     </section>
 
     <section id="stack">
-      <h2>8. 技術架構建議</h2>
+      <h2>8. 技術架構（已採用）</h2>
       <table>
-        <tr><th>層</th><th>建議方案</th></tr>
-        <tr><td>前端</td><td>React + Tailwind CSS + Recharts / ECharts（依此文件的 wireframe 實作）</td></tr>
-        <tr><td>後端 / API</td><td>Node.js 或 Python(FastAPI)，負責計算風險分數、彙整資料</td></tr>
-        <tr><td>資料庫</td><td>PostgreSQL / SQLite（個人使用可先用 SQLite）</td></tr>
-        <tr><td>股價資料</td><td>yfinance 或券商 API，每日排程更新</td></tr>
-        <tr><td>PDF / Email 解析（第二階段）</td><td>Python + pdfplumber 解析對帳單；email 用 IMAP 抓信 + 規則解析 ISIN 與贖回類型</td></tr>
-        <tr><td>MVP 替代方案</td><td>若不想寫程式，可先用 Google Sheets + Apps Script 做出九成功能</td></tr>
+        <tr><th>層</th><th>實際方案</th></tr>
+        <tr><td>前端</td><td>純 HTML/CSS/JavaScript（無框架），部署於 GitHub Pages（Structured_Products.html）</td></tr>
+        <tr><td>後端 / API</td><td>Node.js + Express，Vercel Serverless Functions（structured_products_api.js）</td></tr>
+        <tr><td>資料庫</td><td>MongoDB Atlas（沿用既有 cluster，新增 Structured_Products / Structured_Products_Events collection）</td></tr>
+        <tr><td>股價資料</td><td>Yahoo Finance chart API（/v8/finance/chart/SYMBOL），即時抓取近 3 個月收盤價計算風險</td></tr>
+        <tr><td>PDF / Email 解析</td><td>目前為人工用 pdfplumber 擷取對帳單數字後一次性匯入，尚未做成自動化排程</td></tr>
       </table>
+      <p class="card-note">與草稿 v0.1 設想的 React + PostgreSQL 方案不同，考量個人使用規模與現有 report repo 慣例，改採更輕量的純 HTML 前端 + Serverless + MongoDB 架構，與同 repo 內其他追蹤頁面（如 Stock_Portfolio.html）風格一致。</p>
     </section>
 
     <section id="roadmap">
       <h2>9. 開發階段建議</h2>
       <div class="flow-steps">
-        <div class="flow-step"><span class="n">P0</span><br><b>手動建檔 MVP</b><br>先做總覽卡片 + 追蹤表，資料手動輸入，股價手動更新</div>
-        <div class="flow-step"><span class="n">P1</span><br><b>股價自動化</b><br>接股價 API，自動計算距離障礙價與風險燈號</div>
-        <div class="flow-step"><span class="n">P2</span><br><b>對帳單匯入</b><br>支援 UBS/HSBC/玉山/星展 PDF 解析</div>
-        <div class="flow-step"><span class="n">P3</span><br><b>Email 自動歸檔</b><br>解析贖回通知信，自動更新已出場歷史紀錄</div>
-        <div class="flow-step"><span class="n">P4</span><br><b>AI 輔助分析</b><br>依風險狀態自動生成文字摘要 / 建議（呼應影片結尾提到問 AI）</div>
+        <div class="flow-step"><span class="n">P0</span><br><b>手動建檔 MVP</b> ✅ 已完成<br>總覽卡片 + 追蹤表，含編輯模式與管理密碼</div>
+        <div class="flow-step"><span class="n">P1</span><br><b>股價自動化</b> ✅ 已完成<br>即時抓 Yahoo Finance，自動計算距障礙價與風險燈號</div>
+        <div class="flow-step"><span class="n">P2</span><br><b>對帳單匯入</b> 🟡 部分完成<br>27 檔商品已人工匯入（8 完整 / 3 CDRAN / 13 基本資料 / 3 歷史），自動化 PDF 解析尚未實作</div>
+        <div class="flow-step"><span class="n">P3</span><br><b>Email 自動歸檔</b> ⬜ 未開始<br>解析贖回通知信，自動更新已出場歷史紀錄</div>
+        <div class="flow-step"><span class="n">P4</span><br><b>AI 輔助分析</b> ⬜ 未開始<br>依風險狀態自動生成文字摘要 / 建議</div>
       </div>
     </section>
 
     <section id="open">
       <h2>10. 待確認事項</h2>
       <ul class="todo-list">
-        <li>風險評分公式與權重是否採用第 7 節建議，或你有既有的評分邏輯？</li>
-        <li>是否要支援多幣別（USD/JPY/TWD）換算成單一報表幣別？</li>
-        <li>股價資料來源：手動輸入 / 免費 API(yfinance) / 券商串接？</li>
-        <li>對帳單自動解析是否為必要功能，還是先用手動輸入即可上線？</li>
-        <li>使用型態：純自己用的工具，還是要給多位客戶（理專視角）分別管理？</li>
-        <li>是否需要行動裝置（手機）介面，或僅網頁版即可？</li>
+        <li>✅ 風險評分公式：採用 KI 為主要風險因子（非 KO），權重 40/20/25/15，已實作於 /api/structured-products/risk</li>
+        <li>⬜ 多幣別（USD/JPY/TWD）換算成單一報表幣別，尚未實作</li>
+        <li>✅ 股價資料來源：Yahoo Finance chart API 即時抓取</li>
+        <li>⬜ 對帳單自動解析仍為人工執行，尚未成為必要功能，目前用一次性匯入腳本即可上線</li>
+        <li>✅ 使用型態：個人自用工具（person 欄位目前僅 "alex"）</li>
+        <li>⬜ 行動裝置介面尚未特別優化，目前僅網頁版</li>
+        <li>⬜ European vs American 障礙判定邏輯，目前 MVP 假設美式</li>
+        <li>⬜ HSBC/玉山/星展 13 檔補齊標的名稱、strike price、KI/KO 障礙價（需原始申購確認書）</li>
       </ul>
     </section>
 
-    <footer>結構型商品追蹤看板 — 系統分析文件 v0.1（草稿，待確認後可進一步細化為開發規格）</footer>
+    <footer>結構型商品追蹤看板 — 系統分析文件 v1.0（已上線，實作對應 <a href="https://lard23chen.github.io/report/Structured_Products.html" style="color:inherit">Structured_Products.html</a> 與 REPORT_SPEC_STRUCTURED_PRODUCTS.md）</footer>
   </main>
 </div>
 </body>
