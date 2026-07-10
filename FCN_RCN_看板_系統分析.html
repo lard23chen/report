@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>結構型商品(RCN/FCN/DCN)追蹤看板 — 系統分析文件</title>
+<style>
+  :root{
+    --primary:#2f5d8a;
+    --primary-light:#e8f0f9;
+    --danger:#d64545;
+    --danger-bg:#fdecec;
+    --warn:#e0a72e;
+    --warn-bg:#fdf5e2;
+    --safe:#2e9e5b;
+    --safe-bg:#e7f7ee;
+    --border:#dfe3e8;
+    --text:#28303a;
+    --muted:#6b7684;
+    --bg:#f5f7fa;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"PingFang TC","Microsoft JhengHei","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.7;
+  }
+  .layout{display:flex; max-width:1400px; margin:0 auto;}
+  nav{
+    width:230px; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto;
+    padding:28px 16px; border-right:1px solid var(--border); background:#fff;
+  }
+  nav h3{font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin:0 0 12px 8px;}
+  nav a{
+    display:block; padding:8px 10px; border-radius:8px; color:var(--text); text-decoration:none;
+    font-size:14px; margin-bottom:2px;
+  }
+  nav a:hover{background:var(--primary-light); color:var(--primary);}
+  main{flex:1; padding:36px 48px 100px; max-width:1000px;}
+  header.doc-header{margin-bottom:36px; border-bottom:2px solid var(--primary); padding-bottom:20px;}
+  header.doc-header h1{font-size:26px; margin:0 0 8px;}
+  header.doc-header .meta{color:var(--muted); font-size:13px;}
+  section{margin-bottom:48px;}
+  h2{
+    font-size:20px; color:var(--primary); border-left:5px solid var(--primary);
+    padding-left:12px; margin-top:0;
+  }
+  h3{font-size:16px; margin-top:28px;}
+  p{color:#3a4350;}
+  .card-note{
+    background:var(--primary-light); border:1px solid #c9dbef; border-radius:10px;
+    padding:14px 18px; font-size:13.5px; color:#294a6b; margin:16px 0;
+  }
+  table{width:100%; border-collapse:collapse; margin:14px 0 8px; font-size:13.5px;}
+  th,td{border:1px solid var(--border); padding:8px 10px; text-align:left; vertical-align:top;}
+  th{background:#eef2f6; font-weight:600;}
+  tr:nth-child(even) td{background:#fafbfc;}
+  code{background:#eef1f4; padding:2px 6px; border-radius:4px; font-size:12.5px;}
+  .tag{display:inline-block; padding:2px 9px; border-radius:20px; font-size:12px; font-weight:600;}
+  .tag.safe{background:var(--safe-bg); color:var(--safe);}
+  .tag.warn{background:var(--warn-bg); color:var(--warn);}
+  .tag.danger{background:var(--danger-bg); color:var(--danger);}
+  .badge{display:inline-block; background:var(--primary); color:#fff; font-size:11px; padding:2px 8px; border-radius:4px; margin-left:8px;}
+
+  /* ---- mockup ---- */
+  .mock-frame{
+    border:1px solid var(--border); border-radius:14px; background:#fff; padding:22px;
+    box-shadow:0 4px 18px rgba(20,30,50,.06); margin:18px 0 6px;
+  }
+  .mock-title{font-size:12px; color:var(--muted); margin-bottom:14px;}
+  .mock-cards{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:14px;}
+  .mock-card{background:#fafbfc; border:1px solid var(--border); border-radius:10px; padding:12px;}
+  .mock-card .label{font-size:11.5px; color:var(--muted);}
+  .mock-card .value{font-size:19px; font-weight:700; margin-top:4px;}
+  .mock-card .sub{font-size:11px; color:var(--safe); margin-top:2px;}
+  .mock-stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:14px;}
+  .mock-stat{background:#fafbfc; border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center;}
+  .mock-stat .n{font-size:17px; font-weight:700;}
+  .mock-stat .l{font-size:11px; color:var(--muted);}
+  .mock-charts{display:grid; grid-template-columns:1.1fr .9fr; gap:14px; margin-bottom:16px;}
+  .mock-chart-box{border:1px solid var(--border); border-radius:10px; padding:12px;}
+  .bar-row{display:flex; align-items:center; gap:8px; margin:6px 0; font-size:11.5px;}
+  .bar-row .name{width:64px; color:var(--muted);}
+  .bar-track{flex:1; height:8px; background:#eef1f4; border-radius:4px; overflow:hidden;}
+  .bar-fill{height:100%; background:var(--primary);}
+  .mock-table th, .mock-table td{font-size:12px; padding:7px 8px;}
+  .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px;}
+  .dot.safe{background:var(--safe);} .dot.warn{background:var(--warn);} .dot.danger{background:var(--danger);}
+
+  .flow-steps{display:flex; flex-wrap:wrap; gap:10px; margin:16px 0;}
+  .flow-step{
+    flex:1; min-width:150px; background:#fff; border:1px solid var(--border); border-radius:10px;
+    padding:14px; font-size:13px;
+  }
+  .flow-step .n{
+    display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px;
+    border-radius:50%; background:var(--primary); color:#fff; font-size:12px; margin-bottom:8px;
+  }
+  .todo-list{list-style:none; padding:0;}
+  .todo-list li{
+    background:#fff; border:1px solid var(--border); border-left:4px solid var(--warn);
+    border-radius:8px; padding:10px 14px; margin-bottom:8px; font-size:13.5px;
+  }
+  footer{color:var(--muted); font-size:12px; text-align:center; padding:30px 0; border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav>
+    <h3>目錄</h3>
+    <a href="#overview">1. 系統概述</a>
+    <a href="#problem">2. 現況與痛點</a>
+    <a href="#sources">3. 資料來源</a>
+    <a href="#modules">4. 功能模組</a>
+    <a href="#mockup">5. 畫面示意</a>
+    <a href="#model">6. 資料模型</a>
+    <a href="#risk">7. 風險評分邏輯</a>
+    <a href="#stack">8. 技術架構建議</a>
+    <a href="#roadmap">9. 開發階段</a>
+    <a href="#open">10. 待確認事項</a>
+  </nav>
+
+  <main>
+    <header class="doc-header">
+      <h1>結構型商品追蹤看板 — 系統分析文件</h1>
+      <div class="meta">版本 v0.1（草稿）・對象:個人 / 理專使用・涵蓋商品:FCN、RCN、DCN、CDRAN 等結構型商品</div>
+    </header>
+
+    <section id="overview">
+      <h2>1. 系統概述</h2>
+      <p>本系統目的是集中管理與追蹤持有中的結構型商品(FCN / RCN / DCN / CDRAN 等),取代目前用 Excel、紙本、理專個別提供表格的分散管理方式。核心價值：</p>
+      <ul>
+        <li>一眼看出目前資金狀況(投入本金、已領票息、已出場金額、報酬率)</li>
+        <li>即時掌握每檔商品連結標的距離敲入(KI)/敲出(KO)障礙價的百分比,提早示警</li>
+        <li>整合多家銀行(UBS、HSBC、玉山、星展等)的持倉於同一畫面</li>
+        <li>保留已出場(KO / 到期)商品的歷史紀錄,方便回顧績效</li>
+      </ul>
+      <div class="card-note">
+        參考來源:Instagram 影片示範的「FCN 交易看板」畫面架構(總覽卡片 + 追蹤表 + 觀察日 + 歷史紀錄),並比對你資料夾中實際的理專 RCN 表格、UBS/HSBC/玉山/星展對帳單、到期贖回通知信,將真實會用到的欄位一併納入。
+      </div>
+    </section>
+
+    <section id="problem">
+      <h2>2. 現況與痛點</h2>
+      <table>
+        <tr><th>現況</th><th>問題</th></tr>
+        <tr><td>理專用 Excel / 手寫表格整理多檔 RCN(如你資料夾中的 <code>理專整理RCN表格.jpeg</code>)</td><td>格式不一致、無法自動更新股價與障礙價距離,容易漏看即將敲出的商品</td></tr>
+        <tr><td>多家銀行(UBS / HSBC / 玉山 / 星展)各自對帳單格式不同</td><td>需要人工彙整才能看到總資產與總曝險</td></tr>
+        <tr><td>到期 / 提前贖回通知以 email 形式個別寄送(如 <code>Early Redemption</code>、<code>Maturity Redemption</code> 通知信)</td><td>沒有自動歸檔,事後要回頭查對績效很費時</td></tr>
+        <tr><td>觀察日、到期日分散在不同文件</td><td>沒有集中的日曆提醒,容易錯過重要觀察日</td></tr>
+      </table>
+    </section>
+
+    <section id="sources">
+      <h2>3. 資料來源(輸入方式)</h2>
+      <div class="flow-steps">
+        <div class="flow-step"><span class="n">1</span><br><b>手動建檔</b><br>新增商品時輸入合約條款(標的、履約價、KI/KO、票息、到期日)</div>
+        <div class="flow-step"><span class="n">2</span><br><b>對帳單匯入</b><br>解析 UBS / HSBC / 玉山 / 星展 PDF 對帳單,擷取持倉與金額</div>
+        <div class="flow-step"><span class="n">3</span><br><b>Email 通知解析</b><br>讀取「Early/Maturity Redemption」通知信,自動登記出場事件與 ISIN</div>
+        <div class="flow-step"><span class="n">4</span><br><b>股價 API</b><br>每日抓取連結標的最新價格,自動計算距離障礙價 %</div>
+      </div>
+      <p class="card-note">MVP 階段建議先做「手動建檔 + Excel/CSV 匯入」，PDF/Email 自動解析可以列為第二階段（需要針對每家銀行對帳單格式個別寫解析規則）。</p>
+    </section>
+
+    <section id="modules">
+      <h2>4. 功能模組</h2>
+
+      <h3>4.1 總覽儀表板</h3>
+      <table>
+        <tr><th>項目</th><th>說明</th></tr>
+        <tr><td>總投入本金</td><td>所有商品申購金額加總</td></tr>
+        <tr><td>累計已領票息</td><td>依配息紀錄加總</td></tr>
+        <tr><td>已下庄總額</td><td>已 KO + 已到期出場的本金與損益</td></tr>
+        <tr><td>報酬率 / 年化報酬率</td><td>依出入金時間加權計算(非單純帳面數字)</td></tr>
+        <tr><td>檔數統計</td><td>進行中 / 已 KO / 已到期 / 觀察中，各自數量與佔比</td></tr>
+      </table>
+
+      <h3>4.2 圖表</h3>
+      <ul>
+        <li>資產配置比例(依標的、發行商、或銀行分布)</li>
+        <li>近期觀察日 / 到期日時間軸</li>
+      </ul>
+
+      <h3>4.3 商品追蹤總覽表（核心功能）</h3>
+      <p>每一列代表一檔商品，一檔商品可能連結多個標的（worst-of 一籃子股票，如你 RCN 表格中的 NVDA/TSMC 雙標的）：</p>
+      <table>
+        <tr><th>欄位</th><th>說明</th></tr>
+        <tr><td>商品類型</td><td>FCN / RCN / DCN / CDRAN</td></tr>
+        <tr><td>發行商</td><td>如 BNP、SG、GS、UBS</td></tr>
+        <tr><td>託管銀行</td><td>UBS / HSBC / 玉山 / 星展</td></tr>
+        <tr><td>連結標的</td><td>可多檔（worst-of），各自履約價(strike)</td></tr>
+        <tr><td>KI 障礙價 / 距離%</td><td>入場價與目前價的差距</td></tr>
+        <tr><td>KO 障礙價 / 距離%</td><td>出場價與目前價的差距</td></tr>
+        <tr><td>額外連動條件</td><td>如利率(CMS)、信用事件、匯率條件</td></tr>
+        <tr><td>票息 / 配息頻率</td><td></td></tr>
+        <tr><td>下一觀察日 / 到期日</td><td></td></tr>
+        <tr><td>狀態燈號</td><td><span class="tag safe">安全</span> <span class="tag warn">接近障礙</span> <span class="tag danger">高風險</span></td></tr>
+        <tr><td>風險評分</td><td>系統自動計算（見第 7 節）</td></tr>
+      </table>
+
+      <h3>4.4 已出場歷史紀錄</h3>
+      <p>記錄每一檔已經 KO 或到期出場的商品：出場日期、出場原因、實現損益、持有天數。</p>
+
+      <h3>4.5 提醒通知</h3>
+      <ul>
+        <li>觀察日前 N 天提醒</li>
+        <li>標的價格接近 KO/KI 障礙時提醒（如距離 &lt; 5%）</li>
+      </ul>
+    </section>
+
+    <section id="mockup">
+      <h2>5. 畫面示意（Wireframe，僅示意用假資料）</h2>
+      <div class="mock-frame">
+        <div class="mock-title">結構型商品追蹤看板 — Demo</div>
+        <div class="mock-cards">
+          <div class="mock-card"><div class="label">總投入本金</div><div class="value">$400,000</div></div>
+          <div class="mock-card"><div class="label">累計已領票息</div><div class="value">$58,865</div><div class="sub">+14.7%</div></div>
+          <div class="mock-card"><div class="label">已下庄總額</div><div class="value">$103,311</div></div>
+          <div class="mock-card"><div class="label">年化報酬率</div><div class="value">11.2%</div></div>
+        </div>
+        <div class="mock-stats">
+          <div class="mock-stat"><div class="n">8</div><div class="l">進行中</div></div>
+          <div class="mock-stat"><div class="n">3</div><div class="l">觀察中</div></div>
+          <div class="mock-stat"><div class="n">2</div><div class="l">已 KO</div></div>
+          <div class="mock-stat"><div class="n">5</div><div class="l">已到期</div></div>
+        </div>
+        <div class="mock-charts">
+          <div class="mock-chart-box">
+            <div class="mock-title">資產配置比例</div>
+            <div class="bar-row"><div class="name">TSMC</div><div class="bar-track"><div class="bar-fill" style="width:70%"></div></div>25.7%</div>
+            <div class="bar-row"><div class="name">NVDA</div><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div>19.4%</div>
+            <div class="bar-row"><div class="name">Oracle</div><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div>14.8%</div>
+          </div>
+          <div class="mock-chart-box">
+            <div class="mock-title">近期重要觀察日</div>
+            <div class="bar-row"><div class="name">9/11</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:var(--danger)"></div></div>Oracle</div>
+            <div class="bar-row"><div class="name">9/28</div><div class="bar-track"><div class="bar-fill" style="width:60%;background:var(--warn)"></div></div>三菱重工</div>
+            <div class="bar-row"><div class="name">1/15</div><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div>NVDA/TSMC</div>
+          </div>
+        </div>
+        <div class="mock-title">產品追蹤總覽</div>
+        <table class="mock-table">
+          <tr><th>商品</th><th>連結標的</th><th>距 KO %</th><th>距 KI %</th><th>狀態</th><th>下次觀察日</th><th>到期日</th></tr>
+          <tr><td>RCN-001</td><td>NVDA / TSMC</td><td>18.2%</td><td>40.1%</td><td><span class="dot safe"></span>安全</td><td>2026/09/11</td><td>2030/06/23</td></tr>
+          <tr><td>RCN-002</td><td>Corning</td><td>4.6%</td><td>52.3%</td><td><span class="dot danger"></span>高風險</td><td>2026/10/15</td><td>2030/06/26</td></tr>
+          <tr><td>CDRAN-003</td><td>10yr CMS 指標</td><td>—</td><td>—</td><td><span class="dot warn"></span>觀察中</td><td>2026/09/28</td><td>2031/02/09</td></tr>
+        </table>
+        <div class="mock-title" style="margin-top:14px;">已出場歷史紀錄</div>
+        <table class="mock-table">
+          <tr><th>商品</th><th>出場日</th><th>原因</th><th>損益</th></tr>
+          <tr><td>DCN-014</td><td>2026/05/12</td><td>提前贖回(KO)</td><td>+$21,300</td></tr>
+        </table>
+      </div>
+      <p class="card-note">以上數字皆為示意假資料，非你實際持倉內容。</p>
+    </section>
+
+    <section id="model">
+      <h2>6. 資料模型（ER 結構建議）</h2>
+      <table>
+        <tr><th>資料表</th><th>關鍵欄位</th></tr>
+        <tr><td><b>products</b>（商品主檔）</td><td>id, product_type(FCN/RCN/DCN/CDRAN), isin, issuer, custodian_bank, currency, principal_amount, coupon_rate, issue_date, maturity_date, status</td></tr>
+        <tr><td><b>underlyings</b>（連結標的，一檔商品對多筆）</td><td>id, product_id(FK), ticker, strike_price, ki_barrier_pct, ko_barrier_pct, last_price, last_price_date</td></tr>
+        <tr><td><b>conditions</b>（額外連動條件，如 CMS 利率、信用事件）</td><td>id, product_id(FK), condition_type, description, threshold</td></tr>
+        <tr><td><b>fixings</b>（觀察日排程）</td><td>id, product_id(FK), fixing_date, is_final, result</td></tr>
+        <tr><td><b>cashflows</b>（出入金 / 配息紀錄）</td><td>id, product_id(FK), date, type(申購/配息/提前贖回/到期贖回), amount</td></tr>
+        <tr><td><b>events_log</b>（已出場歷史）</td><td>id, product_id(FK), event_date, event_type(KO/到期/提前贖回), realized_pnl, source(如來自哪封通知信)</td></tr>
+      </table>
+    </section>
+
+    <section id="risk">
+      <h2>7. 風險評分邏輯（建議，需與你確認公式）</h2>
+      <table>
+        <tr><th>因子</th><th>權重（建議）</th><th>說明</th></tr>
+        <tr><td>距離 KO 障礙價 %</td><td>40%</td><td>越接近障礙價分數越低（風險越高）</td></tr>
+        <tr><td>剩餘天數至下次觀察日</td><td>20%</td><td>越接近觀察日且逼近障礙，警示等級提高</td></tr>
+        <tr><td>標的近期波動度</td><td>25%</td><td>可用近 20 日歷史波動率估算</td></tr>
+        <tr><td>是否曾經穿價</td><td>15%</td><td>曾經穿過障礙價的標的列為需持續關注</td></tr>
+      </table>
+      <p>燈號規則（範例，可調整）：<span class="tag safe">安全</span> 距障礙價 &gt; 15%　<span class="tag warn">警戒</span> 5%–15%　<span class="tag danger">高風險</span> &lt; 5%</p>
+    </section>
+
+    <section id="stack">
+      <h2>8. 技術架構建議</h2>
+      <table>
+        <tr><th>層</th><th>建議方案</th></tr>
+        <tr><td>前端</td><td>React + Tailwind CSS + Recharts / ECharts（依此文件的 wireframe 實作）</td></tr>
+        <tr><td>後端 / API</td><td>Node.js 或 Python(FastAPI)，負責計算風險分數、彙整資料</td></tr>
+        <tr><td>資料庫</td><td>PostgreSQL / SQLite（個人使用可先用 SQLite）</td></tr>
+        <tr><td>股價資料</td><td>yfinance 或券商 API，每日排程更新</td></tr>
+        <tr><td>PDF / Email 解析（第二階段）</td><td>Python + pdfplumber 解析對帳單；email 用 IMAP 抓信 + 規則解析 ISIN 與贖回類型</td></tr>
+        <tr><td>MVP 替代方案</td><td>若不想寫程式，可先用 Google Sheets + Apps Script 做出九成功能</td></tr>
+      </table>
+    </section>
+
+    <section id="roadmap">
+      <h2>9. 開發階段建議</h2>
+      <div class="flow-steps">
+        <div class="flow-step"><span class="n">P0</span><br><b>手動建檔 MVP</b><br>先做總覽卡片 + 追蹤表，資料手動輸入，股價手動更新</div>
+        <div class="flow-step"><span class="n">P1</span><br><b>股價自動化</b><br>接股價 API，自動計算距離障礙價與風險燈號</div>
+        <div class="flow-step"><span class="n">P2</span><br><b>對帳單匯入</b><br>支援 UBS/HSBC/玉山/星展 PDF 解析</div>
+        <div class="flow-step"><span class="n">P3</span><br><b>Email 自動歸檔</b><br>解析贖回通知信，自動更新已出場歷史紀錄</div>
+        <div class="flow-step"><span class="n">P4</span><br><b>AI 輔助分析</b><br>依風險狀態自動生成文字摘要 / 建議（呼應影片結尾提到問 AI）</div>
+      </div>
+    </section>
+
+    <section id="open">
+      <h2>10. 待確認事項</h2>
+      <ul class="todo-list">
+        <li>風險評分公式與權重是否採用第 7 節建議，或你有既有的評分邏輯？</li>
+        <li>是否要支援多幣別（USD/JPY/TWD）換算成單一報表幣別？</li>
+        <li>股價資料來源：手動輸入 / 免費 API(yfinance) / 券商串接？</li>
+        <li>對帳單自動解析是否為必要功能，還是先用手動輸入即可上線？</li>
+        <li>使用型態：純自己用的工具，還是要給多位客戶（理專視角）分別管理？</li>
+        <li>是否需要行動裝置（手機）介面，或僅網頁版即可？</li>
+      </ul>
+    </section>
+
+    <footer>結構型商品追蹤看板 — 系統分析文件 v0.1（草稿，待確認後可進一步細化為開發規格）</footer>
+  </main>
+</div>
+</body>
+</html>
