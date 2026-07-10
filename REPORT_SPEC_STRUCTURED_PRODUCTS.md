@@ -27,32 +27,40 @@
 {
   "_id": "ObjectId",
   "productType": "RCN",
-  "isin": "XS3302311140",
-  "issuer": "BNP",
+  "isin": "XS3402098852",
+  "issuer": "BARC",
   "custodianBank": "UBS",
   "currency": "USD",
   "principalAmount": 200000,
   "couponRate": 9.98,
-  "issueDate": "2026-01-11",
-  "maturityDate": "2030-06-23",
+  "issueDate": "2026-06-24",
+  "maturityDate": null,
   "status": "進行中",
   "underlyings": [
-    { "ticker": "NVDA", "strikePrice": 129.4357, "koBarrierPct": 65, "kiBarrierPct": null, "lastPrice": null, "lastPriceDate": null },
-    { "ticker": "TSMC", "strikePrice": 284.535,  "koBarrierPct": 55, "kiBarrierPct": null, "lastPrice": null, "lastPriceDate": null }
+    { "ticker": "NVDA", "strikePrice": 129.4357, "koBarrierPct": 65, "kiBarrierPct": 84.63, "lastPrice": null, "lastPriceDate": null },
+    { "ticker": "TSM",  "strikePrice": 284.535,  "koBarrierPct": 55, "kiBarrierPct": 84.63, "lastPrice": null, "lastPriceDate": null }
   ],
-  "conditions": [
-    { "type": "credit", "description": "TSMC credit", "threshold": null }
-  ],
+  "conditions": [],
   "fixings": [
-    { "date": "2026-11-16", "isFinal": false, "result": null }
+    { "date": "2027-01-11", "isFinal": false, "result": null }
   ],
   "person": "alex",
   "note": ""
 }
 ```
-*   `underlyings`：內嵌陣列，支援 worst-of 多標的一籃子結構。
+*   `productType`：`RCN` / `DCN` / `FCN` / `CDRAN`（信用/利率連結型）/ `SN`（一般結構型票券，用於標的細節不明的商品）。
+*   `underlyings`：內嵌陣列，支援 worst-of 多標的一籃子結構。**可為空陣列 `[]`**——用於 CDRAN（無股權標的，靠 `conditions` 描述觸發條件）或標的細節尚未取得的 SN/FCN（見下方「資料完整度」說明）。
 *   `strikePrice`：申購時的基準價，用於計算目前價格相對障礙價的百分比。
 *   `koBarrierPct` / `kiBarrierPct`：以**百分比**儲存（非絕對股價）。
+*   `conditions`：CDRAN 等非股權連結商品的觸發條件陣列，例如：
+    ```json
+    "conditions": [
+      { "type": "rate", "description": "10yr CMS < 4.70%", "threshold": 4.70 },
+      { "type": "credit", "description": "Bank of America credit event", "threshold": null },
+      { "type": "fx", "description": "USD/TWD > 27.3", "threshold": 27.3 }
+    ]
+    ```
+*   `maturityDate`：**僅在真正到期日已知時才填寫**（例如已到期/已KO的歷史紀錄，或原始申購確認書有明載）。多數銀行對帳單只印「下次觀察/贖回日」，不可誤當成到期日——這種情況請把日期放進 `fixings[]`，`maturityDate` 留 `null`。
 
 #### `Structured_Products_Events`（事件/現金流紀錄，一筆事件一筆文件）
 ```json
@@ -98,6 +106,14 @@ if (distToKO <= 0 && daysToNextFixing <= 30) {
 }
 ```
 
+**無股權標的商品（`underlyings` 為空陣列）**
+
+CDRAN（信用/利率連結）以及標的細節尚未取得的 SN/FCN，不套用上述股權 KI/KO 模型，`/risk` 端點直接回傳：
+```js
+{ riskScore: null, status: "不適用", hint: null, worstUnderlying: null, underlyings: [], conditions: [...] }
+```
+前端以灰色「不適用」標籤顯示，避免誤判為「安全」。
+
 ### 3. 進階篩選與統計
 *   多重過濾器：狀態（進行中/觀察中/已KO/已到期）、銀行、發行商、標的代號。
 *   總覽卡片與表格底部小計同步更新篩選結果。
@@ -134,8 +150,21 @@ if (distToKO <= 0 && daysToNextFixing <= 30) {
 
 ---
 
+## 資料完整度現況 (Data Completeness)
+
+截至 2026-07-10，資料庫共 27 檔商品，分三個完整度層級：
+
+| 完整度 | 帳戶來源 | 檔數 | 說明 |
+| :--- | :--- | :--- | :--- |
+| 完整（有 strike/KI/KO，可算風險分數） | UBS/CAKE | 8 檔進行中 RCN/DCN | 依理專手寫表格核對，可正常顯示安全/警戒/高風險 |
+| 僅條件式（無股權標的） | UBS/CAKE | 3 檔 CDRAN | 用 `conditions` 記錄信用/利率/匯率觸發條件，風險狀態「不適用」 |
+| 僅基本資料（金額/到期日/發行商） | HSBC 7 檔、玉山 3 檔 FCN、星展 3 檔 SN | 13 檔 | `underlyings`/`conditions` 皆為空，`note` 欄位記錄資料來源與缺漏項目，待原始申購確認書補齊標的/strike/障礙價後可升級為完整資料 |
+| 歷史（已出場） | UBS/CAKE | 3 檔已到期/已KO | 由贖回通知信匯入，`underlyings` 僅有標的代號無 strike（風險計算不適用於已出場商品） |
+
 ## 待確認 / 未來階段
+*   HSBC/玉山/星展 13 檔補齊標的名稱、strike price、KI/KO 障礙價（需原始申購確認書，目前對帳單不含此資訊）。
 *   PDF 對帳單（UBS/HSBC/玉山/星展）自動解析匯入。
 *   贖回通知 email 自動歸檔為 `Structured_Products_Events`。
 *   多幣別（USD/JPY/TWD）換算報表幣別。
 *   European vs American 障礙判定邏輯（目前 MVP 假設美式）。
+*   CDRAN 的信用/利率/匯率條件目前僅存文字描述，尚未接上即時 10yr CMS 利率或信用事件資料源做自動風險評分。
