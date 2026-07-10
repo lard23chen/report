@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>結構型商品追蹤看板 (MongoDB)</title>
+<!-- Password Protection (shared with Stock_Portfolio.html) -->
+<style>
+#pw-overlay{position:fixed;inset:0;z-index:9999;background:#0a0a0a;display:flex;align-items:center;justify-content:center}
+#pw-box{text-align:center;font-family:'Outfit',sans-serif;padding:48px 40px;background:#1e1e1e;border-radius:16px;border:1px solid #333;min-width:320px}
+#pw-box .icon{font-size:4rem;margin-bottom:16px}
+#pw-box h2{color:#9c27b0;margin:0 0 8px;font-size:1.6rem}
+#pw-box p{color:#94a3b8;margin:0 0 24px;font-size:0.9rem}
+#pw-input{width:100%;box-sizing:border-box;padding:12px 16px;font-size:1.1rem;background:#121212;color:#e0e0e0;border:2px solid #444;border-radius:8px;outline:none;letter-spacing:0.15em;margin-bottom:14px;transition:border-color 0.2s}
+#pw-input:focus{border-color:#9c27b0}
+#pw-input.shake{animation:shake 0.35s ease;border-color:#ef4444}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+#pw-btn{width:100%;padding:12px;background:#9c27b0;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;transition:background 0.2s}
+#pw-btn:hover{background:#7b1fa2}
+#pw-err{color:#ef4444;font-size:0.85rem;margin-top:10px;min-height:1.2em}
+</style>
+<script>
+(function(){
+  var KEY='alex_life_auth';
+  function unlock(){var el=document.getElementById('pw-overlay');if(el)el.remove();}
+  function verify(pw){return pw===atob('MDkxODIxNjAwMQ==');}
+  function trySubmit(){
+    var pw=document.getElementById('pw-input').value;
+    if(verify(pw)){sessionStorage.setItem(KEY,'1');unlock();}
+    else{
+      var inp=document.getElementById('pw-input');
+      inp.classList.remove('shake');void inp.offsetWidth;inp.classList.add('shake');
+      document.getElementById('pw-err').textContent='密碼錯誤，請再試一次';
+      inp.value='';inp.focus();
+    }
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    if(sessionStorage.getItem(KEY)==='1'){unlock();return;}
+    document.getElementById('pw-input').addEventListener('keydown',function(e){if(e.key==='Enter')trySubmit();});
+    document.getElementById('pw-btn').addEventListener('click',trySubmit);
+    document.getElementById('pw-input').focus();
+  });
+})();
+</script>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#263348;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;
+--safe:#22c55e;--warn:#e0a72e;--danger:#f87171;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{font-size:1.2rem;font-weight:700;color:var(--accent)}
+header span{color:var(--muted);font-size:0.82rem}
+main{padding:18px 24px;max-width:1700px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:10px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px}
+.stat-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:4px}
+.stat-value{font-size:1.15rem;font-weight:700;color:var(--text)}
+.stats2{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat2{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.stat2 .n{font-size:1.1rem;font-weight:700}
+.stat2 .l{font-size:0.72rem;color:var(--muted)}
+.section-title{font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:18px 0 8px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:4px}
+table{width:100%;border-collapse:collapse}
+th{background:var(--surface2);padding:9px 11px;text-align:left;font-size:0.73rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:7px 11px;font-size:0.82rem;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.03)}
+.num{text-align:right}.muted{color:var(--muted)}
+.code{font-family:monospace;font-weight:700;font-size:0.78rem;color:var(--accent)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.dot-safe{background:var(--safe)}.dot-warn{background:var(--warn)}.dot-danger{background:var(--danger)}
+.tag{font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:20px}
+.tag-safe{background:rgba(34,197,94,0.15);color:var(--safe)}
+.tag-warn{background:rgba(224,167,46,0.15);color:var(--warn)}
+.tag-danger{background:rgba(248,113,113,0.15);color:var(--danger)}
+.hint{font-size:0.72rem;color:var(--warn)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+.filters select,.filters input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:0.8rem}
+.btn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:0.8rem;font-weight:600}
+.btn-primary{background:var(--accent);color:#0f172a}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:#ef4444;color:#fff}
+#edit-toolbar{position:fixed;bottom:22px;right:22px;z-index:1000;display:flex;gap:8px;align-items:center}
+#edit-toggle{padding:10px 18px;border-radius:25px;border:none;cursor:pointer;font-size:0.83rem;font-weight:700;background:#64748b;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.5);transition:background 0.2s}
+#edit-toolbar.on #edit-toggle{background:var(--accent);color:#0f172a}
+#add-btn{display:none;padding:10px 16px;border-radius:25px;border:none;cursor:pointer;font-size:0.83rem;font-weight:700;background:var(--danger);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.5)}
+#edit-toolbar.on #add-btn{display:inline-block}
+.act-btn{background:none;border:none;cursor:pointer;padding:3px 6px;border-radius:4px;font-size:0.72rem;display:none}
+body.edit-on .act-btn{display:inline-block}
+.act-edit{color:var(--accent)}.act-edit:hover{background:rgba(56,189,248,0.15)}
+.act-del{color:var(--danger)}.act-del:hover{background:rgba(248,113,113,0.15)}
+#crud-modal{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center}
+#crud-modal.open{display:flex}
+#crud-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.65)}
+#crud-dialog{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:600px;max-width:96vw;max-height:92vh;overflow-y:auto}
+#crud-dialog h3{font-size:1rem;font-weight:700;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:0.73rem;color:var(--muted);font-weight:600}
+.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:0.82rem;font-family:inherit}
+.form-group textarea{min-height:64px;font-family:monospace;font-size:0.76rem}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+</style>
+</head>
+<body>
+<div id="pw-overlay">
+  <div id="pw-box">
+    <div class="icon">📋</div>
+    <h2>結構型商品看板</h2>
+    <p>請輸入密碼以繼續</p>
+    <input id="pw-input" type="password" placeholder="密碼" autocomplete="off">
+    <button id="pw-btn">進入</button>
+    <div id="pw-err"></div>
+  </div>
+</div>
+<header>
+  <h1>📋 結構型商品追蹤看板</h1>
+  <span>FCN / RCN / DCN / CDRAN（MongoDB）</span>
+  <span id="sync-info" style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#64748b">
+    <span id="sync-dot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block;animation:pulse 1s infinite;flex-shrink:0"></span>
+    <span id="sync-text">載入中…</span>
+  </span>
+</header>
+<main>
+  <div class="stats" id="stats-grid"></div>
+  <div class="stats2" id="stats2-grid"></div>
+
+  <div class="section-title">
+    <span>產品追蹤總覽（即時風險）</span>
+    <button id="refresh-risk-btn" class="btn btn-secondary" onclick="fetchRisk()">🔄 更新風險狀態</button>
+  </div>
+  <div class="filters">
+    <select id="f-status"><option value="">全部狀態</option><option value="進行中">進行中</option><option value="觀察中">觀察中</option><option value="已KO">已KO</option><option value="已到期">已到期</option></select>
+    <select id="f-bank"><option value="">全部銀行</option></select>
+    <input type="text" id="f-search" placeholder="搜尋 ISIN/發行商/標的…" style="width:220px">
+    <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+    <span id="filter-count" style="color:var(--muted);font-size:0.78rem;margin-left:auto"></span>
+  </div>
+  <div class="table-wrap">
+    <table id="products-table">
+      <thead><tr>
+        <th>類型</th><th>ISIN</th><th>發行商</th><th>銀行</th><th>連結標的</th>
+        <th class="num">距 KI %</th><th class="num">距 KO %</th><th>狀態</th>
+        <th>下次觀察日</th><th>到期日</th><th>提示</th><th style="min-width:70px"></th>
+      </tr></thead>
+      <tbody id="products-body"></tbody>
+    </table>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">已出場歷史紀錄</div>
+  <div class="table-wrap" style="margin-bottom:40px">
+    <table id="history-table">
+      <thead><tr><th>ISIN</th><th>發行商</th><th>類型</th><th>出場日</th><th>原因</th><th class="num">金額</th></tr></thead>
+      <tbody id="history-body"></tbody>
+    </table>
+  </div>
+</main>
+
+<div id="edit-toolbar">
+  <button id="edit-toggle" onclick="toggleEditMode()">✏️ 編輯</button>
+  <button id="add-btn" onclick="showAddModal()">＋ 新增商品</button>
+</div>
+
+<div id="crud-modal">
+  <div id="crud-backdrop" onclick="closeModal()"></div>
+  <div id="crud-dialog"></div>
+</div>
+
+<script>
+const API_BASE = 'https://report-theta-nine.vercel.app/api/structured-products';
+var products = [];
+var riskById = {};
+var events = [];
+var editOn = false;
+
+function fmt(n){ if(n===null||n===undefined||n==='') return '—'; return Number(n).toLocaleString('en-US'); }
+function fmtPct(n){ if(n===null||n===undefined) return '—'; return Number(n).toFixed(1)+'%'; }
+
+function setSyncState(state,text){
+  var dot=document.getElementById('sync-dot');
+  if(state==='loading'){dot.style.background='#f59e0b';dot.style.animation='pulse 1s infinite';}
+  else if(state==='ok'){dot.style.background='#22c55e';dot.style.animation='none';}
+  else{dot.style.background='#ef4444';dot.style.animation='none';}
+  document.getElementById('sync-text').textContent=text;
+}
+
+async function apiGet(path){
+  var res = await fetch(API_BASE + path + (path.includes('?')?'&':'?') + 't=' + Date.now());
+  return await res.json();
+}
+async function apiPost(path, body){
+  var res = await fetch(API_BASE + path, {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  return await res.json();
+}
+
+async function fetchAll(){
+  setSyncState('loading','載入中…');
+  try{
+    var [pRes, eRes] = await Promise.all([apiGet('/'), apiGet('/events')]);
+    if(!pRes.ok) throw new Error(pRes.error||'API error');
+    products = pRes.data || [];
+    events = eRes.ok ? (eRes.data||[]) : [];
+    setSyncState('ok','同步完成 (Cloud)・'+new Date().toLocaleTimeString('zh-TW',{hour12:false}));
+    populateBankFilter();
+    render();
+    fetchRisk();
+  }catch(e){
+    setSyncState('error','載入失敗');
+    console.error(e);
+  }
+}
+
+async function fetchRisk(){
+  var btn = document.getElementById('refresh-risk-btn');
+  var orig = btn.textContent;
+  btn.textContent = '⏳ 計算中…'; btn.disabled = true;
+  try{
+    var res = await apiGet('/risk');
+    if(!res.ok) throw new Error(res.error||'risk API error');
+    riskById = {};
+    (res.data||[]).forEach(function(r){ riskById[r.productId] = r; });
+    btn.textContent = '✓ 已更新 ' + new Date(res.time||Date.now()).toLocaleTimeString('zh-TW',{hour12:false});
+  }catch(e){
+    btn.textContent = '❌ 失敗';
+    console.error(e);
+  }
+  render();
+  setTimeout(function(){ btn.disabled=false; }, 1500);
+}
+
+function populateBankFilter(){
+  var sel = document.getElementById('f-bank');
+  var banks = Array.from(new Set(products.map(function(p){return p.custodianBank;}).filter(Boolean)));
+  sel.innerHTML = '<option value="">全部銀行</option>' + banks.map(function(b){return '<option value="'+b+'">'+b+'</option>';}).join('');
+}
+
+function resetFilters(){
+  document.getElementById('f-status').value='';
+  document.getElementById('f-bank').value='';
+  document.getElementById('f-search').value='';
+  render();
+}
+['f-status','f-bank','f-search'].forEach(function(id){
+  document.addEventListener('DOMContentLoaded', function(){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('input', render);
+  });
+});
+
+function statusTag(status){
+  var cls = status==='安全' ? 'tag-safe' : status==='警戒' ? 'tag-warn' : status==='高風險' ? 'tag-danger' : 'tag-warn';
+  return '<span class="tag '+cls+'">'+(status||'—')+'</span>';
+}
+function dotClass(status){
+  return status==='安全' ? 'dot-safe' : status==='警戒' ? 'dot-warn' : status==='高風險' ? 'dot-danger' : 'dot-warn';
+}
+
+function render(){
+  renderStats();
+  renderProducts();
+  renderHistory();
+}
+
+function renderStats(){
+  var totalPrincipal = products.reduce(function(s,p){return s+(Number(p.principalAmount)||0);},0);
+  var totalCoupon = events.filter(function(e){return e.type==='配息';}).reduce(function(s,e){return s+(Number(e.amount)||0);},0);
+  var exitEvents = events.filter(function(e){return e.type==='提前贖回KO'||e.type==='到期贖回';});
+  var totalExit = exitEvents.reduce(function(s,e){return s+(Number(e.amount)||0);},0);
+  var totalReturn = totalPrincipal>0 ? ((totalCoupon+totalExit-totalPrincipal)/totalPrincipal*100) : 0;
+
+  document.getElementById('stats-grid').innerHTML =
+    statCard('總投入本金', '$'+fmt(totalPrincipal)) +
+    statCard('累計已領票息', '$'+fmt(totalCoupon)) +
+    statCard('已下庄總額', '$'+fmt(totalExit)) +
+    statCard('累計報酬率', totalReturn.toFixed(1)+'%');
+
+  var counts = {進行中:0,觀察中:0,已KO:0,已到期:0};
+  products.forEach(function(p){ if(counts[p.status]!==undefined) counts[p.status]++; });
+  document.getElementById('stats2-grid').innerHTML =
+    stat2(counts['進行中'],'進行中') + stat2(counts['觀察中'],'觀察中') + stat2(counts['已KO'],'已KO') + stat2(counts['已到期'],'已到期');
+}
+function statCard(label,val){ return '<div class="stat-card"><div class="stat-label">'+label+'</div><div class="stat-value">'+val+'</div></div>'; }
+function stat2(n,l){ return '<div class="stat2"><div class="n">'+(n||0)+'</div><div class="l">'+l+'</div></div>'; }
+
+function filteredProducts(){
+  var status = document.getElementById('f-status').value;
+  var bank = document.getElementById('f-bank').value;
+  var q = (document.getElementById('f-search').value||'').toLowerCase();
+  return products.filter(function(p){
+    if(status && p.status!==status) return false;
+    if(bank && p.custodianBank!==bank) return false;
+    if(q){
+      var hay = [p.isin,p.issuer,(p.underlyings||[]).map(function(u){return u.ticker;}).join(',')].join(' ').toLowerCase();
+      if(hay.indexOf(q)===-1) return false;
+    }
+    return true;
+  });
+}
+
+function renderProducts(){
+  var list = filteredProducts();
+  document.getElementById('filter-count').textContent = list.length + ' / ' + products.length + ' 檔';
+  document.getElementById('products-body').innerHTML = list.map(function(p){
+    var risk = riskById[p._id] || {};
+    var worst = risk.worstUnderlying || {};
+    var underlyingNames = (p.underlyings||[]).map(function(u){return u.ticker;}).join(' / ') || '—';
+    var nextFixing = (p.fixings||[]).map(function(f){return f.date;}).sort()[0] || '—';
+    return '<tr>'+
+      '<td>'+(p.productType||'—')+'</td>'+
+      '<td class="code">'+(p.isin||'—')+'</td>'+
+      '<td>'+(p.issuer||'—')+'</td>'+
+      '<td>'+(p.custodianBank||'—')+'</td>'+
+      '<td>'+underlyingNames+'</td>'+
+      '<td class="num">'+fmtPct(worst.distToKI)+'</td>'+
+      '<td class="num">'+fmtPct(worst.distToKO)+'</td>'+
+      '<td><span class="dot '+dotClass(risk.status||p.status)+'"></span>'+statusTag(risk.status || p.status)+'</td>'+
+      '<td>'+nextFixing+'</td>'+
+      '<td>'+(p.maturityDate||'—')+'</td>'+
+      '<td class="hint">'+(risk.hint||'')+'</td>'+
+      '<td>'+
+        '<button class="act-btn act-edit" onclick="showEditModal(\''+p._id+'\')">編輯</button>'+
+        '<button class="act-btn act-del" onclick="deleteProduct(\''+p._id+'\')">刪除</button>'+
+      '</td>'+
+    '</tr>';
+  }).join('') || '<tr><td colspan="12" class="muted" style="text-align:center;padding:20px">尚無資料</td></tr>';
+}
+
+function renderHistory(){
+  var exitEvents = events.filter(function(e){return e.type==='提前贖回KO'||e.type==='到期贖回';})
+    .sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  document.getElementById('history-body').innerHTML = exitEvents.map(function(e){
+    var p = products.find(function(x){return x._id===e.productId;}) || {};
+    return '<tr><td class="code">'+(p.isin||e.productId||'—')+'</td><td>'+(p.issuer||'—')+'</td>'+
+      '<td>'+e.type+'</td><td>'+e.date+'</td><td>'+(e.note||'—')+'</td>'+
+      '<td class="num">'+fmt(e.amount)+'</td></tr>';
+  }).join('') || '<tr><td colspan="6" class="muted" style="text-align:center;padding:20px">尚無出場紀錄</td></tr>';
+}
+
+// ---------- Edit mode & CRUD ----------
+function toggleEditMode(){
+  editOn = !editOn;
+  document.body.classList.toggle('edit-on', editOn);
+  document.getElementById('edit-toolbar').classList.toggle('on', editOn);
+}
+
+function underlyingsToText(underlyings){
+  return (underlyings||[]).map(function(u){
+    return [u.ticker, u.strikePrice, u.koBarrierPct, u.kiBarrierPct].map(function(v){return v==null?'':v;}).join(',');
+  }).join('\n');
+}
+function textToUnderlyings(text){
+  return (text||'').split('\n').map(function(l){return l.trim();}).filter(Boolean).map(function(line){
+    var parts = line.split(',');
+    return {
+      ticker: (parts[0]||'').trim(),
+      strikePrice: parts[1]!==undefined && parts[1]!=='' ? parseFloat(parts[1]) : null,
+      koBarrierPct: parts[2]!==undefined && parts[2]!=='' ? parseFloat(parts[2]) : null,
+      kiBarrierPct: parts[3]!==undefined && parts[3]!=='' ? parseFloat(parts[3]) : null,
+      lastPrice: null, lastPriceDate: null
+    };
+  });
+}
+function fixingsToText(fixings){ return (fixings||[]).map(function(f){return f.date;}).join('\n'); }
+function textToFixings(text){
+  return (text||'').split('\n').map(function(l){return l.trim();}).filter(Boolean).map(function(d){
+    return { date: d, isFinal: false, result: null };
+  });
+}
+
+function modalForm(p){
+  p = p || {};
+  return '<h3>'+(p._id?'編輯商品':'新增商品')+'</h3>'+
+  '<div class="form-grid">'+
+    field('productType','商品類型','select',p.productType,['FCN','RCN','DCN','CDRAN']) +
+    field('isin','ISIN','text',p.isin) +
+    field('issuer','發行商','text',p.issuer) +
+    field('custodianBank','託管銀行','select',p.custodianBank,['UBS','HSBC','玉山','星展']) +
+    field('currency','幣別','select',p.currency,['USD','JPY','TWD']) +
+    field('principalAmount','本金','number',p.principalAmount) +
+    field('couponRate','票息率(%)','number',p.couponRate) +
+    field('issueDate','申購日','date',p.issueDate) +
+    field('maturityDate','到期日','date',p.maturityDate) +
+    field('status','狀態','select',p.status,['進行中','觀察中','已KO','已到期']) +
+    '<div class="form-group full"><label>連結標的（每行一筆：代號,履約價,KO障礙%,KI障礙%）</label><textarea id="f-underlyings">'+underlyingsToText(p.underlyings)+'</textarea></div>'+
+    '<div class="form-group full"><label>觀察日（每行一個日期 YYYY-MM-DD）</label><textarea id="f-fixings">'+fixingsToText(p.fixings)+'</textarea></div>'+
+    '<div class="form-group full"><label>備註</label><input id="f-note" value="'+(p.note||'')+'"></div>'+
+  '</div>'+
+  '<div class="modal-actions">'+
+    '<button class="btn btn-secondary" onclick="closeModal()">取消</button>'+
+    '<button class="btn btn-primary" onclick="saveProduct(\''+(p._id||'')+'\')">儲存</button>'+
+  '</div>';
+}
+function field(id,label,type,val,options){
+  val = val===undefined||val===null ? '' : val;
+  if(type==='select'){
+    var opts = (options||[]).map(function(o){return '<option value="'+o+'"'+(o===val?' selected':'')+'>'+o+'</option>';}).join('');
+    return '<div class="form-group"><label>'+label+'</label><select id="f-'+id+'"><option value="">—</option>'+opts+'</select></div>';
+  }
+  return '<div class="form-group"><label>'+label+'</label><input id="f-'+id+'" type="'+type+'" value="'+val+'"></div>';
+}
+
+function showAddModal(){
+  document.getElementById('crud-dialog').innerHTML = modalForm({});
+  document.getElementById('crud-modal').classList.add('open');
+}
+function showEditModal(id){
+  var p = products.find(function(x){return x._id===id;});
+  if(!p) return;
+  document.getElementById('crud-dialog').innerHTML = modalForm(p);
+  document.getElementById('crud-modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('crud-modal').classList.remove('open'); }
+
+async function saveProduct(id){
+  var body = {
+    productType: val('f-productType'),
+    isin: val('f-isin'),
+    issuer: val('f-issuer'),
+    custodianBank: val('f-custodianBank'),
+    currency: val('f-currency'),
+    principalAmount: parseFloat(val('f-principalAmount'))||0,
+    couponRate: parseFloat(val('f-couponRate'))||0,
+    issueDate: val('f-issueDate'),
+    maturityDate: val('f-maturityDate'),
+    status: val('f-status'),
+    underlyings: textToUnderlyings(val('f-underlyings')),
+    fixings: textToFixings(val('f-fixings')),
+    note: val('f-note')
+  };
+  if(id){
+    body._id = id;
+    await apiPost('/update', body);
+  } else {
+    await apiPost('/add', body);
+  }
+  closeModal();
+  await fetchAll();
+}
+function val(id){ var el=document.getElementById(id); return el?el.value:''; }
+
+async function deleteProduct(id){
+  if(!confirm('確定要刪除這筆商品嗎？（相關事件紀錄不會自動刪除）')) return;
+  await apiPost('/delete', { _id: id });
+  await fetchAll();
+}
+
+fetchAll();
+</script>
+</body>
+</html>
