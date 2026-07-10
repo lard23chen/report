@@ -378,7 +378,7 @@ function modalForm(p){
   p = p || {};
   return '<h3>'+(p._id?'編輯商品':'新增商品')+'</h3>'+
   '<div class="form-grid">'+
-    field('productType','商品類型','select',p.productType,['FCN','RCN','DCN','CDRAN']) +
+    field('productType','商品類型','select',p.productType,['FCN','RCN','DCN','CDRAN','SN']) +
     field('isin','ISIN','text',p.isin) +
     field('issuer','發行商','text',p.issuer) +
     field('custodianBank','託管銀行','select',p.custodianBank,['UBS','HSBC','玉山','星展']) +
