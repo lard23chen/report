@@ -5649,3 +5649,163 @@ hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 [LINE] OK: daily
 [2026/07/12 ¶g¤é 16:03:02.12] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
+Fetched 28759 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (40 KB)
+Connecting to MongoDB...
+Fetching data for: 2026 7â€“ELEVEN é«˜é›„å•¤é…’éŸ³æ¨‚ç¯€...
+Fetched 1481 records.
+Fetched 48 page view records.
+Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (1452 KB)
+Connecting to MongoDB...
+UpdateTime (TWN): 2026/07/12 03:00
+Aggregating DAILY...
+Aggregating ACTIVITIES...
+Aggregating BY_DATE...
+Aggregating ACT_DAILY...
+Patching HTML...
+Done. Activities: 53, Days: 45, UpdateTime: 2026/07/12 03:00
+Connecting to MongoDB...
+UpdateTime (TWN): 2026/07/12 03:30
+Aggregating DAILY...
+Aggregating DATA...
+Patching HTML...
+Done. Days: 31, Activities: 61, UpdateTime: 2026/07/12 03:30
+Querying PageView...
+Querying ClickData...
+Querying daily PV/Click...
+Done. Activities: 69 (matched:45 pvOnly:16 clickOnly:8), pvTotal:2504118, clickTotal:1994819
+Querying page_view events (bucketed by day)...
+  21387 (activity, day) PV buckets
+Querying purchase events (bucketed by day, qty + revenue)...
+  6414 (activity, day) purchase buckets
+Done. Activities: 592 (PV: 589, purchase: 368, matched: 365)
+Totals: PV 575,214, qty 122,182, revenue $54,629,271
+Dates: 01/11 â€“ 07/12
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-06',
+    salesOrderCount: 114121,
+    salesTicketCount: 229250,
+    salesAmount: new Decimal128('280024507'),
+    refundOrderCount: 9986,
+    refundTicketCount: 17058,
+    refundFee: new Decimal128('1744794.0000')
+  },
+  {
+    _id: '2026-05',
+    salesOrderCount: 84786,
+    salesTicketCount: 153045,
+    salesAmount: new Decimal128('234437280'),
+    refundOrderCount: 13740,
+    refundTicketCount: 19469,
+    refundFee: new Decimal128('2335884.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 56786,
+    salesTicketCount: 107441,
+    salesAmount: new Decimal128('131916455'),
+    refundOrderCount: 5867,
+    refundTicketCount: 9374,
+    refundFee: new Decimal128('922591.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 105060,
+    salesTicketCount: 205575,
+    salesAmount: new Decimal128('209333847'),
+    refundOrderCount: 10688,
+    refundTicketCount: 18023,
+    refundFee: new Decimal128('1506558.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 36902,
+    salesTicketCount: 62463,
+    salesAmount: new Decimal128('68709018'),
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 19417,
+    salesTicketCount: 28539,
+    salesAmount: new Decimal128('73459515'),
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 45987,
+    salesTicketCount: 71404,
+    salesAmount: 254367084,
+    refundOrderCount: 7364,
+    refundTicketCount: 10510,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 14711,
+    salesTicketCount: 20300,
+    salesAmount: 52156681,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 17718,
+    salesTicketCount: 31507,
+    salesAmount: 93366542,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 53869,
+    salesTicketCount: 95574,
+    salesAmount: new Decimal128('134041283'),
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-03',
+    salesOrderCount: 86404,
+    salesTicketCount: 185367,
+    salesAmount: new Decimal128('379041779'),
+    refundOrderCount: 14740,
+    refundTicketCount: 24666,
+    refundFee: new Decimal128('2903107.9000')
+  },
+  {
+    _id: '2025-02',
+    salesOrderCount: 41139,
+    salesTicketCount: 80444,
+    salesAmount: new Decimal128('96189022'),
+    refundOrderCount: 4211,
+    refundTicketCount: 7165,
+    refundFee: new Decimal128('581397.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18197,
+    salesTicketCount: 28601,
+    salesAmount: new Decimal128('71893803'),
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026å¹´06æœˆ
+[2026/07/12 ¶g¤é 17:24:50.79] Update Completed. 
