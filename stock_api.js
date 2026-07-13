@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const MONGO_URI = process.env.MONGODB_URI_PERSONAL;
+const MONGO_URI = process.env.MONGODB_URI_PERSONAL || process.env.MONGO_URI; // Vercel 上沿用既有 MONGO_URI 變數
 const DB_NAME = 'AlexLIFE';
 const COLLECTION_NAME = 'Stock_Portfolio';
 

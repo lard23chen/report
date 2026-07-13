@@ -16,7 +16,7 @@ const path = require('path');
 const app  = express();
 const PORT = 3001;
 
-const MONGO_URI = process.env.MONGODB_URI_PERSONAL;
+const MONGO_URI = process.env.MONGODB_URI_PERSONAL || process.env.MONGO_URI; // Vercel 上沿用既有 MONGO_URI 變數
 const DB_NAME   = 'AlexLIFE';
 const COL_STORE = 'TravelStore';     // stores CRUD edit state
 const COL_TRIPS = 'Travel';          // stores structured trip data
