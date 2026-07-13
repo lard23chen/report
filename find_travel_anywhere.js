@@ -1,6 +1,7 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const MONGO_URI = process.env.MONGODB_URI_PERSONAL;
 
 async function findTravelCollections() {
     const client = new MongoClient(MONGO_URI);

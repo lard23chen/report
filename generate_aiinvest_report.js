@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 /**
  * generate_aiinvest_report.js
  * 讀取 aiinvest20260529 (2)~(7).xlsx + 美股股利_20260529.xlsx
@@ -10,7 +11,7 @@ const fs         = require('fs');
 const path       = require('path');
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI  = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const MONGO_URI  = process.env.MONGODB_URI_PERSONAL;
 const DB_NAME    = 'AlexLIFE';
 const COLLECTION = 'USA_Stock';
 const DIR        = __dirname;

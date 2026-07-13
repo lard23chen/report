@@ -1,10 +1,11 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 /**
  * fix_direct_profit_trades.js
  * 1. 刪除錯誤插入的合成買進記錄與舊賣出記錄
  * 2. 重新插入正確的「已實現損益」記錄（isDirectProfit: true）
  */
 const { MongoClient } = require('mongodb');
-const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const MONGO_URI = process.env.MONGODB_URI_PERSONAL;
 
 function makeDoc(date, code, name, shares, price, profit) {
   const parts = date.split('/');

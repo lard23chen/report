@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 // Generates CART_DATA / PURCHASE_DATA / CART_BY_DATE / PURCHASE_BY_DATE for
 // D_GA_Funnel_202606_Report.html from the DMP `event` collection, joined to
 // ActivityId via GA_D_ClickData_Webb_202606's ProductId. See
@@ -6,8 +7,8 @@ const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
 
-const uriGA  = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const uriDMP = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@qware-dmp-ver-7.f0fpg.mongodb.net/?retryWrites=true&w=majority";
+const uriGA  = process.env.MONGODB_URI_QWARE;
+const uriDMP = process.env.MONGODB_URI_DMP;
 
 const OUT_FILE = path.join(__dirname, 'D_GA_Funnel_202606_Report.html');
 const CART_START = '// ── CartPurchase Data Start ──────────────────────────────────────────────';

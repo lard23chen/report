@@ -1,8 +1,9 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 const fs = require('fs');
 const { MongoClient } = require('mongodb');
 const cheerio = require('cheerio');
 
-const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI_QWARE;
 const client = new MongoClient(uri);
 
 async function run() {

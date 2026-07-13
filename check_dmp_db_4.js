@@ -1,6 +1,7 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@qware-dmp-ver-7.f0fpg.mongodb.net/";
+const uri = process.env.MONGODB_URI_DMP;
 
 async function run() {
     const client = new MongoClient(uri);

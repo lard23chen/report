@@ -1,9 +1,10 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
 
-const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI_QWARE;
 const client = new MongoClient(uri, {
     serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
 });

@@ -7,7 +7,7 @@
 *   **資料庫平台**: MongoDB Atlas
 *   **資料庫名稱 (Database)**: `AlexLIFE`
 *   **集合名稱 (Collection)**: `Stock_Portfolio`
-*   **連線字串**: `mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/`
+*   **連線字串**: `讀取 .env 的 MONGODB_URI_PERSONAL（勿寫入文檔）`
 
 ---
 

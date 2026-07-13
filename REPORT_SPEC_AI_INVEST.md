@@ -68,7 +68,7 @@
 
 | 項目 | 值 |
 |------|-----|
-| URI | `mongodb+srv://lard23:...@cluster0.m7ujsnq.mongodb.net/` |
+| URI | `讀取 .env 的 MONGODB_URI_PERSONAL（勿寫入文檔）` |
 | DB | `AlexLIFE` |
 | Collection | `USA_Stock` |
 | 總文件數 | **445 筆**（205 交易 + 240 股利） |

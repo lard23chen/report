@@ -1,8 +1,9 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
 // 設定連接字串
-const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI_QWARE;
 
 // 建立 MongoClient
 const client = new MongoClient(uri, {

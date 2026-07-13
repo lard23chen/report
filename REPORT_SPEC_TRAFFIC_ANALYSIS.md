@@ -65,7 +65,7 @@
 
 ### 資料來源
 - DB：`trek-first-party-dmp` / `event`（獨立 MongoDB 叢集）
-- 連線字串：`mongodb+srv://QwareDashBoard:...@qware-dmp-ver-7...`
+- 連線字串：`讀取 .env 的 MONGODB_URI_DMP（勿寫入文檔）`
 - 篩選條件：`name='page_view'`、`bu='D'`、`canonical_url` regex `ticket.ibon.com.tw`
 
 ### 核心邏輯

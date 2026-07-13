@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 /**
  * insert_new_trades.js
  * 根據 2026/06/10 截圖新增缺少的交易記錄
@@ -5,7 +6,7 @@
  */
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const MONGO_URI = process.env.MONGODB_URI_PERSONAL;
 const DB_NAME = 'AlexLIFE';
 const COLLECTION = 'USA_Stock';
 

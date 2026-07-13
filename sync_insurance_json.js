@@ -1,7 +1,8 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
 
-const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const MONGO_URI = process.env.MONGODB_URI_PERSONAL;
 const DB_NAME = 'AlexLIFE';
 const COLLECTION_NAME = 'Insurance'; // matches insurance_server.js
 

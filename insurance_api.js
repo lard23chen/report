@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const cors = require('cors');
@@ -6,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const MONGO_URI = process.env.MONGODB_URI_PERSONAL;
 const DB_NAME = 'AlexLIFE';
 const COLLECTION_NAME = 'Insurance';
 

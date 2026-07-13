@@ -1,8 +1,9 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 ﻿const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
 
-const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@qware-dmp-ver-7.f0fpg.mongodb.net/";
+const uri = process.env.MONGODB_URI_DMP;
 
 // Optimization: Use $in to batch queries for all top 10 programs at once
 // instead of 5 separate queries per program (50 -> ~6 queries total)

@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 /**
  * import_travel_to_mongo.js
  * Parses Travel_Tickets_2026.html and imports all trip/flight/hotel data
@@ -11,7 +12,7 @@ const path        = require('path');
 const cheerio     = require('cheerio');
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const MONGO_URI = process.env.MONGODB_URI_PERSONAL;
 const DB_NAME   = 'AlexLIFE';
 const COL_NAME  = 'Travel';
 

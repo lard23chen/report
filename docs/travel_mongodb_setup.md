@@ -4,7 +4,7 @@
 
 | 項目 | 值 |
 |------|----|
-| 連線字串 | `mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/` |
+| 連線字串 | `讀取 .env 的 MONGODB_URI_PERSONAL（勿寫入文檔）` |
 | **資料庫** | **`AlexLIFE`** |
 | **Collection（旅程資料）** | **`Travel`**（大寫 T） |
 | Collection（UI 編輯狀態） | `TravelStore` |

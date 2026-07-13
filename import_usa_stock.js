@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 /**
  * import_usa_stock.js
  * 讀取 aiinvest20260529 (2)~(7).xlsx，寫入 MongoDB AlexLIFE/USA_Stock
@@ -10,7 +11,7 @@ const XLSX       = require('xlsx');
 const path       = require('path');
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI  = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const MONGO_URI  = process.env.MONGODB_URI_PERSONAL;
 const DB_NAME    = 'AlexLIFE';
 const COLLECTION = 'USA_Stock';
 const DIR        = __dirname;

@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -12,7 +13,7 @@ app.use(express.static('public'));
 app.use(express.static('.'));
 
 // --- Qware MongoDB ---
-const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI_QWARE;
 const client = new MongoClient(uri, {
     serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
 });
@@ -32,7 +33,7 @@ async function connectDB() {
 connectDB();
 
 // --- AlexLIFE MongoDB (Insurance) ---
-const alexClient = new MongoClient('mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/');
+const alexClient = new MongoClient(process.env.MONGODB_URI_PERSONAL);
 let alexDb;
 
 async function connectAlexDB() {

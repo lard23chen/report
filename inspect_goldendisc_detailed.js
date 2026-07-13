@@ -1,8 +1,9 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 
 const { MongoClient } = require('mongodb');
 
 async function inspect() {
-    const uri = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    const uri = process.env.MONGODB_URI_QWARE;
     const client = new MongoClient(uri);
     try {
         await client.connect();

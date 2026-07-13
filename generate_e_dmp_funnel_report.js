@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 // Generates all data blocks for E_DMP_Funnel_Report.html from the DMP `event`
 // collection (bu:"E"). Two-stage funnel: page_view -> purchase (qty + revenue).
 // See REPORT_SPEC_E_DMP_FUNNEL.md for the data model.
@@ -5,7 +6,7 @@ const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
 
-const uriDMP = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@qware-dmp-ver-7.f0fpg.mongodb.net/?retryWrites=true&w=majority";
+const uriDMP = process.env.MONGODB_URI_DMP;
 
 const OUT_FILE = path.join(__dirname, 'E_DMP_Funnel_Report.html');
 const DATA_START = '// ── Data Start ──────────────────────────────────────────────────────────────';

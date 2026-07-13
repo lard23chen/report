@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 /**
  * Travel Tickets MongoDB API Server
  * Connects to the `travel` collection and exposes REST endpoints
@@ -15,7 +16,7 @@ const path = require('path');
 const app  = express();
 const PORT = 3001;
 
-const MONGO_URI = 'mongodb+srv://lard23:Alex3638@cluster0.m7ujsnq.mongodb.net/';
+const MONGO_URI = process.env.MONGODB_URI_PERSONAL;
 const DB_NAME   = 'AlexLIFE';
 const COL_STORE = 'TravelStore';     // stores CRUD edit state
 const COL_TRIPS = 'Travel';          // stores structured trip data

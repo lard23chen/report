@@ -1,7 +1,8 @@
+require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 const { MongoClient } = require('mongodb');
 
 // The OTHER URI found in many files
-const MONGO_URI = "mongodb+srv://QwareDashBoard:7hJpyIt33eNwoLro@for-aws-loadtest.f0fpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const MONGO_URI = process.env.MONGODB_URI_QWARE;
 
 async function listDatabases() {
     const client = new MongoClient(MONGO_URI);
