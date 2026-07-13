@@ -245,6 +245,25 @@ async function updateIndexStats() {
                 return `購票金額${qualifier}${dirWord}約 NT$${wan(Math.abs(revDiff))}（${sign(revDiff)}${revPct}%），本月達 NT$${wan(cur.salesAmount)}，客單價${isRevUp ? '提升' : '下滑'}。`;
             })();
 
+            // 票種結構描述（電子票/紙票張數與占比變化；占比差以百分點 pp 表示）
+            const ticketTypeDesc = (() => {
+                const eCur = cur.eTicketCount || 0, ePrev = prev.eTicketCount || 0;
+                const pCur = cur.paperTicketCount || 0, pPrev = prev.paperTicketCount || 0;
+                const share = (c, t) => t ? (c / t) * 100 : 0;
+                const eShareCur = share(eCur, cur.salesTicketCount);
+                const eSharePrev = share(ePrev, prev.salesTicketCount);
+                const eShareDiff = eShareCur - eSharePrev;
+                const eDiff = diff(eCur, ePrev);
+                const pDiff = diff(pCur, pPrev);
+                const ePct = ePrev ? pct(eCur, ePrev) : '0.0';
+                const pPct = pPrev ? pct(pCur, pPrev) : '0.0';
+                const shiftWord = Math.abs(eShareDiff) < 0.5 ? '票種結構與上月相當'
+                    : (eShareDiff >= 0 ? '電子票占比提升，無紙化趨勢向上' : '紙票占比回升');
+                const eLabel = `電子票 ${eCur.toLocaleString()} 張（占 ${eShareCur.toFixed(1)}%，較上月 ${sign(eShareDiff)}${eShareDiff.toFixed(1)}pp，張數 ${sign(eDiff)}${ePct}%）`;
+                const pLabel = `紙票 ${pCur.toLocaleString()} 張（占 ${(100 - eShareCur).toFixed(1)}%，張數 ${sign(pDiff)}${pPct}%）`;
+                return `${eLabel}；${pLabel}。${shiftWord}。`;
+            })();
+
             // 退票描述
             const refundDesc = (() => {
                 const isRefundDown = cur.refundOrderCount < prev.refundOrderCount;
@@ -267,6 +286,7 @@ async function updateIndexStats() {
                         <div style="font-weight:700;margin-bottom:6px;color:var(--text-primary);">${cur._id} 較上月(${prev._id})</div>
                         <div style="color:var(--text-secondary);">${volEmoji} <b style="color:var(--text-primary);">交易量：</b>${volDesc}</div>
                         <div style="color:var(--text-secondary);">${revEmoji} <b style="color:var(--text-primary);">收入：</b>${revDesc}</div>
+                        <div style="color:var(--text-secondary);">🎫 <b style="color:var(--text-primary);">票種結構：</b>${ticketTypeDesc}</div>
                         <div style="color:var(--text-secondary);">${refundDesc}</div>
                     </div>
                 </div>`;
