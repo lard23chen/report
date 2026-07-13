@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="UTF-16"?>
+
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+
+  <RegistrationInfo>
+
+    <Date>2026-04-01T09:43:25</Date>
+
+    <Author>LIFEINFO\alexchen</Author>
+
+    <URI>\Qware_Monthly_Report_Update</URI>
+
+  </RegistrationInfo>
+
+  <Principals>
+
+    <Principal id="Author">
+
+      <UserId>S-1-5-21-725345543-1417001333-839522115-1658</UserId>
+
+      <LogonType>InteractiveToken</LogonType>
+
+    </Principal>
+
+  </Principals>
+
+  <Settings>
+
+    <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+
+    <StopIfGoingOnBatteries>true</StopIfGoingOnBatteries>
+
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+
+    <IdleSettings>
+
+      <StopOnIdleEnd>true</StopOnIdleEnd>
+
+      <RestartOnIdle>false</RestartOnIdle>
+
+    </IdleSettings>
+
+  </Settings>
+
+  <Triggers>
+
+    <CalendarTrigger>
+
+      <StartBoundary>2026-04-02T08:30:00</StartBoundary>
+
+      <ScheduleByMonth>
+
+        <Months>
+
+          <January />
+
+          <February />
+
+          <March />
+
+          <April />
+
+          <May />
+
+          <June />
+
+          <July />
+
+          <August />
+
+          <September />
+
+          <October />
+
+          <November />
+
+          <December />
+
+        </Months>
+
+        <DaysOfMonth>
+
+          <Day>1</Day>
+
+        </DaysOfMonth>
+
+      </ScheduleByMonth>
+
+    </CalendarTrigger>
+
+  </Triggers>
+
+  <Actions Context="Author">
+
+    <Exec>
+
+      <Command>D:\2025\AI\MongoDB\daily_update.bat</Command>
+
+    </Exec>
+
+  </Actions>
+
+</Task>
