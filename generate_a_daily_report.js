@@ -123,10 +123,13 @@ async function generateDailyReport() {
             const name = item['節目/商品名稱'] || 'Unknown';
             const price = parsePrice(item['售價']);
             const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
-            if (!eventStats[name]) eventStats[name] = { orders: new Set(), tickets: 0, revenue: 0 };
+            if (!eventStats[name]) eventStats[name] = { orders: new Set(), tickets: 0, revenue: 0, eTickets: 0, paperTickets: 0 };
             eventStats[name].orders.add(orderId);
             eventStats[name].tickets += 1;
             eventStats[name].revenue += price;
+            // 取票方式：未列印=電子票、已取=紙票（與週報/月報/report_index 判定一致）
+            if (item['取票方式'] === '未列印') eventStats[name].eTickets += 1;
+            else if (item['取票方式'] === '已取') eventStats[name].paperTickets += 1;
 
             // Session tracking
             if (!eventSessions[name]) eventSessions[name] = {};
@@ -161,11 +164,11 @@ async function generateDailyReport() {
                             return b.revenue - a.revenue;
                         });
                 }
-                return { name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue, share: totalRevenue ? (s.revenue / totalRevenue * 100).toFixed(1) : '0', sessions };
+                return { name, orders: s.orders.size, tickets: s.tickets, eTickets: s.eTickets, paperTickets: s.paperTickets, revenue: s.revenue, share: totalRevenue ? (s.revenue / totalRevenue * 100).toFixed(1) : '0', sessions };
             })
             .sort((a, b) => b.revenue - a.revenue).slice(0, 5);
         const topByTickets = Object.entries(eventStats)
-            .map(([name, s]) => ({ name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue }))
+            .map(([name, s]) => ({ name, orders: s.orders.size, tickets: s.tickets, eTickets: s.eTickets, paperTickets: s.paperTickets, revenue: s.revenue }))
             .sort((a, b) => b.tickets - a.tickets).slice(0, 5);
 
         // Top 5 refund events
@@ -377,7 +380,7 @@ async function generateDailyReport() {
         <div class="table-container">
         <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🏆 銷售排行 Top 5 (By Revenue)</h3>
         <table id="topEventsTable"><thead><tr>
-            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">佔比</th>
+            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">電子票</th><th class="text-right">紙票</th><th class="text-right">金額</th><th class="text-right">佔比</th>
         </tr></thead><tbody></tbody></table>
         <div id="eventDetailModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
            <div style="background:white; margin:auto; margin-top:5%; padding:20px; border-radius:12px; max-width:800px; width:90%; max-height:80vh; overflow-y:auto; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
@@ -394,7 +397,7 @@ async function generateDailyReport() {
     <div class="table-container">
         <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🎟️ 銷售排行 Top 5 (By Tickets)</h3>
         <table id="topTicketsTable"><thead><tr>
-            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th>
+            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">電子票</th><th class="text-right">紙票</th><th class="text-right">金額</th>
         </tr></thead><tbody></tbody></table>
     </div>
 
@@ -478,9 +481,9 @@ function init() {
     });
 
     // Top Events by Revenue
-    renderRankTable('#topEventsTable', D.topByRevenue, ['orders','tickets','revenue','share'], 'var(--accent-color)');
+    renderRankTable('#topEventsTable', D.topByRevenue, ['orders','tickets','eTickets','paperTickets','revenue','share'], 'var(--accent-color)');
     // Top Events by Tickets
-    renderRankTable('#topTicketsTable', D.topByTickets, ['orders','tickets','revenue'], 'var(--accent-color)');
+    renderRankTable('#topTicketsTable', D.topByTickets, ['orders','tickets','eTickets','paperTickets','revenue'], 'var(--accent-color)');
     // Top Refunds
     renderRankTable('#topRefundTable', D.topRefunds, ['orders','tickets','amount'], '#c62828');
 
@@ -492,7 +495,7 @@ function init() {
 
 function renderRankTable(sel, items, fields, color) {
     const tb = document.querySelector(sel+' tbody');
-    if (!items.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">無資料</td></tr>'; return; }
+    if (!items.length) { tb.innerHTML = '<tr><td colspan="'+(fields.length+2)+'" style="text-align:center;">無資料</td></tr>'; return; }
     items.forEach((ev,i) => {
         const tr = document.createElement('tr');
         let html = '<td><span style="background:'+color+'; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">'+(i+1)+'</span></td>';
@@ -504,6 +507,7 @@ function renderRankTable(sel, items, fields, color) {
         fields.forEach(f => {
             if (f==='revenue'||f==='amount') html += '<td class="text-right" style="color:'+color+'; font-weight:bold;">'+ntd(ev[f])+'</td>';
             else if (f==='share') html += '<td class="text-right" style="color:#888;">'+ev[f]+'%</td>';
+            else if (f==='eTickets'||f==='paperTickets') { var ttPct = ev.tickets ? ((ev[f]||0)/ev.tickets*100).toFixed(1) : '0.0'; html += '<td class="text-right">'+fmt(ev[f]||0)+'<span style="color:#888; font-size:0.85em;"> ('+ttPct+'%)</span></td>'; }
             else html += '<td class="text-right">'+fmt(ev[f])+'</td>';
         });
         tr.innerHTML = html;
