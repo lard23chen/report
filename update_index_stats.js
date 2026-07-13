@@ -38,7 +38,9 @@ async function updateIndexStats() {
                         ]
                     },
                     price: { $ifNull: ["$售價", 0] },
-                    fee: { $ifNull: ["$手續費", 0] }
+                    fee: { $ifNull: ["$手續費", 0] },
+                    // 取票方式：未列印=電子票、已取=紙票（與週報判定慣例一致）
+                    pickup: "$取票方式"
                 }
             },
             // 3. First Group by Month + OrderID
@@ -49,6 +51,8 @@ async function updateIndexStats() {
                     // Tickets in this order
                     ticketsSales: { $sum: { $cond: [{ $eq: ["$status", "正常"] }, 1, 0] } },
                     revenueSales: { $sum: { $cond: [{ $eq: ["$status", "正常"] }, "$price", 0] } },
+                    eTicketsSales: { $sum: { $cond: [{ $and: [{ $eq: ["$status", "正常"] }, { $eq: ["$pickup", "未列印"] }] }, 1, 0] } },
+                    paperTicketsSales: { $sum: { $cond: [{ $and: [{ $eq: ["$status", "正常"] }, { $eq: ["$pickup", "已取"] }] }, 1, 0] } },
 
                     ticketsRefund: { $sum: { $cond: [{ $eq: ["$status", "退票"] }, 1, 0] } },
                     feeRefund: { $sum: { $cond: [{ $eq: ["$status", "退票"] }, "$fee", 0] } }
@@ -65,6 +69,8 @@ async function updateIndexStats() {
                     },
                     salesTicketCount: { $sum: "$ticketsSales" },
                     salesAmount: { $sum: "$revenueSales" },
+                    eTicketCount: { $sum: "$eTicketsSales" },
+                    paperTicketCount: { $sum: "$paperTicketsSales" },
 
                     // Refund Stats
                     refundOrderCount: {
@@ -101,10 +107,18 @@ async function updateIndexStats() {
         // Calculate Totals
         const totalSalesOrders = validResults.reduce((acc, r) => acc + r.salesOrderCount, 0);
         const totalSalesTickets = validResults.reduce((acc, r) => acc + r.salesTicketCount, 0);
+        const totalETickets = validResults.reduce((acc, r) => acc + (r.eTicketCount || 0), 0);
+        const totalPaperTickets = validResults.reduce((acc, r) => acc + (r.paperTicketCount || 0), 0);
         const totalSalesAmount = validResults.reduce((acc, r) => acc + r.salesAmount, 0);
         const totalRefundOrders = validResults.reduce((acc, r) => acc + r.refundOrderCount, 0);
         const totalRefundTickets = validResults.reduce((acc, r) => acc + r.refundTicketCount, 0);
         const totalRefundFee = validResults.reduce((acc, r) => acc + r.refundFee, 0);
+
+        // 電子票/紙票欄：張數 + 占購票張數比例（占比放次行避免表格過寬）
+        const ticketTypeCell = (count, total) => {
+            const pct = total ? ((count / total) * 100).toFixed(1) : '0.0';
+            return `${(count || 0).toLocaleString()}<div style="font-size: 0.8em; color: var(--text-secondary);">(${pct}%)</div>`;
+        };
 
         // Generate HTML
         let statsHtml = `
@@ -124,6 +138,8 @@ async function updateIndexStats() {
                             <th style="text-align: left; padding: 1rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">月份</th>
                             <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票筆數</th>
                             <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票張數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--accent-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">電子票張數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--purple-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">紙票張數</th>
                             <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">購票金額</th>
                             <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票筆數</th>
                             <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600;">退票張數</th>
@@ -152,6 +168,12 @@ async function updateIndexStats() {
                             </td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500;">
                                 ${r.salesTicketCount.toLocaleString()} ${getCompareHtml(r.salesTicketCount, nextMonth ? nextMonth.salesTicketCount : null)}
+                            </td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                ${ticketTypeCell(r.eTicketCount, r.salesTicketCount)}
+                            </td>
+                            <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
+                                ${ticketTypeCell(r.paperTicketCount, r.salesTicketCount)}
                             </td>
                             <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary);">
                                 NT$ ${r.salesAmount.toLocaleString()} ${getCompareHtml(r.salesAmount, nextMonth ? nextMonth.salesAmount : null)}
@@ -255,6 +277,8 @@ async function updateIndexStats() {
                             <td style="padding: 1rem; color: var(--text-primary); border-top: 2px solid rgba(255,255,255,0.1);">總計 (Total)</td>
                             <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalSalesOrders.toLocaleString()}</td>
                             <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalSalesTickets.toLocaleString()}</td>
+                            <td style="text-align: right; padding: 1rem; color: var(--accent-color); border-top: 2px solid rgba(255,255,255,0.1);">${ticketTypeCell(totalETickets, totalSalesTickets)}</td>
+                            <td style="text-align: right; padding: 1rem; color: var(--purple-color); border-top: 2px solid rgba(255,255,255,0.1);">${ticketTypeCell(totalPaperTickets, totalSalesTickets)}</td>
                             <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">NT$ ${totalSalesAmount.toLocaleString()}</td>
                             <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalRefundOrders.toLocaleString()}</td>
                             <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalRefundTickets.toLocaleString()}</td>
@@ -265,7 +289,7 @@ async function updateIndexStats() {
                 ${momHtml}
             </div>
             <div style="margin-top: 1rem; text-align: right; font-size: 0.85rem; color: var(--text-secondary);">
-                * 購票/退票筆數: 不重複訂單編號數 (Orders) / 購票張數: 實際票券數量 (Tickets) / 已排除訂單編號 B 開頭之訂單
+                * 購票/退票筆數: 不重複訂單編號數 (Orders) / 購票張數: 實際票券數量 (Tickets) / 電子票=取票方式「未列印」、紙票=「已取」，占比為占當月購票張數比例 / 已排除訂單編號 B 開頭之訂單
             </div>
         </div>
         <!-- STATS_END -->
