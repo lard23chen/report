@@ -53,6 +53,10 @@
 
 ### 4.3 分析表格 (Data Tables)
 - **銷售排行 Top 5**: 分別依據「金額」與「張數」進行排行，必須嚴格限制僅顯示前 5 名。
+- **電子票/紙票欄**（2026/07/13 新增，2026年06月報表起適用）:
+  - 兩張銷售排行表在「張數」右側各有「電子票 (E-Ticket)」「紙票 (Paper)」欄，顯示張數與占**該節目張數**的比例（括號小字）。
+  - 判定規則與 report_index 月份統計/週報一致：`取票方式` 未列印=電子票、已取=紙票。
+  - 實作：`generate_monthly_report.js` 聚合時累計 `eTickets` / `paperTickets`（projection **必須包含 `取票方式`**）；表頭在 `uiTemplate` 上以 table id（`topEventsTable` / `topTicketsEventsTable`）錨定的 regex 動態插入，**共用模板 `generate_report_feb_2026.js` 本身未改**（避免歷史二月報表重跑時欄位錯位），列模板 `revenueRowTpl` / `ticketsRowTpl` 以 `ttCell()` helper 產出兩欄。退票排行不套用。
 - **銷售排行「全部 / 排除體育」切換鈕**（2026/07/06 新增，2026年06月報表起適用）:
   - 位於「銷售排行 Top 5 (By Revenue)」標題列右側（`#rankViewToggle`），一鍵同時切換金額與張數兩張表，預設「全部」。
   - **排除邏輯**: 過濾 `業態別 === '運動票'` 的節目後重新取 Top 5（資料庫欄位，非名稱關鍵字比對）。退票排行不套用。

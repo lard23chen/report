@@ -43,7 +43,7 @@ async function generateReport() {
         console.log(`Fetching and aggregating ${targetMonth} data...`);
         const rawData = await collection.find(
             { "交易時間": { $regex: `^${targetMonth}` }, "訂單編號": { $not: /^B/ } },
-            { projection: { "交易時間": 1, "售價": 1, "狀態": 1, "訂單編號": 1, "節目/商品名稱": 1, "業態別": 1, "付款方式": 1, "銷售點": 1, "手續費": 1, "實退金額": 1, "退票時間": 1, "退票因素": 1, "會員編號": 1 } }
+            { projection: { "交易時間": 1, "售價": 1, "狀態": 1, "訂單編號": 1, "節目/商品名稱": 1, "業態別": 1, "付款方式": 1, "銷售點": 1, "手續費": 1, "實退金額": 1, "退票時間": 1, "退票因素": 1, "會員編號": 1, "取票方式": 1 } }
         ).toArray();
 
         console.log(`Processing ${rawData.length} records...`);
@@ -105,10 +105,13 @@ async function generateReport() {
             const name = item['節目/商品名稱'] || 'Unknown';
             const date = item['交易時間'].split(' ')[0];
 
-            if (!eventSummaryMap[name]) eventSummaryMap[name] = { category: item['業態別'] || '未知', revenue: 0, tickets: 0, orders: new Set(), refunds: 0, refundTickets: 0, priceStats: {}, pointStats: {}, refundReasons: {}, refundOrders: new Set(), dailyTrend: {} };
+            if (!eventSummaryMap[name]) eventSummaryMap[name] = { category: item['業態別'] || '未知', revenue: 0, tickets: 0, eTickets: 0, paperTickets: 0, orders: new Set(), refunds: 0, refundTickets: 0, priceStats: {}, pointStats: {}, refundReasons: {}, refundOrders: new Set(), dailyTrend: {} };
             const es = eventSummaryMap[name];
             es.revenue += p;
             es.tickets += 1;
+            // 取票方式：未列印=電子票、已取=紙票（與 report_index 月份統計/週報判定一致）
+            if (item['取票方式'] === '未列印') es.eTickets += 1;
+            else if (item['取票方式'] === '已取') es.paperTickets += 1;
             es.orders.add(baseOrder);
             es.priceStats[p] = (es.priceStats[p] || 0) + 1;
             es.pointStats[item['銷售點'] || '未知'] = (es.pointStats[item['銷售點'] || '未知'] || 0) + p;
@@ -229,6 +232,12 @@ async function generateReport() {
             .replace("${logoBase64 ? logoBase64 : 'https://ticket.ibon.com.tw/assets/img/logo.png'}", logoBase64 || 'https://ticket.ibon.com.tw/assets/img/logo.png')
             .replace('Data Source: MongoDB (QwareAi / Qware_A_Ticket_data)', 'Data Source: MongoDB (QwareAi / Qware_Ticket_Data) &middot; 已排除訂單編號 B 開頭之訂單');
 
+        // 銷售排行兩張表的表頭插入電子票/紙票欄（以 table id 錨定，避免影響退票/付款/銷售點表）
+        const eTicketThs = '\n                    <th class="text-right">電子票 (E-Ticket)</th>\n                    <th class="text-right">紙票 (Paper)</th>';
+        uiTemplate = uiTemplate
+            .replace(/(<table id="topEventsTable">[\s\S]*?<th class="text-right">張數 \(Tickets\)<\/th>)/, `$1${eTicketThs}`)
+            .replace(/(<table id="topTicketsEventsTable">[\s\S]*?<th class="text-right">張數 \(Tickets\)<\/th>)/, `$1${eTicketThs}`);
+
         const uiPart = uiTemplate.split("    const dbData = '__DB_DATA_PLACEHOLDER__';")[0];
 
         let finalHtml = uiPart + `const summaryData = ${JSON.stringify(summaryData)};
@@ -258,8 +267,11 @@ async function generateReport() {
             list.forEach((item, i) => tbody.innerHTML += templateFn(item, i));
         };
 
-        const revenueRowTpl = (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right" style="color:#888;">\${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>\`;
-        const ticketsRowTpl = (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">\${item.tickets.toLocaleString()}</td><td class="text-right">NT$ \${item.revenue.toLocaleString()}</td></tr>\`;
+        // 電子票/紙票欄：張數 + 占該節目張數比例
+        const ttCell = (cnt, total) => \`<td class="text-right">\${(cnt||0).toLocaleString()}<span style="color:#888; font-size:0.85em;"> (\${total ? ((cnt||0)/total*100).toFixed(1) : '0.0'}%)</span></td>\`;
+
+        const revenueRowTpl = (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right">\${item.tickets.toLocaleString()}</td>\${ttCell(item.eTickets, item.tickets)}\${ttCell(item.paperTickets, item.tickets)}<td class="text-right" style="color: var(--accent-color); font-weight:bold;">NT$ \${item.revenue.toLocaleString()}</td><td class="text-right" style="color:#888;">\${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>\`;
+        const ticketsRowTpl = (item, i) => \`<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">\${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('\${item.name.replace(/'/g, "\\\\'")}')">\${item.name}</span></td><td class="text-right">\${item.orderCount.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">\${item.tickets.toLocaleString()}</td>\${ttCell(item.eTickets, item.tickets)}\${ttCell(item.paperTickets, item.tickets)}<td class="text-right">NT$ \${item.revenue.toLocaleString()}</td></tr>\`;
         // 銷售排行「全部 / 排除體育」切換（排除體育 = 業態別為運動票的節目不列入）
         window.switchRankView = function(mode) {
             const rev = (mode === 'noSports' && s.topByRevenueNoSports) ? s.topByRevenueNoSports : s.topByRevenue;
