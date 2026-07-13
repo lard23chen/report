@@ -1,5 +1,9 @@
 @echo off
 cd /d "d:\2025\AI\MongoDB\travel"
+
+:: Fail fast instead of hanging forever if git needs credentials (no UI in scheduled session)
+set GIT_TERMINAL_PROMPT=0
+set GCM_INTERACTIVE=never
 echo %DATE% %TIME% - Starting update process... >> update_log.txt
 
 :: 1. Download latest CSV
@@ -22,7 +26,13 @@ node generate_shopping_report.js >> update_log.txt 2>&1
 echo Pushing to GitHub... >> update_log.txt
 git add .
 git commit -m "Auto-update expense report: %DATE% %TIME%"
-git push >> update_log.txt 2>&1
+:: Rebase onto remote first so pushes from other machines don't cause non-fast-forward rejection
+git pull --rebase --autostash origin main >> git_sync.log 2>&1
+if errorlevel 1 (
+    echo %DATE% %TIME% - git pull --rebase failed, aborting rebase. See git_sync.log >> update_log.txt
+    git rebase --abort >> git_sync.log 2>&1
+)
+git push origin main >> git_sync.log 2>&1
 
 echo Update finished. >> update_log.txt
 

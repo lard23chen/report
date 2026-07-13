@@ -1,5 +1,6 @@
 .env
 *.env
+git_sync.log
 node_modules/
 .streamlit/secrets.toml
 requirements_travel.txt

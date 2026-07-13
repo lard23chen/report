@@ -48,7 +48,9 @@ node generate_e_dmp_funnel_report.js               → E_DMP_Funnel_Report.html
 node update_index_stats.js                         → report_index.html（統計表 + Tab1 月份卡片）
 if 今日為2日:  node generate_monthly_report.js     → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
 if 今日為10日: node generate_ga_report.js          → A_GA_Traffic_Analysis_Report.html
-git add . && git commit -m "Auto Update Daily Reports: ..." && git push origin main
+git add . && git commit -m "Auto Update Daily Reports: ..."
+git pull --rebase --autostash origin main（失敗則 git rebase --abort）
+git push origin main（git 輸出寫入 git_sync.log，見 §6.3）
 powershell send_line_notify.ps1 -Template "daily"  → LINE 完成通知
 ```
 
@@ -93,7 +95,9 @@ powershell send_line_notify.ps1 -Template "daily"  → LINE 完成通知
 
 ```bat
 node generate_ga_events_report.js    → A_GA_Events_Traffic_Report.html
-git add . && git commit -m "Auto-update GA Traffic Reports: ..." && git push
+git add . && git commit -m "Auto-update GA Traffic Reports: ..."
+git pull --rebase --autostash origin main（失敗則 git rebase --abort）
+git push origin main（git 輸出寫入 git_sync.log，見 §6.3）
 ```
 
 ### 3.3 產出報表
@@ -128,7 +132,7 @@ git add . && git commit -m "Auto-update GA Traffic Reports: ..." && git push
 # 3. 下載購物 CSV（Google Sheets GID:1320702581 → new_data_gid_1320702581.csv）
 # 4. 下載參考網頁（→ reference_site.html）
 # 5. node generate_shopping_report.js → shopping HTML
-# 6. git add . && git commit -m "Auto-update expense report: ..." && git push
+# 6. git add . && git commit → git pull --rebase --autostash → git push origin main（見 §6.3）
 ```
 
 ### 4.3 產出報表
@@ -168,7 +172,9 @@ node generate_a_weekly_report.js
 #   → 自動在 report_index.html tab7 插入本週卡片（最新在最上方）
 #   → 自動更新 HTML_Report_Catalog.html 週報列連結與時間戳
 git add A_Qware_Revenue_Report_Weekly_*.html report_index.html HTML_Report_Catalog.html weekly_log.txt
-git commit -m "Auto Update Weekly Report: ..." && git push origin main
+git commit -m "Auto Update Weekly Report: ..."
+git pull --rebase --autostash origin main（失敗則 git rebase --abort）
+git push origin main（git 輸出寫入 git_sync.log，見 §6.3）
 ```
 
 > 與 `daily_update.bat` 不同，此 BAT 的 `git add` **只加入週報 HTML 與 log**（非 `git add .`），避免把工作區其他未提交變更一起收走（§2.2 已知問題）。
@@ -187,7 +193,7 @@ git commit -m "Auto Update Weekly Report: ..." && git push origin main
 
 | 錯誤碼 | 代號 | 常見原因 | 處理方式 |
 |--------|------|---------|---------|
-| `2147946720`（`0x800710E0`） | — | Node.js 路徑錯誤、MongoDB 逾時、Git 無差異 | 查 `daily_log.txt`；確認 `_Final` 排程是否成功 |
+| `2147946720`（`0x800710E0`） | `ERROR_REQUEST_REFUSED` | **同一排程的前一執行個體仍在執行**（事件 322，新啟動被拒；2026/07/13 實際案例為 git push 掛死 17 小時）、Node.js 路徑錯誤、MongoDB 逾時 | 查事件檢視器 `TaskScheduler/Operational`；找出掛住的 git/cmd 程序砍掉（需 admin，排程為最高權限執行）；查 `daily_log.txt` |
 | `-2147020576`（`0x80070520`） | `ERROR_NO_SUCH_LOGON_SESSION` | 排程觸發時電腦已鎖定（Interactive only 限制） | 登入後由 HKCU Run 機碼自動補跑；或手動執行 BAT |
 
 **排查步驟：**
@@ -211,7 +217,23 @@ Get-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "Qw
 Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "QwareDailyReport"
 ```
 
-### 6.3 新增排程程式規範
+### 6.3 Git 同步防護（2026/07/13 新增）
+
+**背景（2026/07/13 事故）**：遠端 main 被其他機器推入新 commit 後，四支 BAT 的 `git push` 因 non-fast-forward 連續失敗（7/11～7/12 共 4 個 commit 推不上去，GitHub Pages 停在 7/10）。同時 git push / git-credential-manager 在排程 session 中等待認證輸入而**掛死超過 17 小時**，造成：
+1. 掛住的執行個體讓 `Update_GA_Report_0800` 被排程器拒絕啟動（事件 322，錯誤碼 `0x800710E0`）
+2. 掛死的 GCM 程序繼承了 `daily_log.txt` 的重導向 handle 並鎖住檔案，導致隔天 daily_update.bat 所有 `>> daily_log.txt` 指令重導向失敗而被 cmd 跳過——**整個 BAT 7 秒空跑完、回傳 0、報表完全沒更新**
+
+**四支 BAT（daily / ga / weekly / travel）統一加入的防護**：
+
+| 防護 | 作法 | 目的 |
+|------|------|------|
+| 認證不互動 | `set GIT_TERMINAL_PROMPT=0`、`set GCM_INTERACTIVE=never` | git 需要認證時直接失敗，不再無限等待輸入而掛死 |
+| push 前先 rebase | commit 後執行 `git pull --rebase --autostash origin main`，失敗則 `git rebase --abort` | 遠端有其他機器的 commit 時自動接上，避免 non-fast-forward 被拒 |
+| git 輸出隔離 | pull/push 輸出改導向 `git_sync.log`（已加入 `.gitignore`） | 即使 git 程序掛死鎖住 log，也不會鎖到 `daily_log.txt` 等主 log 而癱瘓整個報表流程 |
+
+> 掛死程序的清理需系統管理員權限（排程以「最高權限」執行）：`schtasks /End /TN <排程名>` 結束執行個體後，再以提權 `taskkill /F /PID <pid>` 清掉殘留的 git / git-credential-manager。找出鎖檔案的程序可用 Restart Manager API（rstrtmgr.dll）。
+
+### 6.4 新增排程程式規範
 
 若需新增排程：
 1. 撰寫 `.bat` 或 `.ps1`，輸出 log 至 `*_log.txt`
@@ -238,6 +260,7 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/09（新增 `Qware_Weekly_Report_Update` 排程 + `weekly_update.bat`，A 系統週報每週四 08:30 自動產出）*
+*最後更新：2026/07/13（git push 掛死事故復原；四支 BAT 加入 git pull --rebase --autostash 與認證不互動防護，git 輸出改導向 git_sync.log，見 §6.3）*
+*2026/07/09：新增 `Qware_Weekly_Report_Update` 排程 + `weekly_update.bat`，A 系統週報每週四 08:30 自動產出*
 *2026/07/07：daily_update.bat 新增 generate_e_dmp_funnel_report.js，E 系統轉換漏斗報表改為每日 08:00 自動更新*
 *2026/07/06：補記 daily_update.bat 實際步驟：pageview / funnel generator 與 LINE 通知；更新排程總覽最後執行紀錄；註記 git add . 會收走工作區未提交變更*
