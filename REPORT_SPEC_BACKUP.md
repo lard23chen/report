@@ -82,7 +82,7 @@ foreach ($t in $tasks) { schtasks /Query /TN $t /XML | Out-File "scheduled_tasks
 
 | # | 風險 | 優先度 | 狀態 |
 |---|------|--------|------|
-| 1 | **MongoDB 連線字串(含帳密)硬編碼在 235 支 js 檔（237 處）+ 4 個 MD 文檔內,且 repo 為公開**——3 組帳密已曝光（QwareDashBoard×2 cluster、lard23 個人） | **高** | **程式碼已於 2026/07/13 全數改讀 `.env`**（`MONGODB_URI_QWARE` / `MONGODB_URI_DMP` / `MONGODB_URI_PERSONAL`）;舊帳密仍在 git 歷史,**必須輪換密碼**（lard23 已換;QwareDashBoard 待換）+ 設 Atlas IP 白名單 |
+| 1 | **MongoDB 連線字串(含帳密)硬編碼在 235 支 js 檔（237 處）+ 4 個 MD 文檔內,且 repo 為公開**——3 組帳密已曝光（QwareDashBoard×2 cluster、lard23 個人） | **高** | **程式碼已於 2026/07/13 全數改讀 `.env`**（`MONGODB_URI_QWARE` / `MONGODB_URI_DMP` / `MONGODB_URI_PERSONAL`）。lard23:歷史中曝光的舊密碼已失效（風險解除;本機 `.env` 待與 Atlas 新密碼對齊,影響 server.js 與投資/保險工具）。**QwareDashBoard:曝光密碼仍有效,用戶 2026/07/13 決定暫不輪換——風險保留,強烈建議至少設 Atlas Network Access IP 白名單作為補償控制** |
 | 2 | **`.env` 曾被 git 追蹤**（gitignore 對已追蹤檔案無效）,內含 `OPENAI_API_KEY`,已隨公開 repo 曝光 | **高** | 2026/07/13 已 `git rm --cached` 解除追蹤;**OPENAI_API_KEY 必須到 platform.openai.com 重發並更新 `.env`** |
 | 3 | Atlas 免費層無自動備份,原始數據單點 | 中 | 待決定(§3.4) |
 | 4 | 憑證檔無異地副本 | 高 | 待用戶執行 §3.3(需人工放到私密位置) |
