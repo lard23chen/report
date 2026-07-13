@@ -128,7 +128,7 @@ async function updateIndexStats() {
                 <h3 style="color: var(--text-primary); font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
                     📊 月份交易統計
                 </h3>
-                <span id="lastUpdated" style="font-size: 0.85rem; color: var(--text-secondary);">最後更新: ${new Date().toLocaleString('zh-TW')} (每月二號 08:30)</span>
+                <span id="lastUpdated" style="font-size: 0.85rem; color: var(--text-secondary);">最後更新: ${new Date().toLocaleString('zh-TW')} (每日 08:00 自動更新)</span>
             </div>
 
             <div style="overflow-x: hidden;">
