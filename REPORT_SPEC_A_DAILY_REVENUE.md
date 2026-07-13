@@ -146,3 +146,6 @@ costTrendValues // number[]  對應每日費用（排除E系統，已四捨五�
 
 - 月度報表 UI template 從 `generate_report_feb_2026.js` 動態抽取，修改 HTML 元件時需同步更新該檔案
 - `ChartDataLabels` 已在 template 中透過 `<script>` 引入，費用圖可直接使用 `plugins: [ChartDataLabels]`
+
+---
+*最後更新：2026/07/13（銷售排行兩表新增電子票/紙票張數與占比欄，詳見 §4.5）*
