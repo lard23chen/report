@@ -178,6 +178,7 @@ git push origin main（git 輸出寫入 git_sync.log，見 §6.3）
 ```
 
 > 與 `daily_update.bat` 不同，此 BAT 的 `git add` **只加入週報 HTML 與 log**（非 `git add .`），避免把工作區其他未提交變更一起收走（§2.2 已知問題）。
+> 總目錄 `HTML_Report_Catalog.html` 的「⏰ 自動排程程式」區有對應的 **S3 列**（2026/07/13 加入）；`generate_a_weekly_report.js` 的 `updateCatalogRow()` 會同時自動更新週報列（編號 45）與 S3 列的最新檔名連結和執行時間戳（run-time regex 使用 `/g`，S3 列說明文字刻意寫「每週四早上 8:30」以避開該 regex 的「每週四 08:30」樣式）。
 > 重複執行保護的日期比對使用 `findstr /c:"%TODAY%"`（不含 `[` 前綴），因 `%date%` 格式在互動 shell 與排程器下可能不同（`週四 2026/07/09` vs `2026/07/09 週四`）。
 
 ### 5.3 執行時間設計

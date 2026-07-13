@@ -64,7 +64,8 @@ function updateCatalogRow(fileName) {
     html = html.replace(/A_Qware_Revenue_Report_Weekly[^"<]*\.html/g, fileName);
     html = html.replace(/<td class="update-time">[^<]*<\/td>(\s*<td><a href="[^"]*A_Qware_Revenue_Report_Weekly)/,
         `<td class="update-time">${nowStr}</td>$1`);
-    html = html.replace(/(每週四 08:30[\s\S]{0,300}?<span class="run-time">)[^<]*/,
+    // g flag：同時更新週報列（編號45）與自動排程程式區 S3 列的執行時間戳
+    html = html.replace(/(每週四 08:30[\s\S]{0,300}?<span class="run-time">)[^<]*/g,
         `$1${nowStr}`);
     fs.writeFileSync(catPath, html, 'utf-8');
     console.log('HTML_Report_Catalog.html weekly row updated.');
