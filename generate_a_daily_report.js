@@ -56,7 +56,7 @@ async function generateDailyReport() {
         data.forEach(item => {
             if (!item['交易時間']) return;
             const date = item['交易時間'].split(' ')[0];
-            if (!dailyMap[date]) dailyMap[date] = { orders: new Set(), tickets: 0, revenue: 0, refundTickets: 0, refundFees: 0 };
+            if (!dailyMap[date]) dailyMap[date] = { orders: new Set(), tickets: 0, revenue: 0, eTickets: 0, paperTickets: 0, refundTickets: 0, refundFees: 0 };
             const d = dailyMap[date];
             const price = parsePrice(item['售價']);
             const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
@@ -64,6 +64,9 @@ async function generateDailyReport() {
                 d.orders.add(orderId);
                 d.tickets += 1;
                 d.revenue += price;
+                // 取票方式：未列印=電子票、已取=紙票（與銷售排行/週報/月報判定一致）
+                if (item['取票方式'] === '未列印') d.eTickets += 1;
+                else if (item['取票方式'] === '已取') d.paperTickets += 1;
             } else if (item['狀態'] === '已退票' || item['狀態'] === '退票') {
                 d.refundTickets += 1;
                 d.refundFees += parsePrice(item['手續費']);
@@ -73,6 +76,8 @@ async function generateDailyReport() {
             date,
             orders: dailyMap[date].orders.size,
             tickets: dailyMap[date].tickets,
+            eTickets: dailyMap[date].eTickets,
+            paperTickets: dailyMap[date].paperTickets,
             revenue: dailyMap[date].revenue,
             refundTickets: dailyMap[date].refundTickets,
             refundFees: dailyMap[date].refundFees
@@ -365,13 +370,15 @@ async function generateDailyReport() {
                 <th>日期 (Date)</th>
                 <th class="text-right">購票筆數 (Orders)</th>
                 <th class="text-right">購票張數 (Tickets)</th>
+                <th class="text-right">電子票 (E-Ticket)</th>
+                <th class="text-right">紙票 (Paper)</th>
                 <th class="text-right">購票金額 (Revenue)</th>
                 <th class="text-right">退票張數 (Refund)</th>
                 <th class="text-right">退票手續費 (Fees)</th>
             </tr></thead>
             <tbody></tbody>
         </table>
-        <div style="margin-top: 8px; text-align: right; font-size: 0.8em; color: #888;">* 購票筆數: 不重複訂單編號數 / 購票張數: 實際票券數量</div>
+        <div style="margin-top: 8px; text-align: right; font-size: 0.8em; color: #888;">* 購票筆數: 不重複訂單編號數 / 購票張數: 實際票券數量 / 電子票=取票方式「未列印」、紙票=「已取」，占比為占當日購票張數比例</div>
     </div>
 
     <div class="charts-row"><div class="chart-container" style="flex:100%;"><canvas id="trendChart"></canvas></div></div>
@@ -429,6 +436,8 @@ const D = '__AGG_DATA__';
 function fmt(n) { return n.toLocaleString(); }
 function ntd(n) { return 'NT$ ' + fmt(n); }
 function wan(n) { return 'NT$ ' + (n / 10000).toFixed(1) + ' 萬'; }
+// 電子票/紙票儲存格：張數 + 占比小字
+function ttc(cnt, total) { var p = total ? ((cnt||0)/total*100).toFixed(1) : '0.0'; return fmt(cnt||0)+'<span style="color:#888; font-size:0.85em;"> ('+p+'%)</span>'; }
 
 function init() {
     document.getElementById('meta-total-rows').innerText = fmt(D.totalRows);
@@ -441,13 +450,15 @@ function init() {
 
     // Daily Stats Table
     const dtb = document.querySelector('#dailyStatsTable tbody');
-    let sO=0,sT=0,sR=0,sRT=0,sRF=0;
+    let sO=0,sT=0,sR=0,sE=0,sP=0,sRT=0,sRF=0;
     D.dailyStats.forEach(d => {
-        sO+=d.orders; sT+=d.tickets; sR+=d.revenue; sRT+=d.refundTickets; sRF+=d.refundFees;
+        sO+=d.orders; sT+=d.tickets; sR+=d.revenue; sE+=(d.eTickets||0); sP+=(d.paperTickets||0); sRT+=d.refundTickets; sRF+=d.refundFees;
         const tr = document.createElement('tr');
         tr.innerHTML = '<td style="font-weight:500;">'+d.date+'</td>'
             +'<td class="text-right">'+fmt(d.orders)+'</td>'
             +'<td class="text-right">'+fmt(d.tickets)+'</td>'
+            +'<td class="text-right">'+ttc(d.eTickets, d.tickets)+'</td>'
+            +'<td class="text-right">'+ttc(d.paperTickets, d.tickets)+'</td>'
             +'<td class="text-right">'+wan(d.revenue)+'</td>'
             +'<td class="text-right" style="color:#c62828;">'+fmt(d.refundTickets)+'</td>'
             +'<td class="text-right" style="color:#c62828;">'+(d.refundFees>0?ntd(d.refundFees):'-')+'</td>';
@@ -458,6 +469,8 @@ function init() {
     ttr.innerHTML = '<td style="font-weight:700;">總計 (Total)</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sO)+'</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sT)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+ttc(sE, sT)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+ttc(sP, sT)+'</td>'
         +'<td class="text-right" style="color:var(--accent-color);">'+wan(sR)+'</td>'
         +'<td class="text-right" style="color:#c62828;">'+fmt(sRT)+'</td>'
         +'<td class="text-right" style="color:#c62828;">'+(sRF>0?ntd(sRF):'-')+'</td>';
