@@ -10438,9 +10438,9 @@ function updateFunnelRow(){}
 function applyFunnel() {
   const pvF = pvFpFrom.selectedDates[0] ? padDate(pvFpFrom.input.value) : '06/10';
   const pvT = pvFpTo.selectedDates[0]   ? padDate(pvFpTo.input.value)   : PV_DATES[PV_DATES.length-1];
-  const clF = clFpFrom.selectedDates[0] ? padDate(clFpFrom.input.value) : '05/27';
-  const clT = clFpTo.selectedDates[0]   ? padDate(clFpTo.input.value)   : '06/20';
-  liveFunnelData = computeFunnel(pvF, pvT, clF, clT);
+  // 2026/07/14 起：點擊層與 A購物車/A結帳一樣，一律採用 PV 選定的日期區間，
+  // 四層資料同一時間窗（原本點擊用隱藏選擇器的固定預設 05/27–06/20，會截斷且不連動）
+  liveFunnelData = computeFunnel(pvF, pvT, pvF, pvT);
   updateKPI(liveFunnelData);
   updateFunnelRow(liveFunnelData);
   updateScatter(liveFunnelData);

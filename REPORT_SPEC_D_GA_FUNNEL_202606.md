@@ -176,7 +176,9 @@ for(const d = new Date(pvAvail[0]); d <= _yd; d.setDate(d.getDate()+1))
 
 ⚠️ `PV_DATES` / `CL_DATES` 必須在 Header tags IIFE **之前**定義，否則 `const` 不會 hoist，IIFE 執行時會 throw `ReferenceError`，導致後續 flatpickr 無法初始化。
 
-套用篩選後呼叫 `applyFunnel()`，重新計算各活動 pv/clicks/ctr/pvRank/clickRank/**cart/purchase**（2026-07 起，cart/purchase 套用同一組 PV 日期範圍，見 §3.5），並同步更新泡泡圖與表格。
+套用篩選後呼叫 `applyFunnel()`，重新計算各活動 pv/clicks/ctr/pvRank/clickRank/**cart/purchase**，並同步更新泡泡圖與表格。
+
+**2026/07/14 起：PV 日期區間是四層唯一的時間窗**——`applyFunnel()` 以 `computeFunnel(pvF, pvT, pvF, pvT)` 呼叫，點擊層與 A購物車/A結帳（§3.5）都採用 PV 選定的同一組日期區間。修正前點擊層用隱藏 Click 選擇器的固定預設 `05/27–06/20`：不隨 PV 連動，且上限 06/20 是舊資料時代殘留，套用篩選後點擊數會被截斷。隱藏的 `#clFrom`/`#clTo` flatpickr 與 `resetFunnel()` 內的重設邏輯保留（JS 相容性），但已不影響計算。
 
 ### 5.3 泡泡圖（Bubble Chart）
 
@@ -256,7 +258,7 @@ git push origin main
 - **頁首互連（2026/07/09 新增）**：header `hdr-tags` 最後有一顆藍色連結標籤「🔗 E系統購票流量轉換 →」（相對路徑連到 `E_DMP_Funnel_Report.html`），對方頁面也有反向連結回本報表。此連結直接寫在 HTML（generator 為 marker 注入式、不會覆蓋），重建頁面模板時需保留。
 
 ---
-*建立日期：2026/06/22｜最後更新：2026/07/14（generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳每日資料不再停更）*
+*建立日期：2026/06/22｜最後更新：2026/07/14（generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳每日資料不再停更；點擊層改用 PV 日期區間，四層同一時間窗，見 §5.2）*
 *2026/07/06：PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES 改由主 generator 自動產生，新增 DailyData marker 區塊；頁首日期區間與日期篩選器隨每日排程自動更新，修正先前總量已含新資料但頁首仍顯示 06/28 的不一致*
 *2026/07/02：新增 CART_BY_DATE/PURCHASE_BY_DATE，A購物車/A結帳 改為隨 PV 日期篩選連動；新增 generate_d_ga_funnel_cart_data.js 自動化 DMP 查詢，取代原手動更新流程*
 *2026/07/01：移除 header subtitle、排名變化欄位；修正日期選擇器 ReferenceError；pvTo 擴展至昨天*
