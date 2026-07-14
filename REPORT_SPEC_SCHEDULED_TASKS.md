@@ -267,7 +267,7 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/14（排程同時補跑造成 git 互踩、三份日報更新遺失；四支 BAT git 區段加入目錄原子互斥鎖，見 §6.3）*
+*最後更新：2026/07/14（排程同時補跑造成 git 互踩、三份日報更新遺失，四支 BAT git 區段加入目錄原子互斥鎖，見 §6.3；generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳資料不再停更）*
 *2026/07/13：git push 掛死事故復原；四支 BAT 加入 git pull --rebase --autostash 與認證不互動防護，git 輸出改導向 git_sync.log，見 §6.3*
 *2026/07/09：新增 `Qware_Weekly_Report_Update` 排程 + `weekly_update.bat`，A 系統週報每週四 08:30 自動產出*
 *2026/07/07：daily_update.bat 新增 generate_e_dmp_funnel_report.js，E 系統轉換漏斗報表改為每日 08:00 自動更新*
