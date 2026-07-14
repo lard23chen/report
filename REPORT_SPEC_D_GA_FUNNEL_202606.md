@@ -242,7 +242,9 @@ git push origin main
 
 ⚠️ 兩支 generator 各自用獨立 marker 區塊（`// ── Data ──` / `// ── Charts ──`、`// ── DailyData Start/End ──` 和 `// ── CartPurchase Data Start/End ──`），互不影響，可分開執行。
 
-**2026-07-06 起每日資料全自動**：`PV_BY_DATE` / `CLICK_ACT_DAILY` / `PV_DATES` / `CL_DATES` 已改由 `generate_d_ga_funnel_report.js` 每次執行時從 MongoDB 重新聚合（`$group` by ActivityId + EventDate，EventDate UTC +08:00 換算為 `MM/DD`），頁首日期區間、日期篩選器白名單與每日明細因此跟隨 `daily_update.bat` 每日更新，不再手動維護。`generate_d_ga_funnel_cart_data.js` 仍不在每日排程內，需要更新 A購物車/結帳時手動執行。
+**2026-07-06 起每日資料全自動**：`PV_BY_DATE` / `CLICK_ACT_DAILY` / `PV_DATES` / `CL_DATES` 已改由 `generate_d_ga_funnel_report.js` 每次執行時從 MongoDB 重新聚合（`$group` by ActivityId + EventDate，EventDate UTC +08:00 換算為 `MM/DD`），頁首日期區間、日期篩選器白名單與每日明細因此跟隨 `daily_update.bat` 每日更新，不再手動維護。
+
+**2026-07-14 起 A購物車/結帳也入排程**：`generate_d_ga_funnel_cart_data.js` 已加入 `daily_update.bat`（緊接主 generator 之後，執行約 95 秒）。先前它不在排程內、上次手動執行停在 07/02 資料，造成日期篩選選 7/3 以後時 A結帳/A購物車兩層無資料（PV/Click 每日更新、Cart/Purchase 停更的落差）；入排程後四層資料同步每日更新。
 
 ## 8. 相關連結
 
@@ -254,7 +256,8 @@ git push origin main
 - **頁首互連（2026/07/09 新增）**：header `hdr-tags` 最後有一顆藍色連結標籤「🔗 E系統購票流量轉換 →」（相對路徑連到 `E_DMP_Funnel_Report.html`），對方頁面也有反向連結回本報表。此連結直接寫在 HTML（generator 為 marker 注入式、不會覆蓋），重建頁面模板時需保留。
 
 ---
-*建立日期：2026/06/22｜最後更新：2026/07/06（PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES 改由主 generator 自動產生，新增 DailyData marker 區塊；頁首日期區間與日期篩選器隨每日排程自動更新，修正先前總量已含新資料但頁首仍顯示 06/28 的不一致）*
+*建立日期：2026/06/22｜最後更新：2026/07/14（generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳每日資料不再停更）*
+*2026/07/06：PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES 改由主 generator 自動產生，新增 DailyData marker 區塊；頁首日期區間與日期篩選器隨每日排程自動更新，修正先前總量已含新資料但頁首仍顯示 06/28 的不一致*
 *2026/07/02：新增 CART_BY_DATE/PURCHASE_BY_DATE，A購物車/A結帳 改為隨 PV 日期篩選連動；新增 generate_d_ga_funnel_cart_data.js 自動化 DMP 查詢，取代原手動更新流程*
 *2026/07/01：移除 header subtitle、排名變化欄位；修正日期選擇器 ReferenceError；pvTo 擴展至昨天*
 *2026/07/03：完整活動對照表於 A結帳 右側新增「結帳/點擊量比」欄（purchase/clicks×100%，排序 key purClickRate，隨 PV 日期篩選連動）*

@@ -44,6 +44,7 @@ node generate_kaohsiung_beer_festival_report.js    → A_KaohsiungBeerFestival_2
 node generate_d_ga_clickdata_report.js             → D_GA_ClickData_Webb_202606_Report.html
 node generate_d_ga_pageview_report.js              → D_GA_PageViewData_Webb_202606_Report.html
 node generate_d_ga_funnel_report.js                → D_GA_Funnel_202606_Report.html
+node generate_d_ga_funnel_cart_data.js             → D_GA_Funnel_202606_Report.html（A購物車/結帳每日資料，2026/07/14 加入排程）
 node generate_e_dmp_funnel_report.js               → E_DMP_Funnel_Report.html
 node update_index_stats.js                         → report_index.html（統計表 + Tab1 月份卡片）
 if 今日為2日:  node generate_monthly_report.js     → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
@@ -64,7 +65,8 @@ powershell send_line_notify.ps1 -Template "daily"  → LINE 完成通知
 | `generate_kaohsiung_beer_festival_report.js` | `A_KaohsiungBeerFestival_2026.html` | MongoDB `Qware_A_Ticket_data_Daily` + `Qware_A_Traffic_session_data` | 2026 高雄啤酒音樂節專案分析 |
 | `generate_d_ga_clickdata_report.js` | `D_GA_ClickData_Webb_202606_Report.html` | MongoDB `QwareAi.GA_D_ClickData_Webb_202606` | D 系統節目點擊量分析（GA）；patch-in-place 方式更新資料常數 |
 | `generate_d_ga_pageview_report.js` | `D_GA_PageViewData_Webb_202606_Report.html` | MongoDB `QwareAi.GA_D_PageViewData_Webb_202606` | D 系統節目瀏覽量分析（GA） |
-| `generate_d_ga_funnel_report.js` | `D_GA_Funnel_202606_Report.html` | MongoDB `QwareAi.GA_D_PageViewData_Webb_202606` + `GA_D_ClickData_Webb_202606` | 瀏覽→點擊轉換漏斗；2026/07/06 起含每日明細與日期陣列（PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES）全自動更新。A購物車/結帳的 `generate_d_ga_funnel_cart_data.js` **不在排程內**，需手動執行 |
+| `generate_d_ga_funnel_report.js` | `D_GA_Funnel_202606_Report.html` | MongoDB `QwareAi.GA_D_PageViewData_Webb_202606` + `GA_D_ClickData_Webb_202606` | 瀏覽→點擊轉換漏斗；2026/07/06 起含每日明細與日期陣列（PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES）全自動更新 |
+| `generate_d_ga_funnel_cart_data.js` | `D_GA_Funnel_202606_Report.html` | MongoDB DMP `trek-first-party-dmp.event`（bu:"A"）+ `GA_D_ClickData_Webb_202606`（join key） | A購物車/結帳每日資料（CART/PURCHASE_BY_DATE）；**2026/07/14 起加入每日排程**（先前需手動執行，曾造成日期選 7/3 後購物車/結帳無資料；執行約 95 秒） |
 | `generate_e_dmp_funnel_report.js` | `E_DMP_Funnel_Report.html` | MongoDB `trek-first-party-dmp.event`（bu:"E"） | E 系統瀏覽→購買轉換漏斗（張數/金額/轉換率）；單一腳本重新聚合全部資料並注入 Data marker 區塊；2026/07/07 起加入排程 |
 | `update_index_stats.js` | `report_index.html` | MongoDB `Qware_Ticket_Data` | 月份統計表、趨勢圖、Tab1 本月報表卡片；每日執行 |
 | `generate_monthly_report.js` | `A_Qware_Revenue_Report_YYYY年MM月_分析報表.html` | MongoDB `Qware_Ticket_Data` | 上月完整分析報表；**僅每月 2 日執行**（bat 內有日期判斷） |
