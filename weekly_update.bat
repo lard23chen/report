@@ -21,6 +21,16 @@ echo Running generate_a_weekly_report.js...
 echo [%date% %time%] Weekly Update Completed. >> weekly_log.txt
 
 echo Pushing to Git...
+:: Git 互斥鎖：避免多個排程同時操作 git 互踩（2026/07/14 併發事故防護；最多等 10 分鐘後放行）
+set GIT_BAT_LOCK=D:\2025\AI\MongoDB\.git_bat_lock
+set /a GITLOCK_TRIES=0
+:acquire_git_lock
+md "%GIT_BAT_LOCK%" 2>nul && goto git_lock_ok
+set /a GITLOCK_TRIES+=1
+if %GITLOCK_TRIES% geq 120 goto git_lock_ok
+ping -n 6 127.0.0.1 >nul
+goto acquire_git_lock
+:git_lock_ok
 git add A_Qware_Revenue_Report_Weekly_*.html report_index.html HTML_Report_Catalog.html weekly_log.txt
 git commit -m "Auto Update Weekly Report: %date% %time%"
 :: Rebase onto remote first so pushes from other machines don't cause non-fast-forward rejection
@@ -30,5 +40,6 @@ if errorlevel 1 (
     git rebase --abort >> git_sync.log 2>&1
 )
 git push origin main >> git_sync.log 2>&1
+rd "%GIT_BAT_LOCK%" 2>nul
 
 echo Done.

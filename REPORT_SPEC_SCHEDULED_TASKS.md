@@ -234,6 +234,10 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 
 > 掛死程序的清理需系統管理員權限（排程以「最高權限」執行）：`schtasks /End /TN <排程名>` 結束執行個體後，再以提權 `taskkill /F /PID <pid>` 清掉殘留的 git / git-credential-manager。找出鎖檔案的程序可用 Restart Manager API（rstrtmgr.dll）。
 
+**Git 互斥鎖（2026/07/14 新增）**：電腦晚開機時，多個排程會被 StartWhenAvailable 擠在同一時刻補跑（2026/07/14 三個排程同時 08:14:14 啟動），造成 git 操作互踩——實際事故：GA 排程的 `pull --rebase --autostash` 把 daily 排程剛產生、還沒 commit 的報表收進 autostash，接著 rebase 因另一實例的 `index.lock` 衝突當掉，autostash 沒有還原，**三份報表的當日更新遺失**（每日快訊/啤酒節/ClickData），且殘留 `.git/rebase-merge` 目錄會害後續 rebase 全部失敗。
+> 對策：四支 BAT 的 git 區段（add→commit→pull→push）前後加上 `md`/`rd` 目錄原子鎖 `D:\2025\AI\MongoDB\.git_bat_lock`——搶不到鎖每 5 秒重試、最多等 10 分鐘後放行（避免殘鎖造成永久死鎖）。等待用 `ping -n 6 127.0.0.1`（`timeout` 在無 stdin 的排程環境會失敗）。
+> 事後復原：殘留的 rebase 狀態先 `git rebase --abort`、仍在則刪 `.git\rebase-merge`；遺失的報表**重新執行 generator 補產**（autostash 可能抓到寫入一半的殘缺檔，勿直接 `stash apply`）。
+
 ### 6.4 新增排程程式規範
 
 若需新增排程：
@@ -261,7 +265,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/13（git push 掛死事故復原；四支 BAT 加入 git pull --rebase --autostash 與認證不互動防護，git 輸出改導向 git_sync.log，見 §6.3）*
+*最後更新：2026/07/14（排程同時補跑造成 git 互踩、三份日報更新遺失；四支 BAT git 區段加入目錄原子互斥鎖，見 §6.3）*
+*2026/07/13：git push 掛死事故復原；四支 BAT 加入 git pull --rebase --autostash 與認證不互動防護，git 輸出改導向 git_sync.log，見 §6.3*
 *2026/07/09：新增 `Qware_Weekly_Report_Update` 排程 + `weekly_update.bat`，A 系統週報每週四 08:30 自動產出*
 *2026/07/07：daily_update.bat 新增 generate_e_dmp_funnel_report.js，E 系統轉換漏斗報表改為每日 08:00 自動更新*
 *2026/07/06：補記 daily_update.bat 實際步驟：pageview / funnel generator 與 LINE 通知；更新排程總覽最後執行紀錄；註記 git add . 會收走工作區未提交變更*
