@@ -198,6 +198,7 @@ git push origin main（git 輸出寫入 git_sync.log，見 §6.3）
 |--------|------|---------|---------|
 | `2147946720`（`0x800710E0`） | `ERROR_REQUEST_REFUSED` | **同一排程的前一執行個體仍在執行**（事件 322，新啟動被拒；2026/07/13 實際案例為 git push 掛死 17 小時）、Node.js 路徑錯誤、MongoDB 逾時 | 查事件檢視器 `TaskScheduler/Operational`；找出掛住的 git/cmd 程序砍掉（需 admin，排程為最高權限執行）；查 `daily_log.txt` |
 | `-2147020576`（`0x80070520`） | `ERROR_NO_SUCH_LOGON_SESSION` | 排程觸發時電腦已鎖定（Interactive only 限制） | 登入後由 HKCU Run 機碼自動補跑；或手動執行 BAT |
+| `255`（`0x800700FF`，秒殺且 log 零輸出） | — | **BAT 檔行尾被存成 LF-only**，cmd 解析錯亂（把 `::` 註解當程式碼解析，如 2026/07/15 的 `needs was unexpected at this time`）；常見於以非 Windows 工具編輯 bat 之後 | 檢查行尾（`bareLF` 應為 0），轉回 CRLF；`.gitattributes` 已強制 `*.bat eol=crlf`；手動跑 `cmd /c xxx.bat` 可立即重現錯誤訊息 |
 
 **排查步驟：**
 1. 查看 `daily_log.txt` 確認 Node.js 輸出與完成時間戳

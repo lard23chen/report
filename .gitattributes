@@ -1,0 +1,4 @@
+# cmd.exe 對 LF-only 批次檔解析會出錯（2026/07/15 事故：daily_update.bat 被以 LF 存檔後
+# 排程以 255 碼即刻失敗，錯誤 "needs was unexpected at this time"）。強制 bat/cmd 一律 CRLF。
+*.bat text eol=crlf
+*.cmd text eol=crlf
