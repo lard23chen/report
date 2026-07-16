@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FCN 固定配息票券 獨立分析</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#263348;--border:#334155;
+  --text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;
+  --safe:#22c55e;--warn:#e0a72e;--danger:#f87171;--na:#94a3b8;
+}
+*{box-sizing:border-box}
+body{font-family:'Outfit','Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);margin:0;padding:28px 32px 60px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1{font-size:1.7rem;margin:0}
+h2{font-size:1.05rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-left:4px solid var(--accent);padding-left:10px;margin:38px 0 16px}
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:18px}
+.back{border:1px solid var(--accent);border-radius:999px;padding:6px 16px;font-size:.85rem;white-space:nowrap}
+.back:hover{background:var(--accent);color:#0f172a;text-decoration:none}
+.sub{color:var(--muted);font-size:.85rem;margin-left:auto;text-align:right}
+/* stat tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-top:22px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.tile .k{font-size:.78rem;color:var(--muted);margin-bottom:6px}
+.tile .v{font-size:1.45rem;font-weight:800}
+.tile .v small{font-size:.8rem;font-weight:400;color:var(--muted)}
+/* timeline */
+.tl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 22px 14px;overflow-x:auto}
+.tl-row{display:grid;grid-template-columns:210px 1fr;align-items:center;gap:14px;margin-bottom:14px;min-width:640px}
+.tl-label{font-size:.85rem;line-height:1.35}
+.tl-label .ccy{color:var(--muted);font-size:.75rem}
+.tl-track{position:relative;height:26px;background:var(--surface2);border-radius:6px}
+.tl-bar{position:absolute;top:4px;height:18px;background:var(--accent);border-radius:4px;opacity:.85;min-width:6px;cursor:default}
+.tl-bar:hover{opacity:1}
+.tl-elapsed{position:absolute;top:4px;height:18px;background:rgba(56,189,248,.28);border-radius:4px 0 0 4px}
+.tl-today{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--warn)}
+.tl-axis{display:grid;grid-template-columns:210px 1fr;gap:14px;min-width:640px}
+.tl-axis .scale{position:relative;height:20px;font-size:.72rem;color:var(--muted)}
+.tl-axis .tick{position:absolute;transform:translateX(-50%)}
+.legend{font-size:.78rem;color:var(--muted);margin-top:10px}
+.legend .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin:0 4px 0 12px}
+/* table */
+table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:12px;overflow:hidden;font-size:.9rem}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface2);color:var(--muted);font-weight:600;font-size:.8rem;white-space:nowrap}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:700}
+.b-on{background:rgba(34,197,94,.15);color:var(--safe);border:1px solid rgba(34,197,94,.4)}
+.b-miss{background:rgba(148,163,184,.12);color:var(--na);border:1px solid rgba(148,163,184,.35)}
+.b-warn{background:rgba(224,167,46,.14);color:var(--warn);border:1px solid rgba(224,167,46,.4)}
+.note{font-size:.78rem;color:var(--muted);line-height:1.5;max-width:420px}
+/* empty / info boxes */
+.box{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--warn);border-radius:10px;padding:16px 18px;font-size:.88rem;line-height:1.7;color:var(--muted)}
+.box b{color:var(--text)}
+.gap-list{margin:8px 0 0;padding-left:20px}
+.gap-list li{margin-bottom:4px}
+#loading{padding:60px;text-align:center;color:var(--muted)}
+#err{display:none;padding:40px;text-align:center;color:var(--danger)}
+.tooltip{position:fixed;pointer-events:none;background:#0b1220;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.78rem;line-height:1.5;z-index:99;display:none;max-width:280px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a class="back" href="Structured_Products.html">← 回結構型商品總覽</a>
+  <h1>📈 FCN 固定配息票券 獨立分析</h1>
+  <div class="sub">資料即時來自 Structured_Products API<br><span id="asof"></span></div>
+</div>
+
+<div id="loading">載入中…</div>
+<div id="err">❌ 雲端 API 連線失敗，請稍後重試</div>
+
+<div id="content" style="display:none">
+
+  <div class="tiles" id="tiles"></div>
+
+  <h2>存續期間與到期時間軸</h2>
+  <div class="tl-wrap">
+    <div id="timeline"></div>
+    <div class="tl-axis"><div></div><div class="scale" id="tlScale"></div></div>
+    <div class="legend">
+      <span class="sw" style="background:rgba(56,189,248,.28)"></span>已存續
+      <span class="sw" style="background:var(--accent)"></span>剩餘期間
+      <span class="sw" style="background:var(--warn)"></span>今天
+    </div>
+  </div>
+
+  <h2>商品明細</h2>
+  <table id="detail">
+    <thead><tr>
+      <th>發行商</th><th>幣別</th><th class="num">面額</th>
+      <th>申購日</th><th>到期日</th><th class="num">存續(月)</th><th class="num">剩餘天數</th>
+      <th>票息率</th><th>連結標的</th><th>狀態</th><th>備註</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>配息現金流</h2>
+  <div id="cashflow"></div>
+
+  <h2>資料完整度</h2>
+  <div class="box" id="gaps"></div>
+
+</div>
+
+<div class="tooltip" id="tt"></div>
+
+<script>
+const API = 'https://report-theta-nine.vercel.app/api/structured-products';
+const fmtN = n => (n ?? 0).toLocaleString();
+const DAY = 86400000;
+
+function el(id){ return document.getElementById(id); }
+function daysBetween(a, b){ return Math.round((b - a) / DAY); }
+
+async function main(){
+  try {
+    const res = await fetch(API);
+    const all = (await res.json()).data || [];
+    const fcn = all.filter(p => p.productType === 'FCN');
+
+    // events per product（目前多為 0 筆，有資料後自動呈現）
+    const events = {};
+    await Promise.all(fcn.map(async p => {
+      try {
+        const r = await fetch(API + '/events?productId=' + p._id);
+        events[p._id] = ((await r.json()).data) || [];
+      } catch(e){ events[p._id] = []; }
+    }));
+
+    render(fcn, events);
+    el('loading').style.display = 'none';
+    el('content').style.display = 'block';
+    el('asof').textContent = '讀取時間：' + new Date().toLocaleString('zh-TW');
+  } catch(e){
+    el('loading').style.display = 'none';
+    el('err').style.display = 'block';
+  }
+}
+
+function render(fcn, events){
+  const today = new Date();
+
+  // ── stat tiles ──
+  const active = fcn.filter(p => p.status === '進行中');
+  const byCcy = {};
+  fcn.forEach(p => { byCcy[p.currency] = (byCcy[p.currency] || 0) + (p.principalAmount || 0); });
+  const nextMat = active
+    .filter(p => p.maturityDate)
+    .sort((a,b) => a.maturityDate.localeCompare(b.maturityDate))[0];
+  const couponTotal = Object.values(events).flat()
+    .filter(e => e.type === '配息' || e.type === 'coupon')
+    .reduce((s,e) => s + (e.amount || 0), 0);
+
+  let tiles = `
+    <div class="tile"><div class="k">FCN 檔數</div><div class="v">${fcn.length} <small>檔（進行中 ${active.length}）</small></div></div>`;
+  Object.entries(byCcy).forEach(([ccy, amt]) => {
+    tiles += `<div class="tile"><div class="k">投入面額（${ccy}）</div><div class="v">${fmtN(amt)}</div></div>`;
+  });
+  if (nextMat) {
+    const d = daysBetween(today, new Date(nextMat.maturityDate));
+    tiles += `<div class="tile"><div class="k">最近到期</div><div class="v">${nextMat.maturityDate} <small>${nextMat.issuer}，${d} 天後</small></div></div>`;
+  }
+  tiles += `<div class="tile"><div class="k">已收配息（事件紀錄）</div><div class="v">${couponTotal ? fmtN(couponTotal) : '—'} <small>${couponTotal ? '' : '尚無紀錄'}</small></div></div>`;
+  el('tiles').innerHTML = tiles;
+
+  // ── timeline ──
+  const dated = fcn.filter(p => p.issueDate && p.maturityDate);
+  if (dated.length) {
+    const min = new Date(Math.min(...dated.map(p => +new Date(p.issueDate))));
+    const max = new Date(Math.max(...dated.map(p => +new Date(p.maturityDate))));
+    const span = +max - +min || 1;
+    const pct = d => ((+new Date(d) - +min) / span * 100).toFixed(2);
+
+    el('timeline').innerHTML = dated.map(p => {
+      const l = pct(p.issueDate), r = pct(p.maturityDate);
+      const w = (r - l).toFixed(2);
+      const todayPct = Math.min(100, Math.max(0, ((+today - +min) / span * 100)));
+      const elapsedW = Math.max(0, Math.min(todayPct - l, w)).toFixed(2);
+      const remain = daysBetween(today, new Date(p.maturityDate));
+      return `<div class="tl-row">
+        <div class="tl-label"><b>${p.issuer}</b> <span class="ccy">${p.currency} ${fmtN(p.principalAmount)}</span></div>
+        <div class="tl-track">
+          <div class="tl-bar" style="left:${l}%;width:${w}%"
+               data-tt="<b>${p.issuer} FCN</b><br>${p.issueDate} → ${p.maturityDate}<br>剩餘 ${remain} 天"></div>
+          <div class="tl-elapsed" style="left:${l}%;width:${elapsedW}%"></div>
+          <div class="tl-today" style="left:${todayPct}%"></div>
+        </div></div>`;
+    }).join('');
+
+    // axis ticks：起訖 + 每季
+    const ticks = [];
+    const t0 = new Date(min.getFullYear(), min.getMonth(), 1);
+    for (let t = new Date(t0); t <= max; t.setMonth(t.getMonth() + 3)) ticks.push(new Date(t));
+    el('tlScale').innerHTML = ticks.map(t =>
+      `<span class="tick" style="left:${((+t - +min) / span * 100).toFixed(2)}%">${t.getFullYear()}/${String(t.getMonth()+1).padStart(2,'0')}</span>`).join('');
+  }
+
+  // ── detail table ──
+  el('detail').querySelector('tbody').innerHTML = fcn.map(p => {
+    const months = (p.issueDate && p.maturityDate)
+      ? Math.round(daysBetween(new Date(p.issueDate), new Date(p.maturityDate)) / 30.4) : null;
+    const remain = p.maturityDate ? daysBetween(today, new Date(p.maturityDate)) : null;
+    const hasUlys = p.underlyings && p.underlyings.length;
+    return `<tr>
+      <td><b>${p.issuer}</b><br><span style="color:var(--muted);font-size:.78rem">${p.custodianBank || ''}</span></td>
+      <td>${p.currency}</td>
+      <td class="num">${fmtN(p.principalAmount)}</td>
+      <td>${p.issueDate || '—'}</td>
+      <td>${p.maturityDate || '—'}</td>
+      <td class="num">${months ?? '—'}</td>
+      <td class="num">${remain != null ? (remain >= 0 ? remain : '已到期') : '—'}</td>
+      <td>${p.couponRate ? p.couponRate + '%' : '<span class="badge b-miss">待補</span>'}</td>
+      <td>${hasUlys ? p.underlyings.map(u => u.ticker).join(' / ') : '<span class="badge b-miss">待補</span>'}</td>
+      <td><span class="badge ${p.status === '進行中' ? 'b-on' : 'b-miss'}">${p.status || '—'}</span></td>
+      <td class="note">${p.note || ''}</td>
+    </tr>`;
+  }).join('');
+
+  // ── cashflow ──
+  const allEv = fcn.flatMap(p => (events[p._id] || []).map(e => ({...e, issuer: p.issuer, ccy: p.currency})));
+  if (allEv.length) {
+    el('cashflow').innerHTML = `<table><thead><tr><th>日期</th><th>商品</th><th>類型</th><th class="num">金額</th><th>備註</th></tr></thead><tbody>` +
+      allEv.sort((a,b) => (a.date||'').localeCompare(b.date||'')).map(e =>
+        `<tr><td>${e.date || ''}</td><td>${e.issuer}</td><td>${e.type || ''}</td><td class="num">${e.ccy} ${fmtN(e.amount)}</td><td class="note">${e.note || ''}</td></tr>`).join('') +
+      `</tbody></table>`;
+  } else {
+    el('cashflow').innerHTML = `<div class="box"><b>尚無配息事件紀錄。</b>在結構型商品總覽頁以管理員模式補登配息事件後，此處會自動列出現金流明細並計算各檔實際年化配息率。</div>`;
+  }
+
+  // ── data gaps ──
+  const gapRows = fcn.map(p => {
+    const miss = [];
+    if (!p.couponRate) miss.push('票息率');
+    if (!p.underlyings || !p.underlyings.length) miss.push('連結標的');
+    if (!p.underlyings || !p.underlyings.some(u => u.strikePrice)) miss.push('strike / KI-KO 障礙價');
+    if (!(events[p._id] || []).length) miss.push('配息事件');
+    return miss.length ? `<li><b>${p.issuer}（${p.currency} ${fmtN(p.principalAmount)}）</b>：缺 ${miss.join('、')}</li>` : null;
+  }).filter(Boolean);
+  el('gaps').innerHTML = gapRows.length
+    ? `目前資料源自<b>玉山證券對帳單</b>，僅含申購日 / 面額 / 到期日。補齊下列項目（需原始申購確認書）後，本頁會自動出現票息收益率與風險距離分析：<ul class="gap-list">${gapRows.join('')}</ul>`
+    : `✅ 三檔 FCN 資料已完整。`;
+
+  // ── tooltip ──
+  const tt = el('tt');
+  document.querySelectorAll('[data-tt]').forEach(n => {
+    n.addEventListener('mousemove', ev => {
+      tt.innerHTML = n.dataset.tt;
+      tt.style.display = 'block';
+      tt.style.left = Math.min(ev.clientX + 14, innerWidth - 300) + 'px';
+      tt.style.top = (ev.clientY + 14) + 'px';
+    });
+    n.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
+  });
+}
+
+main();
+</script>
+</body>
+</html>
