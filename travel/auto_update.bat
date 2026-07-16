@@ -34,6 +34,8 @@ if %GITLOCK_TRIES% geq 120 goto git_lock_ok
 ping -n 6 127.0.0.1 >nul
 goto acquire_git_lock
 :git_lock_ok
+:: 清掉前次失敗 rebase 的殘留狀態（在互斥鎖內執行，安全）
+if exist "D:\2025\AI\MongoDB\.git\rebase-merge" rd /s /q "D:\2025\AI\MongoDB\.git\rebase-merge"
 git add .
 git commit -m "Auto-update expense report: %DATE% %TIME%"
 :: Rebase onto remote first so pushes from other machines don't cause non-fast-forward rejection
