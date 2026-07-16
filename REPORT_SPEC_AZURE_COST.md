@@ -129,7 +129,10 @@ Collection：`QwareAi.AzureMonthlyCost`
 #### 更新 SOP
 
 1. 確認 Google Sheets 中新月份資料已填完（Sheets ID：`1PXpKxQ-mfojDlxWshC2ncje7RSSSjCSYLRZCykWBGwU`，`gid=1883089838`）
-2. 使用 Google Drive MCP（`mcp__claude_ai_Google_Drive__read_file_content`）讀取 Sheets 全文，以 Python 解析每列的 col5（機器大小欄）統計各月 total / small / medium / large 數量
+2. 下載該分頁 CSV 後解析統計各月 total / small / medium / large 數量：
+   - 下載：`curl -sL "https://docs.google.com/spreadsheets/d/1PXpKxQ-mfojDlxWshC2ncje7RSSSjCSYLRZCykWBGwU/export?format=csv&gid=1883089838"`
+   - ⚠️ Google Drive MCP 的 `read_file_content` 只會回傳第一個工作表（派工追蹤表），拿不到 gid=1883089838 分頁，必須用 CSV export URL
+   - CSV 欄位：col0=日期（`2026年M月D日 星期X`）、col2=節目名稱、col4=機器等級（小/中/大/X）、col10=E系統負責人（非空且非 `X` 即 `hasE: true`）；注意欄位可能含引號包夾的跨行內容，解析需支援 quoted field
 3. 對照統計結果，修改 `generate_azure_cost_report.js` 中 `monitoringStats2026` 陣列（更新或新增月份物件）
 4. 執行 `node generate_azure_cost_report.js` 重新產出 HTML
 5. `git add generate_azure_cost_report.js Azure_Cost_Analysis_Report.html && git commit && git push`
@@ -220,4 +223,4 @@ node generate_azure_cost_report.js
 
 ---
 
-*最後更新日期：2026/06/11（D系統比較圖節點標籤改為完整數字格式）*
+*最後更新日期：2026/07/16（新增 2026/06 月度資料；機器等級統計同步 Sheets 至 8 月；SOP 改用 CSV export 讀取排班表分頁）*

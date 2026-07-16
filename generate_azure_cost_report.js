@@ -100,7 +100,7 @@ async function generateReport() {
                 { date: '02/13', name: 'i-dle CITY of SENSE（一般票全面開賣）', hasE: true },
                 { date: '02/23', name: 'i-dle CITY of SENSE（信用卡優先購）', hasE: true }
             ]},
-            { month: '3月', total: 42, small: 23, medium: 13, large: 6, largeEvents: [
+            { month: '3月', total: 45, small: 25, medium: 14, large: 6, largeEvents: [
                 { date: '03/06', name: 'i-dle CITY of SENSE（第二階段）', hasE: true },
                 { date: '03/10', name: 'A.C.F 秋葉原動漫祭見面會', hasE: true },
                 { date: '03/12', name: 'A.C.F Rollout 悸動祭', hasE: true },
@@ -114,8 +114,16 @@ async function generateReport() {
                 { date: '05/14', name: '7-ELEVEN 高雄啤酒音樂節', hasE: false },
                 { date: '05/14', name: '角頭GATAO唱演會（員訓）', hasE: false }
             ]},
-            { month: '6月', total: 14, small: 14, medium: 0, large: 0, largeEvents: [] },
-            { month: '7月', total: 3, small: 3, medium: 0, large: 0, largeEvents: [] }
+            { month: '6月', total: 36, small: 28, medium: 5, large: 3, largeEvents: [
+                { date: '06/24', name: '《暗喻幻想》Metaphor 交響音樂會', hasE: false },
+                { date: '06/24', name: '閻奕格 逃生出口巡迴演唱會（台北站）', hasE: false },
+                { date: '06/24', name: '台灣精品中華職棒明星對抗賽', hasE: false }
+            ]},
+            { month: '7月', total: 24, small: 22, medium: 0, large: 2, largeEvents: [
+                { date: '07/08', name: '《崩壞：星穹鐵道》歡愉信號—嗶波！', hasE: true },
+                { date: '07/16', name: 'TOY STORY｜PEACEMINUSONE 臺北站', hasE: false }
+            ]},
+            { month: '8月', total: 3, small: 1, medium: 2, large: 0, largeEvents: [] }
         ];
         const monitoringTableRows = monitoringStats2026.map(m => {
             const notes = m.largeEvents.length > 0
