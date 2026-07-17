@@ -66,7 +66,9 @@ async function main() {
         const [cat, item, val] = rows[i].map(c => (c == null ? '' : String(c).trim()));
         if (cat) currentCategory = normalizeName(cat);
         if (item) {
-            items.push({ Category: currentCategory, Item: normalizeName(item), Amount: parseAmount(val) });
+            // 幣別前綴：「NT$」為台幣現值；「$」（保險欄）不列入試算表總計口徑
+            const mark = /^-?NT\$/.test(val) ? 'NT$' : (/^-?\$/.test(val) ? '$' : null);
+            items.push({ Category: currentCategory, Item: normalizeName(item), Amount: parseAmount(val), CurrencyMark: mark });
         } else if (!cat && val) {
             sheetTotal = parseAmount(val); // 最末列總計（無分類、無項目、僅金額）
         }
@@ -76,14 +78,17 @@ async function main() {
     const totalAssets = valued.filter(it => it.Amount > 0).reduce((s, it) => s + it.Amount, 0);
     const totalLiabilities = valued.filter(it => it.Amount < 0).reduce((s, it) => s + Math.abs(it.Amount), 0);
     const netAssets = totalAssets - totalLiabilities;
+    // 試算表總計口徑 = 「NT$」正值項目加總（排除「$」保險與負值房貸）
+    const ntdPositiveTotal = valued.filter(it => it.Amount > 0 && it.CurrencyMark === 'NT$').reduce((s, it) => s + it.Amount, 0);
 
     console.log(`SnapshotDate: ${snapshotDate}`);
     console.log(`Items: ${items.length} (valued: ${valued.length})`);
     console.log(`TotalAssets: ${totalAssets.toLocaleString()}`);
     console.log(`TotalLiabilities: ${totalLiabilities.toLocaleString()}`);
-    console.log(`NetAssets: ${netAssets.toLocaleString()} / SheetTotal: ${sheetTotal == null ? 'N/A' : sheetTotal.toLocaleString()}`);
-    if (sheetTotal != null && netAssets !== sheetTotal) {
-        console.error('❌ NetAssets 與試算表總計不符，中止匯入');
+    console.log(`NetAssets: ${netAssets.toLocaleString()}`);
+    console.log(`NT$-positive total: ${ntdPositiveTotal.toLocaleString()} / SheetTotal: ${sheetTotal == null ? 'N/A' : sheetTotal.toLocaleString()}`);
+    if (sheetTotal != null && ntdPositiveTotal !== sheetTotal) {
+        console.error('❌ NT$ 正值項目加總與試算表總計不符，中止匯入');
         process.exit(1);
     }
 
@@ -98,6 +103,7 @@ async function main() {
             TotalAssets: totalAssets,
             TotalLiabilities: totalLiabilities,
             NetAssets: netAssets,
+            NtdPositiveTotal: ntdPositiveTotal,
             SheetTotal: sheetTotal,
             ImportedAt: new Date()
         };

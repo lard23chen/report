@@ -4,3 +4,6 @@ git_sync.log
 node_modules/
 .streamlit/secrets.toml
 requirements_travel.txt
+
+# 個人資產報表：只發佈到私有 Claude Artifact，不進公開 repo
+alex/Alex_Asset_Report.html
