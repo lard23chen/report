@@ -1,6 +1,6 @@
 # Alex 個人資產配置分析報表 技術規範說明
 
-> 🔒 **私有報表（2026/07/17 起）** — 本報表內容為個人財務資料，**不進公開 repo、不上 GitHub Pages**。產出的 HTML 已列入 `.gitignore`，僅發佈到預設私有的 Claude Artifact（網址見個人記錄，勿寫入本 repo）。
+> 🔒 **私有報表（2026/07/17 起）** — 本報表內容為個人財務資料，**不進公開 repo、不上 GitHub Pages**。產出的 HTML 已列入 `.gitignore`，僅發佈到預設私有的 Claude Artifact；Artifact 需登入本人 claude.ai 帳號才能開啟，故連結本身非機密，已列於 `ALEX_Life_Catalog.html` 第 48 筆（依用戶 2026/07/17 指示加入）。
 
 本文件定義「Alex 個人資產配置分析報表」的產出標準與設定。
 
