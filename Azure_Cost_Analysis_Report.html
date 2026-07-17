@@ -452,7 +452,7 @@
                 plugins:{
                     legend:{labels:{color:'#e0e0e0',font:{family:'Outfit',size:13},boxWidth:20,boxHeight:3}},
                     datalabels:{
-                        display: ctx => ctx.parsed != null && ctx.parsed.y != null,
+                        display: ctx => ctx.dataset.data[ctx.dataIndex] != null,
                         color: ctx => ctx.dataset.borderColor,
                         anchor: 'end',
                         align: 'top',
