@@ -17,13 +17,18 @@
 
 8 欄：編號 / 系統 / 更新時間 / 檔名(超連結) / 內容說明 / 視覺規範與功能組件 / 資料表(Sources) / 排程。
 
-區段（section header 列，`colspan="8"` 帶底色）依序為：
+區段（section header 列，`colspan="8"` 帶底色）依序為（2026/07/17 盤點）：
 
 1. 📍 主控台與概覽儀表板
 2. 📊 A 系統 營業分析報告
-3. 🌐 流量 / D系統（含 GA 報表）
-4. 🛒 E 系統與其他分析
-5. 🔧 工具 / 排程（含個人工具）
+3. ✨ 演唱會與專案深度評估
+4. 🌐 流量分析與 DMP 行銷
+5. 🛒 E 系統與其他分析
+6. 🏠 ALEX 生活管理（個人報表；另有獨立子目錄 `ALEX_Life_Catalog.html`，帶前端密碼遮罩）
+7. 🚀 ibon 票券客服 QA
+8. ⏰ 自動排程程式
+9. 🤖 AI 工具
+10. 🔍 建檔檢核使用
 
 ## 3. 維護規則
 
@@ -51,10 +56,17 @@
 - 已結案報表搬到封存庫後（規則見 `REPORT_SPEC_ARCHIVE.md`），目錄**保留原列**，僅將檔名超連結改指 `https://lard23chen.github.io/report-archive-YYYY/<檔名>`。
 - 主控台區段有封存庫入口列（編號 43、44）。
 
+### 3.6 私有報表列（不上 GitHub Pages 的報表）
+
+- 內容敏感（如個人財務）的報表**不進公開 repo、不上 Pages**，HTML 列入 `.gitignore`，改發佈到預設私有的 Claude Artifact（需登入本人 claude.ai 帳號才能開啟）。
+- 主目錄仍保留一列供索引：檔名欄**不放 Artifact 連結**，標示「🔒 私有」並指引到 `ALEX_Life_Catalog.html`；Artifact 連結放在 `ALEX_Life_Catalog.html` 對應列（連結本身非機密，存取由 claude.ai 登入控制）。
+- 首例：編號 48「個人資產配置分析」，詳見 `REPORT_SPEC_ALEX_ASSET.md`。
+
 ## 4. 變更紀錄
 
+- **2026/07/17**：新增編號 48「Alex 個人資產配置分析」於 ALEX 生活管理區；同日改為私有發佈（報表 HTML 退出公開 repo 與 Pages、git 歷史重寫移除，Artifact 連結列於 `ALEX_Life_Catalog.html`）。新增 3.6 私有報表列規則；區段清單重新盤點（5 → 10 個區段）。
 - **2026/07/08**：歷史報表封存 — 19 檔搬至 `report-archive-2025` / `report-archive-2026`，對應列連結改指封存庫；主控台區段新增封存庫入口列（編號 43、44）。詳見 `REPORT_SPEC_ARCHIVE.md`。
 - **2026/07/06**：補齊落後的月報列 — A系統 2026年04/05/06月（編號 36–38）、E系統 2026年03/05/06月（編號 39–41）；主控台兩列更新時間同步至當日。建立本規範文檔。
 
 ---
-*Last Updated: 2026/07/08*
+*Last Updated: 2026/07/17*
