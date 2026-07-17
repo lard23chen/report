@@ -110,6 +110,12 @@ const E_DATES = […];
 - from：僅限有實際資料的日期（≤ 昨天）
 - to：從第一個資料日到昨天的連續序列（無資料日貢獻 0）
 
+**快速區間按鈕（2026/07/17 新增，與 D 版 funnel 報表同規格）**：filter-actions 內「套用篩選」左側有「1天前」「7天前」兩顆 ghost 按鈕，呼叫 `setQuickRange(days)`（定義於 Date Pickers 區塊末端）：
+
+- 錨點 = `fromAvail` 最後一個元素（**最後一個有資料的日子**，非日曆昨天——每日排程有時差，錨定資料端才不會選到空日）
+- 「1天前」：from = to = 錨點（最近一天資料）；「7天前」：from = 錨點往前 6 天（不足時 clamp 到第一個有資料日），to = 錨點
+- 設完日期直接呼叫 `applyFunnel()` 套用，不需再按「套用篩選」
+
 ### 4.3 漏斗視覺列
 
 三格：瀏覽量 → 購買張數（含轉換率 badge）→ 銷售金額（含平均票價 badge）。隨日期篩選連動（`updateFunnelRow`）。
@@ -175,3 +181,4 @@ git push origin main
 ---
 *建立日期：2026/07/07｜原需求 page_view → add_cart → payment 三階段，因 DMP 無 E 系統 add_cart/payment 事件，經用戶確認改為 page_view → purchase 兩階段（含張數與金額）*
 *2026/07/07：加入 daily_update.bat 每日 08:00 排程，改為自動更新*
+*2026/07/17：日期區間新增「1天前」「7天前」快速按鈕（錨定最後有資料日、自動套用篩選），與 D 版 funnel 報表同規格，見 §4.2*
