@@ -167,6 +167,8 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
   <input id="clFrom" style="display:none" readonly>
   <input id="clTo" style="display:none" readonly>
   <div class="filter-actions">
+    <button class="filter-btn-ghost" onclick="setQuickRange(1)">1天前</button>
+    <button class="filter-btn-ghost" onclick="setQuickRange(7)">7天前</button>
     <button class="filter-btn" onclick="applyFunnel()">套用篩選</button>
     <button class="filter-btn-ghost" onclick="resetFunnel()">重置</button>
   </div>
@@ -11236,6 +11238,18 @@ clFpTo = flatpickr('#clTo',{
   dateFormat:'m/d', enable:clAvail, defaultDate:clAvail[clAvail.length-1], disableMobile:true,
   onChange(dates){ if(!dates[0])return; const fi=clAvail.findIndex(d=>d.getTime()===dates[0].getTime()); if(clFpFrom)clFpFrom.set('maxDate',clAvail[fi]); }
 });
+
+// ── Quick Range Buttons（1天前 / 7天前）─────────────────────────────────────
+// 以「最後一個有資料的日子」為錨點（資料截止日可能落後日曆昨天，錨定資料端才不會選到空日）
+function setQuickRange(days){
+  const anchor = pvFromAvail[pvFromAvail.length-1];
+  const desired = new Date(anchor); desired.setDate(desired.getDate()-(days-1));
+  const from = pvFromAvail.find(d => d >= desired) || pvFromAvail[0];
+  pvFpFrom.set('maxDate', null); pvFpTo.set('minDate', null);
+  pvFpFrom.setDate(from, true);
+  pvFpTo.setDate(anchor, true);
+  applyFunnel();
+}
 </script>
 </body>
 </html>
