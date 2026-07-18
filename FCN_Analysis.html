@@ -121,11 +121,30 @@ function daysBetween(a, b){ return Math.round((b - a) / DAY); }
 function isCoupon(e){ return e.type === '配息' || e.type === 'coupon'; }
 function monthKey(dateStr){ return dateStr ? dateStr.replace(/-/g,'/').slice(0,7) : null; }
 
-// 年化報酬率：已收利息累計 / 本金 / 經過年數(存續起~今日或到期，取先到者) * 100
-function annualizedReturn(p, evs, today){
-  const total = (evs || []).filter(isCoupon).reduce((s,e) => s + (e.amount || 0), 0);
+// 玉山證券對帳單快照推算值——資料庫尚無逐筆配息事件時的暫時參考，非正式紀錄
+// 來源：【廖惠萍】玉山台灣_資產報表.pdf，資料日期 2026-07-01（欄位「累計配息」）
+const STATEMENT_ESTIMATES = {
+  'NATIXIS': { asOf: '2026-07-01', cumulativeCoupon: 400000, ccy: 'JPY' },
+  'MS':      { asOf: '2026-07-01', cumulativeCoupon: 201660, ccy: 'JPY' },
+  'SG':      { asOf: '2026-07-01', cumulativeCoupon: 0,      ccy: 'USD' },
+};
+
+// 已收利息累計：優先採用資料庫逐筆配息事件；無事件時退而使用對帳單快照推算值
+function effectiveCoupon(p, evs){
+  const real = (evs || []).filter(isCoupon).reduce((s,e) => s + (e.amount || 0), 0);
+  if (real) return { total: real, source: 'event', asOf: null };
+  const est = STATEMENT_ESTIMATES[p.issuer];
+  if (est && est.ccy === p.currency && est.cumulativeCoupon) {
+    return { total: est.cumulativeCoupon, source: 'estimate', asOf: est.asOf };
+  }
+  return { total: 0, source: 'none', asOf: null };
+}
+
+// 年化報酬率：已收利息累計 / 本金 / 經過年數(存續起~計算基準日) * 100
+// asOfDate：估算值採對帳單快照日；實際事件則採今日（進行中）或到期日
+function annualizedReturn(p, total, asOfDate, today){
   if (!total || !p.issueDate || !p.principalAmount) return null;
-  const end = p.status === '進行中' ? today : new Date(p.maturityDate || p.issueDate);
+  const end = asOfDate ? new Date(asOfDate) : (p.status === '進行中' ? today : new Date(p.maturityDate || p.issueDate));
   const days = daysBetween(new Date(p.issueDate), end);
   if (days <= 0) return null;
   return total / p.principalAmount / (days / 365) * 100;
@@ -167,15 +186,22 @@ function render(fcn, events){
     .filter(p => p.maturityDate)
     .sort((a,b) => a.maturityDate.localeCompare(b.maturityDate))[0];
 
-  // 累積損益（已收利息累計，依幣別分開，避免不同幣別混加）
+  // 累積損益（已收利息累計，依幣別分開，避免不同幣別混加；無事件時退用對帳單推算值）
   const pnlByCcy = {};
+  let pnlHasEstimate = false;
   fcn.forEach(p => {
-    const total = (events[p._id] || []).filter(isCoupon).reduce((s,e) => s + (e.amount || 0), 0);
-    if (total) pnlByCcy[p.currency] = (pnlByCcy[p.currency] || 0) + total;
+    const eff = effectiveCoupon(p, events[p._id]);
+    if (eff.total) {
+      pnlByCcy[p.currency] = (pnlByCcy[p.currency] || 0) + eff.total;
+      if (eff.source === 'estimate') pnlHasEstimate = true;
+    }
   });
 
   // 年化報酬率（各檔獨立計算後取簡單平均；跨幣別暫未做匯率換算）
-  const arList = fcn.map(p => annualizedReturn(p, events[p._id], today)).filter(v => v != null);
+  const arList = fcn.map(p => {
+    const eff = effectiveCoupon(p, events[p._id]);
+    return annualizedReturn(p, eff.total, eff.asOf, today);
+  }).filter(v => v != null);
   const avgAR = arList.length ? arList.reduce((s,v) => s+v, 0) / arList.length : null;
 
   let tiles = `
@@ -189,12 +215,12 @@ function render(fcn, events){
   }
   if (Object.keys(pnlByCcy).length) {
     Object.entries(pnlByCcy).forEach(([ccy, amt]) => {
-      tiles += `<div class="tile"><div class="k">累積損益（${ccy}）</div><div class="v">+${fmtN(amt)}</div></div>`;
+      tiles += `<div class="tile"><div class="k">累積損益（${ccy}）</div><div class="v">+${fmtN(amt)}</div><small>${pnlHasEstimate ? '含對帳單推算值' : ''}</small></div>`;
     });
   } else {
     tiles += `<div class="tile"><div class="k">累積損益</div><div class="v">— <small>尚無配息紀錄</small></div></div>`;
   }
-  tiles += `<div class="tile"><div class="k">年化報酬率</div><div class="v">${avgAR != null ? avgAR.toFixed(2) + '%' : '—'} <small>${avgAR != null ? '各檔簡單平均' : '尚無配息紀錄'}</small></div></div>`;
+  tiles += `<div class="tile"><div class="k">年化報酬率</div><div class="v">${avgAR != null ? avgAR.toFixed(2) + '%' : '—'} <small>${avgAR != null ? (pnlHasEstimate ? '各檔簡單平均・含推算' : '各檔簡單平均') : '尚無配息紀錄'}</small></div></div>`;
   el('tiles').innerHTML = tiles;
 
   // ── timeline ──
@@ -252,27 +278,52 @@ function render(fcn, events){
 
   // ── cashflow ──
   const allEv = fcn.flatMap(p => (events[p._id] || []).map(e => ({...e, issuer: p.issuer, ccy: p.currency})));
+  let summaryHasEstimate = false;
+  const summaryRows = fcn.map(p => {
+    const evs = events[p._id] || [];
+    const eff = effectiveCoupon(p, evs);
+    if (!eff.total) return null;
+    const ar = annualizedReturn(p, eff.total, eff.asOf, today);
+    if (eff.source === 'estimate') summaryHasEstimate = true;
+    const badge = eff.source === 'estimate' ? `<span class="badge b-warn">推算</span>` : `<span class="badge b-on">配息事件</span>`;
+    const src = eff.source === 'estimate' ? `<div class="note">來源：玉山對帳單快照 ${eff.asOf}</div>` : '';
+    return `<tr><td><b>${p.issuer}</b></td><td>${p.currency}</td><td class="num">${fmtN(eff.total)}</td><td class="num">${ar != null ? ar.toFixed(2) + '%' : '—'}</td><td>${badge}${src}</td></tr>`;
+  }).filter(Boolean);
+
+  let cashflowHtml = '';
+  if (summaryRows.length) {
+    cashflowHtml += `<table style="margin-bottom:16px"><thead><tr><th>商品</th><th>幣別</th><th class="num">已收利息累計</th><th class="num">年化報酬率</th><th>來源</th></tr></thead><tbody>${summaryRows.join('')}</tbody></table>`;
+    if (summaryHasEstimate) {
+      cashflowHtml += `<div class="box" style="margin-bottom:16px"><b>「推算」</b>來自玉山證券對帳單快照的累計配息金額，非逐筆事件紀錄，僅供參考。在結構型商品總覽頁以管理員模式正式登錄配息事件後，此處會自動改用實際逐筆數字。</div>`;
+    }
+  }
   if (allEv.length) {
-    const summaryRows = fcn.map(p => {
-      const evs = events[p._id] || [];
-      const total = evs.filter(isCoupon).reduce((s,e) => s + (e.amount || 0), 0);
-      if (!total) return null;
-      const ar = annualizedReturn(p, evs, today);
-      return `<tr><td><b>${p.issuer}</b></td><td>${p.currency}</td><td class="num">${fmtN(total)}</td><td class="num">${ar != null ? ar.toFixed(2) + '%' : '—'}</td></tr>`;
-    }).filter(Boolean);
-    const summaryTable = summaryRows.length
-      ? `<table style="margin-bottom:16px"><thead><tr><th>商品</th><th>幣別</th><th class="num">已收利息累計</th><th class="num">年化報酬率</th></tr></thead><tbody>${summaryRows.join('')}</tbody></table>`
-      : '';
-    el('cashflow').innerHTML = summaryTable + `<table><thead><tr><th>日期</th><th>商品</th><th>類型</th><th class="num">金額</th><th>備註</th></tr></thead><tbody>` +
+    cashflowHtml += `<table><thead><tr><th>日期</th><th>商品</th><th>類型</th><th class="num">金額</th><th>備註</th></tr></thead><tbody>` +
       allEv.sort((a,b) => (a.date||'').localeCompare(b.date||'')).map(e =>
         `<tr><td>${e.date || ''}</td><td>${e.issuer}</td><td>${e.type || ''}</td><td class="num">${e.ccy} ${fmtN(e.amount)}</td><td class="note">${e.note || ''}</td></tr>`).join('') +
       `</tbody></table>`;
+  } else if (!summaryRows.length) {
+    cashflowHtml = `<div class="box"><b>尚無配息事件紀錄。</b>在結構型商品總覽頁以管理員模式補登配息事件後，此處會自動列出現金流明細並計算各檔實際年化配息率。</div>`;
   } else {
-    el('cashflow').innerHTML = `<div class="box"><b>尚無配息事件紀錄。</b>在結構型商品總覽頁以管理員模式補登配息事件後，此處會自動列出現金流明細並計算各檔實際年化配息率。</div>`;
+    cashflowHtml += `<div class="box">目前無逐筆配息事件紀錄，以上為對帳單快照的累計推算值。</div>`;
   }
+  el('cashflow').innerHTML = cashflowHtml;
 
   // ── 歷史每月已領利息 ──
   const couponEv = allEv.filter(isCoupon);
+  const estimateOnly = fcn.filter(p => {
+    const evs = events[p._id] || [];
+    if (evs.some(isCoupon)) return false;
+    return effectiveCoupon(p, evs).source === 'estimate';
+  });
+  const estimateNote = estimateOnly.length
+    ? `<div class="box" style="margin-top:12px"><b>以下商品僅有玉山對帳單快照的累計配息金額，無逐筆配息日期，故未列入下方逐月明細：</b><ul class="gap-list">${
+        estimateOnly.map(p => {
+          const eff = effectiveCoupon(p, events[p._id]);
+          return `<li>${p.issuer}（${p.currency}）：累計 ${fmtN(eff.total)}，對帳單日期 ${eff.asOf}</li>`;
+        }).join('')
+      }</ul>在結構型商品總覽頁以管理員模式登錄逐筆配息事件後，此處會自動依月份彙總。</div>`
+    : '';
   if (couponEv.length) {
     const monthly = {};
     couponEv.forEach(e => {
@@ -290,7 +341,9 @@ function render(fcn, events){
       rows.map(r => {
         running[r.ccy] = (running[r.ccy] || 0) + r.amt;
         return `<tr><td>${r.mk}</td><td>${r.ccy}</td><td class="num">${fmtN(r.amt)}</td><td class="num">${fmtN(running[r.ccy])}</td></tr>`;
-      }).join('') + `</tbody></table>`;
+      }).join('') + `</tbody></table>` + estimateNote;
+  } else if (estimateOnly.length) {
+    el('monthly').innerHTML = estimateNote;
   } else {
     el('monthly').innerHTML = `<div class="box"><b>尚無配息事件紀錄，無法彙總每月已領利息。</b>在結構型商品總覽頁以管理員模式補登配息事件後，此處會自動依月份彙總並累計。</div>`;
   }
