@@ -98,8 +98,11 @@ th{background:var(--surface2);color:var(--muted);font-weight:600;font-size:.8rem
     <tbody></tbody>
   </table>
 
-  <h2>配息現金流</h2>
+  <h2>配息現金流與年化報酬</h2>
   <div id="cashflow"></div>
+
+  <h2>歷史每月已領利息</h2>
+  <div id="monthly"></div>
 
   <h2>資料完整度</h2>
   <div class="box" id="gaps"></div>
@@ -115,6 +118,18 @@ const DAY = 86400000;
 
 function el(id){ return document.getElementById(id); }
 function daysBetween(a, b){ return Math.round((b - a) / DAY); }
+function isCoupon(e){ return e.type === '配息' || e.type === 'coupon'; }
+function monthKey(dateStr){ return dateStr ? dateStr.replace(/-/g,'/').slice(0,7) : null; }
+
+// 年化報酬率：已收利息累計 / 本金 / 經過年數(存續起~今日或到期，取先到者) * 100
+function annualizedReturn(p, evs, today){
+  const total = (evs || []).filter(isCoupon).reduce((s,e) => s + (e.amount || 0), 0);
+  if (!total || !p.issueDate || !p.principalAmount) return null;
+  const end = p.status === '進行中' ? today : new Date(p.maturityDate || p.issueDate);
+  const days = daysBetween(new Date(p.issueDate), end);
+  if (days <= 0) return null;
+  return total / p.principalAmount / (days / 365) * 100;
+}
 
 async function main(){
   try {
@@ -151,9 +166,17 @@ function render(fcn, events){
   const nextMat = active
     .filter(p => p.maturityDate)
     .sort((a,b) => a.maturityDate.localeCompare(b.maturityDate))[0];
-  const couponTotal = Object.values(events).flat()
-    .filter(e => e.type === '配息' || e.type === 'coupon')
-    .reduce((s,e) => s + (e.amount || 0), 0);
+
+  // 累積損益（已收利息累計，依幣別分開，避免不同幣別混加）
+  const pnlByCcy = {};
+  fcn.forEach(p => {
+    const total = (events[p._id] || []).filter(isCoupon).reduce((s,e) => s + (e.amount || 0), 0);
+    if (total) pnlByCcy[p.currency] = (pnlByCcy[p.currency] || 0) + total;
+  });
+
+  // 年化報酬率（各檔獨立計算後取簡單平均；跨幣別暫未做匯率換算）
+  const arList = fcn.map(p => annualizedReturn(p, events[p._id], today)).filter(v => v != null);
+  const avgAR = arList.length ? arList.reduce((s,v) => s+v, 0) / arList.length : null;
 
   let tiles = `
     <div class="tile"><div class="k">FCN 檔數</div><div class="v">${fcn.length} <small>檔（進行中 ${active.length}）</small></div></div>`;
@@ -164,7 +187,14 @@ function render(fcn, events){
     const d = daysBetween(today, new Date(nextMat.maturityDate));
     tiles += `<div class="tile"><div class="k">最近到期</div><div class="v">${nextMat.maturityDate} <small>${nextMat.issuer}，${d} 天後</small></div></div>`;
   }
-  tiles += `<div class="tile"><div class="k">已收配息（事件紀錄）</div><div class="v">${couponTotal ? fmtN(couponTotal) : '—'} <small>${couponTotal ? '' : '尚無紀錄'}</small></div></div>`;
+  if (Object.keys(pnlByCcy).length) {
+    Object.entries(pnlByCcy).forEach(([ccy, amt]) => {
+      tiles += `<div class="tile"><div class="k">累積損益（${ccy}）</div><div class="v">+${fmtN(amt)}</div></div>`;
+    });
+  } else {
+    tiles += `<div class="tile"><div class="k">累積損益</div><div class="v">— <small>尚無配息紀錄</small></div></div>`;
+  }
+  tiles += `<div class="tile"><div class="k">年化報酬率</div><div class="v">${avgAR != null ? avgAR.toFixed(2) + '%' : '—'} <small>${avgAR != null ? '各檔簡單平均' : '尚無配息紀錄'}</small></div></div>`;
   el('tiles').innerHTML = tiles;
 
   // ── timeline ──
@@ -223,12 +253,46 @@ function render(fcn, events){
   // ── cashflow ──
   const allEv = fcn.flatMap(p => (events[p._id] || []).map(e => ({...e, issuer: p.issuer, ccy: p.currency})));
   if (allEv.length) {
-    el('cashflow').innerHTML = `<table><thead><tr><th>日期</th><th>商品</th><th>類型</th><th class="num">金額</th><th>備註</th></tr></thead><tbody>` +
+    const summaryRows = fcn.map(p => {
+      const evs = events[p._id] || [];
+      const total = evs.filter(isCoupon).reduce((s,e) => s + (e.amount || 0), 0);
+      if (!total) return null;
+      const ar = annualizedReturn(p, evs, today);
+      return `<tr><td><b>${p.issuer}</b></td><td>${p.currency}</td><td class="num">${fmtN(total)}</td><td class="num">${ar != null ? ar.toFixed(2) + '%' : '—'}</td></tr>`;
+    }).filter(Boolean);
+    const summaryTable = summaryRows.length
+      ? `<table style="margin-bottom:16px"><thead><tr><th>商品</th><th>幣別</th><th class="num">已收利息累計</th><th class="num">年化報酬率</th></tr></thead><tbody>${summaryRows.join('')}</tbody></table>`
+      : '';
+    el('cashflow').innerHTML = summaryTable + `<table><thead><tr><th>日期</th><th>商品</th><th>類型</th><th class="num">金額</th><th>備註</th></tr></thead><tbody>` +
       allEv.sort((a,b) => (a.date||'').localeCompare(b.date||'')).map(e =>
         `<tr><td>${e.date || ''}</td><td>${e.issuer}</td><td>${e.type || ''}</td><td class="num">${e.ccy} ${fmtN(e.amount)}</td><td class="note">${e.note || ''}</td></tr>`).join('') +
       `</tbody></table>`;
   } else {
     el('cashflow').innerHTML = `<div class="box"><b>尚無配息事件紀錄。</b>在結構型商品總覽頁以管理員模式補登配息事件後，此處會自動列出現金流明細並計算各檔實際年化配息率。</div>`;
+  }
+
+  // ── 歷史每月已領利息 ──
+  const couponEv = allEv.filter(isCoupon);
+  if (couponEv.length) {
+    const monthly = {};
+    couponEv.forEach(e => {
+      const mk = monthKey(e.date);
+      if (!mk) return;
+      const key = mk + '|' + e.ccy;
+      monthly[key] = (monthly[key] || 0) + (e.amount || 0);
+    });
+    const rows = Object.keys(monthly).map(k => {
+      const [mk, ccy] = k.split('|');
+      return { mk, ccy, amt: monthly[k] };
+    }).sort((a,b) => a.mk.localeCompare(b.mk) || a.ccy.localeCompare(b.ccy));
+    const running = {};
+    el('monthly').innerHTML = `<table><thead><tr><th>月份</th><th>幣別</th><th class="num">當月已領利息</th><th class="num">累計已領利息</th></tr></thead><tbody>` +
+      rows.map(r => {
+        running[r.ccy] = (running[r.ccy] || 0) + r.amt;
+        return `<tr><td>${r.mk}</td><td>${r.ccy}</td><td class="num">${fmtN(r.amt)}</td><td class="num">${fmtN(running[r.ccy])}</td></tr>`;
+      }).join('') + `</tbody></table>`;
+  } else {
+    el('monthly').innerHTML = `<div class="box"><b>尚無配息事件紀錄，無法彙總每月已領利息。</b>在結構型商品總覽頁以管理員模式補登配息事件後，此處會自動依月份彙總並累計。</div>`;
   }
 
   // ── data gaps ──
