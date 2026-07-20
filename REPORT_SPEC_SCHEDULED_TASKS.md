@@ -1,10 +1,51 @@
 # 自動排程程式 技術規範說明
 
-本文件定義 Qware 報表系統中所有 Windows 工作排程器（Task Scheduler）自動化程式的設定、執行邏輯與維護規範。
+本文件定義 Qware 報表系統中所有自動化排程的設定、執行邏輯與維護規範，涵蓋兩套機制：
+
+1. **雲端 Claude Code Routines**（2026/07/20 起為主力，見 §0）
+2. **本地 Windows 工作排程器**（Task Scheduler；2026/07/20 起轉為備援/待停用，見 §1～§5）
 
 ---
 
-## 1. 排程總覽
+## 0. 雲端 Routines（2026/07/20 起）
+
+### 0.1 遷移背景
+
+- 本地排程的 `git push` 自 2026/07/18 起持續失敗（`could not read Username for 'https://github.com': terminal prompts disabled`——排程 session 拿不到 Git Credential Manager 憑證，且 §6.3 的認證不互動防護讓它直接失敗而非掛死），8 個 commit 積在本地、GitHub Pages 停更兩天，2026/07/20 人工推上後發現。
+- 雲端其實早已存在 daily / GA 兩個 routine（2026/03～04 建立），但 prompt 沒有提供 `MONGODB_URI_QWARE` 等環境變數（`.env` 不在版控內，雲端 checkout 拿不到），**從建立以來每次執行都在 MongoDB 連線步驟失敗，從未成功推過 commit**——git 歷史中所有 auto-update commit 都是本地格式可資佐證。
+- 雲端執行環境由平台管理 GitHub 認證，從根本繞開本地憑證問題；DB 為 MongoDB Atlas（`for-aws-loadtest.f0fpg.mongodb.net` / `qware-dmp-ver-7.f0fpg.mongodb.net`），雲端可直連（Azure 費用月報 routine 已採同一模式）。
+
+### 0.2 Routine 總覽
+
+管理介面：https://claude.ai/code/routines （cron 一律為 UTC，下表已換算台北時間）
+
+| Routine 名稱 | ID | 排程（台北） | cron (UTC) | 對應本地 BAT | 動作摘要 |
+|---|---|---|---|---|---|
+| `A_Qware_Revenue_Report_Daily` | `trig_01R1A81agyceiAcPC3A2YoVU` | 每日 09:00 | `0 1 * * *` | `daily_update.bat` | 8 支日報腳本 + 每月 2 號 monthly / 10 號 GA 條件任務 + push + LINE(daily) |
+| `GA_Events_Traffic_Report_0800_1400` | `trig_01EYHDHBUybeGd1VJrSFHzWC` | 每日 08:00、14:00 | `0 0,6 * * *` | `update_ga_report.bat` | generate_ga_events_report.js + push + LINE(ga)；下午時段為 14:00（本地舊制為 15:00） |
+| `A_Qware_Revenue_Report_Weekly` | `trig_01Dita12Gv75Tj5aTC2a6fV1` | 每週四 08:30 | `30 0 * * 4` | `weekly_update.bat` | generate_a_weekly_report.js + 選擇性 git add（同本地）+ push |
+| `Travel_Expense_Shopping_Report_Daily` | `trig_012LmxVeLKcMNRU3jkCEQo73` | 每日 06:00 | `0 22 * * *` | `travel/auto_update.bat` | 下載 Google Sheets CSV ×2 + 參考網頁 → 兩支報表 + push + LINE(travel) |
+| `Azure Cost Report Monthly Update` | `trig_015BVnunn5oAJHC5KJgGbc4L` | 每月 16 號 15:00 | `0 7 16 * *` | —（原生雲端） | 見 `REPORT_SPEC_AZURE_COST.md` |
+
+### 0.3 Prompt 設計要點（新增/修改 routine 時遵循）
+
+1. **環境變數**：`.env` 不在版控內，雲端拿不到；MongoDB 連線字串必須在 prompt 內以 `export MONGODB_URI_QWARE='...'` 提供（比照 Azure routine）。daily 另需 `MONGODB_URI_DMP`（cart_data 與 e_dmp_funnel 兩支腳本用）。
+2. **時區**：雲端環境非台北時區，凡日期判斷（每月 2 號/10 號）與 commit message 時間戳一律用 `TZ='Asia/Taipei' date ...`。
+3. **commit message**：沿用本地格式並加 `(cloud)` 後綴（如 `Auto Update Daily Reports: 2026/07/20 09:00:00 (cloud)`），方便從 git 歷史區分執行來源。
+4. **push 防護**：push 前先 `git pull --rebase origin main`；無檔案變更則跳過 commit/push。
+5. **LINE 通知**：雲端無法跑 `send_line_notify.ps1`，改在 prompt 內用 `curl -X POST` 直打 API（endpoint/token 同 ps1），訊息註明「（雲端排程）」。
+6. **失敗處理**：MongoDB/CSV 連線失敗重試上限 2 次；失敗時發 LINE 說明，並在回報註明可能需把雲端 IP 加入 Atlas Network Access 白名單。
+7. **機密**：連線字串與 LINE token 只放 routine prompt，嚴禁寫入任何會 commit 的檔案。
+
+### 0.4 驗證狀態
+
+- 2026/07/20 09:20 已手動觸發 daily 與 GA 兩個 routine 驗證（session `cse_015HY6PUzRnmnx6hvEU2Lu9K` / `cse_01VtPRpvwUBirN7fyujEk75u`），結果待確認後更新本節。
+- Weekly / Travel 為新建，首次排程執行分別為 2026/07/23（四）08:30 與 2026/07/20 22:00 → 實為 07/21 06:00 台北。
+- **雲端驗證成功後**，本地排程（§1 總覽表全部 + HKCU Run 機碼 `QwareDailyReport`，見 §6.2）應停用，避免雙軌互踩（§6.3 的 2026/07/13、07/14 事故均為多來源併發所致）。停用指令：`schtasks /change /tn <排程名> /disable`（可 `/enable` 還原）。
+
+---
+
+## 1. 排程總覽（本地 Windows，2026/07/20 起轉備援）
 
 | 排程名稱 | BAT 檔 | 觸發時間 | 最後執行 | 狀態 |
 |---------|--------|---------|---------|------|
@@ -19,6 +60,7 @@
 
 > **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 執行相同的 BAT，前者為原始排程，後者為補強版（設有 WorkingDirectory）。兩者並存確保至少一個成功觸發。
 > 因帳號非系統管理員，無法將排程設定為「不論是否登入都執行」，改以 HKCU Run 機碼作為登入補跑機制。
+> **2026/07/20 起**：上述任務的職責已由雲端 routines 接手（§0），雲端驗證成功後本表任務與 HKCU Run 機碼應全部停用；BAT 檔保留於 repo 作為手動補跑工具（手動執行不受憑證問題影響）。
 
 ---
 
@@ -268,7 +310,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/14（排程同時補跑造成 git 互踩、三份日報更新遺失，四支 BAT git 區段加入目錄原子互斥鎖，見 §6.3；generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳資料不再停更）*
+*最後更新：2026/07/20（本地排程 git push 自 07/18 起因排程 session 取不到 GCM 憑證持續失敗、Pages 停更兩天；排程主力遷移至雲端 Claude Code Routines——修復 daily/GA 兩個雲端 routine 的 prompt（補 MongoDB 連線字串，此前從未成功執行）、新建 weekly/travel 兩個 routine，見 §0；本地排程轉備援待停用）*
+*2026/07/14（排程同時補跑造成 git 互踩、三份日報更新遺失，四支 BAT git 區段加入目錄原子互斥鎖，見 §6.3；generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳資料不再停更）*
 *2026/07/13：git push 掛死事故復原；四支 BAT 加入 git pull --rebase --autostash 與認證不互動防護，git 輸出改導向 git_sync.log，見 §6.3*
 *2026/07/09：新增 `Qware_Weekly_Report_Update` 排程 + `weekly_update.bat`，A 系統週報每週四 08:30 自動產出*
 *2026/07/07：daily_update.bat 新增 generate_e_dmp_funnel_report.js，E 系統轉換漏斗報表改為每日 08:00 自動更新*
