@@ -9,6 +9,9 @@ const client = new MongoClient(uri, {
 });
 
 const COLL    = 'GA_D_ClickData_Webb_202606';
+// OUT_FILE's <head> has an IP-allowlist gate (2026/07/20). This script only patches
+// data markers via regex and never touches <head> — do not replace with a full
+// template rewrite without carrying the gate over.
 const OUT_FILE = path.join(__dirname, 'D_GA_ClickData_Webb_202606_Report.html');
 const YEAR    = 2026; // derived from collection name suffix
 

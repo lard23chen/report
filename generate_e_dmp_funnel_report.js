@@ -8,6 +8,9 @@ const path = require('path');
 
 const uriDMP = process.env.MONGODB_URI_DMP;
 
+// OUT_FILE's <head> has an IP-allowlist gate (2026/07/20). This script only patches
+// the Data Start/End block below and never touches <head> — do not replace with a
+// full template rewrite without carrying the gate over.
 const OUT_FILE = path.join(__dirname, 'E_DMP_Funnel_Report.html');
 const DATA_START = '// ── Data Start ──────────────────────────────────────────────────────────────';
 const DATA_END   = '// ── Data End ────────────────────────────────────────────────────────────────';

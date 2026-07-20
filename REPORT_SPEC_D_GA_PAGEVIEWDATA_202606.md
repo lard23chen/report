@@ -175,6 +175,8 @@ const DATA  = [...];   ← generator 注入
 
 > ⚠️ **勿修改 marker 字串**，否則 generator 找不到注入點會拋出錯誤並中止。
 
+> **2026/07/20 新增**：`<head>` 加入 IP 白名單保護（同目錄頁 `HTML_Report_Catalog.html` 機制，`api.ipify.org` 查訪客 IP 比對 9 組授權 IP，不符即整頁換成「存取被拒絕」）。此前本報表沒有此保護，任何人有連結即可看到完整 D 系統瀏覽量資料。清單為手動維護的靜態內容，`generate_d_ga_pageview_report.js` 僅用 regex 替換資料常數、不會動到 `<head>`，之後改版該檔案時務必保留此段。
+
 ### 7.2 DAILY 陣列格式
 
 ```js
@@ -265,4 +267,5 @@ MongoDB collection 新增新活動後，generator 會自動帶入，但類別需
 
 ---
 
+*2026/07/20：`<head>` 補上 IP 白名單保護，之前任何人有連結都能看，見 §7*
 *最後更新日期：2026/06/12（加入每日趨勢圖、generator 腳本、S1 排程）*

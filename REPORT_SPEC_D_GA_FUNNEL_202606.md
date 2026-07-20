@@ -250,6 +250,8 @@ git push origin main
 
 ⚠️ 兩支 generator 各自用獨立 marker 區塊（`// ── Data ──` / `// ── Charts ──`、`// ── DailyData Start/End ──` 和 `// ── CartPurchase Data Start/End ──`），互不影響，可分開執行。
 
+**2026/07/20 新增**：`<head>` 加入 IP 白名單保護（同目錄頁 `HTML_Report_Catalog.html` 機制，`api.ipify.org` 查訪客 IP 比對 9 組授權 IP，不符即整頁換成「存取被拒絕」）。此前本報表沒有此保護，任何人有連結即可看到完整轉換漏斗資料。清單為手動維護的靜態內容，`generate_d_ga_funnel_report.js` 與 `generate_d_ga_funnel_cart_data.js` 都只用 regex 替換資料常數、不會動到 `<head>`，之後改版任一檔案時務必保留此段。
+
 **2026-07-06 起每日資料全自動**：`PV_BY_DATE` / `CLICK_ACT_DAILY` / `PV_DATES` / `CL_DATES` 已改由 `generate_d_ga_funnel_report.js` 每次執行時從 MongoDB 重新聚合（`$group` by ActivityId + EventDate，EventDate UTC +08:00 換算為 `MM/DD`），頁首日期區間、日期篩選器白名單與每日明細因此跟隨 `daily_update.bat` 每日更新，不再手動維護。
 
 **2026-07-14 起 A購物車/結帳也入排程**：`generate_d_ga_funnel_cart_data.js` 已加入 `daily_update.bat`（緊接主 generator 之後，執行約 95 秒）。先前它不在排程內、上次手動執行停在 07/02 資料，造成日期篩選選 7/3 以後時 A結帳/A購物車兩層無資料（PV/Click 每日更新、Cart/Purchase 停更的落差）；入排程後四層資料同步每日更新。
@@ -264,6 +266,7 @@ git push origin main
 - **頁首互連（2026/07/09 新增）**：header `hdr-tags` 最後有一顆藍色連結標籤「🔗 E系統購票流量轉換 →」（相對路徑連到 `E_DMP_Funnel_Report.html`），對方頁面也有反向連結回本報表。此連結直接寫在 HTML（generator 為 marker 注入式、不會覆蓋），重建頁面模板時需保留。
 
 ---
+*2026/07/20：`<head>` 補上 IP 白名單保護，之前任何人有連結都能看，見 §7*
 *建立日期：2026/06/22｜最後更新：2026/07/17（PV 日期區間新增「1天前」「7天前」快速按鈕，錨定最後有資料日並自動套用篩選，見 §5.2）*
 *2026/07/14：generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳每日資料不再停更；點擊層改用 PV 日期區間，四層同一時間窗，見 §5.2*
 *2026/07/06：PV_BY_DATE / CLICK_ACT_DAILY / PV_DATES / CL_DATES 改由主 generator 自動產生，新增 DailyData marker 區塊；頁首日期區間與日期篩選器隨每日排程自動更新，修正先前總量已含新資料但頁首仍顯示 06/28 的不一致*

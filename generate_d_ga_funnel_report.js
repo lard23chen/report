@@ -10,6 +10,10 @@ const client = new MongoClient(uri, {
 
 const COLL_PV    = 'GA_D_PageViewData_Webb_202606';
 const COLL_CLICK = 'GA_D_ClickData_Webb_202606';
+// OUT_FILE's <head> has an IP-allowlist gate (2026/07/20). This script (and the
+// cart-data patcher generate_d_ga_funnel_cart_data.js, which shares OUT_FILE) only
+// patch data markers via regex and never touch <head> — do not replace with a full
+// template rewrite without carrying the gate over.
 const OUT_FILE   = path.join(__dirname, 'D_GA_Funnel_202606_Report.html');
 
 const CAT_MAP = {

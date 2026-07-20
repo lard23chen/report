@@ -10,6 +10,9 @@ const path = require('path');
 const uriGA  = process.env.MONGODB_URI_QWARE;
 const uriDMP = process.env.MONGODB_URI_DMP;
 
+// OUT_FILE's <head> has an IP-allowlist gate (2026/07/20). This script only patches
+// the CART/PURCHASE markers below and never touches <head> — do not replace with a
+// full template rewrite without carrying the gate over.
 const OUT_FILE = path.join(__dirname, 'D_GA_Funnel_202606_Report.html');
 const CART_START = '// ── CartPurchase Data Start ──────────────────────────────────────────────';
 const CART_END   = '// ── CartPurchase Data End ────────────────────────────────────────────────';

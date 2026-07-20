@@ -153,6 +153,8 @@ Collection: `GA_D_ClickData_Webb_202606`（451 documents）
 此報表為**獨立靜態 HTML**，資料直接嵌入 JavaScript 中，不需連接 MongoDB 或後端 API。
 報表包含 IP 白名單保護，僅允許授權 IP 存取。
 
+> **2026/07/20 修正**：白名單漏了 `133.149.194.24` 一組 IP（與目錄頁 `HTML_Report_Catalog.html` 等其他受保護報表的清單不一致），已補齊為 9 組。此清單為手動維護的靜態內容，`generate_d_ga_clickdata_report.js` 僅用 regex 替換資料常數、不會動到 `<head>`，之後改版該檔案時務必保留此段。
+
 ## 8. 注意事項
 
 - ActivityId `39428` 在不同日期的 `GameInfoName` 不同（樂天桃猿主場系列賽，對戰隊伍各異），聚合時取 `$last` 為活動顯示名

@@ -172,6 +172,8 @@ git push origin main
 
 **2026/07/07 起已列入 `daily_update.bat` 每日排程**（每日 08:00，於 `generate_d_ga_funnel_report.js` 之後執行），單一 generator 即完成全部資料，git push 由 bat 統一處理。手動更新時執行上述指令即可。排程細節見 `REPORT_SPEC_SCHEDULED_TASKS.md` §2。
 
+**2026/07/20 新增**：`<head>` 加入 IP 白名單保護（同目錄頁 `HTML_Report_Catalog.html` 機制，`api.ipify.org` 查訪客 IP 比對 9 組授權 IP，不符即整頁換成「存取被拒絕」）。此前本報表沒有此保護，任何人有連結即可看到完整 E 系統轉換漏斗資料。清單為手動維護的靜態內容，`generate_e_dmp_funnel_report.js` 只用 marker 區塊替換資料、不會動到 `<head>`，之後改版該檔案時務必保留此段。
+
 ## 7. 相關連結
 
 - 目錄：`HTML_Report_Catalog.html`
@@ -179,6 +181,7 @@ git push origin main
 - **頁首互連（2026/07/09 新增）**：header `hdr-tags` 最後有一顆藍色連結標籤「🔗 A系統購票流量轉換 →」（相對路徑連到 `D_GA_Funnel_202606_Report.html`），對方頁面也有反向連結回本報表。此連結直接寫在 HTML（generator 為 marker 注入式、不會覆蓋），重建頁面模板時需保留。
 
 ---
+*2026/07/20：`<head>` 補上 IP 白名單保護，之前任何人有連結都能看，見 §6*
 *建立日期：2026/07/07｜原需求 page_view → add_cart → payment 三階段，因 DMP 無 E 系統 add_cart/payment 事件，經用戶確認改為 page_view → purchase 兩階段（含張數與金額）*
 *2026/07/07：加入 daily_update.bat 每日 08:00 排程，改為自動更新*
 *2026/07/17：日期區間新增「1天前」「7天前」快速按鈕（錨定最後有資料日、自動套用篩選），與 D 版 funnel 報表同規格，見 §4.2*
