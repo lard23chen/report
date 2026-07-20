@@ -122,6 +122,8 @@
 
 ### 5.4 前置條件檢查表（用戶自行操作，完成後告知 Claude 繼續）
 
+> 互動版指南見 [`IG_Anon_Setup_Guide.html`](https://lard23chen.github.io/report/IG_Anon_Setup_Guide.html)：每個前置條件都有逐步操作說明、可勾選追蹤進度（localStorage key `ig-anon-setup-v1`），並標註哪些資訊要回報給 Claude（App ID/Secret、Drive 憑證等）。
+
 | 項目 | 狀態 |
 |------|------|
 | Phase 0：新匠名帳號建立 + 切換創作者/商業帳號 | 🔲 |

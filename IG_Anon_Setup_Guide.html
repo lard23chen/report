@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>匠名 IG 自動發布 · 前置設定指南</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#242424; --border:#2e2e2e;
+  --text:#e8e8e8; --muted:#888;
+  --ig1:#f58529; --ig2:#dd2a7b; --ig3:#8134af; --ig4:#515bd4;
+  --green:#4caf50; --yellow:#FBC02D;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit','Noto Sans TC',sans-serif;min-height:100vh;padding-bottom:60px}
+
+.header{background:linear-gradient(135deg,#f58529 0%,#dd2a7b 40%,#8134af 70%,#515bd4 100%);padding:28px 24px 24px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.35)}
+.header h1{position:relative;font-size:1.7rem;font-weight:800}
+.header p{position:relative;margin-top:5px;color:rgba(255,255,255,0.75);font-size:0.85rem}
+
+.wrap{max-width:800px;margin:0 auto;padding:20px}
+
+.progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:22px;display:flex;align-items:center;gap:14px}
+.progress-label{font-size:0.82rem;color:var(--muted);white-space:nowrap}
+.progress-bar-bg{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--ig1),var(--ig2));border-radius:4px;transition:width .4s}
+.progress-count{font-weight:700;font-size:0.9rem;white-space:nowrap}
+
+.note{background:rgba(245,133,41,0.08);border:1px solid rgba(245,133,41,0.35);border-radius:10px;padding:12px 16px;font-size:0.82rem;color:#f0b070;margin-bottom:22px;line-height:1.7}
+
+.section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden}
+.section-head{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;user-select:none;border-bottom:1px solid var(--border)}
+.section-num{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;transition:all .2s}
+.section-head.done .section-num{background:var(--green);border-color:var(--green);color:#fff}
+.section-head h2{font-size:1rem;flex:1}
+.section-tag{font-size:0.7rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:2px 10px}
+.section-arrow{color:var(--muted);transition:transform .2s;font-size:0.85rem}
+.section-head.open .section-arrow{transform:rotate(180deg)}
+.section-body{display:none;padding:18px 20px 20px}
+.section-body.open{display:block}
+
+.step{display:flex;gap:12px;margin-bottom:14px}
+.step:last-child{margin-bottom:0}
+.step-num{width:20px;height:20px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--muted);flex-shrink:0;margin-top:1px}
+.step-text{font-size:0.86rem;line-height:1.75;color:var(--text)}
+.step-text code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:0.82rem;color:var(--ig2)}
+.step-text a{color:var(--ig2)}
+
+.check-item{display:flex;align-items:center;gap:11px;padding:9px 0;border-top:1px solid var(--border);cursor:pointer;user-select:none;margin-top:14px}
+.check-box{width:19px;height:19px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.check-item.checked .check-box{background:var(--ig2);border-color:var(--ig2);color:white;font-size:11px}
+.check-item.checked .check-box::after{content:'✓'}
+.check-item.checked .check-label{color:var(--muted);text-decoration:line-through}
+.check-label{font-size:0.86rem;font-weight:600}
+
+.bring-back{background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:10px 14px;margin-top:14px;font-size:0.8rem;color:var(--muted);line-height:1.7}
+.bring-back b{color:var(--yellow)}
+
+@media(max-width:600px){
+  .header h1{font-size:1.35rem}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔧 匠名 IG 自動發布 · 前置設定指南</h1>
+  <p>Phase 2 全自動發布前，這 5 件事要先做完</p>
+</div>
+
+<div class="wrap">
+  <div class="progress-wrap">
+    <span class="progress-label">完成進度</span>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    <span class="progress-count" id="progress-text">0 / 5</span>
+  </div>
+
+  <div class="note">
+    ⚠️ 這些步驟都需要在 Facebook / IG App / Meta / Google 官方頁面上手動操作（建帳號、申請 App、授權憑證），Claude 無法代為執行。完成後把要求的資訊（App ID、Secret、憑證檔）貼回聊天室即可繼續。
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section" data-id="s1">
+    <div class="section-head" onclick="toggleSection('s1')">
+      <div class="section-num">1</div>
+      <h2>建立匠名 IG 帳號</h2>
+      <span class="section-tag">IG App</span>
+      <span class="section-arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="step"><div class="step-num">1</div><div class="step-text">用一組新 Email／手機號碼，在 IG App 註冊全新帳號（不要用原本帳號改名，避免舊追蹤者、舊互動紀錄留下痕跡）</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">大頭貼、Bio 採去識別化設定（不放清晰正臉照、不寫真實姓名/公司/學校）</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">右上角 ☰ → <b>設定和隱私</b> → <b>帳號類型和工具</b> → 切換為「<b>創作者帳號</b>」或「<b>商業帳號</b>」（一般個人帳號無法用 Graph API 發文）</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">逐一檢視原本帳號的追蹤清單，用匠名帳號封鎖/取消追蹤已知聯絡人（IG 沒有批次封鎖 API，只能手動）</div></div>
+      <div class="bring-back">✅ 完成後不用回報任何資訊，勾選下方即可</div>
+      <div class="check-item" onclick="toggleCheck(this,'s1')"><div class="check-box"></div><div class="check-label">已完成匠名帳號建立</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section" data-id="s2">
+    <div class="section-head" onclick="toggleSection('s2')">
+      <div class="section-num">2</div>
+      <h2>建立 Facebook 粉絲專頁並綁定 IG</h2>
+      <span class="section-tag">Facebook</span>
+      <span class="section-arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="step"><div class="step-num">1</div><div class="step-text">開 <a href="https://www.facebook.com/pages/create" target="_blank">facebook.com/pages/create</a>，名稱填匠名帳號名稱（不要用真名）</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">類別選「個人部落客」或「數位創作者」，建立完成即可，不用填其他資料</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">用匠名 IG 帳號登入 IG App → ☰ → <b>設定和隱私</b> → <b>帳號中心</b></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">帳號中心 → <b>帳號</b> → <b>新增帳號</b> → 選「連結專頁」→ 選剛建立的 FB 粉絲專頁</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text">確認綁定成功，且 IG 帳號類型仍是創作者/商業帳號</div></div>
+      <div class="check-item" onclick="toggleCheck(this,'s2')"><div class="check-box"></div><div class="check-label">已完成粉絲專頁綁定</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section" data-id="s3">
+    <div class="section-head" onclick="toggleSection('s3')">
+      <div class="section-num">3</div>
+      <h2>建立 Meta Developer App</h2>
+      <span class="section-tag">Meta for Developers</span>
+      <span class="section-arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="step"><div class="step-num">1</div><div class="step-text">開 <a href="https://developers.facebook.com" target="_blank">developers.facebook.com</a> → 右上角「開始使用」（用綁定粉絲專頁的同一個 FB 帳號登入）</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">「建立 App」→ 類型選「其他」→「商業」</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">App 名稱可填 <code>IG Anon Auto Publish</code></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">控制台左側「產品」→ 找「Instagram」→「設定」加入此產品</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text">左側「應用程式設定」→「基本資料」，記下 <b>App ID</b> 與 <b>App Secret</b></div></div>
+      <div class="bring-back">📋 完成後把 <b>App ID</b> 和 <b>App Secret</b> 貼回聊天室給 Claude，用來換取 Access Token</div>
+      <div class="check-item" onclick="toggleCheck(this,'s3')"><div class="check-box"></div><div class="check-label">已取得 App ID / App Secret</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section" data-id="s4">
+    <div class="section-head" onclick="toggleSection('s4')">
+      <div class="section-num">4</div>
+      <h2>Google Cloud 啟用 Drive API</h2>
+      <span class="section-tag">Google Cloud Console</span>
+      <span class="section-arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="step"><div class="step-num">1</div><div class="step-text">開 <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>，建立新專案（例如 <code>ig-anon-auto-publish</code>）</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">左上角選單 → 「API 和服務」→「已啟用的 API 和服務」→「啟用 API 和服務」，搜尋並啟用 <b>Google Drive API</b></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">左側「憑證」→「建立憑證」→「服務帳號」，填名稱後建立</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">在該服務帳號頁面 →「金鑰」分頁 →「新增金鑰」→ 選 JSON，下載憑證檔（<b>妥善保管，不要外流或上傳到公開 repo</b>）</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text">在 Google Drive 建立 <code>IG_AutoPost/inbox</code> 資料夾，用「共用」把該服務帳號的 Email（在 JSON 憑證裡的 <code>client_email</code>）加為協作者，才能讀取資料夾內容</div></div>
+      <div class="bring-back">📋 完成後把下載的 JSON 憑證檔路徑（或內容）告訴 Claude，用來設定雲端 Worker 的存取權限</div>
+      <div class="check-item" onclick="toggleCheck(this,'s4')"><div class="check-box"></div><div class="check-label">已取得 Drive API 服務帳號憑證</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section" data-id="s5">
+    <div class="section-head" onclick="toggleSection('s5')">
+      <div class="section-num">5</div>
+      <h2>選定雲端主機（24/7 跑 Worker）</h2>
+      <span class="section-tag">Railway 或同等服務</span>
+      <span class="section-arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="step"><div class="step-num">1</div><div class="step-text">確認要用哪個雲端服務常駐跑 Node.js（例如 Railway、Render、Fly.io），需要能接受背景 worker（不是只能跑網頁）</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">確認該服務的帳號/付款方式已設定好（背景常駐服務通常不是完全免費方案）</div></div>
+      <div class="bring-back">📋 告訴 Claude 你選定哪個平台，即可依平台規格寫部署設定</div>
+      <div class="check-item" onclick="toggleCheck(this,'s5')"><div class="check-box"></div><div class="check-label">已選定雲端主機</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let state = JSON.parse(localStorage.getItem('ig-anon-setup-v1') || '{}');
+function saveState(){ localStorage.setItem('ig-anon-setup-v1', JSON.stringify(state)); }
+
+function toggleSection(id){
+  const head = document.querySelector(`.section[data-id="${id}"] .section-head`);
+  const body = document.querySelector(`.section[data-id="${id}"] .section-body`);
+  head.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+function toggleCheck(el, sectionId){
+  const checked = el.classList.toggle('checked');
+  state[sectionId] = checked;
+  saveState();
+  document.querySelector(`.section[data-id="${sectionId}"] .section-head`).classList.toggle('done', checked);
+  updateProgress();
+}
+
+function updateProgress(){
+  const ids = ['s1','s2','s3','s4','s5'];
+  const done = ids.filter(id => state[id]).length;
+  document.getElementById('progress-fill').style.width = (done/5*100) + '%';
+  document.getElementById('progress-text').textContent = `${done} / 5`;
+}
+
+// init
+['s1','s2','s3','s4','s5'].forEach(id => {
+  if (state[id]) {
+    document.querySelector(`.check-item[onclick*="${id}"]`)?.classList.add('checked');
+    document.querySelector(`.section[data-id="${id}"] .section-head`).classList.add('done');
+  }
+});
+updateProgress();
+// open first incomplete section by default
+const firstOpen = ['s1','s2','s3','s4','s5'].find(id => !state[id]) || 's1';
+toggleSection(firstOpen);
+</script>
+</body>
+</html>
