@@ -119,7 +119,7 @@ async function generateReport() {
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1700px;
             margin: 0 auto;
         }
 
@@ -381,6 +381,8 @@ async function generateReport() {
                     <th>節目名稱</th>
                     <th class="text-right">筆數 (Orders)</th>
                     <th class="text-right">張數 (Tickets)</th>
+                    <th class="text-right">電子票 (E-Ticket)</th>
+                    <th class="text-right">紙票 (Paper)</th>
                     <th class="text-right">金額 (Amount)</th>
                 </tr>
             </thead>
@@ -862,13 +864,16 @@ async function generateReport() {
             const name = item['節目/商品名稱'] || 'Unknown';
             const fee = parseFloat(item['手續費']) || 0;
             const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
+            const pickup = item['取票方式'];
 
             if (!refundStats[name]) {
-                refundStats[name] = { orders: new Set(), tickets: 0, amount: 0 };
+                refundStats[name] = { orders: new Set(), tickets: 0, amount: 0, eTickets: 0, paperTickets: 0 };
             }
             refundStats[name].orders.add(orderId);
             refundStats[name].tickets += 1;
             refundStats[name].amount += fee;
+            if (pickup === '電子票') refundStats[name].eTickets += 1;
+            else if (pickup === '紙本票') refundStats[name].paperTickets += 1;
         });
 
         const topRefunds = Object.entries(refundStats)
@@ -876,6 +881,8 @@ async function generateReport() {
                 name,
                 orderCount: stats.orders.size,
                 ticketCount: stats.tickets,
+                eTicketCount: stats.eTickets,
+                paperTicketCount: stats.paperTickets,
                 amount: stats.amount
             }))
             .sort((a, b) => b.amount - a.amount)
@@ -883,7 +890,7 @@ async function generateReport() {
 
         const topRefundTableBody = document.querySelector('#topRefundTable tbody');
         if(topRefunds.length === 0) {
-             topRefundTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">無退票資料</td></tr>';
+             topRefundTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">無退票資料</td></tr>';
         } else {
             topRefunds.forEach((ev, index) => {
                 const tr = document.createElement('tr');
@@ -894,6 +901,8 @@ async function generateReport() {
                     </td>
                     <td class="text-right">\${ev.orderCount.toLocaleString()}</td>
                     <td class="text-right">\${ev.ticketCount.toLocaleString()}</td>
+                    <td class="text-right" style="color: #c62828;">\${ev.eTicketCount.toLocaleString()}</td>
+                    <td class="text-right" style="color: #8b5cf6;">\${ev.paperTicketCount.toLocaleString()}</td>
                     <td class="text-right" style="color: #c62828; font-weight:bold;">NT$ \${ev.amount.toLocaleString()}</td>
                 \`;
                 topRefundTableBody.appendChild(tr);
