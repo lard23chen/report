@@ -76,12 +76,31 @@ async function generateReport() {
             const huiwanRow = (prevDoc.SystemHuiwan_Cost !== undefined)
                 ? itemHtml('會員', '#F06292', latestDoc.SystemHuiwan_Cost || 0, prevDoc.SystemHuiwan_Cost || 0)
                 : '';
+
+            // D系統平台費用比較（Azure→AWS，移轉分界 2025/11，同 §4.5 D系統 Azure vs AWS 費用比較圖）
+            // Azure 期間起點對齊比較圖的資料範圍（2024/11 起），避免拉入更早期（2021~2024）規模完全不同的費用稀釋平均值
+            // 用 allDocs（完整歷史）而非 docs（近12個月），避免 AWS 期間（隨時間拉長）被近12個月篩選截斷
+            const migrationMonth = '2025/11';
+            const dCompareStart = '2024/11';
+            const azureDDocs = allDocs.filter(d => d.YearMonth >= dCompareStart && d.YearMonth < migrationMonth && d.SystemD_Cost != null);
+            const awsDDocs = allDocs.filter(d => d.YearMonth >= migrationMonth && d.SystemD_Cost != null);
+            let dPlatformRow = '';
+            if (azureDDocs.length > 0 && awsDDocs.length > 0) {
+                const azureAvg = azureDDocs.reduce((s, d) => s + (d.SystemD_Cost || 0), 0) / azureDDocs.length;
+                const awsAvg = awsDDocs.reduce((s, d) => s + (d.SystemD_Cost || 0), 0) / awsDDocs.length;
+                const platPct = ((awsAvg - azureAvg) / azureAvg * 100).toFixed(1);
+                const platClr = parseFloat(platPct) >= 0 ? '#ef5350' : '#66BB6A';
+                const platArrow = parseFloat(platPct) >= 0 ? '▲' : '▼';
+                dPlatformRow = `<div style="color:var(--text-secondary);">🔄 <b style="color:var(--text-primary);">D系統平台（Azure→AWS）：</b>AWS 期間（${awsDDocs[0].YearMonth} 起，共 ${awsDDocs.length} 個月）月均 <b style="color:var(--color-d);">$${Math.round(awsAvg).toLocaleString()}</b>，較 Azure 期間（${azureDDocs[0].YearMonth}–${azureDDocs[azureDDocs.length - 1].YearMonth}）月均 $${Math.round(azureAvg).toLocaleString()} <span style="color:${platClr};">${platArrow} ${Math.abs(platPct)}%</span>。</div>`;
+            }
+
             momSection = `<div style="margin-top:24px;">
         <h4 style="color:var(--accent-color);font-size:1rem;margin-bottom:10px;">最近月份趨勢分析 (MoM Analysis)</h4>
         <div style="background:#252525;border-radius:10px;padding:14px 18px;border-left:3px solid var(--accent-color);max-width:820px;line-height:1.9;font-size:0.92rem;">
             <div style="font-weight:700;margin-bottom:6px;color:var(--text-primary);">${latestDoc.YearMonth} 較上月(${prevDoc.YearMonth})</div>
             <div style="color:var(--text-secondary);">💰 <b style="color:var(--text-primary);">總費用：</b><span style="color:${totalClr};">${totalArrow} ${Math.abs(totalPct)}%</span>（${totalPct >= 0 ? '+' : '-'}${totalDiff}），達 $${(latestDoc.QWARE_Ticket_TotalCost || 0).toLocaleString()}。</div>
             <div style="color:var(--text-secondary);">🖥️ <b style="color:var(--text-primary);">各系統：</b>${itemHtml('A系統', 'var(--color-a)', latestDoc.SystemA_Cost || 0, prevDoc.SystemA_Cost || 0)}${itemHtml('D系統', 'var(--color-d)', latestDoc.SystemD_Cost || 0, prevDoc.SystemD_Cost || 0)}${itemHtml('E系統', 'var(--color-e)', latestDoc.SystemE_Cost || 0, prevDoc.SystemE_Cost || 0)}。</div>
+            ${dPlatformRow}
             <div style="color:var(--text-secondary);">📦 <b style="color:var(--text-primary);">其他：</b>${itemHtml('共用', '#AB47BC', latestDoc.Common_Cost || 0, prevDoc.Common_Cost || 0)}${huiwanRow}。</div>
         </div>
     </div>`;
