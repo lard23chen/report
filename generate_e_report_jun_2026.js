@@ -361,6 +361,8 @@ async function generateReport() {
                     <th>節目名稱</th>
                     <th class="text-right">筆數 (Orders)</th>
                     <th class="text-right">張數 (Tickets)</th>
+                    <th class="text-right">電子票 (E-Ticket)</th>
+                    <th class="text-right">紙票 (Paper)</th>
                     <th class="text-right">金額 (Revenue)</th>
                     <th class="text-right">佔比 (Share)</th>
                 </tr>
@@ -803,18 +805,21 @@ async function generateReport() {
         });
 
         // 2b. Top 5 Events Logic
-        const eventStats = {}; 
+        const eventStats = {};
         validOrders.forEach(item => {
             const name = item['節目/商品名稱'] || 'Unknown';
             const price = item['售價'] || 0;
             const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
+            const pickup = item['取票方式'];
 
             if (!eventStats[name]) {
-                eventStats[name] = { orders: new Set(), tickets: 0, revenue: 0 };
+                eventStats[name] = { orders: new Set(), tickets: 0, revenue: 0, eTickets: 0, paperTickets: 0 };
             }
             eventStats[name].orders.add(orderId);
             eventStats[name].tickets += 1;
             eventStats[name].revenue += price;
+            if (pickup === '電子票') eventStats[name].eTickets += 1;
+            else if (pickup === '紙本票') eventStats[name].paperTickets += 1;
         });
 
         const topEvents = Object.entries(eventStats)
@@ -822,6 +827,8 @@ async function generateReport() {
                 name,
                 orderCount: stats.orders.size,
                 ticketCount: stats.tickets,
+                eTicketCount: stats.eTickets,
+                paperTicketCount: stats.paperTickets,
                 revenue: stats.revenue,
                 share: totalRevenue ? (stats.revenue / totalRevenue * 100).toFixed(1) : 0
             }))
@@ -839,6 +846,8 @@ async function generateReport() {
                 </td>
                 <td class="text-right">\${ev.orderCount.toLocaleString()}</td>
                 <td class="text-right">\${ev.ticketCount.toLocaleString()}</td>
+                <td class="text-right" style="color: var(--accent-color);">\${ev.eTicketCount.toLocaleString()}</td>
+                <td class="text-right" style="color: #8b5cf6;">\${ev.paperTicketCount.toLocaleString()}</td>
                 <td class="text-right" style="color: var(--accent-color); font-weight:bold;">NT$ \${ev.revenue.toLocaleString()}</td>
                 <td class="text-right" style="color:#888;">\${ev.share}%</td>
             \`;
