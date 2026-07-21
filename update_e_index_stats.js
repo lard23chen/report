@@ -30,7 +30,9 @@ async function main() {
                     price: { $ifNull: ["$售價", 0] },
                     refundAmt: { $ifNull: ["$實退金額", 0] },
                     refundFeeRaw: { $ifNull: ["$手續費", 0] },
-                    orderId: "$訂單編號"
+                    orderId: "$訂單編號",
+                    // 取票方式：E 系統直接存 "電子票" / "紙本票"（與 A 系統的「未列印/已取」編碼不同）
+                    pickup: "$取票方式"
                 }
             },
             {
@@ -46,7 +48,8 @@ async function main() {
                             else: "$refundFeeRaw"
                         }
                     },
-                    orderId: 1
+                    orderId: 1,
+                    pickup: 1
                 }
             },
             {
@@ -54,6 +57,8 @@ async function main() {
                     _id: "$month",
                     totalTickets: { $sum: { $cond: [{ $eq: ["$status", "成功"] }, 1, 0] } },
                     totalRevenue: { $sum: { $cond: [{ $eq: ["$status", "成功"] }, "$price", 0] } },
+                    eTicketsSales: { $sum: { $cond: [{ $and: [{ $eq: ["$status", "成功"] }, { $eq: ["$pickup", "電子票"] }] }, 1, 0] } },
+                    paperTicketsSales: { $sum: { $cond: [{ $and: [{ $eq: ["$status", "成功"] }, { $eq: ["$pickup", "紙本票"] }] }, 1, 0] } },
                     refundOrders: { $addToSet: { $cond: [{ $in: ["$status", ["已退票", "退票"]] }, "$orderId", null] } },
                     refundTickets: { $sum: { $cond: [{ $in: ["$status", ["已退票", "退票"]] }, 1, 0] } },
                     refundFees: { $sum: { $cond: [{ $in: ["$status", ["已退票", "退票"]] }, "$refundFee", 0] } },
@@ -65,6 +70,8 @@ async function main() {
                     month: "$_id",
                     totalTickets: 1,
                     totalRevenue: 1,
+                    eTicketCount: "$eTicketsSales",
+                    paperTicketCount: "$paperTicketsSales",
                     refundOrderCount: { $size: { $setDifference: ["$refundOrders", [null]] } },
                     refundTickets: 1,
                     refundFees: 1,
@@ -83,12 +90,20 @@ async function main() {
 
         // 2a. Replace Stats Table
         let tableRows = '';
-        let totalStats = { orders: 0, tickets: 0, revenue: 0, refOrders: 0, refTickets: 0, refFees: 0 };
+        let totalStats = { orders: 0, tickets: 0, eTickets: 0, paperTickets: 0, revenue: 0, refOrders: 0, refTickets: 0, refFees: 0 };
+
+        // 電子票/紙票欄：張數 + 占購票張數比例（占比放次行避免表格過寬）；與 A 系統 update_index_stats.js 同規格
+        const ticketTypeCell = (count, total) => {
+            const pct = total ? ((count / total) * 100).toFixed(1) : '0.0';
+            return `${(count || 0).toLocaleString()}<div style="font-size: 0.8em; color: var(--text-secondary);">(${pct}%)</div>`;
+        };
 
         stats.forEach((s, index) => {
             if (!s.month) return;
             totalStats.orders += s.orderCount;
             totalStats.tickets += s.totalTickets;
+            totalStats.eTickets += (s.eTicketCount || 0);
+            totalStats.paperTickets += (s.paperTicketCount || 0);
             totalStats.revenue += s.totalRevenue;
             totalStats.refOrders += s.refundOrderCount;
             totalStats.refTickets += s.refundTickets;
@@ -137,6 +152,8 @@ async function main() {
                     <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">${monthDisplay}</td>
                     <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">${s.orderCount.toLocaleString()}${ordersMoM}</td>
                     <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 500; white-space: nowrap;">${s.totalTickets.toLocaleString()}${ticketsMoM}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">${ticketTypeCell(s.eTicketCount, s.totalTickets)}</td>
+                    <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">${ticketTypeCell(s.paperTicketCount, s.totalTickets)}</td>
                     <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-primary); white-space: nowrap;">NT$ ${s.totalRevenue.toLocaleString()}${revenueMoM}</td>
                     <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">${s.refundOrderCount.toLocaleString()}${refOrdersMoM}</td>
                     <td style="text-align: right; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">${s.refundTickets.toLocaleString()}${refTicketsMoM}</td>
@@ -151,6 +168,8 @@ async function main() {
                 <td style="padding: 1rem; color: var(--text-primary); border-top: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">總計</td>
                 <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalStats.orders.toLocaleString()}</td>
                 <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalStats.tickets.toLocaleString()}</td>
+                <td style="text-align: right; padding: 1rem; color: var(--accent-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalStats.eTickets.toLocaleString()}</td>
+                <td style="text-align: right; padding: 1rem; color: var(--purple-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalStats.paperTickets.toLocaleString()}</td>
                 <td style="text-align: right; padding: 1rem; color: var(--success-color); border-top: 2px solid rgba(255,255,255,0.1);">NT$ ${totalStats.revenue.toLocaleString()}</td>
                 <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalStats.refOrders.toLocaleString()}</td>
                 <td style="text-align: right; padding: 1rem; color: var(--warning-color); border-top: 2px solid rgba(255,255,255,0.1);">${totalStats.refTickets.toLocaleString()}</td>
@@ -172,6 +191,8 @@ async function main() {
                             <th style="text-align: left; padding: 1rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">月份</th>
                             <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">購票筆數</th>
                             <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">購票張數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--accent-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">電子票張數</th>
+                            <th style="text-align: right; padding: 1rem; color: var(--purple-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">紙票張數</th>
                             <th style="text-align: right; padding: 1rem; color: var(--success-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">購票金額</th>
                             <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">退票筆數</th>
                             <th style="text-align: right; padding: 1rem; color: var(--warning-color); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; white-space: nowrap;">退票張數</th>
@@ -186,7 +207,7 @@ async function main() {
             </div>
             </div>
             <div style="margin-top: 1rem; text-align: right; font-size: 0.85rem; color: var(--text-secondary);">
-                * 數據來源: MongoDB (Qware_Ticket_Data_Esys)
+                * 數據來源: MongoDB (Qware_Ticket_Data_Esys) / 電子票=取票方式「電子票」、紙票=「紙本票」，占比為占當月購票張數比例
             </div>
             <div style="margin-top: 3rem; background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.05);">
                 <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">📈 每月購票金額趨勢 <span style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 400;">(Monthly Revenue Trend)</span></h4>
