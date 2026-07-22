@@ -140,7 +140,7 @@
             <p class="header-sub">Qware Windows Task Scheduler — 排程狀態總覽與技術規範</p>
         </div>
         <div class="header-meta">
-            <div>資料更新：2026/06/08</div>
+            <div>資料更新：2026/07/22</div>
             <div style="margin-top:6px;">
                 <a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_SCHEDULED_TASKS.md" target="_blank">📄 規範文檔 (MD)</a>
                 &nbsp;|&nbsp;
@@ -153,23 +153,23 @@
     <div class="kpi-grid">
         <div class="kpi pur">
             <h4>排程任務總數</h4>
-            <div class="val">6</div>
-            <div class="sub">Windows Task Scheduler</div>
+            <div class="val">7</div>
+            <div class="sub">6 啟用 + 1 已停用</div>
         </div>
         <div class="kpi pur">
             <h4>BAT 程式數</h4>
-            <div class="val">3</div>
-            <div class="sub">daily / ga / travel</div>
+            <div class="val">4</div>
+            <div class="sub">daily / ga / weekly / travel</div>
         </div>
         <div class="kpi ok">
             <h4>今日成功</h4>
-            <div class="val">2</div>
-            <div class="sub">Final + TravelExpense</div>
+            <div class="val">3</div>
+            <div class="sub">Final + GA 0800 + TravelExpense</div>
         </div>
         <div class="kpi err">
-            <h4>今日錯誤</h4>
-            <div class="val">3</div>
-            <div class="sub">code 2147946720</div>
+            <h4>已停用</h4>
+            <div class="val">1</div>
+            <div class="sub">Qware_Daily_Report_Update（見表格備注）</div>
         </div>
         <div class="kpi warn">
             <h4>今日待執行</h4>
@@ -178,14 +178,14 @@
         </div>
         <div class="kpi pur">
             <h4>下次月報</h4>
-            <div class="val">06/01</div>
+            <div class="val">08/01</div>
             <div class="sub">08:30 Monthly</div>
         </div>
     </div>
 
     <!-- Task Status Table -->
     <div class="card-block">
-        <p class="sec-title">📋 排程任務狀態一覽（2026/05/25）</p>
+        <p class="sec-title">📋 排程任務狀態一覽（2026/07/22）</p>
         <table>
             <thead>
                 <tr>
@@ -199,72 +199,73 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <tr style="opacity:0.6;">
                     <td><span class="mono">Qware_Daily_Report_Update</span></td>
                     <td><a href="https://github.com/lard23chen/report/blob/main/daily_update.bat" target="_blank">daily_update.bat</a></td>
                     <td>每日 08:00</td>
-                    <td>2026/05/25 08:51</td>
-                    <td><span class="badge err">⚠ 2147946720</span></td>
-                    <td>2026/05/26 08:00</td>
-                    <td><span class="badge ok">Ready</span></td>
+                    <td>2026/07/22 08:42</td>
+                    <td><span class="badge ok">✓ 成功 (0)</span></td>
+                    <td>—</td>
+                    <td><span class="badge warn">⏸ Disabled</span></td>
                 </tr>
                 <tr>
                     <td><span class="mono">Qware_Daily_Report_Update_Final</span></td>
                     <td><a href="https://github.com/lard23chen/report/blob/main/daily_update.bat" target="_blank">daily_update.bat</a></td>
                     <td>每日 08:00</td>
-                    <td>2026/05/25 08:51</td>
+                    <td>2026/07/22 08:42</td>
                     <td><span class="badge ok">✓ 成功 (0)</span></td>
-                    <td>2026/05/26 08:00</td>
+                    <td>2026/07/23 08:00</td>
                     <td><span class="badge ok">Ready</span></td>
                 </tr>
                 <tr>
                     <td><span class="mono">Qware_Monthly_Report_Update</span></td>
                     <td><a href="https://github.com/lard23chen/report/blob/main/daily_update.bat" target="_blank">daily_update.bat</a></td>
-                    <td>每月 1 日 08:30</td>
-                    <td>2026/05/02 07:56</td>
-                    <td><span class="badge warn">⚠ 2147946720</span></td>
-                    <td>2026/06/01 08:30</td>
+                    <td>每月 2 日 08:30</td>
+                    <td>2026/07/01 08:38</td>
+                    <td><span class="badge err">⚠ 2147946720</span></td>
+                    <td>2026/08/01 08:30</td>
                     <td><span class="badge ok">Ready</span></td>
                 </tr>
                 <tr>
                     <td><span class="mono">Update_GA_Report_0800</span></td>
                     <td><a href="https://github.com/lard23chen/report/blob/main/update_ga_report.bat" target="_blank">update_ga_report.bat</a></td>
                     <td>每日 08:00</td>
-                    <td>2026/05/25 08:51</td>
-                    <td><span class="badge err">⚠ 2147946720</span></td>
-                    <td>2026/05/26 08:00</td>
+                    <td>2026/07/22 08:42</td>
+                    <td><span class="badge ok">✓ 成功 (0)</span></td>
+                    <td>2026/07/23 08:00</td>
                     <td><span class="badge ok">Ready</span></td>
                 </tr>
                 <tr>
                     <td><span class="mono">Update_GA_Report_1500</span></td>
                     <td><a href="https://github.com/lard23chen/report/blob/main/update_ga_report.bat" target="_blank">update_ga_report.bat</a></td>
                     <td>每日 15:00</td>
-                    <td>—</td>
-                    <td><span class="badge pending">⏳ 待執行</span></td>
-                    <td>2026/05/25 15:00</td>
+                    <td>2026/07/21 15:00</td>
+                    <td><span class="badge ok">✓ 成功 (0)</span></td>
+                    <td>2026/07/22 15:00</td>
                     <td><span class="badge ok">Ready</span></td>
                 </tr>
                 <tr>
                     <td><span class="mono">Qware_Weekly_Report_Update</span></td>
                     <td><a href="https://github.com/lard23chen/report/blob/main/weekly_update.bat" target="_blank">weekly_update.bat</a></td>
                     <td>每週四 08:30</td>
-                    <td>2026/07/09 10:21</td>
-                    <td><span class="badge ok">✓ 成功 (0)</span></td>
                     <td>2026/07/16 08:30</td>
+                    <td><span class="badge ok">✓ 成功 (0)</span></td>
+                    <td>2026/07/23 08:30</td>
                     <td><span class="badge ok">Ready</span></td>
                 </tr>
                 <tr>
                     <td><span class="mono">TravelExpenseUpdate</span></td>
                     <td><a href="https://github.com/lard23chen/report/blob/main/travel/auto_update.bat" target="_blank">travel/auto_update.bat</a></td>
                     <td>每日 06:00</td>
-                    <td>2026/05/25 08:51</td>
+                    <td>2026/07/22 08:42</td>
                     <td><span class="badge ok">✓ 成功 (0)</span></td>
-                    <td>2026/05/26 06:00</td>
+                    <td>2026/07/23 06:00</td>
                     <td><span class="badge ok">Ready</span></td>
                 </tr>
             </tbody>
         </table>
-        <p class="text-muted" style="margin:14px 0 0;">* Qware_Daily_Report_Update 與 Final 執行相同 BAT；兩者並存確保至少一個成功觸發。</p>
+        <p class="text-muted" style="margin:14px 0 0;">* <span class="mono">Qware_Daily_Report_Update</span> 已於 2026/07/22 停用（原本與 <span class="mono">_Final</span> 設定相同觸發時間 08:00 互為備援，但兩者同時起跑反而造成 git 併發競爭、曾導致日報卡在舊版本兩天未被發現，詳見 <a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_SCHEDULED_TASKS.md" target="_blank">REPORT_SPEC_SCHEDULED_TASKS.md</a> §6.3）；現只保留設定較完整的 <span class="mono">_Final</span>。</p>
+        <p class="text-muted" style="margin:6px 0 0;">* 曾短暫規劃的雲端 Claude Code Routines（daily/GA/weekly/travel/Azure 月報）已於 2026/07/22 全數停用，恢復本地排程為唯一主力，詳見 REPORT_SPEC_SCHEDULED_TASKS.md §0。</p>
     </div>
 
     <!-- BAT Detail Cards -->
@@ -275,8 +276,8 @@
         <div class="bat-card">
             <h3>📁 daily_update.bat</h3>
             <div class="trigger">
-                排程：<span class="mono">Qware_Daily_Report_Update</span> · <span class="mono">_Final</span> · <span class="mono">Monthly</span><br>
-                觸發：每日 08:00 &amp; 每月 1 日 08:30 ／ 執行目錄：<code style="color:#ce93d8">D:\2025\AI\MongoDB</code>
+                排程：<span class="mono" style="opacity:0.5;text-decoration:line-through;">Qware_Daily_Report_Update</span>（已停用）· <span class="mono">_Final</span> · <span class="mono">Monthly</span><br>
+                觸發：每日 08:00 &amp; 每月 2 日 08:30 ／ 執行目錄：<code style="color:#ce93d8">D:\2025\AI\MongoDB</code>
             </div>
             <ul class="step-list">
                 <li>
