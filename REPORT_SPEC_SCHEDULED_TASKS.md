@@ -2,12 +2,14 @@
 
 本文件定義 Qware 報表系統中所有自動化排程的設定、執行邏輯與維護規範，涵蓋兩套機制：
 
-1. **雲端 Claude Code Routines**（2026/07/20 起為主力，見 §0）
-2. **本地 Windows 工作排程器**（Task Scheduler；2026/07/20 起轉為備援/待停用，見 §1～§5）
+1. **雲端 Claude Code Routines**（2026/07/20 一度轉為主力，2026/07/22 已全數停用，見 §0）
+2. **本地 Windows 工作排程器**（Task Scheduler；2026/07/22 起恢復為唯一主力，見 §1～§5）
+
+> **現況（2026/07/22）**：雲端 routine 實驗已結束，5 個 routine 全部 `enabled: false`（保留設定、未刪除，可隨時 `RemoteTrigger update` 重新啟用）。所有報表更新恢復由本地 Windows 排程 + BAT 負責，詳見 §1。
 
 ---
 
-## 0. 雲端 Routines（2026/07/20 起）
+## 0. 雲端 Routines（2026/07/20～07/22，已全數停用）
 
 ### 0.1 遷移背景
 
@@ -37,15 +39,17 @@
 6. **失敗處理**：MongoDB/CSV 連線失敗重試上限 2 次；失敗時發 LINE 說明，並在回報註明可能需把雲端 IP 加入 Atlas Network Access 白名單。
 7. **機密**：連線字串與 LINE token 只放 routine prompt，嚴禁寫入任何會 commit 的檔案。
 
-### 0.4 驗證狀態
+### 0.4 驗證結果與停用（2026/07/22）
 
-- 2026/07/20 09:20 已手動觸發 daily 與 GA 兩個 routine 驗證（session `cse_015HY6PUzRnmnx6hvEU2Lu9K` / `cse_01VtPRpvwUBirN7fyujEk75u`），結果待確認後更新本節。
-- Weekly / Travel 為新建，首次排程執行分別為 2026/07/23（四）08:30 與 2026/07/20 22:00 → 實為 07/21 06:00 台北。
-- **雲端驗證成功後**，本地排程（§1 總覽表全部 + HKCU Run 機碼 `QwareDailyReport`，見 §6.2）應停用，避免雙軌互踩（§6.3 的 2026/07/13、07/14 事故均為多來源併發所致）。停用指令：`schtasks /change /tn <排程名> /disable`（可 `/enable` 還原）。
+- 2026/07/20～07/22 期間多次手動觸發 daily / GA routine 驗證，`last_fired_at` 顯示排程確實有依 cron 觸發，但 git 歷史中**從未出現任何帶 `(cloud)` 後綴的 commit**——即使已補上 §0.3 環境變數、遠早於本地排程時段觸發（如 GA routine 08:08 台北 vs 本地 08:43），仍無法排除是「MongoDB Atlas 連線失敗」還是「無資料變更所以正確跳過 commit」，因為雲端 session 的執行過程無法從本地或 API 直接查看，只能到 https://claude.ai/code 逐一開啟 session 記錄核對。
+- 研判最可能原因：MongoDB Atlas Network Access 白名單未涵蓋雲端執行環境的（非固定）出口 IP，導致連線逾時；此問題本次未實際驗證解決（白名單需使用者自行到 Atlas 加入 `0.0.0.0/0` 後才能確認）。
+- 2026/07/22：使用者決定放棄雲端 routine 路線，改為**全部恢復本地排程**（本地雖有本次修好的併發競爭問題，見 §6.3 追記，但至少報表資料本身是正確產生的，只是 git 層面偶發遺失，相對雲端「完全不確定是否連得上 DB」更可控）。5 個 routine（daily / GA / weekly / travel / Azure 月報）已全數 `enabled: false`。
+- **API 不支援刪除 routine**，僅能停用；如需徹底移除，需使用者自行到 https://claude.ai/code/routines 操作。
+- 本地排程（§1 總覽表全部 + HKCU Run 機碼 `QwareDailyReport`，見 §6.2）維持原樣繼續執行，不需改動。
 
 ---
 
-## 1. 排程總覽（本地 Windows，2026/07/20 起轉備援）
+## 1. 排程總覽（本地 Windows，2026/07/22 起恢復為唯一主力）
 
 | 排程名稱 | BAT 檔 | 觸發時間 | 最後執行 | 狀態 |
 |---------|--------|---------|---------|------|
@@ -60,7 +64,8 @@
 
 > **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 執行相同的 BAT，前者為原始排程，後者為補強版（設有 WorkingDirectory）。兩者並存確保至少一個成功觸發。
 > 因帳號非系統管理員，無法將排程設定為「不論是否登入都執行」，改以 HKCU Run 機碼作為登入補跑機制。
-> **2026/07/20 起**：上述任務的職責已由雲端 routines 接手（§0），雲端驗證成功後本表任務與 HKCU Run 機碼應全部停用；BAT 檔保留於 repo 作為手動補跑工具（手動執行不受憑證問題影響）。
+> **2026/07/20～07/22**：曾短暫規劃由雲端 routines 接手（§0），但雲端連線狀況無法確認、且本地已能正常產出報表，2026/07/22 決定放棄雲端路線，本表任務與 HKCU Run 機碼維持原樣繼續運作，不停用。
+> **已知問題（2026/07/22 發現，尚未修復）**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 若觸發時間差在數秒內（曾發生 0.07 秒差），會同時執行 `generate_a_daily_report.js` 並各自嘗試 git 操作；期間若有另一支排程（如 GA）的 `git pull --rebase --autostash` 介入，可能把某一份還沒 commit 的新報表 stash 掉且未正確還原，導致該報表當天實際上沒有更新（但 daily_log.txt 與 commit 都顯示「成功」，不易察覺）。2026/07/22 實際發生過一次（`A_Qware_Revenue_Report_Daily.html` 停在 07/21 版本兩天，見 git commit `bd3f330` 的修復說明）。根本解法待評估，見 §6.3 追記。
 
 ---
 
@@ -283,6 +288,9 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 > 對策：四支 BAT 的 git 區段（add→commit→pull→push）前後加上 `md`/`rd` 目錄原子鎖 `D:\2025\AI\MongoDB\.git_bat_lock`——搶不到鎖每 5 秒重試、最多等 10 分鐘後放行（避免殘鎖造成永久死鎖）。等待用 `ping -n 6 127.0.0.1`（`timeout` 在無 stdin 的排程環境會失敗）。
 > 事後復原：殘留的 rebase 狀態先 `git rebase --abort`、仍在則刪 `.git\rebase-merge`；遺失的報表**重新執行 generator 補產**（autostash 可能抓到寫入一半的殘缺檔，勿直接 `stash apply`）。
 
+**追記（2026/07/22 事故）**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 觸發時間差僅 0.07 秒（幾乎同時），兩個實例各自跑完整個 `generate_a_daily_report.js` 產出新報表；夾在中間執行的 GA 排程 git 區段（有互斥鎖保護，但鎖只包住 git 區段本身，不包住報表產出階段）跑 `git pull --rebase --autostash` 時，把某一個 daily 實例當下還沒 commit 的新版 `A_Qware_Revenue_Report_Daily.html` autostash 走，之後未見對應「Applied autostash」紀錄（`git_sync.log` 只到 push 成功就結束）。結果：兩個 daily 實例與 GA 排程的 commit 都顯示成功、daily_log.txt 也顯示「Update Completed」，但網站上的日報內容實際卡在 2026/07/21 08:08 版本，**兩天都沒發現**，直到使用者反映報表沒更新才發現。已於 07/22 手動重跑 `generate_a_daily_report.js` 並 commit 修復（`bd3f330`）。
+> **與 07/14 事故的差異**：互斥鎖只 serialize 了「git add→commit→pull→push」這段，沒有涵蓋「報表產出」階段；兩個 daily 實例的報表產出本身沒有互斥、各自任意時間點完成，因此鎖再怎麼鎖 git 區段，還是可能在「實例 B 產出完成、尚未進入鎖」的空窗期被另一支排程的 autostash 撿走。真正根治需要：(a) 把「今天已完成就跳過」的重複執行判斷從 BAT 開頭移到最前面且加互斥鎖保護（避免判斷完成到寫 log 之間的競爭視窗），或 (b) 乾脆移除其中一個重複的 `Qware_Daily_Report_Update*` 排程，只留一個。**尚未修復，待評估**。
+
 ### 6.4 新增排程程式規範
 
 若需新增排程：
@@ -310,7 +318,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/20（本地排程 git push 自 07/18 起因排程 session 取不到 GCM 憑證持續失敗、Pages 停更兩天；排程主力遷移至雲端 Claude Code Routines——修復 daily/GA 兩個雲端 routine 的 prompt（補 MongoDB 連線字串，此前從未成功執行）、新建 weekly/travel 兩個 routine，見 §0；本地排程轉備援待停用）*
+*最後更新：2026/07/22（放棄雲端 routine 路線，5 個 routine 全數 `enabled: false`，本地排程恢復為唯一主力，見 §0.4；同日發現並修復 `A_Qware_Revenue_Report_Daily.html` 因 07/21 排程併發競爭卡在舊版本兩天的事故，追記於 §6.3，根本問題尚未修復）*
+*2026/07/20（本地排程 git push 自 07/18 起因排程 session 取不到 GCM 憑證持續失敗、Pages 停更兩天；排程主力遷移至雲端 Claude Code Routines——修復 daily/GA 兩個雲端 routine 的 prompt（補 MongoDB 連線字串，此前從未成功執行）、新建 weekly/travel 兩個 routine，見 §0；本地排程轉備援待停用）*
 *2026/07/14（排程同時補跑造成 git 互踩、三份日報更新遺失，四支 BAT git 區段加入目錄原子互斥鎖，見 §6.3；generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳資料不再停更）*
 *2026/07/13：git push 掛死事故復原；四支 BAT 加入 git pull --rebase --autostash 與認證不互動防護，git 輸出改導向 git_sync.log，見 §6.3*
 *2026/07/09：新增 `Qware_Weekly_Report_Update` 排程 + `weekly_update.bat`，A 系統週報每週四 08:30 自動產出*
