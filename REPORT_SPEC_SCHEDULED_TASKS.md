@@ -5,7 +5,7 @@
 1. **雲端 Claude Code Routines**（2026/07/20 一度轉為主力，2026/07/22 已全數停用，見 §0）
 2. **本地 Windows 工作排程器**（Task Scheduler；2026/07/22 起恢復為唯一主力，見 §1～§5）
 
-> **現況（2026/07/22）**：雲端 routine 實驗已結束，5 個 routine 全部 `enabled: false`（保留設定、未刪除，可隨時 `RemoteTrigger update` 重新啟用）。所有報表更新恢復由本地 Windows 排程 + BAT 負責，詳見 §1。
+> **現況（2026/07/22）**：雲端 routine 實驗已結束，5 個 routine 全部 `enabled: false`（保留設定、未刪除，可隨時 `RemoteTrigger update` 重新啟用）。所有報表更新恢復由本地 Windows 排程 + BAT 負責，詳見 §1。同日也修復了本地排程本身的重複觸發問題（`Qware_Daily_Report_Update` 已停用，只留 `_Final`），見 §1 備注與 §6.3 追記。
 
 ---
 
@@ -53,8 +53,8 @@
 
 | 排程名稱 | BAT 檔 | 觸發時間 | 最後執行 | 狀態 |
 |---------|--------|---------|---------|------|
-| `Qware_Daily_Report_Update` | `daily_update.bat` | 每日 08:00 | 2026/07/06 09:07（成功，git 記錄） | Ready |
-| `Qware_Daily_Report_Update_Final` | `daily_update.bat` | 每日 08:00 | 同上（兩排程共用 BAT，依重複執行保護擇一生效） | Ready |
+| `Qware_Daily_Report_Update` | `daily_update.bat` | 每日 08:00 | — | **Disabled（2026/07/22）** |
+| `Qware_Daily_Report_Update_Final` | `daily_update.bat` | 每日 08:00 | 2026/07/22 08:42（成功，git 記錄） | Ready |
 | `Qware_Monthly_Report_Update` | `daily_update.bat` | 每月 2 日 08:30 | 2026/07/02 08:42（成功，git 記錄） | Ready |
 | `Update_GA_Report_0800` | `update_ga_report.bat` | 每日 08:00 | 2026/07/06 15:00（成功，git 記錄） | Ready |
 | `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | 同上 | Ready |
@@ -62,10 +62,9 @@
 | `Qware_Weekly_Report_Update` | `weekly_update.bat` | 每週四 08:30 | 2026/07/09 10:21（建立時手動驗證成功，git `fe5673f`） | Ready |
 | `QwareDailyReport`（HKCU Run） | `daily_update.bat` | 每次使用者登入 | — | 常駐 |
 
-> **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 執行相同的 BAT，前者為原始排程，後者為補強版（設有 WorkingDirectory）。兩者並存確保至少一個成功觸發。
+> **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 原本執行相同的 BAT、觸發時間也相同（皆 08:00），設計上是「兩者並存確保至少一個成功觸發」的備援措施——但 2026/07/22 發現這個備援設計本身就是 §6.3 追記事故的根源（兩者同時觸發、同時各自產出報表、同時搶 git，其中一份報表被另一支排程的 autostash 誤吞）。已停用原始版 `Qware_Daily_Report_Update`，只保留設定較完整的 `_Final`（有 `WorkingDirectory`、`StartWhenAvailable=True` 可補跑、`ExecutionTimeLimit=1H` 較短），從根本消除同時觸發的可能。
 > 因帳號非系統管理員，無法將排程設定為「不論是否登入都執行」，改以 HKCU Run 機碼作為登入補跑機制。
 > **2026/07/20～07/22**：曾短暫規劃由雲端 routines 接手（§0），但雲端連線狀況無法確認、且本地已能正常產出報表，2026/07/22 決定放棄雲端路線，本表任務與 HKCU Run 機碼維持原樣繼續運作，不停用。
-> **已知問題（2026/07/22 發現，尚未修復）**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 若觸發時間差在數秒內（曾發生 0.07 秒差），會同時執行 `generate_a_daily_report.js` 並各自嘗試 git 操作；期間若有另一支排程（如 GA）的 `git pull --rebase --autostash` 介入，可能把某一份還沒 commit 的新報表 stash 掉且未正確還原，導致該報表當天實際上沒有更新（但 daily_log.txt 與 commit 都顯示「成功」，不易察覺）。2026/07/22 實際發生過一次（`A_Qware_Revenue_Report_Daily.html` 停在 07/21 版本兩天，見 git commit `bd3f330` 的修復說明）。根本解法待評估，見 §6.3 追記。
 
 ---
 
@@ -289,7 +288,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 > 事後復原：殘留的 rebase 狀態先 `git rebase --abort`、仍在則刪 `.git\rebase-merge`；遺失的報表**重新執行 generator 補產**（autostash 可能抓到寫入一半的殘缺檔，勿直接 `stash apply`）。
 
 **追記（2026/07/22 事故）**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 觸發時間差僅 0.07 秒（幾乎同時），兩個實例各自跑完整個 `generate_a_daily_report.js` 產出新報表；夾在中間執行的 GA 排程 git 區段（有互斥鎖保護，但鎖只包住 git 區段本身，不包住報表產出階段）跑 `git pull --rebase --autostash` 時，把某一個 daily 實例當下還沒 commit 的新版 `A_Qware_Revenue_Report_Daily.html` autostash 走，之後未見對應「Applied autostash」紀錄（`git_sync.log` 只到 push 成功就結束）。結果：兩個 daily 實例與 GA 排程的 commit 都顯示成功、daily_log.txt 也顯示「Update Completed」，但網站上的日報內容實際卡在 2026/07/21 08:08 版本，**兩天都沒發現**，直到使用者反映報表沒更新才發現。已於 07/22 手動重跑 `generate_a_daily_report.js` 並 commit 修復（`bd3f330`）。
-> **與 07/14 事故的差異**：互斥鎖只 serialize 了「git add→commit→pull→push」這段，沒有涵蓋「報表產出」階段；兩個 daily 實例的報表產出本身沒有互斥、各自任意時間點完成，因此鎖再怎麼鎖 git 區段，還是可能在「實例 B 產出完成、尚未進入鎖」的空窗期被另一支排程的 autostash 撿走。真正根治需要：(a) 把「今天已完成就跳過」的重複執行判斷從 BAT 開頭移到最前面且加互斥鎖保護（避免判斷完成到寫 log 之間的競爭視窗），或 (b) 乾脆移除其中一個重複的 `Qware_Daily_Report_Update*` 排程，只留一個。**尚未修復，待評估**。
+> **與 07/14 事故的差異**：互斥鎖只 serialize 了「git add→commit→pull→push」這段，沒有涵蓋「報表產出」階段；兩個 daily 實例的報表產出本身沒有互斥、各自任意時間點完成，因此鎖再怎麼鎖 git 區段，還是可能在「實例 B 產出完成、尚未進入鎖」的空窗期被另一支排程的 autostash 撿走。
+> **修復（2026/07/22）**：問題根源是 `Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 兩個排程本來就設定成完全相同的觸發時間（每日 08:00），「兩者並存互為備援」的設計反而製造了併發的必要條件。已用 `Disable-ScheduledTask` 停用原始版 `Qware_Daily_Report_Update`，只保留設定較完整的 `_Final`（見 §1 備注），從源頭消除同一支 BAT 兩個實例同時起跑的可能，不需再修改重複執行判斷或 BAT 邏輯。其餘排程（GA 0800/1500、weekly、travel）觸發時間彼此不同，暫無同類風險。
 
 ### 6.4 新增排程程式規範
 
@@ -318,7 +318,7 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/22（放棄雲端 routine 路線，5 個 routine 全數 `enabled: false`，本地排程恢復為唯一主力，見 §0.4；同日發現並修復 `A_Qware_Revenue_Report_Daily.html` 因 07/21 排程併發競爭卡在舊版本兩天的事故，追記於 §6.3，根本問題尚未修復）*
+*最後更新：2026/07/22（放棄雲端 routine 路線，5 個 routine 全數 `enabled: false`，本地排程恢復為唯一主力，見 §0.4；發現並修復 `A_Qware_Revenue_Report_Daily.html` 因排程併發競爭卡在舊版本兩天的事故（追記於 §6.3），根因是 `Qware_Daily_Report_Update` 與 `_Final` 觸發時間完全相同導致同時起跑，已停用前者、只留設定較完整的 `_Final`，從源頭消除併發）*
 *2026/07/20（本地排程 git push 自 07/18 起因排程 session 取不到 GCM 憑證持續失敗、Pages 停更兩天；排程主力遷移至雲端 Claude Code Routines——修復 daily/GA 兩個雲端 routine 的 prompt（補 MongoDB 連線字串，此前從未成功執行）、新建 weekly/travel 兩個 routine，見 §0；本地排程轉備援待停用）*
 *2026/07/14（排程同時補跑造成 git 互踩、三份日報更新遺失，四支 BAT git 區段加入目錄原子互斥鎖，見 §6.3；generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳資料不再停更）*
 *2026/07/13：git push 掛死事故復原；四支 BAT 加入 git pull --rebase --autostash 與認證不互動防護，git 輸出改導向 git_sync.log，見 §6.3*
