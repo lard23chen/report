@@ -58,7 +58,7 @@
 | `Qware_Monthly_Report_Update` | `daily_update.bat` | 每月 2 日 08:30 | 2026/07/02 08:42（成功，git 記錄） | Ready |
 | `Update_GA_Report_0800` | `update_ga_report.bat` | 每日 08:00 | 2026/07/06 15:00（成功，git 記錄） | Ready |
 | `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | 同上 | Ready |
-| `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/07/23 08:08（**失敗，Result=1**，見 §6.3 追記；已人工補跑） | Ready |
+| `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/07/23 08:08（失敗，Result=1，見 §6.3 追記；已人工補跑） | **Disabled（2026/07/23）** |
 | `Qware_Weekly_Report_Update` | `weekly_update.bat` | 每週四 08:30 | 2026/07/09 10:21（建立時手動驗證成功，git `fe5673f`） | Ready |
 | `Qware_DMP_AllTime_Top10_Monthly` | `update_dmp_alltime_top10.bat` | 每月 1 日 10:00 | 2026/07/23（建立時手動驗證，見 §5.5） | Ready |
 | `QwareDailyReport`（HKCU Run） | `daily_update.bat` | 每次使用者登入 | — | 常駐 |
@@ -66,6 +66,7 @@
 > **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 原本執行相同的 BAT、觸發時間也相同（皆 08:00），設計上是「兩者並存確保至少一個成功觸發」的備援措施——但 2026/07/22 發現這個備援設計本身就是 §6.3 追記事故的根源（兩者同時觸發、同時各自產出報表、同時搶 git，其中一份報表被另一支排程的 autostash 誤吞）。已停用原始版 `Qware_Daily_Report_Update`，只保留設定較完整的 `_Final`（有 `WorkingDirectory`、`StartWhenAvailable=True` 可補跑、`ExecutionTimeLimit=1H` 較短），從根本消除同時觸發的可能。
 > 因帳號非系統管理員，無法將排程設定為「不論是否登入都執行」，改以 HKCU Run 機碼作為登入補跑機制。
 > **2026/07/20～07/22**：曾短暫規劃由雲端 routines 接手（§0），但雲端連線狀況無法確認、且本地已能正常產出報表，2026/07/22 決定放棄雲端路線，本表任務與 HKCU Run 機碼維持原樣繼續運作，不停用。
+> **2026/07/23**：`TravelExpenseUpdate` 已停用（使用者要求）；`travel/auto_update.bat` 與對應報表本身未刪除，僅排程停止觸發。已同步從 `HTML_Report_Catalog.html` 移除對應列（原 S4），並在 `Scheduled_Tasks_Dashboard.html` 標示為已停用。
 
 ---
 
@@ -168,14 +169,14 @@ powershell send_line_notify.ps1 -Template "ga"  → LINE 完成通知
 
 ---
 
-## 4. travel/auto_update.bat
+## 4. travel/auto_update.bat（排程已於 2026/07/23 停用）
 
 ### 4.1 基本資訊
 
 | 項目 | 說明 |
 |------|------|
 | 路徑 | `D:\2025\AI\MongoDB\travel\auto_update.bat` |
-| 對應排程 | `TravelExpenseUpdate`（每日 06:00） |
+| 對應排程 | `TravelExpenseUpdate`（每日 06:00，**已停用**） |
 | 執行目錄 | `D:\2025\AI\MongoDB\travel` |
 | Log 檔 | `travel\update_log.txt` |
 
@@ -383,7 +384,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/23（`A_Qware_Revenue_Report_Daily.html` 二度卡住：08:08 已成功產出新版，但當天 commit 沒收進去，網站仍是 07/22 舊版，直到使用者反映才發現；已重跑補推 `2066e3e`，追記於 §6.3——這是同一份報表 07/21 之後第二次發生同症狀，推測與它是 daily_update.bat 8 支 script 中最早產出、曝險時間最長有關，但未證實，暫未改 BAT 邏輯）*
+*最後更新：2026/07/23（`TravelExpenseUpdate` 依使用者要求停用（`Disable-ScheduledTask`），`travel/auto_update.bat` 與報表本身未刪除，僅排程停止觸發；同步從 `HTML_Report_Catalog.html` 移除對應列（原 S4），`Scheduled_Tasks_Dashboard.html` 標示為已停用。見 §1 備注、§4）*
+*2026/07/23（`A_Qware_Revenue_Report_Daily.html` 二度卡住：08:08 已成功產出新版，但當天 commit 沒收進去，網站仍是 07/22 舊版，直到使用者反映才發現；已重跑補推 `2066e3e`，追記於 §6.3——這是同一份報表 07/21 之後第二次發生同症狀，推測與它是 daily_update.bat 8 支 script 中最早產出、曝險時間最長有關，但未證實，暫未改 BAT 邏輯）*
 *2026/07/23（新增每月排程 `Qware_DMP_AllTime_Top10_Monthly`（每月 1 日 10:00）+ `update_dmp_alltime_top10.bat`，見新增的 §5.5；同步把 `generate_alltime_top10_v3.js` 從每次全表掃描（~40 分鐘）改成增量架構——狀態序列化內嵌於主報表 HTML（沿用 GA 報表的 `generatedAt`/`SD_START`/`SD_END` 寫法），只查新資料、Top10 新面孔才觸發一次性補齊；不重複訪客改用自製 HyperLogLog（無新增 npm 依賴），避免完整訪客 ID 清單讓報表檔案隨時間無限增長。詳見 `REPORT_SPEC_TRAFFIC_ANALYSIS.md` §3）*
 *2026/07/23（`update_ga_report.bat` 也補上失敗告警：node script／git push 出錯 goto 中斷並發 `-Status FAIL` LINE，沿用 travel/weekly 的單一 script 中斷模式；因 GA 一天觸發兩次（08:00/15:00）是刻意設計，故不加重複執行保護，與其他三支 bat 不同。已實測完整流程，成功 commit `b593dc6`。見 §3.2）*
 *2026/07/23（把 travel 補上的失敗告警機制延伸到 `daily_update.bat`／`weekly_update.bat`：daily 維持 8 支獨立 script 的 best-effort 精神，個別失敗記入 `FAILED_STEPS`、跑完才統一判斷發 FAIL 或成功 LINE；weekly 只有單一 script，比照 travel 用 goto 中斷＋即時告警，且刻意不新增原本沒有的成功通知；`send_line_notify.ps1` 的 `failLabels` 新增 `weekly`。見 §2.2／§5.2。已用「今日已完成」跳過路徑實測 daily/weekly 兩支 bat，確認新增的 errorlevel 檢查未破壞既有流程）*
