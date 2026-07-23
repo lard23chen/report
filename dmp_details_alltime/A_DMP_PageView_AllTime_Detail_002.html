@@ -90,8 +90,8 @@
                 <div class="value" style="color: #60a5fa;">297,820</div>
             </div>
             <div class="stat-box">
-                <div class="label">不重複訪客</div>
-                <div class="value" style="color: #a78bfa;">26,606</div>
+                <div class="label">不重複訪客（估算）</div>
+                <div class="value" style="color: #a78bfa;">26,948</div>
             </div>
             <div class="stat-box">
                 <div class="label">日均瀏覽量</div>
@@ -125,7 +125,7 @@
                 <div style="height: 200px; margin-bottom: 15px;"><canvas id="deviceChart"></canvas></div>
                 <table>
                     <thead><tr><th>裝置類型</th><th style="text-align:right;">次數</th><th style="text-align:right;">佔比</th></tr></thead>
-                    <tbody><tr><td style="color:#94a3b8;">Mobile</td><td style="text-align:right;color:#f8fafc;font-weight:500;">167,186</td><td style="text-align:right;color:#34d399;">56.1%</td></tr><tr><td style="color:#94a3b8;">Desktop</td><td style="text-align:right;color:#f8fafc;font-weight:500;">130,634</td><td style="text-align:right;color:#34d399;">43.9%</td></tr></tbody>
+                    <tbody><tr><td style="color:#94a3b8;">Desktop</td><td style="text-align:right;color:#f8fafc;font-weight:500;">130,634</td><td style="text-align:right;color:#34d399;">43.9%</td></tr><tr><td style="color:#94a3b8;">Mobile</td><td style="text-align:right;color:#f8fafc;font-weight:500;">167,186</td><td style="text-align:right;color:#34d399;">56.1%</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -151,7 +151,7 @@
         // Device Doughnut
         new Chart(document.getElementById('deviceChart').getContext('2d'), {
             type: 'doughnut',
-            data: { labels: ["Mobile","Desktop"], datasets: [{ data: [167186,130634], backgroundColor: ['#a78bfa', '#34d399', '#fb923c', '#60a5fa'], borderWidth: 0 }] },
+            data: { labels: ["Desktop","Mobile"], datasets: [{ data: [130634,167186], backgroundColor: ['#a78bfa', '#34d399', '#fb923c', '#60a5fa'], borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#e2e8f0', font: { size: 12 } } }, datalabels: { color: '#fff', formatter: (val, ctx) => { const t = ctx.dataset.data.reduce((a,b)=>a+b,0); return ((val/t)*100).toFixed(1)+'%'; }, font: { weight: 'bold', size: 13 } } } }
         });
 
