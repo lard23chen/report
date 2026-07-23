@@ -22,6 +22,7 @@ $failLabels = @{
     daily  = "A 系統日報 + 高雄啤酒節報表"
     ga     = "GA 流量報表"
     travel = "旅遊記帳 + 購物清單報表"
+    weekly = "A 系統週報"
 }
 
 if ($Status -eq "FAIL") {

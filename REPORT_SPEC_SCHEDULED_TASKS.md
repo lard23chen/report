@@ -95,13 +95,17 @@ node generate_e_dmp_funnel_report.js               → E_DMP_Funnel_Report.html
 node update_index_stats.js                         → report_index.html（統計表 + Tab1 月份卡片）
 if 今日為2日:  node generate_monthly_report.js     → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
 if 今日為10日: node generate_ga_report.js          → A_GA_Traffic_Analysis_Report.html
+# 每個 node script 之後檢查 errorlevel，失敗只記進 FAILED_STEPS 變數、不中斷（2026/07/23 新增）
+# —— 維持既有 best-effort 精神：其他成功產出的報表仍照常 commit/push，不因單一 script 出錯而全部卡住
 git add . && git commit -m "Auto Update Daily Reports: ..."
 git pull --rebase --autostash origin main（失敗則 git rebase --abort）
-git push origin main（git 輸出寫入 git_sync.log，見 §6.3）
-powershell send_line_notify.ps1 -Template "daily"  → LINE 完成通知
+git push origin main（git 輸出寫入 git_sync.log，見 §6.3；失敗也記入 FAILED_STEPS）
+if FAILED_STEPS 非空: powershell send_line_notify.ps1 -Template "daily" -Status "FAIL" -Detail "<失敗的 script 清單>"
+else:                 powershell send_line_notify.ps1 -Template "daily"  → LINE 完成通知
 ```
 
 > ⚠️ 結尾的 `git add .` 會把**當下工作區所有未提交變更**一起 commit 進去。若在排程觸發時段（08:00 前後、登入補跑、15:00 GA 排程）有進行中的手動修改，可能被自動 commit 收走（2026/07/06 曾發生，見 git `f0e940e`）。
+> **失敗告警（2026/07/23 新增）**：與 §4（travel）不同，daily 的每個 node script 出錯只記錄到 `FAILED_STEPS` 變數（用 `;` 分隔的 script 檔名清單），流程照樣往下跑完所有步驟並 push——這是刻意保留的既有行為，因為 8 支獨立 script 之間沒有依賴關係，某一支失敗（例如 MongoDB 逾時）不該連累其他已成功的報表沒推上去。最後只有一個判斷點：`FAILED_STEPS` 非空（含任何 script 或 git push 失敗）就發 `-Status FAIL` 告警並列出失敗清單，否則照常發送成功通知；不會同一次執行收到兩則通知。
 
 ### 2.3 產出報表
 
@@ -223,15 +227,18 @@ if update_log.txt 已有今日日期 + "Update finished." → exit /b 0（寫入
 
 ```bat
 # 0. 重複執行保護：weekly_log.txt 已有今日 "Weekly Update Completed" → skip
-node generate_a_weekly_report.js
+node generate_a_weekly_report.js                    # 失敗 goto :fail_generate（2026/07/23 新增）
 #   → A_Qware_Revenue_Report_Weekly_YYYYMMDD-YYYYMMDD.html（上週四~本週三，排除B開頭訂單，每週獨立檔案）
 #   → 自動在 report_index.html tab7 插入本週卡片（最新在最上方）
 #   → 自動更新 HTML_Report_Catalog.html 週報列連結與時間戳
 git add A_Qware_Revenue_Report_Weekly_*.html report_index.html HTML_Report_Catalog.html weekly_log.txt
 git commit -m "Auto Update Weekly Report: ..."
 git pull --rebase --autostash origin main（失敗則 git rebase --abort）
-git push origin main（git 輸出寫入 git_sync.log，見 §6.3）
+git push origin main（git 輸出寫入 git_sync.log，見 §6.3）→ 失敗 goto :fail_push（2026/07/23 新增）
+# :fail_generate / :fail_push 都會 log 錯誤並發 LINE 告警（send_line_notify.ps1 -Status FAIL -Detail "..."），exit /b 1
 ```
+
+> **失敗告警（2026/07/23 新增）**：只有單一報表 script，沿用與 travel 相同的「出錯就中斷＋告警」設計（不像 daily 是多支獨立 script 的 best-effort 模式）。**注意**：weekly 原本就沒有成功時的 LINE 通知（只有 daily/GA/travel 有），這次只補上失敗告警，沒有新增成功通知，避免改變既有的通知行為。
 
 > 與 `daily_update.bat` 不同，此 BAT 的 `git add` **只加入週報 HTML 與 log**（非 `git add .`），避免把工作區其他未提交變更一起收走（§2.2 已知問題）。
 > 總目錄 `HTML_Report_Catalog.html` 的「⏰ 自動排程程式」區有對應的 **S3 列**（2026/07/13 加入）；`generate_a_weekly_report.js` 的 `updateCatalogRow()` 會同時自動更新週報列（編號 45）與 S3 列的最新檔名連結和執行時間戳（run-time regex 使用 `/g`，S3 列說明文字刻意寫「每週四早上 8:30」以避開該 regex 的「每週四 08:30」樣式）。
@@ -329,7 +336,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/23（承接同日稍早的 `TravelExpenseUpdate` 事故，為 `travel/auto_update.bat` 補上重複執行保護（比照 daily/weekly，需 `Update finished.` 含日期時間戳）與各步驟失敗告警（errorlevel 檢查 + `send_line_notify.ps1` 新增 `-Status FAIL -Detail` 參數），見 §4.2；已手動測試完整流程（成功 commit `9603612`）與跳過邏輯皆正常運作）*
+*最後更新：2026/07/23（把 travel 補上的失敗告警機制延伸到 `daily_update.bat`／`weekly_update.bat`：daily 維持 8 支獨立 script 的 best-effort 精神，個別失敗記入 `FAILED_STEPS`、跑完才統一判斷發 FAIL 或成功 LINE；weekly 只有單一 script，比照 travel 用 goto 中斷＋即時告警，且刻意不新增原本沒有的成功通知；`send_line_notify.ps1` 的 `failLabels` 新增 `weekly`。見 §2.2／§5.2。已用「今日已完成」跳過路徑實測 daily/weekly 兩支 bat，確認新增的 errorlevel 檢查未破壞既有流程）*
+*2026/07/23（承接同日稍早的 `TravelExpenseUpdate` 事故，為 `travel/auto_update.bat` 補上重複執行保護（比照 daily/weekly，需 `Update finished.` 含日期時間戳）與各步驟失敗告警（errorlevel 檢查 + `send_line_notify.ps1` 新增 `-Status FAIL -Detail` 參數），見 §4.2；已手動測試完整流程（成功 commit `9603612`）與跳過邏輯皆正常運作）*
 *2026/07/23（`TravelExpenseUpdate` 因 `StartWhenAvailable` 延後補跑到與 daily/GA 相同的 08:08 時段，git push 階段中途中止、`LastTaskResult=1`，人工重跑 `travel/auto_update.bat` 補推（`4d37fdf`），追記於 §6.3；travel 排程目前無重複執行保護與失敗告警，待評估是否補上）*
 *2026/07/22（放棄雲端 routine 路線，5 個 routine 全數 `enabled: false`，本地排程恢復為唯一主力，見 §0.4；發現並修復 `A_Qware_Revenue_Report_Daily.html` 因排程併發競爭卡在舊版本兩天的事故（追記於 §6.3），根因是 `Qware_Daily_Report_Update` 與 `_Final` 觸發時間完全相同導致同時起跑，已停用前者、只留設定較完整的 `_Final`，從源頭消除併發）*
 *2026/07/20（本地排程 git push 自 07/18 起因排程 session 取不到 GCM 憑證持續失敗、Pages 停更兩天；排程主力遷移至雲端 Claude Code Routines——修復 daily/GA 兩個雲端 routine 的 prompt（補 MongoDB 連線字串，此前從未成功執行）、新建 weekly/travel 兩個 routine，見 §0；本地排程轉備援待停用）*

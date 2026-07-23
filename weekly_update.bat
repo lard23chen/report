@@ -17,6 +17,7 @@ echo [%date% %time%] Starting Weekly Report Update... >> weekly_log.txt
 
 echo Running generate_a_weekly_report.js...
 "D:\nodejs\node.exe" generate_a_weekly_report.js >> weekly_log.txt 2>&1
+if errorlevel 1 goto :fail_generate
 
 echo [%date% %time%] Weekly Update Completed. >> weekly_log.txt
 
@@ -42,6 +43,21 @@ if errorlevel 1 (
     git rebase --abort >> git_sync.log 2>&1
 )
 git push origin main >> git_sync.log 2>&1
+if errorlevel 1 (
+    rd "%GIT_BAT_LOCK%" 2>nul
+    goto :fail_push
+)
 rd "%GIT_BAT_LOCK%" 2>nul
 
 echo Done.
+exit /b 0
+
+:fail_generate
+echo [%date% %time%] FAILED: generate_a_weekly_report.js. >> weekly_log.txt
+powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "weekly" -Status "FAIL" -Detail "報表產生失敗（generate_a_weekly_report.js）" >> weekly_log.txt 2>&1
+exit /b 1
+
+:fail_push
+echo [%date% %time%] FAILED: git push step. >> weekly_log.txt
+powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "weekly" -Status "FAIL" -Detail "git push 失敗" >> weekly_log.txt 2>&1
+exit /b 1
