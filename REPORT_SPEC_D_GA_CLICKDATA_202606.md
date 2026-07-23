@@ -163,13 +163,9 @@ Collection: `GA_D_ClickData_Webb_202606`（451 documents）
 
 ## 9. 更新方式
 
-### 自動更新（S1 排程）
+### ⚠️ 已停止每日自動更新（2026/07/23，使用者要求）
 
-已加入 `daily_update.bat`，由 Windows 工作排程器於每日 08:00 自動執行：
-
-```
-node generate_d_ga_clickdata_report.js
-```
+原本已加入 `daily_update.bat`、由 Windows 工作排程器每日 08:00 自動執行，**2026/07/23 起已從排程移除**（見 `REPORT_SPEC_SCHEDULED_TASKS.md` §2.2 追記）。腳本與已產出的 HTML 都保留在原位，只是不再每日自動觸發，改為需要時手動執行。
 
 Generator 腳本會：
 1. 連線 MongoDB `QwareAi.GA_D_ClickData_Webb_202606`

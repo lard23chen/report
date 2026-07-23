@@ -236,6 +236,7 @@
   - 銷售點 Top 20（table）
   - 開賣尖峰分析（table，逐分鐘張數 / 累計 / 信用卡 / ATM / 轉換率）
 - 視覺格式：**WeiBird 格式**（navy 主題，見第 4 節）
+- 更新方式：`generate_kaohsiung_beer_festival_report.js` 曾加入 `daily_update.bat` 每日 08:00 自動執行，**2026/07/23 起依使用者要求移除**，改回本節開頭定義的手動觸發（見 `REPORT_SPEC_SCHEDULED_TASKS.md` §2.2/§2.3 追記）
 
 ### 高雄櫻花季 2025（A_KaohsiungSakuraFestival_2025）
 - 篩選條件：`節目/商品名稱 === '2025 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL'`

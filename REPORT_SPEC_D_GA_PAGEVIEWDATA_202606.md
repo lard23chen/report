@@ -12,7 +12,7 @@
 | 資料起始日 | 2026/06/10（目前唯一快照日）|
 | 資料建立時間 | 2026/06/12（`CreateTime`）|
 | 頁面 URL | `https://ticket.ibon.com.tw/ActivityInfo/Details` |
-| 自動更新排程 | S1（`daily_update.bat`）每日 08:00 執行 |
+| 自動更新排程 | ~~S1（`daily_update.bat`）每日 08:00 執行~~ **已於 2026/07/23 停止**（使用者要求，改為手動執行） |
 | 負責人 | 陳俊良 |
 | 主要目的 | 分析 D 系統節目介紹頁（ActivityInfo/Details）每日 Page View 累積趨勢，並呈現活動排行與類別分布 |
 
@@ -193,14 +193,16 @@ const DATA  = [...];   ← generator 注入
 
 ---
 
-## 8. 自動更新排程 (S1 Schedule)
+## 8. 自動更新排程（已於 2026/07/23 停止）
 
-### 排程設定
+### ⚠️ 排程異動記錄
 
-- **排程名稱**：S1
-- **批次檔**：`daily_update.bat`
-- **執行時間**：每日 08:00（Windows 工作排程器）
-- **執行順序**：`generate_d_ga_clickdata_report.js` → `generate_d_ga_pageview_report.js`
+原本掛在 S1（`daily_update.bat`）每日 08:00 自動執行，**2026/07/23 起依使用者要求從 `daily_update.bat` 移除**（見 `REPORT_SPEC_SCHEDULED_TASKS.md` §2.2/§2.3 追記）。腳本與已產出的 HTML 都保留在原位，只是不再每日自動觸發，改為需要時手動執行。
+
+- ~~**排程名稱**：S1~~
+- ~~**批次檔**：`daily_update.bat`~~
+- ~~**執行時間**：每日 08:00（Windows 工作排程器）~~
+- ~~**執行順序**：`generate_d_ga_clickdata_report.js` → `generate_d_ga_pageview_report.js`~~
 
 ### Generator 執行流程
 
@@ -213,7 +215,7 @@ generate_d_ga_pageview_report.js
     ↓ 更新 #updateTimeLabel 文字
     ↓ 更新 footer 日期範圍（單日 → "快照日期", 多日 → "資料期間 X — Y"）
 D_GA_PageViewData_Webb_202606_Report.html
-    ↓ git add / commit / push（由 daily_update.bat 統一處理）
+    ↓ git add / commit / push（手動執行時需自行 commit/push，不再由 daily_update.bat 統一處理）
 ```
 
 ### 手動執行
@@ -234,7 +236,7 @@ node generate_d_ga_pageview_report.js
 | 登入/未登入分析 | 無 | 有 |
 | 主要指標 | 節目介紹頁瀏覽次數 | 售票場次點擊次數 |
 | GA 事件 | `page_view` | `click`（推測）|
-| 自動更新 | ✅ S1 排程每日更新 | ✅ S1 排程每日更新 |
+| 自動更新 | ❌ 已停用（2026/07/23，改手動） | ❌ 已停用（2026/07/23，改手動） |
 
 ---
 
@@ -263,9 +265,10 @@ MongoDB collection 新增新活動後，generator 會自動帶入，但類別需
 - 目錄：`HTML_Report_Catalog.html`（D 系統 GA 分析區段，編號 20-E）
 - 同月 ClickData 報表：`D_GA_ClickData_Webb_202606_Report.html`
 - ClickData 規範：`REPORT_SPEC_D_GA_CLICKDATA_202606.md`
-- 自動更新排程：`daily_update.bat`
+- ~~自動更新排程：`daily_update.bat`~~（已於 2026/07/23 停止，見 §8）
 
 ---
 
+*2026/07/23：已停止每日自動更新（使用者要求），從 `daily_update.bat` 移除，見 §8*
 *2026/07/20：`<head>` 補上 IP 白名單保護，之前任何人有連結都能看，見 §7*
 *最後更新日期：2026/06/12（加入每日趨勢圖、generator 腳本、S1 排程）*
