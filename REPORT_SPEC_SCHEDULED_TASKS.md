@@ -175,13 +175,21 @@ git push origin main（git 輸出寫入 git_sync.log，見 §6.3）
 ### 4.2 執行步驟
 
 ```bat
-# 1. 下載主要花費 CSV（Google Sheets → new_analysis_data.csv）
-# 2. node generate_expense_report.js → expense_report.html
-# 3. 下載購物 CSV（Google Sheets GID:1320702581 → new_data_gid_1320702581.csv）
-# 4. 下載參考網頁（→ reference_site.html）
-# 5. node generate_shopping_report.js → shopping HTML
-# 6. git add . && git commit → git pull --rebase --autostash → git push origin main（見 §6.3）
+# 0. 重複執行保護（2026/07/23 新增，比照 daily/weekly_update.bat）
+if update_log.txt 已有今日日期 + "Update finished." → exit /b 0（寫入 "Already completed today, skipping."）
+
+# 1. 下載主要花費 CSV（Google Sheets → new_analysis_data.csv）→ 失敗 goto :fail_download
+# 2. node generate_expense_report.js → expense_report.html → 失敗 goto :fail_generate
+# 3. 下載購物 CSV（Google Sheets GID:1320702581 → new_data_gid_1320702581.csv）→ 失敗 goto :fail_download
+# 4. 下載參考網頁（→ reference_site.html）→ 失敗 goto :fail_download
+# 5. node generate_shopping_report.js → shopping HTML → 失敗 goto :fail_generate
+# 6. git add . && git commit → git pull --rebase --autostash → git push origin main（見 §6.3）→ push 失敗 goto :fail_push
+# 7. 寫入 "%DATE% %TIME% - Update finished."（含時間戳，供步驟 0 比對）→ LINE 成功通知
+#    任一 :fail_* 分支：寫入對應錯誤訊息 + LINE 失敗告警（send_line_notify.ps1 -Status FAIL -Detail "..."）+ exit /b 1
 ```
+
+> **2026/07/23 新增背景**：07/23 發生 `TravelExpenseUpdate` 排程中途無聲中止（見 §6.3 追記），事後才由使用者發現並人工補跑。原本的 bat 沒有任何一步驟做 errorlevel 檢查，也沒有失敗告警，只要中途出錯（CSV 下載失敗、node script 出錯、git push 失敗）都會靜默結束，且因為 `Update finished.` 沒有時間戳可比對，就算加了保護也難以判斷「今天到底跑完了沒」。這次一併補上：① 每個關鍵步驟後檢查 `errorlevel`，失敗立即 `goto` 到對應失敗分支並發 LINE 告警＋`exit /b 1`；② `Update finished.` 改為含日期時間戳寫法，讓開頭的「今日已完成」比對可用；③ `send_line_notify.ps1` 新增 `-Status FAIL -Detail "..."` 參數（預設 `OK`，不影響 daily/ga/weekly 既有呼叫方式），失敗訊息格式為「⚠ 旅遊記帳 + 購物清單報表更新失敗」+ 原因 + 執行時間。
+> **已知限制**：這套機制能攔到的是「指令回傳非 0」這類明確失敗；07/23 事故本質是整個 cmd 行程在跑到 push 前就被中止（無殘留鎖、無掛住行程，事後也查不出確切原因），若同類「行程整個消失」再次發生，本次補的 errorlevel 檢查仍然攔不到——只能靠「今日已完成」保護在下次觸發（如有）時避免用舊資料誤判為已完成，或使用者察覺報表沒更新後人工介入。
 
 ### 4.3 產出報表
 
@@ -321,7 +329,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/23（`TravelExpenseUpdate` 因 `StartWhenAvailable` 延後補跑到與 daily/GA 相同的 08:08 時段，git push 階段中途中止、`LastTaskResult=1`，人工重跑 `travel/auto_update.bat` 補推（`4d37fdf`），追記於 §6.3；travel 排程目前無重複執行保護與失敗告警，待評估是否補上）*
+*最後更新：2026/07/23（承接同日稍早的 `TravelExpenseUpdate` 事故，為 `travel/auto_update.bat` 補上重複執行保護（比照 daily/weekly，需 `Update finished.` 含日期時間戳）與各步驟失敗告警（errorlevel 檢查 + `send_line_notify.ps1` 新增 `-Status FAIL -Detail` 參數），見 §4.2；已手動測試完整流程（成功 commit `9603612`）與跳過邏輯皆正常運作）*
+*2026/07/23（`TravelExpenseUpdate` 因 `StartWhenAvailable` 延後補跑到與 daily/GA 相同的 08:08 時段，git push 階段中途中止、`LastTaskResult=1`，人工重跑 `travel/auto_update.bat` 補推（`4d37fdf`），追記於 §6.3；travel 排程目前無重複執行保護與失敗告警，待評估是否補上）*
 *2026/07/22（放棄雲端 routine 路線，5 個 routine 全數 `enabled: false`，本地排程恢復為唯一主力，見 §0.4；發現並修復 `A_Qware_Revenue_Report_Daily.html` 因排程併發競爭卡在舊版本兩天的事故（追記於 §6.3），根因是 `Qware_Daily_Report_Update` 與 `_Final` 觸發時間完全相同導致同時起跑，已停用前者、只留設定較完整的 `_Final`，從源頭消除併發）*
 *2026/07/20（本地排程 git push 自 07/18 起因排程 session 取不到 GCM 憑證持續失敗、Pages 停更兩天；排程主力遷移至雲端 Claude Code Routines——修復 daily/GA 兩個雲端 routine 的 prompt（補 MongoDB 連線字串，此前從未成功執行）、新建 weekly/travel 兩個 routine，見 §0；本地排程轉備援待停用）*
 *2026/07/14（排程同時補跑造成 git 互踩、三份日報更新遺失，四支 BAT git 區段加入目錄原子互斥鎖，見 §6.3；generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳資料不再停更）*
