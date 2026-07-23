@@ -146,13 +146,15 @@ else:                 powershell send_line_notify.ps1 -Template "daily"  → LIN
 ### 3.2 執行步驟
 
 ```bat
-node generate_ga_events_report.js    → A_GA_Events_Traffic_Report.html
+node generate_ga_events_report.js    → A_GA_Events_Traffic_Report.html    # 失敗 goto :fail_generate（2026/07/23 新增）
 git add . && git commit -m "Auto-update GA Traffic Reports: ..."
 git pull --rebase --autostash origin main（失敗則 git rebase --abort）
-git push origin main（git 輸出寫入 git_sync.log，見 §6.3）
+git push origin main（git 輸出寫入 git_sync.log，見 §6.3）              # 失敗 goto :fail_push（2026/07/23 新增）
+powershell send_line_notify.ps1 -Template "ga"  → LINE 完成通知
+# :fail_generate / :fail_push：powershell send_line_notify.ps1 -Template "ga" -Status "FAIL" -Detail "..."，exit /b 1
 ```
 
-### 3.3 產出報表
+> **失敗告警（2026/07/23 新增）**：延續 travel/weekly 的「單一報表 script，出錯即中斷＋告警」模式。此 bat 本來就沒有專屬 log 檔（不像 daily/weekly/travel 各有 `*_log.txt`），這次也沒有新增——沿用原樣只靠 LINE 通知與 `git_sync.log`。**沒有加重複執行保護**：GA 一天觸發兩次（08:00／15:00）是刻意設計（見 §3.4，抓不同時間點的數據），加上「今日已完成跳過」會讓 15:00 那次被誤判跳過，因此與 daily/weekly/travel 不同，這裡維持每次觸發都執行。
 
 | 腳本 | 產出 HTML | 資料來源 | 說明 |
 |------|----------|---------|------|
@@ -336,7 +338,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/23（把 travel 補上的失敗告警機制延伸到 `daily_update.bat`／`weekly_update.bat`：daily 維持 8 支獨立 script 的 best-effort 精神，個別失敗記入 `FAILED_STEPS`、跑完才統一判斷發 FAIL 或成功 LINE；weekly 只有單一 script，比照 travel 用 goto 中斷＋即時告警，且刻意不新增原本沒有的成功通知；`send_line_notify.ps1` 的 `failLabels` 新增 `weekly`。見 §2.2／§5.2。已用「今日已完成」跳過路徑實測 daily/weekly 兩支 bat，確認新增的 errorlevel 檢查未破壞既有流程）*
+*最後更新：2026/07/23（`update_ga_report.bat` 也補上失敗告警：node script／git push 出錯 goto 中斷並發 `-Status FAIL` LINE，沿用 travel/weekly 的單一 script 中斷模式；因 GA 一天觸發兩次（08:00/15:00）是刻意設計，故不加重複執行保護，與其他三支 bat 不同。已實測完整流程，成功 commit `b593dc6`。見 §3.2）*
+*2026/07/23（把 travel 補上的失敗告警機制延伸到 `daily_update.bat`／`weekly_update.bat`：daily 維持 8 支獨立 script 的 best-effort 精神，個別失敗記入 `FAILED_STEPS`、跑完才統一判斷發 FAIL 或成功 LINE；weekly 只有單一 script，比照 travel 用 goto 中斷＋即時告警，且刻意不新增原本沒有的成功通知；`send_line_notify.ps1` 的 `failLabels` 新增 `weekly`。見 §2.2／§5.2。已用「今日已完成」跳過路徑實測 daily/weekly 兩支 bat，確認新增的 errorlevel 檢查未破壞既有流程）*
 *2026/07/23（承接同日稍早的 `TravelExpenseUpdate` 事故，為 `travel/auto_update.bat` 補上重複執行保護（比照 daily/weekly，需 `Update finished.` 含日期時間戳）與各步驟失敗告警（errorlevel 檢查 + `send_line_notify.ps1` 新增 `-Status FAIL -Detail` 參數），見 §4.2；已手動測試完整流程（成功 commit `9603612`）與跳過邏輯皆正常運作）*
 *2026/07/23（`TravelExpenseUpdate` 因 `StartWhenAvailable` 延後補跑到與 daily/GA 相同的 08:08 時段，git push 階段中途中止、`LastTaskResult=1`，人工重跑 `travel/auto_update.bat` 補推（`4d37fdf`），追記於 §6.3；travel 排程目前無重複執行保護與失敗告警，待評估是否補上）*
 *2026/07/22（放棄雲端 routine 路線，5 個 routine 全數 `enabled: false`，本地排程恢復為唯一主力，見 §0.4；發現並修復 `A_Qware_Revenue_Report_Daily.html` 因排程併發競爭卡在舊版本兩天的事故（追記於 §6.3），根因是 `Qware_Daily_Report_Update` 與 `_Final` 觸發時間完全相同導致同時起跑，已停用前者、只留設定較完整的 `_Final`，從源頭消除併發）*
