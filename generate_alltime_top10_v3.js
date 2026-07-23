@@ -55,6 +55,19 @@ async function main() {
         console.timeEnd("total");
         console.log("Total views:", overallTotal);
 
+        // Get overall data date range (min/max event time)
+        console.log("Getting data date range...");
+        console.time("dateRange");
+        const dateRangeResult = await coll.aggregate([
+            { $match: { ...baseMatch, time: { $exists: true, $ne: null } } },
+            { $group: { _id: null, minTime: { $min: "$time" }, maxTime: { $max: "$time" } } }
+        ], { allowDiskUse: true }).toArray();
+        console.timeEnd("dateRange");
+        const fmtDate = d => d ? new Date(d).toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' }) : '-';
+        const dataDateStart = fmtDate(dateRangeResult[0]?.minTime);
+        const dataDateEnd = fmtDate(dateRangeResult[0]?.maxTime);
+        console.log(`Data date range: ${dataDateStart} ~ ${dataDateEnd}`);
+
         // ============ Step 2: Batch queries for all top 10 at once ============
         const detailMatch = {
             ...baseMatch,
@@ -412,6 +425,7 @@ async function main() {
             <div class="header-left">
                 <h1>歷史累積 Top 10 節目流量排行榜</h1>
                 <p>First-Party DMP 歷史所有資料總計 Page View 排行榜</p>
+                <p style="font-size:0.85rem;color:#64748b;margin-top:4px;">資料起訖：${dataDateStart} ~ ${dataDateEnd}</p>
             </div>
             <div style="display: flex; gap: 15px; align-items: stretch;">
                 <div class="stat-card">
