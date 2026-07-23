@@ -153,13 +153,13 @@
     <div class="kpi-grid">
         <div class="kpi pur">
             <h4>排程任務總數</h4>
-            <div class="val">7</div>
-            <div class="sub">6 啟用 + 1 已停用</div>
+            <div class="val">8</div>
+            <div class="sub">7 啟用 + 1 已停用</div>
         </div>
         <div class="kpi pur">
             <h4>BAT 程式數</h4>
-            <div class="val">4</div>
-            <div class="sub">daily / ga / weekly / travel</div>
+            <div class="val">5</div>
+            <div class="sub">daily / ga / weekly / travel / dmp_top10</div>
         </div>
         <div class="kpi ok">
             <h4>今日成功</h4>
@@ -185,6 +185,11 @@
             <h4>下次月報</h4>
             <div class="val">08/01</div>
             <div class="sub">08:30 Monthly</div>
+        </div>
+        <div class="kpi pur">
+            <h4>下次 DMP Top10</h4>
+            <div class="val">08/01</div>
+            <div class="sub">10:00 Monthly（2026/07/23 新增）</div>
         </div>
     </div>
 
@@ -267,11 +272,21 @@
                     <td>2026/07/24 06:00</td>
                     <td><span class="badge ok">Ready</span></td>
                 </tr>
+                <tr>
+                    <td><span class="mono">Qware_DMP_AllTime_Top10_Monthly</span></td>
+                    <td><a href="https://github.com/lard23chen/report/blob/main/update_dmp_alltime_top10.bat" target="_blank">update_dmp_alltime_top10.bat</a></td>
+                    <td>每月 1 日 10:00</td>
+                    <td>—</td>
+                    <td><span class="badge pending">尚未觸發（新建立）</span></td>
+                    <td>2026/08/01 10:00</td>
+                    <td><span class="badge ok">Ready</span></td>
+                </tr>
             </tbody>
         </table>
         <p class="text-muted" style="margin:14px 0 0;">* <span class="mono">Qware_Daily_Report_Update</span> 已於 2026/07/22 停用（原本與 <span class="mono">_Final</span> 設定相同觸發時間 08:00 互為備援，但兩者同時起跑反而造成 git 併發競爭、曾導致日報卡在舊版本兩天未被發現，詳見 <a href="https://github.com/lard23chen/report/blob/main/REPORT_SPEC_SCHEDULED_TASKS.md" target="_blank">REPORT_SPEC_SCHEDULED_TASKS.md</a> §6.3）；現只保留設定較完整的 <span class="mono">_Final</span>。</p>
         <p class="text-muted" style="margin:6px 0 0;">* 曾短暫規劃的雲端 Claude Code Routines（daily/GA/weekly/travel/Azure 月報）已於 2026/07/22 全數停用，恢復本地排程為唯一主力，詳見 REPORT_SPEC_SCHEDULED_TASKS.md §0。</p>
         <p class="text-muted" style="margin:6px 0 0;">* <span class="mono">TravelExpenseUpdate</span> 於 2026/07/23 08:08（因前一天電腦未開機、<code>StartWhenAvailable</code> 延後補跑，撞上與 daily/GA 相同的觸發時刻）在 git push 階段無聲中止，<code>LastTaskResult=1</code>；報表本身已產出成功、只是沒推上去。事後人工重跑 <span class="mono">travel/auto_update.bat</span> 補推成功。詳見 REPORT_SPEC_SCHEDULED_TASKS.md §6.3 追記。</p>
+        <p class="text-muted" style="margin:6px 0 0;">* <strong>2026/07/23 新增</strong>：<span class="mono">Qware_DMP_AllTime_Top10_Monthly</span> 排程 + <span class="mono">update_dmp_alltime_top10.bat</span>，每月 1 日 10:00 更新 DMP 歷史 Top10 流量報表（刻意避開 08:00 daily/GA 群聚時段）。同時把 <span class="mono">generate_alltime_top10_v3.js</span> 從每次全表掃描（~40 分鐘）改為增量架構：狀態序列化內嵌於報表 HTML，之後每月只查新資料；不重複訪客改用自製 HyperLogLog 估算，避免完整訪客清單讓報表檔案無限增長。詳見 REPORT_SPEC_TRAFFIC_ANALYSIS.md §3。</p>
         <p class="text-muted" style="margin:6px 0 0;">* <strong>2026/07/23 新增失敗告警機制</strong>：四支 BAT（daily / GA / weekly / travel）在關鍵步驟（報表產生、git push）失敗時，現在都會呼叫 <span class="mono">send_line_notify.ps1 -Status FAIL</span> 立即發 LINE 告警並註明原因，不用再等使用者自己發現報表沒更新；travel／weekly 額外加上「今日已完成」重複執行保護（daily 本來就有）。GA 因每日刻意觸發兩次（08:00/15:00）不適用此保護。</p>
     </div>
 
@@ -404,6 +419,37 @@
             </div>
             <div style="margin-top:10px;">Log：<span class="mono">travel/update_log.txt</span></div>
             <div style="margin-top:6px;font-size:0.82rem;color:var(--muted);">同日已完成則跳過（2026/07/23 新增，比照 daily/weekly）</div>
+        </div>
+
+        <!-- update_dmp_alltime_top10.bat -->
+        <div class="bat-card">
+            <h3>📁 update_dmp_alltime_top10.bat</h3>
+            <div class="trigger">
+                排程：<span class="mono">Qware_DMP_AllTime_Top10_Monthly</span>（2026/07/23 新增）<br>
+                觸發：每月 1 日 10:00（刻意避開 08:00 daily/GA 群聚）／ 執行目錄：<code style="color:#ce93d8">D:\2025\AI\MongoDB</code>
+            </div>
+            <ul class="step-list">
+                <li>
+                    <span class="step-num">1</span>
+                    <span><span class="mono">generate_alltime_top10_v3.js</span> <span class="arrow">→</span>
+                    <a href="https://lard23chen.github.io/report/A_DMP_PageView_Report_AllTime_Top10.html" target="_blank">A_DMP_PageView_Report_AllTime_Top10.html</a> + 10 份節目明細頁</span>
+                </li>
+                <li>
+                    <span class="step-num">2</span>
+                    <span>增量架構：狀態（已處理進度 + 全節目瀏覽量 + Top10 明細）內嵌於報表 HTML；首次執行為全量 bootstrap（~40 分鐘），之後每次只查新資料（秒級到低分鐘級）</span>
+                </li>
+                <li>
+                    <span class="step-num">3</span>
+                    <span>不重複訪客改用自製 HyperLogLog 估算（固定 ~16KB／節目，誤差實測 &lt;1%），取代會無限增長的完整訪客 ID 清單</span>
+                </li>
+                <li>
+                    <span class="step-num">4</span>
+                    <span>git add · commit · push（失敗即中斷＋LINE ⚠ 告警）</span>
+                </li>
+            </ul>
+            <div>資料來源：<span class="src-tag">trek-first-party-dmp.event</span></div>
+            <div style="margin-top:10px;">Log：<span class="mono">dmp_alltime_top10_log.txt</span></div>
+            <div style="margin-top:6px;font-size:0.82rem;color:var(--muted);">本月已完成則跳過（同 daily/weekly/travel 的重複執行保護，週期改為月）</div>
         </div>
 
     </div>

@@ -13,16 +13,18 @@ $token = "C899832bec63146ee4801ae43b3a3cc23"
 $now   = Get-Date -Format "yyyy/MM/dd HH:mm"
 
 $messages = @{
-    daily  = "`n`n[Qware] A 系統日報 + 高雄啤酒節報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
-    ga     = "`n`n[Qware] GA 流量報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
-    travel = "`n`n[Qware] 旅遊記帳 + 購物清單報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
+    daily     = "`n`n[Qware] A 系統日報 + 高雄啤酒節報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
+    ga        = "`n`n[Qware] GA 流量報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
+    travel    = "`n`n[Qware] 旅遊記帳 + 購物清單報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
+    dmp_top10 = "`n`n[Qware] DMP 歷史 Top10 流量報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
 }
 
 $failLabels = @{
-    daily  = "A 系統日報 + 高雄啤酒節報表"
-    ga     = "GA 流量報表"
-    travel = "旅遊記帳 + 購物清單報表"
-    weekly = "A 系統週報"
+    daily     = "A 系統日報 + 高雄啤酒節報表"
+    ga        = "GA 流量報表"
+    travel    = "旅遊記帳 + 購物清單報表"
+    weekly    = "A 系統週報"
+    dmp_top10 = "DMP 歷史 Top10 流量報表"
 }
 
 if ($Status -eq "FAIL") {

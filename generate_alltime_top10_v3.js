@@ -4,9 +4,186 @@ const fs = require('fs');
 const path = require('path');
 
 const uri = process.env.MONGODB_URI_DMP;
+const MAIN_HTML_PATH = path.join(__dirname, 'A_DMP_PageView_Report_AllTime_Top10.html');
+const DETAILS_DIR = path.join(__dirname, 'dmp_details_alltime');
 
-// Optimization: Use $in to batch queries for all top 10 programs at once
-// instead of 5 separate queries per program (50 -> ~6 queries total)
+// Incremental architecture (2026/07/23):
+// State (last-processed checkpoint + all-program totals + per-Top10-program breakdowns) is
+// embedded in the generated main HTML via `generatedAt` / `/*SD_START*/.../*SD_END*/` markers,
+// the same idiom generate_ga_events_report.js already uses. On each run:
+//   - no state found  -> full historical bootstrap (like the old script), ~40min, one-time cost
+//   - state found     -> only fetch docs newer than the checkpoint (fast, index-backed on
+//                        {name,time}), merge deltas into the persisted per-program breakdowns,
+//                        and only run a full one-off history scan for a program that newly
+//                        enters the Top10 from outside the tracked set (rare).
+// Unique-visitor counts use a small HyperLogLog sketch per program (mergeable, ~16KB fixed size
+// regardless of visitor count) instead of a raw fp_id list, so the state doesn't grow unbounded
+// as visitor sets only ever get bigger over time.
+
+const baseMatch = {
+    name: "page_view",
+    bu: "D",
+    content_name: { $ne: null, $nin: [null, ""] },
+    canonical_url: { $regex: /^https:\/\/ticket\.ibon\.com\.tw\// }
+};
+
+function fmtDate(d) {
+    return d ? new Date(d).toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' }) : '-';
+}
+
+// ============ HyperLogLog (self-contained, no dependency) ============
+// p=14 -> 16384 registers, ~0.8% typical error, fixed ~16KB per sketch regardless of cardinality.
+const HLL_P = 14;
+const HLL_M = 1 << HLL_P;
+const HLL_REST_WIDTH = 32 - HLL_P;
+const HLL_REST_MASK = (1 << HLL_REST_WIDTH) - 1;
+
+function fnv1a(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+    }
+    return h >>> 0;
+}
+
+function leadingZeros(x, width) {
+    if (x === 0) return width;
+    let n = 0;
+    let mask = 1 << (width - 1);
+    while (mask !== 0 && (x & mask) === 0) { n++; mask >>>= 1; }
+    return n;
+}
+
+function hllCreate() { return new Uint8Array(HLL_M); }
+
+function hllAdd(registers, value) {
+    const hash = fnv1a(String(value));
+    const idx = hash >>> HLL_REST_WIDTH;
+    const rest = hash & HLL_REST_MASK;
+    const rank = leadingZeros(rest, HLL_REST_WIDTH) + 1;
+    if (registers[idx] < rank) registers[idx] = rank;
+}
+
+function hllEstimate(registers) {
+    let sum = 0, zeros = 0;
+    for (let i = 0; i < HLL_M; i++) {
+        sum += Math.pow(2, -registers[i]);
+        if (registers[i] === 0) zeros++;
+    }
+    const alpha = 0.7213 / (1 + 1.079 / HLL_M);
+    let estimate = alpha * HLL_M * HLL_M / sum;
+    if (estimate <= 2.5 * HLL_M && zeros > 0) {
+        estimate = HLL_M * Math.log(HLL_M / zeros);
+    }
+    return Math.round(estimate);
+}
+
+function hllToBase64(registers) { return Buffer.from(registers).toString('base64'); }
+function hllFromBase64(str) { return str ? new Uint8Array(Buffer.from(str, 'base64')) : hllCreate(); }
+
+// ============ State load/save ============
+function loadExistingState() {
+    if (!fs.existsSync(MAIN_HTML_PATH)) return null;
+    const html = fs.readFileSync(MAIN_HTML_PATH, 'utf8');
+    const genMatch = html.match(/const generatedAt = "([^"]+)"/);
+    const dataMatch = html.match(/\/\*SD_START\*\/([\s\S]*?)\/\*SD_END\*\//);
+    if (!genMatch || !dataMatch) return null;
+    try {
+        const state = JSON.parse(dataMatch[1]);
+        state.lastProcessedTime = genMatch[1];
+        return state;
+    } catch (e) {
+        console.warn("Failed to parse existing state, will do a full rebuild.");
+        return null;
+    }
+}
+
+// ============ Breakdown queries (parameterized by extra $match conditions) ============
+// Same 6 shapes as before: monthly / daily / device / hourly / unique-visitor pairs / attribution-id pairs.
+// matchExtra is merged into baseMatch - either { content_name: {$in:[...]} } / { content_name: name }
+// for a name-scoped historical query, or { time: {$gt: checkpoint} } for a time-scoped incremental query.
+async function queryBreakdowns(coll, matchExtra) {
+    const detailMatch = { ...baseMatch, ...matchExtra };
+    // Merge (not overwrite) the time-existence guard with any incremental $gt bound already
+    // present in matchExtra.time - a naive {...detailMatch, time:{...}} would silently drop
+    // the $gt bound and re-scan full history every "incremental" run.
+    const timeMatch = { ...detailMatch, time: { $exists: true, $ne: null, ...(detailMatch.time || {}) } };
+
+    const monthlyAll = await coll.aggregate([
+        { $match: timeMatch },
+        { $group: { _id: { prog: "$content_name", month: { $dateToString: { format: "%Y-%m", date: "$time" } } }, views: { $sum: 1 } } }
+    ], { allowDiskUse: true }).toArray();
+
+    const dailyAll = await coll.aggregate([
+        { $match: timeMatch },
+        { $group: { _id: { prog: "$content_name", day: { $dateToString: { format: "%Y-%m-%d", date: "$time" } } }, views: { $sum: 1 } } }
+    ], { allowDiskUse: true }).toArray();
+
+    const deviceAll = await coll.aggregate([
+        { $match: detailMatch },
+        { $project: { content_name: 1, device: { $cond: [{ $regexMatch: { input: { $ifNull: ["$user_agent", ""] }, regex: /Mobile|Android|iPhone|iPad/ } }, "Mobile", "Desktop"] } } },
+        { $group: { _id: { prog: "$content_name", device: "$device" }, count: { $sum: 1 } } }
+    ], { allowDiskUse: true }).toArray();
+
+    const hourlyAll = await coll.aggregate([
+        { $match: timeMatch },
+        { $group: { _id: { prog: "$content_name", hour: { $hour: "$time" } }, views: { $sum: 1 } } }
+    ], { allowDiskUse: true }).toArray();
+
+    const uvPairs = await coll.aggregate([
+        { $match: { ...detailMatch, fp_id: { $ne: null, $ne: "" } } },
+        { $group: { _id: { prog: "$content_name", fp: "$fp_id" } } }
+    ], { allowDiskUse: true }).toArray();
+
+    const attrPairs = await coll.aggregate([
+        { $match: { ...detailMatch, attribution_id: { $ne: null, $ne: "" } } },
+        { $group: { _id: { prog: "$content_name", aid: "$attribution_id" } } }
+    ], { allowDiskUse: true }).toArray();
+
+    return { monthlyAll, dailyAll, deviceAll, hourlyAll, uvPairs, attrPairs };
+}
+
+// ============ Merge raw query results into an in-memory per-program store ============
+// store: { [prog]: { monthly:Map<month,views>, daily:Map<day,views>, device:Map<device,count>,
+//                     hourly:Map<hour,views>, hll:Uint8Array, attrIds:Set } }
+function ensureProg(store, prog) {
+    if (!store[prog]) {
+        store[prog] = { monthly: new Map(), daily: new Map(), device: new Map(), hourly: new Map(), hll: hllCreate(), attrIds: new Set() };
+    }
+    return store[prog];
+}
+
+function mergeBreakdownsInto(store, raw) {
+    raw.monthlyAll.forEach(m => { const s = ensureProg(store, m._id.prog); s.monthly.set(m._id.month, (s.monthly.get(m._id.month) || 0) + m.views); });
+    raw.dailyAll.forEach(d => { const s = ensureProg(store, d._id.prog); s.daily.set(d._id.day, (s.daily.get(d._id.day) || 0) + d.views); });
+    raw.deviceAll.forEach(d => { const s = ensureProg(store, d._id.prog); const dev = d._id.device || 'Unknown'; s.device.set(dev, (s.device.get(dev) || 0) + d.count); });
+    raw.hourlyAll.forEach(h => { const s = ensureProg(store, h._id.prog); s.hourly.set(h._id.hour, (s.hourly.get(h._id.hour) || 0) + h.views); });
+    raw.uvPairs.forEach(u => { const s = ensureProg(store, u._id.prog); if (u._id.fp) hllAdd(s.hll, u._id.fp); });
+    raw.attrPairs.forEach(a => { const s = ensureProg(store, a._id.prog); if (a._id.aid && String(a._id.aid).trim()) s.attrIds.add(a._id.aid); });
+}
+
+function serializeProgStore(s) {
+    return {
+        monthly: Array.from(s.monthly, ([month, views]) => ({ month, views })),
+        daily: Array.from(s.daily, ([day, views]) => ({ day, views })),
+        device: Array.from(s.device, ([device, count]) => ({ device, count })),
+        hourly: Array.from(s.hourly, ([hour, views]) => ({ hour, views })),
+        attributionIds: Array.from(s.attrIds),
+        hllSketch: hllToBase64(s.hll)
+    };
+}
+
+function deserializeProgStore(d) {
+    return {
+        monthly: new Map((d.monthly || []).map(m => [m.month, m.views])),
+        daily: new Map((d.daily || []).map(x => [x.day, x.views])),
+        device: new Map((d.device || []).map(x => [x.device, x.count])),
+        hourly: new Map((d.hourly || []).map(x => [x.hour, x.views])),
+        attrIds: new Set(d.attributionIds || []),
+        hll: hllFromBase64(d.hllSketch)
+    };
+}
 
 async function main() {
     const client = new MongoClient(uri);
@@ -17,157 +194,121 @@ async function main() {
         const db = client.db("trek-first-party-dmp");
         const coll = db.collection("event");
 
-        const baseMatch = {
-            name: "page_view",
-            bu: "D",
-            content_name: { $ne: null, $nin: [null, ""] },
-            canonical_url: { $regex: /^https:\/\/ticket\.ibon\.com\.tw\// }
-        };
+        const existingState = loadExistingState();
+        let allProgramViews, dataDateStart, dataDateEnd, top10Store;
 
-        // ============ Step 1: Get Top 10 + total in one pipeline ============
-        console.log("Step 1: Getting Top 10 programs...");
-        console.time("top10");
-        const top10Raw = await coll.aggregate([
-            { $match: baseMatch },
-            { $group: { _id: "$content_name", attribution_ids: { $addToSet: "$attribution_id" }, views: { $sum: 1 } } },
-            { $sort: { views: -1 } },
-            { $limit: 10 }
-        ], { allowDiskUse: true }).toArray();
-        console.timeEnd("top10");
-        console.log(`Got ${top10Raw.length} top programs.`);
+        if (!existingState) {
+            console.log("No existing state found - running FULL historical bootstrap (one-time, ~40min)...");
 
-        const top10 = top10Raw.map((r, i) => {
-            const ids = new Set();
-            if (r.attribution_ids) r.attribution_ids.forEach(id => { if (id && id.trim()) ids.add(id); });
-            return { name: r._id, totalViews: r.views, ids, rank: i + 1 };
-        });
+            console.log("Step 1: Getting all-program totals...");
+            console.time("allTotals");
+            const allRaw = await coll.aggregate([
+                { $match: baseMatch },
+                { $group: { _id: "$content_name", views: { $sum: 1 } } },
+                { $sort: { views: -1 } }
+            ], { allowDiskUse: true }).toArray();
+            console.timeEnd("allTotals");
 
-        const top10Names = top10.map(t => t.name);
+            allProgramViews = {};
+            allRaw.forEach(r => { allProgramViews[r._id] = r.views; });
 
-        // Get overall total
-        console.log("Getting total page views...");
-        console.time("total");
-        const totalResult = await coll.aggregate([
-            { $match: baseMatch },
-            { $count: "total" }
-        ], { allowDiskUse: true }).toArray();
-        const overallTotal = totalResult[0]?.total || 0;
-        console.timeEnd("total");
-        console.log("Total views:", overallTotal);
+            console.log("Getting data date range...");
+            console.time("dateRange");
+            const dateRangeResult = await coll.aggregate([
+                { $match: { ...baseMatch, time: { $exists: true, $ne: null } } },
+                { $group: { _id: null, minTime: { $min: "$time" }, maxTime: { $max: "$time" } } }
+            ], { allowDiskUse: true }).toArray();
+            console.timeEnd("dateRange");
+            dataDateStart = fmtDate(dateRangeResult[0]?.minTime);
+            dataDateEnd = fmtDate(dateRangeResult[0]?.maxTime);
 
-        // Get overall data date range (min/max event time)
-        console.log("Getting data date range...");
-        console.time("dateRange");
-        const dateRangeResult = await coll.aggregate([
-            { $match: { ...baseMatch, time: { $exists: true, $ne: null } } },
-            { $group: { _id: null, minTime: { $min: "$time" }, maxTime: { $max: "$time" } } }
-        ], { allowDiskUse: true }).toArray();
-        console.timeEnd("dateRange");
-        const fmtDate = d => d ? new Date(d).toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' }) : '-';
-        const dataDateStart = fmtDate(dateRangeResult[0]?.minTime);
-        const dataDateEnd = fmtDate(dateRangeResult[0]?.maxTime);
-        console.log(`Data date range: ${dataDateStart} ~ ${dataDateEnd}`);
+            const top10Names = allRaw.slice(0, 10).map(r => r._id);
 
-        // ============ Step 2: Batch queries for all top 10 at once ============
-        const detailMatch = {
-            ...baseMatch,
-            content_name: { $in: top10Names }
-        };
+            console.log("Step 2: Fetching full breakdowns for Top10 (monthly/daily/device/hourly/uv/attribution)...");
+            console.time("breakdowns");
+            const raw = await queryBreakdowns(coll, { content_name: { $in: top10Names } });
+            console.timeEnd("breakdowns");
 
-        // 2a: Monthly breakdown for all programs at once
-        console.log("Step 2a: Monthly breakdown (batch)...");
-        console.time("monthly");
-        const monthlyAll = await coll.aggregate([
-            { $match: { ...detailMatch, time: { $exists: true, $ne: null } } },
-            { $group: { _id: { prog: "$content_name", month: { $dateToString: { format: "%Y-%m", date: "$time" } } }, views: { $sum: 1 } } },
-            { $sort: { "_id.month": 1 } }
-        ], { allowDiskUse: true }).toArray();
-        console.timeEnd("monthly");
+            top10Store = {};
+            mergeBreakdownsInto(top10Store, raw);
 
-        // 2b: Daily breakdown for all programs at once
-        console.log("Step 2b: Daily breakdown (batch)...");
-        console.time("daily");
-        const dailyAll = await coll.aggregate([
-            { $match: { ...detailMatch, time: { $exists: true, $ne: null } } },
-            { $group: { _id: { prog: "$content_name", day: { $dateToString: { format: "%Y-%m-%d", date: "$time" } } }, views: { $sum: 1 } } },
-            { $sort: { "_id.day": 1 } }
-        ], { allowDiskUse: true }).toArray();
-        console.timeEnd("daily");
+        } else {
+            console.log(`Existing state found. Last processed: ${existingState.lastProcessedTime}`);
+            allProgramViews = existingState.allProgramViews || {};
+            dataDateStart = existingState.dataDateStart;
+            dataDateEnd = existingState.dataDateEnd || dataDateStart;
 
-        // 2c: Device breakdown for all programs at once
-        console.log("Step 2c: Device breakdown (batch)...");
-        console.time("device");
-        const deviceAll = await coll.aggregate([
-            { $match: detailMatch },
-            { $project: { content_name: 1, device: { $cond: [{ $regexMatch: { input: { $ifNull: ["$user_agent", ""] }, regex: /Mobile|Android|iPhone|iPad/ } }, "Mobile", "Desktop"] } } },
-            { $group: { _id: { prog: "$content_name", device: "$device" }, count: { $sum: 1 } } },
-            { $sort: { count: -1 } }
-        ], { allowDiskUse: true }).toArray();
-        console.timeEnd("device");
+            top10Store = {};
+            Object.entries(existingState.top10Detail || {}).forEach(([prog, d]) => {
+                top10Store[prog] = deserializeProgStore(d);
+            });
+            const trackedNames = new Set(Object.keys(top10Store));
 
-        // 2d: Hourly distribution for all programs at once
-        console.log("Step 2d: Hourly distribution (batch)...");
-        console.time("hourly");
-        const hourlyAll = await coll.aggregate([
-            { $match: { ...detailMatch, time: { $exists: true, $ne: null } } },
-            { $group: { _id: { prog: "$content_name", hour: { $hour: "$time" } }, views: { $sum: 1 } } },
-            { $sort: { "_id.hour": 1 } }
-        ], { allowDiskUse: true }).toArray();
-        console.timeEnd("hourly");
+            console.log(`Fetching new data since ${existingState.lastProcessedTime}...`);
+            console.time("incremental");
+            const raw = await queryBreakdowns(coll, { time: { $gt: new Date(existingState.lastProcessedTime) } });
+            console.timeEnd("incremental");
 
-        // 2e: Unique visitors for all programs at once
-        console.log("Step 2e: Unique visitors (batch)...");
-        console.time("uv");
-        const uvAll = await coll.aggregate([
-            { $match: detailMatch },
-            { $group: { _id: { prog: "$content_name", fp: "$fp_id" } } },
-            { $group: { _id: "$_id.prog", uniqueCount: { $sum: 1 } } }
-        ], { allowDiskUse: true }).toArray();
-        console.timeEnd("uv");
+            // Add incremental view deltas into the all-program totals (covers programs never tracked before too)
+            const deltaViewsByProg = {};
+            raw.monthlyAll.forEach(m => { deltaViewsByProg[m._id.prog] = (deltaViewsByProg[m._id.prog] || 0) + m.views; });
+            Object.entries(deltaViewsByProg).forEach(([prog, views]) => {
+                allProgramViews[prog] = (allProgramViews[prog] || 0) + views;
+            });
 
-        // ============ Step 3: Build per-program data maps ============
+            if (raw.dailyAll.length > 0) {
+                const maxDay = raw.dailyAll.map(d => d._id.day).sort().pop();
+                if (!dataDateEnd || maxDay > dataDateEnd) dataDateEnd = maxDay;
+            }
+
+            const newTop10Names = Object.entries(allProgramViews).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name]) => name);
+            const keepSet = new Set(newTop10Names);
+            const newlyPromoted = newTop10Names.filter(n => !trackedNames.has(n));
+
+            // Only merge the incremental delta into programs we're keeping AND already had detail for
+            const filteredRaw = {
+                monthlyAll: raw.monthlyAll.filter(x => keepSet.has(x._id.prog) && trackedNames.has(x._id.prog)),
+                dailyAll: raw.dailyAll.filter(x => keepSet.has(x._id.prog) && trackedNames.has(x._id.prog)),
+                deviceAll: raw.deviceAll.filter(x => keepSet.has(x._id.prog) && trackedNames.has(x._id.prog)),
+                hourlyAll: raw.hourlyAll.filter(x => keepSet.has(x._id.prog) && trackedNames.has(x._id.prog)),
+                uvPairs: raw.uvPairs.filter(x => keepSet.has(x._id.prog) && trackedNames.has(x._id.prog)),
+                attrPairs: raw.attrPairs.filter(x => keepSet.has(x._id.prog) && trackedNames.has(x._id.prog))
+            };
+            mergeBreakdownsInto(top10Store, filteredRaw);
+
+            for (const prog of newlyPromoted) {
+                console.log(`New entrant into Top10: "${prog}" - running one-off full-history backfill...`);
+                console.time(`backfill:${prog}`);
+                const soloRaw = await queryBreakdowns(coll, { content_name: prog });
+                console.timeEnd(`backfill:${prog}`);
+                mergeBreakdownsInto(top10Store, soloRaw);
+            }
+
+            Object.keys(top10Store).forEach(prog => { if (!keepSet.has(prog)) delete top10Store[prog]; });
+        }
+
+        // ============ Build final Top10 + detail data ============
+        const overallTotal = Object.values(allProgramViews).reduce((a, b) => a + b, 0);
+        const top10 = Object.entries(allProgramViews)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([name, views], i) => ({ name, totalViews: views, rank: i + 1 }));
+
         console.log("Step 3: Building detail pages...");
-
-        const monthlyMap = {};
-        monthlyAll.forEach(m => {
-            if (!monthlyMap[m._id.prog]) monthlyMap[m._id.prog] = [];
-            monthlyMap[m._id.prog].push({ month: m._id.month, views: m.views });
-        });
-
-        const dailyMap = {};
-        dailyAll.forEach(d => {
-            if (!dailyMap[d._id.prog]) dailyMap[d._id.prog] = [];
-            dailyMap[d._id.prog].push({ day: d._id.day, views: d.views });
-        });
-
-        const deviceMap = {};
-        deviceAll.forEach(d => {
-            if (!deviceMap[d._id.prog]) deviceMap[d._id.prog] = [];
-            deviceMap[d._id.prog].push({ device: d._id.device, count: d.count });
-        });
-
-        const hourlyMap = {};
-        hourlyAll.forEach(h => {
-            if (!hourlyMap[h._id.prog]) hourlyMap[h._id.prog] = [];
-            hourlyMap[h._id.prog].push({ hour: h._id.hour, views: h.views });
-        });
-
-        const uvMap = {};
-        uvAll.forEach(u => { uvMap[u._id] = u.uniqueCount; });
-
-        // ============ Step 4: Generate detail HTML files ============
-        const detailsDir = path.join(__dirname, 'dmp_details_alltime');
-        if (!fs.existsSync(detailsDir)) fs.mkdirSync(detailsDir);
+        if (!fs.existsSync(DETAILS_DIR)) fs.mkdirSync(DETAILS_DIR);
 
         for (let idx = 0; idx < top10.length; idx++) {
             const prog = top10[idx];
             console.log(`  [${idx + 1}/10] Building: ${prog.name}`);
 
-            const monthlyData = (monthlyMap[prog.name] || []).sort((a, b) => a.month.localeCompare(b.month));
-            const dailyData = (dailyMap[prog.name] || []).sort((a, b) => a.day.localeCompare(b.day));
-            const deviceData = deviceMap[prog.name] || [];
-            const hourlyData = hourlyMap[prog.name] || [];
-            const uvCount = uvMap[prog.name] || 0;
+            const s = top10Store[prog.name];
+            const monthlyData = Array.from(s.monthly, ([month, views]) => ({ month, views })).sort((a, b) => a.month.localeCompare(b.month));
+            const dailyData = Array.from(s.daily, ([day, views]) => ({ day, views })).sort((a, b) => a.day.localeCompare(b.day));
+            const deviceData = Array.from(s.device, ([device, count]) => ({ device, count }));
+            const hourlyData = Array.from(s.hourly, ([hour, views]) => ({ hour, views }));
+            const uvCount = hllEstimate(s.hll);
+            const idStr = s.attrIds.size > 0 ? Array.from(s.attrIds).join(', ') : '-';
+            prog.idStr = idStr;
 
             const monthLabels = monthlyData.map(d => d.month);
             const monthValues = monthlyData.map(d => d.views);
@@ -243,7 +384,7 @@ async function main() {
                 })
                 .catch(function () { clearTimeout(timer); deny('unknown'); });
         })();
-    </script>
+    <\/script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"><\/script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -289,7 +430,7 @@ async function main() {
                 <div class="value" style="color: #60a5fa;">${prog.totalViews.toLocaleString()}</div>
             </div>
             <div class="stat-box">
-                <div class="label">不重複訪客</div>
+                <div class="label">不重複訪客（估算）</div>
                 <div class="value" style="color: #a78bfa;">${uvCount.toLocaleString()}</div>
             </div>
             <div class="stat-box">
@@ -364,19 +505,31 @@ async function main() {
 </body>
 </html>`;
 
-            fs.writeFileSync(path.join(detailsDir, detailFileName), detailHtml, 'utf8');
+            fs.writeFileSync(path.join(DETAILS_DIR, detailFileName), detailHtml, 'utf8');
             console.log(`    -> Saved ${detailFileName}`);
         }
 
-        // ============ Step 5: Regenerate main Top 10 report ============
-        console.log("Step 5: Building main Top 10 report...");
+        // ============ Build main Top10 report ============
+        console.log("Step 4: Building main Top 10 report...");
 
         const tableRows = top10.map((item) => {
             const rankClass = item.rank === 1 ? 'rank-1' : item.rank === 2 ? 'rank-2' : item.rank === 3 ? 'rank-3' : '';
             const pct = ((item.totalViews / overallTotal) * 100).toFixed(2);
-            const idStr = item.ids.size > 0 ? Array.from(item.ids).join(', ') : '-';
+            const idStr = item.idStr || '-';
             return `<tr><td style="text-align:center;"><span class="rank ${rankClass}">${item.rank}</span></td><td style="font-weight:500;"><a href="${item.detailLink}" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">${item.name}</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">${idStr}</td><td style="text-align:right;color:#f8fafc;font-weight:600;">${item.totalViews.toLocaleString()}</td><td style="text-align:right;color:var(--text-secondary);">${pct}%</td></tr>`;
         }).join('');
+
+        // Persist state for next incremental run
+        const generatedAtStr = new Date().toISOString();
+        const finalState = {
+            dataDateStart,
+            dataDateEnd,
+            allProgramViews,
+            top10Detail: {}
+        };
+        top10.forEach(item => {
+            finalState.top10Detail[item.name] = serializeProgStore(top10Store[item.name]);
+        });
 
         const mainHtml = `<!DOCTYPE html>
 <html lang="zh-Hant">
@@ -484,10 +637,14 @@ async function main() {
             }
         });
     <\/script>
+    <script>
+        const generatedAt = "${generatedAtStr}";
+        const dmpState = /*SD_START*/${JSON.stringify(finalState)}/*SD_END*/;
+    <\/script>
 </body>
 </html>`;
 
-        fs.writeFileSync(path.join(__dirname, 'A_DMP_PageView_Report_AllTime_Top10.html'), mainHtml, 'utf8');
+        fs.writeFileSync(MAIN_HTML_PATH, mainHtml, 'utf8');
         console.log('Main report regenerated!');
         console.log('All done!');
 
