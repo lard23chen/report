@@ -7,11 +7,3 @@ requirements_travel.txt
 
 # 個人資產報表：只發佈到私有 Claude Artifact，不進公開 repo
 alex/Alex_Asset_Report.html
-
-# Alex 生活管理列表（個人講義/筆記）：同樣只發佈到私有 Claude Artifact，不進公開 repo
-alex/index.html
-alex/AI講義.html
-alex/AI講義.txt
-alex/AI講義_Alex_20260724.html
-alex/AI講義_Alex_20260724.pptx
-alex/ai_lecture_20260724_assets/

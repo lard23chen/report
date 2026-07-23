@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 講義 · 數據自動化與網頁部署實務</title>
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --bg-alt: #eeece4;
+    --card-bg: #ffffff;
+    --text: #2b2f36;
+    --text-muted: #6b7280;
+    --accent: #8a9a8e;
+    --accent-dark: #3f5a4d;
+    --accent-orange: #c1652f;
+    --border: rgba(43,47,54,0.10);
+    --shadow: 0 10px 30px rgba(43,47,54,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181d;
+      --bg-alt: #1d2027;
+      --card-bg: #22252c;
+      --text: #e7e6e2;
+      --text-muted: #9ca0a8;
+      --accent: #9db3a4;
+      --accent-dark: #b7cbbd;
+      --accent-orange: #e08a55;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16181d; --bg-alt: #1d2027; --card-bg: #22252c; --text: #e7e6e2;
+    --text-muted: #9ca0a8; --accent: #9db3a4; --accent-dark: #b7cbbd;
+    --accent-orange: #e08a55; --border: rgba(255,255,255,0.08); --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f5f0; --bg-alt: #eeece4; --card-bg: #ffffff; --text: #2b2f36;
+    --text-muted: #6b7280; --accent: #8a9a8e; --accent-dark: #3f5a4d;
+    --accent-orange: #c1652f; --border: rgba(43,47,54,0.10); --shadow: 0 10px 30px rgba(43,47,54,0.08);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Noto Sans TC", "Hiragino Sans", "PingFang TC", Arial, sans-serif;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  header.hero {
+    padding: 88px 24px 60px;
+    text-align: center;
+    background: linear-gradient(180deg, var(--bg-alt), var(--bg) 85%);
+    border-bottom: 1px solid var(--border);
+  }
+  header.hero .kicker {
+    font-size: 0.85rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  header.hero h1 {
+    font-size: clamp(1.9rem, 4.4vw, 2.9rem);
+    margin: 0 0 14px;
+    font-weight: 800;
+  }
+  header.hero p.sub {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  nav.toc {
+    max-width: 880px;
+    margin: -26px auto 56px;
+    padding: 18px 22px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    justify-content: center;
+    font-size: 0.86rem;
+  }
+  nav.toc a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 5px 11px;
+    border-radius: 20px;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  nav.toc a:hover { background: var(--bg-alt); color: var(--text); }
+
+  section.agenda { padding: 4px 24px 8px; }
+  .agenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+  }
+  .agenda-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+  }
+  .agenda-item .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .agenda-item h3 { margin: 0 0 6px; font-size: 1.02rem; font-weight: 700; }
+  .agenda-item p { margin: 0; color: var(--text-muted); font-size: 0.92rem; }
+
+  hr.div { border: none; border-top: 1px solid var(--border); max-width: 880px; margin: 40px auto; }
+
+  .page-block {
+    max-width: 880px;
+    margin: 0 auto 56px;
+    padding: 0 24px;
+    scroll-margin-top: 28px;
+  }
+  .page-eyebrow {
+    font-size: 0.78rem;
+    color: var(--accent-orange);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .page-block h2 {
+    font-size: clamp(1.3rem, 3vw, 1.6rem);
+    margin: 0 0 20px;
+    font-weight: 800;
+  }
+  .page-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px 28px;
+    box-shadow: var(--shadow);
+  }
+  .page-card p.lead {
+    margin: 0 0 14px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+  .page-card ul { margin: 0; padding-left: 0; list-style: none; }
+  .page-card ul li {
+    position: relative;
+    padding: 12px 0 12px 26px;
+    border-top: 1px solid var(--border);
+  }
+  .page-card ul li:first-child { border-top: none; padding-top: 2px; }
+  .page-card ul li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 22px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .page-card ul li:first-child::before { top: 10px; }
+  .page-card ul li strong { color: var(--accent-dark); font-weight: 700; }
+  .page-card ul ul { margin-top: 8px; padding-left: 4px; }
+  .page-card ul ul li {
+    border-top: none;
+    padding: 4px 0 4px 18px;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+  .page-card ul ul li::before {
+    width: 5px; height: 5px;
+    top: 15px;
+    background: var(--border);
+  }
+  code.path {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    background: var(--bg-alt);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.9em;
+  }
+
+  footer {
+    text-align: center;
+    padding: 40px 24px 72px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 600px) {
+    header.hero { padding: 64px 20px 44px; }
+    nav.toc { margin: -18px 16px 40px; }
+    .page-block { padding: 0 16px; }
+    .page-card { padding: 20px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">AI 講義</div>
+  <h1>數據自動化與網頁部署實務</h1>
+  <p class="sub">從 Excel／雲端試算表出發，走完分析、部署、回寫、資料庫化、排程與通知的完整流程</p>
+</header>
+
+<nav class="toc">
+  <a href="#agenda">課程大綱</a>
+  <a href="#p2">環境建置與 HTML 產出</a>
+  <a href="#p3">GitHub 網頁部署</a>
+  <a href="#p4">資料回寫與雙向編輯</a>
+  <a href="#p5">個人程式列表與知識庫</a>
+  <a href="#p6">Excel 轉入 MongoDB</a>
+  <a href="#p7">自動化流程與 LINE 通知</a>
+  <a href="#p8">系統優化與資訊安全</a>
+</nav>
+
+<div class="wrap">
+<section class="agenda" id="agenda">
+  <div class="page-eyebrow">第一頁</div>
+  <h2>課程大綱 (Agenda)</h2>
+  <p style="color:var(--text-muted);margin:-8px 0 20px;">本課程將涵蓋以下八大核心主題：</p>
+  <div class="agenda-grid">
+    <div class="agenda-item"><span class="num">1</span>
+      <h3>數據分析與 HTML 產出</h3>
+      <p>從 Excel 或雲端 Excel 讀取資料並分析產出 HTML 檔案。</p>
+    </div>
+    <div class="agenda-item"><span class="num">2</span>
+      <h3>網頁部署</h3>
+      <p>將產出的本地端 HTML 檔案推送 (Push) 到網站上顯示。</p>
+    </div>
+    <div class="agenda-item"><span class="num">3</span>
+      <h3>雙向互動回寫</h3>
+      <p>將讀取的資料進行編輯並回寫到 Excel 檔案或雲端 Excel。</p>
+    </div>
+    <div class="agenda-item"><span class="num">4</span>
+      <h3>個人化應用</h3>
+      <p>建立個人程式列表（如知識庫或生活管理系統）。</p>
+    </div>
+    <div class="agenda-item"><span class="num">5</span>
+      <h3>資料庫整合</h3>
+      <p>將 Excel 資料轉入 MongoDB。</p>
+    </div>
+    <div class="agenda-item"><span class="num">6</span>
+      <h3>自動化排程</h3>
+      <p>使用排程工具將每日資料進行自動更新。</p>
+    </div>
+    <div class="agenda-item"><span class="num">7</span>
+      <h3>即時通知系統</h3>
+      <p>當資料更新完成後，自動進行 LINE 通知。</p>
+    </div>
+    <div class="agenda-item"><span class="num">8</span>
+      <h3>系統優化與安全</h3>
+      <p>整體系統效能優化與資訊安全防護。</p>
+    </div>
+  </div>
+</section>
+</div>
+
+<hr class="div">
+
+<div class="page-block" id="p2">
+  <div class="page-eyebrow">第二頁</div>
+  <h2>環境建置與 HTML 自動產出</h2>
+  <div class="page-card">
+    <ul>
+      <li><strong>工具安裝</strong>：安裝 Antigravity，需準備 Gmail 帳號並搭配 Gemini Pro。</li>
+      <li><strong>參考資源</strong>：
+        <ul>
+          <li>官方教學網頁</li>
+          <li>下載連結</li>
+          <li>安裝教學影片</li>
+        </ul>
+      </li>
+      <li><strong>實作任務</strong>：讀取指定的雲端 Excel 資料。</li>
+      <li><strong>AI 指令 (Prompt)</strong>：分析上述網址資料並產出 XX.html 檔案。</li>
+      <li><strong>檔案管理</strong>：統一存放於本地端路徑 <code class="path">D:\AI\report</code>。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="page-block" id="p3">
+  <div class="page-eyebrow">第三頁</div>
+  <h2>GitHub 網頁部署實務</h2>
+  <div class="page-card">
+    <ul>
+      <li><strong>帳號準備</strong>：申請 GitHub 網站帳號。</li>
+      <li><strong>Repository 設定</strong>：進入 Settings 確認 Default branch 設定為 main。</li>
+      <li><strong>AI 推送指令 (Prompt)</strong>：將 XX.html 檔案 commit 並 push 到 GitHub 網站，完成後提供瀏覽網址。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="page-block" id="p4">
+  <div class="page-eyebrow">第四頁</div>
+  <h2>資料回寫與雙向編輯實務</h2>
+  <div class="page-card">
+    <ul>
+      <li>實作編輯介面，讓使用者能直接修改數據。</li>
+      <li>開發回寫機制，將編輯後的內容同步更新至原始 Excel 檔案或雲端 Excel。</li>
+      <li>設定讀寫權限，確保資料傳輸的準確性。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="page-block" id="p5">
+  <div class="page-eyebrow">第五頁</div>
+  <h2>實作場景：個人程式列表與知識庫</h2>
+  <div class="page-card">
+    <p class="lead">利用所學技術建立個人化工具：</p>
+    <ul>
+      <li><strong>知識庫</strong>：彙整程式碼片段與學習筆記。</li>
+      <li><strong>生活管理</strong>：建立待辦事項或資源追蹤列表。</li>
+      <li><strong>視覺化呈現</strong>：透過自動產出的 HTML 提升閱讀與搜尋效率。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="page-block" id="p6">
+  <div class="page-eyebrow">第六頁</div>
+  <h2>進階數據管理：Excel 轉入 MongoDB</h2>
+  <div class="page-card">
+    <ul>
+      <li>當資料需求擴張時，將 Excel 資料轉移至 MongoDB 資料庫。</li>
+      <li>學習 MongoDB 的基本設定。</li>
+      <li>使用 AI 協助編寫轉換腳本，將結構化資料映射至 NoSQL 文件格式。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="page-block" id="p7">
+  <div class="page-eyebrow">第七頁</div>
+  <h2>自動化流程與 LINE 通知</h2>
+  <div class="page-card">
+    <ul>
+      <li><strong>自動更新</strong>：設定每日定時執行的排程，確保數據的時效性。</li>
+      <li><strong>即時回報</strong>：整合 LINE Notify 或 Bot，在資料更新完成後立即傳送通知訊息。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="page-block" id="p8">
+  <div class="page-eyebrow">第八頁</div>
+  <h2>系統優化與資訊安全</h2>
+  <div class="page-card">
+    <ul>
+      <li><strong>效能優化</strong>：針對整體作業流程進行優化調教。</li>
+      <li><strong>資訊安全</strong>：重點在於保護 API Key、GitHub Token 以及資料庫存取憑證，防止敏感資訊外洩。</li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  由 <code class="path">AI講義.txt</code> 轉製為 HTML<br>
+  <a href="index.html" style="color:var(--accent-dark);">← 回生活管理列表</a>
+</footer>
+
+</body>
+</html>

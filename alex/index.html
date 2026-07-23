@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alex 生活管理列表</title>
+<style>
+  :root {
+    --bg: #f7f5f0; --bg-alt: #eeece4; --card-bg: #ffffff; --text: #2b2f36;
+    --text-muted: #6b7280; --accent: #8a9a8e; --accent-dark: #3f5a4d;
+    --border: rgba(43,47,54,0.10); --shadow: 0 10px 30px rgba(43,47,54,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181d; --bg-alt: #1d2027; --card-bg: #22252c; --text: #e7e6e2;
+      --text-muted: #9ca0a8; --accent: #9db3a4; --accent-dark: #b7cbbd;
+      --border: rgba(255,255,255,0.08); --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16181d; --bg-alt: #1d2027; --card-bg: #22252c; --text: #e7e6e2;
+    --text-muted: #9ca0a8; --accent: #9db3a4; --accent-dark: #b7cbbd;
+    --border: rgba(255,255,255,0.08); --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f5f0; --bg-alt: #eeece4; --card-bg: #ffffff; --text: #2b2f36;
+    --text-muted: #6b7280; --accent: #8a9a8e; --accent-dark: #3f5a4d;
+    --border: rgba(43,47,54,0.10); --shadow: 0 10px 30px rgba(43,47,54,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Noto Sans TC", "Hiragino Sans", "PingFang TC", Arial, sans-serif;
+    line-height: 1.7; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 88px 24px 72px; }
+  .kicker {
+    font-size: 0.85rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent-dark); font-weight: 700; margin-bottom: 16px; text-align: center;
+  }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); margin: 0 0 44px; font-weight: 800; text-align: center; }
+  .list { display: flex; flex-direction: column; gap: 14px; }
+  .item {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 22px; text-decoration: none; color: var(--text);
+    box-shadow: var(--shadow); transition: transform 0.15s;
+  }
+  .item:hover { transform: translateY(-2px); }
+  .item .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 0.78rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .item .icon { font-size: 1.6rem; flex-shrink: 0; }
+  .item .meta h3 { margin: 0 0 4px; font-size: 1.02rem; font-weight: 700; }
+  .item .meta p { margin: 0; font-size: 0.86rem; color: var(--text-muted); }
+  footer { text-align: center; margin-top: 48px; font-size: 0.85rem; color: var(--text-muted); }
+  footer a { color: var(--accent-dark); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Alex</div>
+  <h1>生活管理列表</h1>
+  <div class="list">
+    <a class="item" href="Alex_Asset_Report.html">
+      <span class="num">1</span>
+      <span class="icon">📊</span>
+      <span class="meta">
+        <h3>個人資產配置分析</h3>
+        <p>Alex_Asset_Report.html · 資產快照與配置分析</p>
+      </span>
+    </a>
+    <a class="item" href="AI講義.html">
+      <span class="num">2</span>
+      <span class="icon">📚</span>
+      <span class="meta">
+        <h3>AI 講義：數據自動化與網頁部署實務（文字版）</h3>
+        <p>AI講義.html · 從 Excel 到部署、回寫、資料庫化、排程與通知的完整流程筆記</p>
+      </span>
+    </a>
+    <a class="item" href="AI講義_Alex_20260724.html">
+      <span class="num">3</span>
+      <span class="icon">🖼️</span>
+      <span class="meta">
+        <h3>AI 講義：數據自動化與網頁部署實務（簡報圖文版）</h3>
+        <p>AI講義_Alex_20260724.html · 原簡報 9 張投影片轉製，含流程圖與截圖</p>
+      </span>
+    </a>
+  </div>
+  <footer>
+    <a href="../report_index.html">🏠 回 Qware 報表首頁</a>
+  </footer>
+</div>
+</body>
+</html>

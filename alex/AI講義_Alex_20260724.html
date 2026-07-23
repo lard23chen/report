@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 講義 · 數據自動化與網頁部署實務</title>
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --bg-alt: #eeece4;
+    --card-bg: #ffffff;
+    --text: #2b2f36;
+    --text-muted: #6b7280;
+    --accent: #8a9a8e;
+    --accent-dark: #3f5a4d;
+    --accent-orange: #c1652f;
+    --border: rgba(43,47,54,0.10);
+    --shadow: 0 10px 30px rgba(43,47,54,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181d;
+      --bg-alt: #1d2027;
+      --card-bg: #22252c;
+      --text: #e7e6e2;
+      --text-muted: #9ca0a8;
+      --accent: #9db3a4;
+      --accent-dark: #b7cbbd;
+      --accent-orange: #e08a55;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16181d; --bg-alt: #1d2027; --card-bg: #22252c; --text: #e7e6e2;
+    --text-muted: #9ca0a8; --accent: #9db3a4; --accent-dark: #b7cbbd;
+    --accent-orange: #e08a55; --border: rgba(255,255,255,0.08); --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f5f0; --bg-alt: #eeece4; --card-bg: #ffffff; --text: #2b2f36;
+    --text-muted: #6b7280; --accent: #8a9a8e; --accent-dark: #3f5a4d;
+    --accent-orange: #c1652f; --border: rgba(43,47,54,0.10); --shadow: 0 10px 30px rgba(43,47,54,0.08);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Noto Sans TC", "Hiragino Sans", "PingFang TC", Arial, sans-serif;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+
+  header.hero {
+    padding: 88px 24px 64px;
+    text-align: center;
+    background: linear-gradient(180deg, var(--bg-alt), var(--bg) 85%);
+    border-bottom: 1px solid var(--border);
+  }
+  header.hero .kicker {
+    font-size: 0.85rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  header.hero h1 {
+    font-size: clamp(1.9rem, 4.4vw, 2.9rem);
+    margin: 0 0 14px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+  }
+  header.hero p.sub {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  nav.toc {
+    max-width: 920px;
+    margin: -28px auto 56px;
+    padding: 20px 22px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    justify-content: center;
+    font-size: 0.86rem;
+  }
+  nav.toc a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 5px 11px;
+    border-radius: 20px;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  nav.toc a:hover { background: var(--bg-alt); color: var(--text); }
+
+  section { padding: 20px 24px 64px; }
+  section.agenda {
+    padding-top: 4px;
+  }
+
+  .agenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .agenda-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+  }
+  .agenda-item .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .agenda-item h3 {
+    margin: 0 0 6px;
+    font-size: 1.02rem;
+    font-weight: 700;
+  }
+  .agenda-item p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .slide-block {
+    max-width: 920px;
+    margin: 0 auto;
+    scroll-margin-top: 28px;
+  }
+  .slide-block + .slide-block { margin-top: 8px; }
+  .slide-eyebrow {
+    font-size: 0.78rem;
+    color: var(--accent-orange);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .slide-block h2 {
+    font-size: clamp(1.35rem, 3vw, 1.7rem);
+    margin: 0 0 20px;
+    font-weight: 800;
+  }
+  figure.slide-figure {
+    margin: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 10px;
+    box-shadow: var(--shadow);
+  }
+  figure.slide-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+  }
+
+  hr.div {
+    border: none;
+    border-top: 1px solid var(--border);
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
+  footer {
+    text-align: center;
+    padding: 48px 24px 72px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--accent-dark); }
+
+  @media (max-width: 600px) {
+    header.hero { padding: 64px 20px 48px; }
+    nav.toc { margin: -20px 16px 40px; }
+    section { padding: 12px 16px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">AI 講義 · Alex</div>
+  <h1>數據自動化與網頁部署實務</h1>
+  <p class="sub">從 Excel／雲端試算表出發，走完分析、部署、回寫、資料庫化、排程與通知的完整流程　·　2026/07/24</p>
+</header>
+
+<nav class="toc">
+  <a href="#agenda">課程大綱</a>
+  <a href="#s2">整體架構</a>
+  <a href="#s3">環境建置與 HTML 產出</a>
+  <a href="#s4">GitHub 網頁部署</a>
+  <a href="#s5">資料回寫與雙向編輯</a>
+  <a href="#s6">個人程式列表與知識庫</a>
+  <a href="#s7">Excel 轉入 MongoDB</a>
+  <a href="#s8">自動化排程與 LINE 通知</a>
+  <a href="#s9">系統優化與資訊安全</a>
+</nav>
+
+<div class="wrap">
+
+<section class="agenda" id="agenda">
+  <div class="slide-eyebrow">SLIDE 01</div>
+  <h2>課程大綱 (Agenda)</h2>
+  <div class="agenda-grid">
+    <div class="agenda-item"><span class="num">1</span>
+      <h3>數據分析與 HTML 產出</h3>
+      <p>從 Excel 或雲端 Excel 讀取資料並分析產出 HTML 檔案。</p>
+    </div>
+    <div class="agenda-item"><span class="num">2</span>
+      <h3>網頁部署</h3>
+      <p>將產出的本地端 HTML 檔案推送 (Push) 到網站上顯示。</p>
+    </div>
+    <div class="agenda-item"><span class="num">3</span>
+      <h3>雙向互動回寫</h3>
+      <p>將讀取的資料進行編輯並回寫到 Excel 檔案或雲端 Excel。</p>
+    </div>
+    <div class="agenda-item"><span class="num">4</span>
+      <h3>個人化應用</h3>
+      <p>建立個人程式列表（如知識庫或生活管理系統）。</p>
+    </div>
+    <div class="agenda-item"><span class="num">5</span>
+      <h3>資料庫整合</h3>
+      <p>將 Excel 資料轉入 MongoDB。</p>
+    </div>
+    <div class="agenda-item"><span class="num">6</span>
+      <h3>自動化排程</h3>
+      <p>使用排程工具將每日資料進行自動更新。</p>
+    </div>
+    <div class="agenda-item"><span class="num">7</span>
+      <h3>即時通知系統</h3>
+      <p>當資料更新完成後，自動進行 LINE 通知。</p>
+    </div>
+    <div class="agenda-item"><span class="num">8</span>
+      <h3>系統優化與安全</h3>
+      <p>整體系統效能優化與資訊安全防護。</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<hr class="div">
+
+<section>
+  <div class="slide-block" id="s2">
+    <div class="slide-eyebrow">SLIDE 02</div>
+    <h2>AI 驅動的數據自動化與網頁部署架構</h2>
+    <figure class="slide-figure">
+      <img src="ai_lecture_20260724_assets/slide_02.png" alt="AI 驅動的數據自動化與網頁部署架構：數據自動化 → 自動化流程 → 資料庫整合 → 雙向互動 → 網頁部署 → 個人應用 → 系統優化">
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="slide-block" id="s3">
+    <div class="slide-eyebrow">SLIDE 03</div>
+    <h2>環境建置與 HTML 自動產出</h2>
+    <figure class="slide-figure">
+      <img src="ai_lecture_20260724_assets/slide_03.png" alt="環境建置與 HTML 自動產出：安裝 Antigravity、讀取與分析雲端 Excel、本地端輸出至統一路徑">
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="slide-block" id="s4">
+    <div class="slide-eyebrow">SLIDE 04</div>
+    <h2>GitHub 網頁部署實務</h2>
+    <figure class="slide-figure">
+      <img src="ai_lecture_20260724_assets/slide_04.png" alt="GitHub 網頁部署實務：Repository 設定與 Default branch 設為 main，commit and push 上去 GitHub 網站">
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="slide-block" id="s5">
+    <div class="slide-eyebrow">SLIDE 05</div>
+    <h2>資料回寫與雙向編輯實務</h2>
+    <figure class="slide-figure">
+      <img src="ai_lecture_20260724_assets/slide_05.png" alt="資料回寫與雙向編輯實務：編輯介面 → 回寫機制 → 權限設定，三者循環">
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="slide-block" id="s6">
+    <div class="slide-eyebrow">SLIDE 06</div>
+    <h2>實作場景：個人程式列表與知識庫</h2>
+    <figure class="slide-figure">
+      <img src="ai_lecture_20260724_assets/slide_06.png" alt="實作場景：個人程式列表與知識庫，含知識庫搜尋、生活管理行事曆與視覺化展示圖表">
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="slide-block" id="s7">
+    <div class="slide-eyebrow">SLIDE 07</div>
+    <h2>進階數據管理：Excel 轉入 MongoDB</h2>
+    <figure class="slide-figure">
+      <img src="ai_lecture_20260724_assets/slide_07.png" alt="進階數據管理：Excel 經資料映射與轉換腳本，轉入 MongoDB 設定">
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="slide-block" id="s8">
+    <div class="slide-eyebrow">SLIDE 08</div>
+    <h2>自動化流程與 LINE 通知</h2>
+    <figure class="slide-figure">
+      <img src="ai_lecture_20260724_assets/slide_08.png" alt="自動化流程與 LINE 通知：排程設定每日資料更新，完成後透過 LINE Notify / Bot 整合通知">
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="slide-block" id="s9">
+    <div class="slide-eyebrow">SLIDE 09</div>
+    <h2>系統優化與資訊安全</h2>
+    <figure class="slide-figure">
+      <img src="ai_lecture_20260724_assets/slide_09.png" alt="系統優化與資訊安全：效能調校，並保護 API Key、GitHub Token、資料庫憑證">
+    </figure>
+  </div>
+</section>
+
+<footer>
+  由 <code>AI講義_Alex_20260724.pptx</code> 轉製為 HTML · 2026/07/24
+</footer>
+
+</body>
+</html>
