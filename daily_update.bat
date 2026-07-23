@@ -23,18 +23,6 @@ echo Running generate_a_daily_report.js...
 "D:\nodejs\node.exe" generate_a_daily_report.js >> daily_log.txt 2>&1
 if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_a_daily_report.js;
 
-echo Running generate_kaohsiung_beer_festival_report.js...
-"D:\nodejs\node.exe" generate_kaohsiung_beer_festival_report.js >> daily_log.txt 2>&1
-if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_kaohsiung_beer_festival_report.js;
-
-echo Running generate_d_ga_clickdata_report.js...
-"D:\nodejs\node.exe" generate_d_ga_clickdata_report.js >> daily_log.txt 2>&1
-if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_d_ga_clickdata_report.js;
-
-echo Running generate_d_ga_pageview_report.js...
-"D:\nodejs\node.exe" generate_d_ga_pageview_report.js >> daily_log.txt 2>&1
-if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_d_ga_pageview_report.js;
-
 echo Running generate_d_ga_funnel_report.js...
 "D:\nodejs\node.exe" generate_d_ga_funnel_report.js >> daily_log.txt 2>&1
 if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_d_ga_funnel_report.js;
