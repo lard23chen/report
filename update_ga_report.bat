@@ -6,6 +6,7 @@ set GIT_TERMINAL_PROMPT=0
 set GCM_INTERACTIVE=never
 
 node generate_ga_events_report.js
+if errorlevel 1 goto :fail_generate
 :: Git 互斥鎖：避免多個排程同時操作 git 互踩（2026/07/14 併發事故防護；最多等 10 分鐘後放行）
 set GIT_BAT_LOCK=D:\2025\AI\MongoDB\.git_bat_lock
 set /a GITLOCK_TRIES=0
@@ -24,5 +25,18 @@ git commit -m "Auto-update GA Traffic Reports: %date% %time%"
 git pull --rebase --autostash origin main >> git_sync.log 2>&1
 if errorlevel 1 git rebase --abort >> git_sync.log 2>&1
 git push origin main >> git_sync.log 2>&1
+if errorlevel 1 (
+    rd "%GIT_BAT_LOCK%" 2>nul
+    goto :fail_push
+)
 rd "%GIT_BAT_LOCK%" 2>nul
 powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "ga"
+exit /b 0
+
+:fail_generate
+powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "ga" -Status "FAIL" -Detail "報表產生失敗（generate_ga_events_report.js）"
+exit /b 1
+
+:fail_push
+powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "ga" -Status "FAIL" -Detail "git push 失敗"
+exit /b 1
