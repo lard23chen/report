@@ -1,45 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DMP 歷史累積 Top 10 節目 Page View 排行榜</title>
-    <!-- IP Allowlist: internal network only -->
-    <style>html { visibility: hidden; }</style>
-    <script>
-        (function () {
-            var ALLOWED = [
-                '211.75.181.109', '211.75.181.110',
-                '220.130.6.196',  '220.130.6.197',  '220.130.6.198',
-                '220.130.134.238','220.130.134.239', '220.130.134.240',
-                '133.149.194.24'
-            ];
-            function deny(ip) {
-                document.documentElement.style.visibility = 'visible';
-                document.body.style.cssText = 'margin:0;padding:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh;';
-                document.body.innerHTML =
-                    '<div style="text-align:center;font-family:Outfit,sans-serif;padding:40px">' +
-                    '<div style="font-size:5rem;margin-bottom:20px">🔒</div>' +
-                    '<h1 style="color:#ef4444;font-size:2rem;margin:0 0 14px">存取被拒絕</h1>' +
-                    '<p style="color:#94a3b8;margin:0 0 8px">您目前的 IP 位址：' +
-                    '<code style="background:#1e293b;padding:2px 10px;border-radius:4px;color:#f472b6">' + ip + '</code></p>' +
-                    '<p style="color:#64748b;font-size:0.88rem">此頁面僅限內部網路存取 &middot; Access restricted to internal network only</p>' +
-                    '</div>';
-            }
-            var timer = setTimeout(function () { deny('timeout'); }, 6000);
-            fetch('https://api.ipify.org?format=json')
-                .then(function (r) { return r.json(); })
-                .then(function (d) {
-                    clearTimeout(timer);
-                    if (ALLOWED.indexOf(d.ip) !== -1) {
-                        document.documentElement.style.visibility = 'visible';
-                    } else {
-                        deny(d.ip);
-                    }
-                })
-                .catch(function () { clearTimeout(timer); deny('unknown'); });
-        })();
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -85,7 +49,7 @@
             <div style="display: flex; gap: 15px; align-items: stretch;">
                 <div class="stat-card">
                     <h3>歷史總瀏覽量 (All-Time Valid Match)</h3>
-                    <div class="value">19,806,047</div>
+                    <div class="value">5,444,889</div>
                 </div>
             </div>
         </div>
@@ -113,7 +77,7 @@
                             <th style="text-align:right;">瀏覽量 (Page Views)</th>
                             <th style="text-align:right;width:120px;">歷史總佔比</th>
                         </tr></thead>
-                        <tbody><tr><td style="text-align:center;"><span class="rank rank-1">1</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_000.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">第40屆金唱片頒獎典禮 The 40th Golden Disc Awards</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AENC27</td><td style="text-align:right;color:#f8fafc;font-weight:600;">11,942,600</td><td style="text-align:right;color:var(--text-secondary);">60.30%</td></tr><tr><td style="text-align:center;"><span class="rank rank-2">2</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_001.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AJKPPD</td><td style="text-align:right;color:#f8fafc;font-weight:600;">1,708,889</td><td style="text-align:right;color:var(--text-secondary);">8.63%</td></tr><tr><td style="text-align:center;"><span class="rank rank-3">3</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_002.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 7–ELEVEN 高雄啤酒音樂節</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0BA4VPF</td><td style="text-align:right;color:#f8fafc;font-weight:600;">1,097,689</td><td style="text-align:right;color:var(--text-secondary);">5.54%</td></tr><tr><td style="text-align:center;"><span class="rank ">4</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_003.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">中華職棒37年例行賽統一獅主場（上）</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AP9IZH</td><td style="text-align:right;color:#f8fafc;font-weight:600;">312,447</td><td style="text-align:right;color:var(--text-secondary);">1.58%</td></tr><tr><td style="text-align:center;"><span class="rank ">5</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_004.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2025 Asia Artist Awards IN KAOHSIUNG</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B09QY33Y</td><td style="text-align:right;color:#f8fafc;font-weight:600;">309,214</td><td style="text-align:right;color:var(--text-secondary);">1.56%</td></tr><tr><td style="text-align:center;"><span class="rank ">6</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_005.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 FTISLAND CONCERT ‘FTSODE’ in TAIPEI</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AHMRY9</td><td style="text-align:right;color:#f8fafc;font-weight:600;">303,890</td><td style="text-align:right;color:var(--text-secondary);">1.53%</td></tr><tr><td style="text-align:center;"><span class="rank ">7</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_006.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0ATIQKM</td><td style="text-align:right;color:#f8fafc;font-weight:600;">294,671</td><td style="text-align:right;color:var(--text-secondary);">1.49%</td></tr><tr><td style="text-align:center;"><span class="rank ">8</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_007.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">Team Taiwan高雄澄清湖自辦練習賽</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AR35CL</td><td style="text-align:right;color:#f8fafc;font-weight:600;">249,482</td><td style="text-align:right;color:var(--text-secondary);">1.26%</td></tr><tr><td style="text-align:center;"><span class="rank ">9</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_008.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">中華職棒37年Rakuten主場例行賽</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0ANR12P</td><td style="text-align:right;color:#f8fafc;font-weight:600;">229,818</td><td style="text-align:right;color:var(--text-secondary);">1.16%</td></tr><tr><td style="text-align:center;"><span class="rank ">10</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_009.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">deca joins 2026 world tour － 在這裡停一下</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AQDNY9</td><td style="text-align:right;color:#f8fafc;font-weight:600;">166,880</td><td style="text-align:right;color:var(--text-secondary);">0.84%</td></tr></tbody>
+                        <tbody><tr><td style="text-align:center;"><span class="rank rank-1">1</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_000.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 7–ELEVEN 高雄啤酒音樂節</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0BA4VPF</td><td style="text-align:right;color:#f8fafc;font-weight:600;">1,380,761</td><td style="text-align:right;color:var(--text-secondary);">25.36%</td></tr><tr><td style="text-align:center;"><span class="rank rank-2">2</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_001.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">中華職棒37年例行賽統一獅主場（上）</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AP9IZH</td><td style="text-align:right;color:#f8fafc;font-weight:600;">333,677</td><td style="text-align:right;color:var(--text-secondary);">6.13%</td></tr><tr><td style="text-align:center;"><span class="rank rank-3">3</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_002.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0ATIQKM</td><td style="text-align:right;color:#f8fafc;font-weight:600;">297,820</td><td style="text-align:right;color:var(--text-secondary);">5.47%</td></tr><tr><td style="text-align:center;"><span class="rank ">4</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_003.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">中華職棒37年Rakuten主場例行賽</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0ANR12P</td><td style="text-align:right;color:#f8fafc;font-weight:600;">252,286</td><td style="text-align:right;color:var(--text-secondary);">4.63%</td></tr><tr><td style="text-align:center;"><span class="rank ">5</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_004.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">ACON 2026 IN TAIPEI</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0B9BI0X</td><td style="text-align:right;color:#f8fafc;font-weight:600;">252,222</td><td style="text-align:right;color:var(--text-secondary);">4.63%</td></tr><tr><td style="text-align:center;"><span class="rank ">6</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_005.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">Team Taiwan高雄澄清湖自辦練習賽</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AR35CL</td><td style="text-align:right;color:#f8fafc;font-weight:600;">249,486</td><td style="text-align:right;color:var(--text-secondary);">4.58%</td></tr><tr><td style="text-align:center;"><span class="rank ">7</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_006.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">deca joins 2026 world tour － 在這裡停一下</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AQDNY9</td><td style="text-align:right;color:#f8fafc;font-weight:600;">166,891</td><td style="text-align:right;color:var(--text-secondary);">3.07%</td></tr><tr><td style="text-align:center;"><span class="rank ">8</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_007.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 EXID CONCERT EXID：EXtra ID in TAIPEI</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0B5BVN3</td><td style="text-align:right;color:#f8fafc;font-weight:600;">166,855</td><td style="text-align:right;color:var(--text-secondary);">3.06%</td></tr><tr><td style="text-align:center;"><span class="rank ">9</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_008.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 tripleS Concert ＜My Secret New Zone＞ in Taipei</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0AN3N4P</td><td style="text-align:right;color:#f8fafc;font-weight:600;">160,495</td><td style="text-align:right;color:var(--text-secondary);">2.95%</td></tr><tr><td style="text-align:center;"><span class="rank ">10</span></td><td style="font-weight:500;"><a href="dmp_details_alltime/A_DMP_PageView_AllTime_Detail_009.html" target="_blank" style="color:#60a5fa;text-decoration:none;border-bottom:1px dashed #60a5fa;">2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in TAIPEI</a></td><td style="color:#bbf7d0;font-size:0.85rem;word-break:break-all;">B0BB5ARR</td><td style="text-align:right;color:#f8fafc;font-weight:600;">134,179</td><td style="text-align:right;color:var(--text-secondary);">2.46%</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -124,8 +88,8 @@
         回首頁
     </a>
     <script>
-        const top10Labels = ["第40屆金唱片頒獎典禮 The 40th Golden Disc Awards","2026 7-ELEVEN高雄櫻花季 SAKURA FESTIVAL","2026 7–ELEVEN 高雄啤酒音樂節","中華職棒37年例行賽統一獅主場（上）","2025 Asia Artist Awards IN KAOHSIUNG","2026 FTISLAND CONCERT ‘FTSODE’ in TAIPEI","國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場","Team Taiwan高雄澄清湖自辦練習賽","中華職棒37年Rakuten主場例行賽","deca joins 2026 world tour － 在這裡停一下"];
-        const top10Data = [11942600,1708889,1097689,312447,309214,303890,294671,249482,229818,166880];
+        const top10Labels = ["2026 7–ELEVEN 高雄啤酒音樂節","中華職棒37年例行賽統一獅主場（上）","國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場","中華職棒37年Rakuten主場例行賽","ACON 2026 IN TAIPEI","Team Taiwan高雄澄清湖自辦練習賽","deca joins 2026 world tour － 在這裡停一下","2026 EXID CONCERT EXID：EXtra ID in TAIPEI","2026 tripleS Concert ＜My Secret New Zone＞ in Taipei","2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in TAIPEI"];
+        const top10Data = [1380761,333677,297820,252286,252222,249486,166891,166855,160495,134179];
         Chart.register(ChartDataLabels);
         const formattedLabels = top10Labels.map(l => l.length > 20 ? l.substring(0, 20) + '...' : l);
         new Chart(document.getElementById('top10Chart').getContext('2d'), {
