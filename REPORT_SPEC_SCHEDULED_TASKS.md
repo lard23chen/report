@@ -60,6 +60,7 @@
 | `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | 同上 | Ready |
 | `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/07/23 08:08（**失敗，Result=1**，見 §6.3 追記；已人工補跑） | Ready |
 | `Qware_Weekly_Report_Update` | `weekly_update.bat` | 每週四 08:30 | 2026/07/09 10:21（建立時手動驗證成功，git `fe5673f`） | Ready |
+| `Qware_DMP_AllTime_Top10_Monthly` | `update_dmp_alltime_top10.bat` | 每月 1 日 10:00 | 2026/07/23（建立時手動驗證，見 §5.5） | Ready |
 | `QwareDailyReport`（HKCU Run） | `daily_update.bat` | 每次使用者登入 | — | 常駐 |
 
 > **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 原本執行相同的 BAT、觸發時間也相同（皆 08:00），設計上是「兩者並存確保至少一個成功觸發」的備援措施——但 2026/07/22 發現這個備援設計本身就是 §6.3 追記事故的根源（兩者同時觸發、同時各自產出報表、同時搶 git，其中一份報表被另一支排程的 autostash 誤吞）。已停用原始版 `Qware_Daily_Report_Update`，只保留設定較完整的 `_Final`（有 `WorkingDirectory`、`StartWhenAvailable=True` 可補跑、`ExecutionTimeLimit=1H` 較短），從根本消除同時觸發的可能。
@@ -253,6 +254,46 @@ git push origin main（git 輸出寫入 git_sync.log，見 §6.3）→ 失敗 go
 
 ---
 
+## 5.5 update_dmp_alltime_top10.bat（2026/07/23 新增）
+
+### 5.5.1 基本資訊
+
+| 項目 | 說明 |
+|------|------|
+| 路徑 | `D:\2025\AI\MongoDB\update_dmp_alltime_top10.bat` |
+| 對應排程 | `Qware_DMP_AllTime_Top10_Monthly`（每月 1 日 10:00，`StartWhenAvailable`） |
+| 執行目錄 | `D:\2025\AI\MongoDB` |
+| Log 檔 | `dmp_alltime_top10_log.txt` |
+| 對應報表 | `A_DMP_PageView_Report_AllTime_Top10.html`（規範見 `REPORT_SPEC_TRAFFIC_ANALYSIS.md` §3） |
+
+> **排程時間刻意選在 10:00**：現有 08:00 有 daily/GA 群聚，過去發生過同時起跑互搶 git 的事故（見 §6.3）；weekly 08:30 也在附近。10:00 與其他排程完全錯開，不需要額外靠 git 互斥鎖以外的保護。
+
+### 5.5.2 執行步驟
+
+```bat
+# 0. 重複執行保護：dmp_alltime_top10_log.txt 已有本月（YYYY/MM）"Update finished." → skip
+node generate_alltime_top10_v3.js                   # 失敗 goto :fail_generate
+#   自動判斷：主報表 HTML 內有無 generatedAt/SD_START 狀態標記
+#     無 → 全量 bootstrap（首次執行，約 40 分鐘一次性成本）
+#     有 → 只查 time > 上次執行時間的新資料，通常秒級到低分鐘級（見 TRAFFIC_ANALYSIS.md §3 核心邏輯）
+#   → A_DMP_PageView_Report_AllTime_Top10.html + dmp_details_alltime/*.html（10 份明細頁）
+git add A_DMP_PageView_Report_AllTime_Top10.html dmp_details_alltime\*.html dmp_alltime_top10_log.txt
+git commit -m "Auto-update DMP AllTime Top10 report: ..."
+git pull --rebase --autostash origin main（失敗則 git rebase --abort）
+git push origin main（git 輸出寫入 git_sync.log，見 §6.3）→ 失敗 goto :fail_push
+# :fail_generate / :fail_push：log 錯誤 + send_line_notify.ps1 -Template dmp_top10 -Status FAIL -Detail "..."，exit /b 1
+# 成功：send_line_notify.ps1 -Template dmp_top10（無 -Status，預設 OK）
+```
+
+> 與 `weekly_update.bat` 相同，`git add` **只加入報表本身相關檔案**（非 `git add .`），避免收走工作區其他未提交變更。
+> 重複執行保護用 `findstr /c:"%THISMONTH%"`（`YYYY/MM`，不含日）比對，邏輯上等同 daily/weekly 的當日保護，只是週期改成當月——即使 `StartWhenAvailable` 在同一個月內因補跑觸發第二次，也會直接略過（增量架構本身也支援安全重跑，這層保護只是省一次不必要的 DB 連線）。
+
+### 5.5.3 不重複訪客估算（HyperLogLog）
+
+明細頁「不重複訪客」欄位改標註「（估算）」，實作與取捨見 `REPORT_SPEC_TRAFFIC_ANALYSIS.md` §3——簡言之：完整訪客 ID 清單會讓報表 HTML 隨時間不斷長大（估算可達 5-8MB 以上且只增不減），改用固定大小（~16KB／節目）的 HyperLogLog sketch，誤差實測 <1%。
+
+---
+
 ## 6. 維護注意事項
 
 ### 6.1 常見錯誤碼
@@ -311,6 +352,10 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 **追記（2026/07/23 事故）**：`TravelExpenseUpdate` 排程原訂 06:00 觸發，但當天電腦該時段未開機，由 `StartWhenAvailable` 延後補跑到 08:08:10——與 `Qware_Daily_Report_Update_Final`、`Update_GA_Report_0800` 同一時刻（08:08:08）幾乎同時起跑。`travel/update_log.txt` 顯示報表產出正常完成（expense + shopping report 皆成功），log 停在「Pushing to GitHub...」之後即無下文：既沒有 `Update finished.`／`[LINE] OK: travel` 收尾行，`travel/git_sync.log` 當天也完全沒有新增內容（表示 `git pull --rebase` / `git push` 這段從未被執行到，或執行後沒有任何輸出）；`Get-ScheduledTaskInfo` 顯示 `LastTaskResult=1`（一般錯誤，非 0x800710E0 那類已知代號）。事後檢查當下已無殘留的 `.git_bat_lock` 目錄、`.git/rebase-merge`，也沒有掛住的 git/cmd 程序，本地 git log 與 origin/main 一致、且當天本來就沒有 travel 的 commit——研判是該實例在 git 互斥鎖等待或 git 操作途中被中止（很可能與同一秒起跑的 daily/GA 排程互相影響有關），但因程序已結束、無法回溯確切中止原因。**處理方式**：人工手動執行 `cmd /c "D:\2025\AI\MongoDB\travel\auto_update.bat"`，本次乾淨跑完全程（commit `4d37fdf`、push 成功、`[LINE] OK: travel` 正常出現），未修改 BAT 邏輯。
 > **與既有機制的落差**：`daily_update.bat`／`weekly_update.bat` 都有「今日已完成則跳過」的重複執行保護（比對 log 內今日時間戳），`travel/auto_update.bat` 目前**沒有**這層保護，也沒有「push 失敗時的告警」——今天是使用者主動察觉才發現並補跑；若要根治，可考慮替 travel 加上與 daily 類似的當日完成檢查，或在 git push 失敗時額外用 LINE 告警（目前 LINE 通知只在流程走到最後才發送，中途中止時完全靜默）。
 
+**追記（2026/07/23，`A_Qware_Revenue_Report_Daily.html` 二度卡住）**：同一份報表在 07/21 卡住過一次（見上方 07/22 事故，已用 `bd3f330` 修復），今天再度發生：`daily_log.txt` 明確顯示 08:08:18 已成功產出新版（`Report generated: ... (42 KB)`），但當天的 commit（`7654b93`）完全沒有包含這個檔案，網站上仍是 07/22 09:46 產出、日期範圍停在「~07月21日」的舊版——直到使用者反映才發現，用 `git diff` 確認確實是舊內容（非「剛好資料沒變」），重新執行 `generate_a_daily_report.js` 補上（`2066e3e`）。
+> **可能原因**：`generate_a_daily_report.js` 是 `daily_update.bat` 8 支 script 中**第一個**執行的（08:08:18 產出），比起最後才執行的 script，它在磁碟上「已產出但尚未 commit」的曝險時間最長（要等其餘 7 支 script 都跑完，約到 08:13 才會執行 `git add`）——如果同一時段有 GA／travel 等其他排程的 `git pull --rebase --autostash` 介入，這份報表被撿進 autostash 的機率就比同批次晚產出的報表高。這只是推論，`git_sync.log` 本身沒有留下能直接證實的線索（今天的 autostash 記錄顯示「Applied autostash」成功，不像 07/22 事故那樣缺了還原紀錄）。
+> **暫時處理方式**：未修改 BAT 邏輯，僅人工重跑補救；若此檔案第三度發生同樣情形，值得考慮把 `generate_a_daily_report.js` 移到 8 支 script 的最後一個執行（縮短曝險窗口），或讓 daily_update.bat 改成每支 script 產出後就個別 commit（目前是全部 8 支跑完才一次 `git add .`）。
+
 ### 6.4 新增排程程式規範
 
 若需新增排程：
@@ -338,7 +383,9 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/23（`update_ga_report.bat` 也補上失敗告警：node script／git push 出錯 goto 中斷並發 `-Status FAIL` LINE，沿用 travel/weekly 的單一 script 中斷模式；因 GA 一天觸發兩次（08:00/15:00）是刻意設計，故不加重複執行保護，與其他三支 bat 不同。已實測完整流程，成功 commit `b593dc6`。見 §3.2）*
+*最後更新：2026/07/23（`A_Qware_Revenue_Report_Daily.html` 二度卡住：08:08 已成功產出新版，但當天 commit 沒收進去，網站仍是 07/22 舊版，直到使用者反映才發現；已重跑補推 `2066e3e`，追記於 §6.3——這是同一份報表 07/21 之後第二次發生同症狀，推測與它是 daily_update.bat 8 支 script 中最早產出、曝險時間最長有關，但未證實，暫未改 BAT 邏輯）*
+*2026/07/23（新增每月排程 `Qware_DMP_AllTime_Top10_Monthly`（每月 1 日 10:00）+ `update_dmp_alltime_top10.bat`，見新增的 §5.5；同步把 `generate_alltime_top10_v3.js` 從每次全表掃描（~40 分鐘）改成增量架構——狀態序列化內嵌於主報表 HTML（沿用 GA 報表的 `generatedAt`/`SD_START`/`SD_END` 寫法），只查新資料、Top10 新面孔才觸發一次性補齊；不重複訪客改用自製 HyperLogLog（無新增 npm 依賴），避免完整訪客 ID 清單讓報表檔案隨時間無限增長。詳見 `REPORT_SPEC_TRAFFIC_ANALYSIS.md` §3）*
+*2026/07/23（`update_ga_report.bat` 也補上失敗告警：node script／git push 出錯 goto 中斷並發 `-Status FAIL` LINE，沿用 travel/weekly 的單一 script 中斷模式；因 GA 一天觸發兩次（08:00/15:00）是刻意設計，故不加重複執行保護，與其他三支 bat 不同。已實測完整流程，成功 commit `b593dc6`。見 §3.2）*
 *2026/07/23（把 travel 補上的失敗告警機制延伸到 `daily_update.bat`／`weekly_update.bat`：daily 維持 8 支獨立 script 的 best-effort 精神，個別失敗記入 `FAILED_STEPS`、跑完才統一判斷發 FAIL 或成功 LINE；weekly 只有單一 script，比照 travel 用 goto 中斷＋即時告警，且刻意不新增原本沒有的成功通知；`send_line_notify.ps1` 的 `failLabels` 新增 `weekly`。見 §2.2／§5.2。已用「今日已完成」跳過路徑實測 daily/weekly 兩支 bat，確認新增的 errorlevel 檢查未破壞既有流程）*
 *2026/07/23（承接同日稍早的 `TravelExpenseUpdate` 事故，為 `travel/auto_update.bat` 補上重複執行保護（比照 daily/weekly，需 `Update finished.` 含日期時間戳）與各步驟失敗告警（errorlevel 檢查 + `send_line_notify.ps1` 新增 `-Status FAIL -Detail` 參數），見 §4.2；已手動測試完整流程（成功 commit `9603612`）與跳過邏輯皆正常運作）*
 *2026/07/23（`TravelExpenseUpdate` 因 `StartWhenAvailable` 延後補跑到與 daily/GA 相同的 08:08 時段，git push 階段中途中止、`LastTaskResult=1`，人工重跑 `travel/auto_update.bat` 補推（`4d37fdf`），追記於 §6.3；travel 排程目前無重複執行保護與失敗告警，待評估是否補上）*
