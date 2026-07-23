@@ -58,7 +58,7 @@
 | `Qware_Monthly_Report_Update` | `daily_update.bat` | 每月 2 日 08:30 | 2026/07/02 08:42（成功，git 記錄） | Ready |
 | `Update_GA_Report_0800` | `update_ga_report.bat` | 每日 08:00 | 2026/07/06 15:00（成功，git 記錄） | Ready |
 | `Update_GA_Report_1500` | `update_ga_report.bat` | 每日 15:00 | 同上 | Ready |
-| `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/07/06 09:10（成功，git 記錄） | Ready |
+| `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/07/23 08:08（**失敗，Result=1**，見 §6.3 追記；已人工補跑） | Ready |
 | `Qware_Weekly_Report_Update` | `weekly_update.bat` | 每週四 08:30 | 2026/07/09 10:21（建立時手動驗證成功，git `fe5673f`） | Ready |
 | `QwareDailyReport`（HKCU Run） | `daily_update.bat` | 每次使用者登入 | — | 常駐 |
 
@@ -291,6 +291,9 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 > **與 07/14 事故的差異**：互斥鎖只 serialize 了「git add→commit→pull→push」這段，沒有涵蓋「報表產出」階段；兩個 daily 實例的報表產出本身沒有互斥、各自任意時間點完成，因此鎖再怎麼鎖 git 區段，還是可能在「實例 B 產出完成、尚未進入鎖」的空窗期被另一支排程的 autostash 撿走。
 > **修復（2026/07/22）**：問題根源是 `Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 兩個排程本來就設定成完全相同的觸發時間（每日 08:00），「兩者並存互為備援」的設計反而製造了併發的必要條件。已用 `Disable-ScheduledTask` 停用原始版 `Qware_Daily_Report_Update`，只保留設定較完整的 `_Final`（見 §1 備注），從源頭消除同一支 BAT 兩個實例同時起跑的可能，不需再修改重複執行判斷或 BAT 邏輯。其餘排程（GA 0800/1500、weekly、travel）觸發時間彼此不同，暫無同類風險。
 
+**追記（2026/07/23 事故）**：`TravelExpenseUpdate` 排程原訂 06:00 觸發，但當天電腦該時段未開機，由 `StartWhenAvailable` 延後補跑到 08:08:10——與 `Qware_Daily_Report_Update_Final`、`Update_GA_Report_0800` 同一時刻（08:08:08）幾乎同時起跑。`travel/update_log.txt` 顯示報表產出正常完成（expense + shopping report 皆成功），log 停在「Pushing to GitHub...」之後即無下文：既沒有 `Update finished.`／`[LINE] OK: travel` 收尾行，`travel/git_sync.log` 當天也完全沒有新增內容（表示 `git pull --rebase` / `git push` 這段從未被執行到，或執行後沒有任何輸出）；`Get-ScheduledTaskInfo` 顯示 `LastTaskResult=1`（一般錯誤，非 0x800710E0 那類已知代號）。事後檢查當下已無殘留的 `.git_bat_lock` 目錄、`.git/rebase-merge`，也沒有掛住的 git/cmd 程序，本地 git log 與 origin/main 一致、且當天本來就沒有 travel 的 commit——研判是該實例在 git 互斥鎖等待或 git 操作途中被中止（很可能與同一秒起跑的 daily/GA 排程互相影響有關），但因程序已結束、無法回溯確切中止原因。**處理方式**：人工手動執行 `cmd /c "D:\2025\AI\MongoDB\travel\auto_update.bat"`，本次乾淨跑完全程（commit `4d37fdf`、push 成功、`[LINE] OK: travel` 正常出現），未修改 BAT 邏輯。
+> **與既有機制的落差**：`daily_update.bat`／`weekly_update.bat` 都有「今日已完成則跳過」的重複執行保護（比對 log 內今日時間戳），`travel/auto_update.bat` 目前**沒有**這層保護，也沒有「push 失敗時的告警」——今天是使用者主動察觉才發現並補跑；若要根治，可考慮替 travel 加上與 daily 類似的當日完成檢查，或在 git push 失敗時額外用 LINE 告警（目前 LINE 通知只在流程走到最後才發送，中途中止時完全靜默）。
+
 ### 6.4 新增排程程式規範
 
 若需新增排程：
@@ -318,7 +321,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/22（放棄雲端 routine 路線，5 個 routine 全數 `enabled: false`，本地排程恢復為唯一主力，見 §0.4；發現並修復 `A_Qware_Revenue_Report_Daily.html` 因排程併發競爭卡在舊版本兩天的事故（追記於 §6.3），根因是 `Qware_Daily_Report_Update` 與 `_Final` 觸發時間完全相同導致同時起跑，已停用前者、只留設定較完整的 `_Final`，從源頭消除併發）*
+*最後更新：2026/07/23（`TravelExpenseUpdate` 因 `StartWhenAvailable` 延後補跑到與 daily/GA 相同的 08:08 時段，git push 階段中途中止、`LastTaskResult=1`，人工重跑 `travel/auto_update.bat` 補推（`4d37fdf`），追記於 §6.3；travel 排程目前無重複執行保護與失敗告警，待評估是否補上）*
+*2026/07/22（放棄雲端 routine 路線，5 個 routine 全數 `enabled: false`，本地排程恢復為唯一主力，見 §0.4；發現並修復 `A_Qware_Revenue_Report_Daily.html` 因排程併發競爭卡在舊版本兩天的事故（追記於 §6.3），根因是 `Qware_Daily_Report_Update` 與 `_Final` 觸發時間完全相同導致同時起跑，已停用前者、只留設定較完整的 `_Final`，從源頭消除併發）*
 *2026/07/20（本地排程 git push 自 07/18 起因排程 session 取不到 GCM 憑證持續失敗、Pages 停更兩天；排程主力遷移至雲端 Claude Code Routines——修復 daily/GA 兩個雲端 routine 的 prompt（補 MongoDB 連線字串，此前從未成功執行）、新建 weekly/travel 兩個 routine，見 §0；本地排程轉備援待停用）*
 *2026/07/14（排程同時補跑造成 git 互踩、三份日報更新遺失，四支 BAT git 區段加入目錄原子互斥鎖，見 §6.3；generate_d_ga_funnel_cart_data.js 加入每日排程，A購物車/結帳資料不再停更）*
 *2026/07/13：git push 掛死事故復原；四支 BAT 加入 git pull --rebase --autostash 與認證不互動防護，git 輸出改導向 git_sync.log，見 §6.3*
