@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ibon售票系統 2026年07月16日 - 2026年07月22日 週報分析報表 (A系統) - 2026/7/23 上午8:30:18</title>
+    <!-- IP Allowlist: internal network only -->
+    <style>html { visibility: hidden; }</style>
+    <script>
+        (function () {
+            var ALLOWED = [
+                '211.75.181.109', '211.75.181.110',
+                '220.130.6.196',  '220.130.6.197',  '220.130.6.198',
+                '220.130.134.238','220.130.134.239', '220.130.134.240',
+                '133.149.194.24'
+            ];
+            function deny(ip) {
+                document.documentElement.style.visibility = 'visible';
+                document.body.style.cssText = 'margin:0;padding:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh;';
+                document.body.innerHTML =
+                    '<div style="text-align:center;font-family:Outfit,sans-serif;padding:40px">' +
+                    '<div style="font-size:5rem;margin-bottom:20px">🔒</div>' +
+                    '<h1 style="color:#ef4444;font-size:2rem;margin:0 0 14px">存取被拒絕</h1>' +
+                    '<p style="color:#94a3b8;margin:0 0 8px">您目前的 IP 位址：' +
+                    '<code style="background:#1e293b;padding:2px 10px;border-radius:4px;color:#f472b6">' + ip + '</code></p>' +
+                    '<p style="color:#64748b;font-size:0.88rem">此頁面僅限內部網路存取 &middot; Access restricted to internal network only</p>' +
+                    '</div>';
+            }
+            var timer = setTimeout(function () { deny('timeout'); }, 6000);
+            fetch('https://api.ipify.org?format=json')
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    clearTimeout(timer);
+                    if (ALLOWED.indexOf(d.ip) !== -1) {
+                        document.documentElement.style.visibility = 'visible';
+                    } else {
+                        deny(d.ip);
+                    }
+                })
+                .catch(function () { clearTimeout(timer); deny('unknown'); });
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #e0f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #006064;
+            --text-secondary: #00838f;
+            --accent-color: #00acc1;
+            --shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 16px; box-shadow: var(--shadow); }
+        h1 { margin: 0; font-weight: 600; color: var(--accent-color); }
+        .meta { color: var(--text-secondary); font-size: 0.9em; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); border-left: 5px solid var(--accent-color); }
+        .card h3 { margin: 0 0 10px 0; font-size: 0.85em; color: var(--text-secondary); opacity: 0.8; }
+        .card .value { font-size: 1.8em; font-weight: 700; color: var(--accent-color); }
+        .card .sub { font-size: 0.8em; color: #888; margin-top: 5px; }
+        .charts-row { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .chart-container { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); flex: 1; min-width: 400px; min-height: 400px; }
+        .table-container { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); overflow-x: auto; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #b2ebf2; }
+        th { color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+        td { white-space: nowrap; }
+        tr:hover { background-color: #e0f7fa; }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+        @media print {
+            @page { size: landscape; margin: 5mm; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
+            .card, .chart-container, .table-container { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+            button, a.fixed-btn { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARwAAAA8CAYAAAC0LwViAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6N0RBQTM3MDc0ODg3MTFFNDhFODY4MDY0RDRDOEE5QTYiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6N0RBQTM3MDg0ODg3MTFFNDhFODY4MDY0RDRDOEE5QTYiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3REFBMzcwNTQ4ODcxMUU0OEU4NjgwNjRENEM4QTlBNiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3REFBMzcwNjQ4ODcxMUU0OEU4NjgwNjRENEM4QTlBNiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PoomQLgAABLFSURBVHja7F1bkFTF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" alt="ibon Logo" style="height: 45px;">
+            <div>
+                <h1>ibon售票系統 2026年07月16日 - 2026年07月22日 週報分析報表 (A系統)</h1>
+<!-- Data Source Header -->
+<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
+    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
+    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data_Daily) &middot; 已排除訂單編號 B 開頭之訂單
+</div>
+
+            </div>
+        </div>
+        <div class="meta">
+            產出時間: 2026/7/23 上午8:30:18<br>
+            總資料筆數: <span id="meta-total-rows">--</span><br>
+            製表者: 自動產出
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="card"><h3>總營收 (Total Revenue)</h3><div class="value" id="val-revenue">--</div><div class="sub">含正常交易</div></div>
+        <div class="card"><h3>客單價 (AOV)</h3><div class="value" id="val-aov">--</div><div class="sub">營收 / 訂單筆數</div></div>
+        <div class="card"><h3>總交易張數 (Total Tickets)</h3><div class="value" id="val-tickets">--</div><div class="sub">總售出票券數量</div></div>
+        <div class="card"><h3>總訂單筆數 (Distinct Orders)</h3><div class="value" id="val-orders">--</div><div class="sub">不重複訂單編號</div></div>
+        <div class="card"><h3>總退票張數 (Refunded Tickets)</h3><div class="value" id="val-refund-tickets">--</div><div class="sub" style="color:#c62828;">已退票/退票狀態</div></div>
+        <div class="card"><h3>退票手續費 (Refund Fees)</h3><div class="value" id="val-refund-fees">--</div><div class="sub">退票產生之營收</div></div>
+    </div>
+
+    <!-- Daily Transaction Stats Table -->
+    <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">📊 每日交易統計</h3>
+        <table id="dailyStatsTable">
+            <thead><tr>
+                <th>日期</th>
+                <th class="text-right">購票筆數</th>
+                <th class="text-right">購票張數</th>
+                <th class="text-right">電子票</th>
+                <th class="text-right">紙票</th>
+                <th class="text-right">購票金額</th>
+                <th class="text-right">退票張數</th>
+                <th class="text-right">退票手續費</th>
+            </tr></thead>
+            <tbody></tbody>
+        </table>
+        <div style="margin-top: 8px; text-align: right; font-size: 0.8em; color: #888;">* 購票筆數: 不重複訂單編號數 / 購票張數: 實際票券數量 / 電子票=取票方式「未列印」、紙票=「已取」，括號內為占當日(或該節目)張數比例</div>
+    </div>
+
+    <div class="charts-row"><div class="chart-container" style="flex:100%;"><canvas id="trendChart"></canvas></div></div>
+    <div class="charts-row"><div class="chart-container" style="flex:100%;"><canvas id="refundTrendChart"></canvas></div></div>
+
+        <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🏆 銷售排行 Top 5 (By Revenue)</h3>
+        <table id="topEventsTable"><thead><tr>
+            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">電子票</th><th class="text-right">紙票</th><th class="text-right">金額</th><th class="text-right">佔比</th>
+        </tr></thead><tbody></tbody></table>
+        <div id="eventDetailModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
+           <div style="background:white; margin:auto; margin-top:5%; padding:20px; border-radius:12px; max-width:800px; width:90%; max-height:80vh; overflow-y:auto; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+               <span onclick="document.getElementById('eventDetailModal').style.display='none'" style="position:absolute; right:20px; top:20px; font-size:24px; cursor:pointer; color:#888;">&times;</span>
+               <h2 id="modalTitle" style="color:var(--text-primary); margin-top:0; border-bottom:2px solid var(--accent-color); padding-bottom:10px; font-size:1.2rem;">場次分析</h2>
+               <table style="width:100%; margin-top:15px;">
+                   <thead><tr><th style="text-align:left;">場次名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">佔該節目比例</th></tr></thead>
+                   <tbody id="modalBody"></tbody>
+               </table>
+           </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🎟️ 銷售排行 Top 5 (By Tickets)</h3>
+        <table id="topTicketsTable"><thead><tr>
+            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">電子票</th><th class="text-right">紙票</th><th class="text-right">金額</th>
+        </tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="table-container">
+        <h3 style="color: #c62828; border-bottom: 2px solid #c62828; padding-bottom: 10px;">📉 退票手續費排行 Top 5</h3>
+        <table id="topRefundTable"><thead><tr>
+            <th style="width:50px;">Rank</th><th>節目名稱</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">手續費</th>
+        </tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">💳 付款方式分析 (Payment Methods)</h3>
+        <table id="paymentTable"><thead><tr>
+            <th>付款方式</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">佔比</th>
+        </tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🏪 銷售點分析 (Sales Points)</h3>
+        <table id="salesPointTable"><thead><tr>
+            <th>銷售點</th><th class="text-right">筆數</th><th class="text-right">張數</th><th class="text-right">金額</th><th class="text-right">佔比</th>
+        </tr></thead><tbody></tbody></table>
+    </div>
+</div>
+
+<script>
+const D = {"totalRows":49549,"totalRevenue":48774321,"totalTickets":45344,"totalOrders":27539,"aov":1771,"totalRefundedTickets":4205,"totalRefundFees":478719,"dailyStats":[{"date":"2026-07-22","orders":1818,"tickets":3256,"revenue":3593948,"eTickets":1443,"pTickets":1813,"refundTickets":400,"refundFees":43804},{"date":"2026-07-21","orders":1506,"tickets":2856,"revenue":3170725,"eTickets":1003,"pTickets":1853,"refundTickets":365,"refundFees":65349},{"date":"2026-07-20","orders":2187,"tickets":3660,"revenue":7570101,"eTickets":1874,"pTickets":1786,"refundTickets":622,"refundFees":118661},{"date":"2026-07-19","orders":2547,"tickets":4746,"revenue":5479294,"eTickets":2408,"pTickets":2338,"refundTickets":482,"refundFees":54940},{"date":"2026-07-18","orders":3250,"tickets":5456,"revenue":7804745,"eTickets":2675,"pTickets":2781,"refundTickets":606,"refundFees":82053},{"date":"2026-07-17","orders":5263,"tickets":11135,"revenue":11368849,"eTickets":4621,"pTickets":6514,"refundTickets":518,"refundFees":48951},{"date":"2026-07-16","orders":10968,"tickets":14235,"revenue":9786659,"eTickets":7349,"pTickets":6886,"refundTickets":1212,"refundFees":64961}],"trendDates":["2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22"],"trendSales":[9786659,11368849,7804745,5479294,7570101,3170725,3593948],"dailyTopTicketEvent":[{"name":"TOY STORY｜PEACEMINUSONE：THE FIRST FAN 臺北站","tickets":7791},{"name":"J－LIONS主題日「非‧日常」","tickets":7339},{"name":"J－LIONS主題日「非‧日常」","tickets":2210},{"name":"J－LIONS主題日「非‧日常」","tickets":2978},{"name":"J－LIONS主題日「非‧日常」","tickets":855},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":925},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":1027}],"refundTrendDates":["2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22"],"refundTrendAmounts":[64961,48951,82053,54940,118661,65349,43804],"topByRevenue":[{"name":"J－LIONS主題日「非‧日常」","orders":7987,"tickets":16763,"revenue":19410240,"eTickets":7151,"pTickets":9612,"share":"39.8","sessions":[{"name":"中信兄弟-統一7-ELEVEn獅 (2026-08-21)","orders":1757,"tickets":3803,"revenue":3360760,"shareName":"17.3","date":"2026-08-21"},{"name":"中信兄弟-統一7-ELEVEn獅 (2026-08-22)","orders":2908,"tickets":6350,"revenue":7755820,"shareName":"40.0","date":"2026-08-22"},{"name":"中信兄弟-統一7-ELEVEn獅 (2026-08-23)","orders":3322,"tickets":6610,"revenue":8293660,"shareName":"42.7","date":"2026-08-23"}]},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":2777,"tickets":5407,"revenue":8786700,"eTickets":2328,"pTickets":3079,"share":"18.0","sessions":[{"name":"富邦悍將-樂天桃猿 (2026-07-24)","orders":408,"tickets":787,"revenue":910800,"shareName":"10.4","date":"2026-07-24"},{"name":"富邦悍將-樂天桃猿 (2026-07-25)","orders":558,"tickets":1160,"revenue":1725500,"shareName":"19.6","date":"2026-07-25"},{"name":"富邦悍將-樂天桃猿 (2026-07-26)","orders":467,"tickets":916,"revenue":1418050,"shareName":"16.1","date":"2026-07-26"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-28)","orders":80,"tickets":169,"revenue":225200,"shareName":"2.6","date":"2026-08-28"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-29)","orders":779,"tickets":1437,"revenue":2741100,"shareName":"31.2","date":"2026-08-29"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-30)","orders":485,"tickets":938,"revenue":1766050,"shareName":"20.1","date":"2026-08-30"}]},{"name":"U－KNOW PROJECT 26：SCENE＃1 in Taipei","orders":630,"tickets":786,"revenue":4921675,"eTickets":786,"pTickets":0,"share":"10.1","sessions":[{"name":"U－KNOW PROJECT 26：SCENE＃1 in Taipei (2026-09-05)","orders":630,"tickets":786,"revenue":4921675,"shareName":"100.0","date":"2026-09-05"}]},{"name":"2026 XLOV ASIA TOUR ＜Serving—X＞ IN TAIPEI","orders":548,"tickets":672,"revenue":3490360,"eTickets":585,"pTickets":87,"share":"7.2","sessions":[{"name":"2026 XLOV ASIA TOUR ＜Serving—X＞ IN TAIPEI (2026-08-29)","orders":548,"tickets":672,"revenue":3490360,"shareName":"100.0","date":"2026-08-29"}]},{"name":"TOY STORY｜PEACEMINUSONE：THE FIRST FAN 臺北站","orders":8943,"tickets":8943,"revenue":2235750,"eTickets":5973,"pTickets":2970,"share":"4.6","sessions":[{"name":"TOY STORY｜PEACEMINUSONE：THE FIRST FAN 臺北站 (2026-07-29)","orders":8943,"tickets":8943,"revenue":2235750,"shareName":"100.0","date":"2026-07-29"}]}],"topByTickets":[{"name":"J－LIONS主題日「非‧日常」","orders":7987,"tickets":16763,"revenue":19410240,"eTickets":7151,"pTickets":9612},{"name":"TOY STORY｜PEACEMINUSONE：THE FIRST FAN 臺北站","orders":8943,"tickets":8943,"revenue":2235750,"eTickets":5973,"pTickets":2970},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":2777,"tickets":5407,"revenue":8786700,"eTickets":2328,"pTickets":3079},{"name":"中華職棒37年例行賽統一獅主場（下）","orders":2164,"tickets":4324,"revenue":1967635,"eTickets":730,"pTickets":3594},{"name":"中華職棒37年Rakuten主場例行賽","orders":1179,"tickets":2511,"revenue":1152550,"eTickets":904,"pTickets":1607}],"topRefunds":[{"name":"J－LIONS主題日「非‧日常」","orders":676,"tickets":1260,"amount":159827},{"name":"U－KNOW PROJECT 26：SCENE＃1 in Taipei","orders":215,"tickets":280,"amount":89975},{"name":"2026 XLOV ASIA TOUR ＜Serving—X＞ IN TAIPEI","orders":223,"tickets":266,"amount":72554},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":255,"tickets":388,"amount":67495},{"name":"2026年台灣精品中華職棒明星對抗賽","orders":163,"tickets":230,"amount":27904}],"paymentList":[{"name":"信用卡","orders":24078,"tickets":40193,"revenue":44876897,"share":"92.0"},{"name":"現金","orders":2701,"tickets":4331,"revenue":3059266,"share":"6.3"},{"name":"LINE Pay","orders":609,"tickets":658,"revenue":597528,"share":"1.2"},{"name":"ATM虛擬帳號","orders":26,"tickets":34,"revenue":178040,"share":"0.4"},{"name":"行動支付","orders":125,"tickets":128,"revenue":62590,"share":"0.1"}],"salesPointList":[{"name":"網站手機","orders":24757,"tickets":40817,"revenue":45422555,"share":"93.1"},{"name":"ibon","orders":2649,"tickets":4274,"revenue":3041966,"share":"6.2"},{"name":"APP購票","orders":133,"tickets":253,"revenue":309800,"share":"0.6"}]};
+
+function fmt(n) { return n.toLocaleString(); }
+function ntd(n) { return 'NT$ ' + fmt(n); }
+function wan(n) { return 'NT$ ' + (n / 10000).toFixed(1) + ' 萬'; }
+function cntPct(n, total) { return fmt(n) + ' <span style="color:#888;font-size:0.85em;">(' + (total ? (n / total * 100).toFixed(1) : '0.0') + '%)</span>'; }
+
+function init() {
+    document.getElementById('meta-total-rows').innerText = fmt(D.totalRows);
+    document.getElementById('val-revenue').innerText = wan(D.totalRevenue);
+    document.getElementById('val-tickets').innerText = fmt(D.totalTickets);
+    document.getElementById('val-orders').innerText = fmt(D.totalOrders);
+    document.getElementById('val-aov').innerText = ntd(D.aov);
+    document.getElementById('val-refund-tickets').innerText = fmt(D.totalRefundedTickets);
+    document.getElementById('val-refund-fees').innerText = ntd(D.totalRefundFees);
+
+    // Daily Stats Table
+    const dtb = document.querySelector('#dailyStatsTable tbody');
+    let sO=0,sT=0,sR=0,sE=0,sP=0,sRT=0,sRF=0;
+    D.dailyStats.forEach(d => {
+        sO+=d.orders; sT+=d.tickets; sR+=d.revenue; sE+=(d.eTickets||0); sP+=(d.pTickets||0); sRT+=d.refundTickets; sRF+=d.refundFees;
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td style="font-weight:500;">'+d.date+'</td>'
+            +'<td class="text-right">'+fmt(d.orders)+'</td>'
+            +'<td class="text-right">'+fmt(d.tickets)+'</td>'
+            +'<td class="text-right">'+cntPct(d.eTickets||0, d.tickets)+'</td>'
+            +'<td class="text-right">'+cntPct(d.pTickets||0, d.tickets)+'</td>'
+            +'<td class="text-right">'+wan(d.revenue)+'</td>'
+            +'<td class="text-right" style="color:#c62828;">'+fmt(d.refundTickets)+'</td>'
+            +'<td class="text-right" style="color:#c62828;">'+(d.refundFees>0?ntd(d.refundFees):'-')+'</td>';
+        dtb.appendChild(tr);
+    });
+    const ttr = document.createElement('tr');
+    ttr.style.fontWeight='bold'; ttr.style.borderTop='2px solid var(--accent-color)';
+    ttr.innerHTML = '<td style="font-weight:700;">總計</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sO)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+fmt(sT)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+cntPct(sE, sT)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+cntPct(sP, sT)+'</td>'
+        +'<td class="text-right" style="color:var(--accent-color);">'+wan(sR)+'</td>'
+        +'<td class="text-right" style="color:#c62828;">'+fmt(sRT)+'</td>'
+        +'<td class="text-right" style="color:#c62828;">'+(sRF>0?ntd(sRF):'-')+'</td>';
+    dtb.appendChild(ttr);
+
+    // Register datalabels plugin
+    Chart.register(ChartDataLabels);
+
+    // Trend Chart
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: { labels: D.trendDates, datasets: [{ label: '每日營收走勢', data: D.trendSales, borderColor: '#00acc1', backgroundColor: 'rgba(0,172,193,0.1)', fill: true, tension: 0.4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '營收趨勢圖 (Sales Trend)' }, tooltip: { mode: 'index', intersect: false, callbacks: { afterBody: items => { const top = D.dailyTopTicketEvent && D.dailyTopTicketEvent[items[0].dataIndex]; if (top && top.name) { const n = top.name.length > 22 ? top.name.substring(0,22)+'...' : top.name; return ['🎟 最高張數: '+n+' ('+top.tickets+'張)']; } return []; } } }, datalabels: { display: true, align: 'top', anchor: 'end', color: '#00acc1', font: { size: 10 }, formatter: (v, ctx) => { const revLabel = v >= 1000 ? '$'+(v/1000).toFixed(0)+'K' : '$'+v.toLocaleString(); const top = D.dailyTopTicketEvent && D.dailyTopTicketEvent[ctx.dataIndex]; if (top && top.name) { const n = top.name.length > 10 ? top.name.substring(0,10)+'…' : top.name; return [revLabel, n]; } return revLabel; } } } }
+    });
+
+    // Refund Chart
+    new Chart(document.getElementById('refundTrendChart'), {
+        type: 'line',
+        data: { labels: D.refundTrendDates, datasets: [{ label: '每日退票手續費', data: D.refundTrendAmounts, borderColor: '#757575', backgroundColor: 'rgba(117,117,117,0.1)', fill: true, tension: 0.4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '每日退票走勢 (Daily Refund Trend)' } }, scales: { y: { beginAtZero: true, ticks: { callback: v => '$'+v.toLocaleString() } } } }
+    });
+
+    // Top Events by Revenue
+    renderRankTable('#topEventsTable', D.topByRevenue, ['orders','tickets','eTickets','pTickets','revenue','share'], 'var(--accent-color)');
+    // Top Events by Tickets
+    renderRankTable('#topTicketsTable', D.topByTickets, ['orders','tickets','eTickets','pTickets','revenue'], 'var(--accent-color)');
+    // Top Refunds
+    renderRankTable('#topRefundTable', D.topRefunds, ['orders','tickets','amount'], '#c62828');
+
+    // Payment Methods
+    renderListTable('#paymentTable', D.paymentList, ['orders','tickets','revenue','share']);
+    // Sales Points
+    renderListTable('#salesPointTable', D.salesPointList, ['orders','tickets','revenue','share']);
+}
+
+function renderRankTable(sel, items, fields, color) {
+    const tb = document.querySelector(sel+' tbody');
+    if (!items.length) { tb.innerHTML = '<tr><td colspan="8" style="text-align:center;">無資料</td></tr>'; return; }
+    items.forEach((ev,i) => {
+        const tr = document.createElement('tr');
+        let html = '<td><span style="background:'+color+'; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">'+(i+1)+'</span></td>';
+
+        let linkStyle = sel==='#topEventsTable' && ev.sessions && ev.sessions.length > 0 ? 'color:var(--accent-color); text-decoration:underline; cursor:pointer;' : 'color:inherit;';
+        let onClickAttr = sel==='#topEventsTable' && ev.sessions && ev.sessions.length > 0 ? 'onclick="showEventDetail(' + i + ')"' : '';
+
+        html += '<td><span style="'+linkStyle+'" '+onClickAttr+'>'+ev.name+'</span></td>';
+        fields.forEach(f => {
+            if (f==='revenue'||f==='amount') html += '<td class="text-right" style="color:'+color+'; font-weight:bold;">'+ntd(ev[f])+'</td>';
+            else if (f==='share') html += '<td class="text-right" style="color:#888;">'+ev[f]+'%</td>';
+            else if (f==='eTickets'||f==='pTickets') html += '<td class="text-right">'+cntPct(ev[f]||0, ev.tickets)+'</td>';
+            else html += '<td class="text-right">'+fmt(ev[f])+'</td>';
+        });
+        tr.innerHTML = html;
+        tb.appendChild(tr);
+    });
+}
+
+function showEventDetail(index) {
+    const ev = D.topByRevenue[index];
+    if(!ev || !ev.sessions) return;
+    document.getElementById('modalTitle').innerText = '場次分析 - ' + ev.name;
+    const mb = document.getElementById('modalBody');
+    mb.innerHTML = '';
+    ev.sessions.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td style="font-weight:500;">' + s.name + '</td>' +
+            '<td class="text-right">' + fmt(s.orders) + '</td>' +
+            '<td class="text-right">' + fmt(s.tickets) + '</td>' +
+            '<td class="text-right" style="color:var(--accent-color); font-weight:bold;">' + ntd(s.revenue) + '</td>' +
+            '<td class="text-right" style="color:#888;">' + s.shareName + '%</td>';
+        mb.appendChild(tr);
+    });
+    document.getElementById('eventDetailModal').style.display = 'flex';
+}
+
+
+function renderListTable(sel, items, fields) {
+    const tb = document.querySelector(sel+' tbody');
+    items.forEach(p => {
+        const tr = document.createElement('tr');
+        let html = '<td class="font-bold">'+p.name+'</td>';
+        fields.forEach(f => {
+            if (f==='revenue') html += '<td class="text-right">'+ntd(p[f])+'</td>';
+            else if (f==='share') html += '<td class="text-right" style="color:#888;">'+p[f]+'%</td>';
+            else html += '<td class="text-right">'+fmt(p[f])+'</td>';
+        });
+        tr.innerHTML = html;
+        tb.appendChild(tr);
+    });
+}
+
+init();
+</script>
+
+<button onclick="window.print()" class="fixed-btn" style="position:fixed; bottom:90px; right:30px; background:linear-gradient(135deg,#00838f,#006064); color:white; padding:12px 24px; border:none; border-radius:50px; cursor:pointer; font-weight:600; box-shadow:0 4px 15px rgba(0,131,143,0.4); display:flex; align-items:center; gap:8px; z-index:1000;">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> 下載 PDF
+</button>
+<a href="report_index.html" class="fixed-btn" style="position:fixed; bottom:30px; right:30px; background:linear-gradient(135deg,#00acc1,#00838f); color:white; padding:12px 24px; border-radius:50px; text-decoration:none; font-weight:600; box-shadow:0 4px 15px rgba(0,172,193,0.4); display:flex; align-items:center; gap:8px; z-index:1000;">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg> 回首頁
+</a>
+</body>
+</html>
