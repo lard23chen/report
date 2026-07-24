@@ -6,7 +6,7 @@
 
 | 項目 | 說明 |
 |------|------|
-| 報表名稱 | `AI講義.html`（文字版，主要版本）／`AI講義_Alex_20260724.html`（簡報圖文版） |
+| 報表名稱 | `AIclass.html`（文字版，主要版本）／`AI講義_Alex_20260724.html`（簡報圖文版） |
 | 內容來源 | `AI講義.txt`（課程逐字稿/大綱）／`AI講義_Alex_20260724.pptx`（NotebookLM 產出的 9 張投影片） |
 | 產生方式 | 手動轉製（無 generator 腳本），以 `python-pptx` 擷取 pptx 文字與圖片後手工排版 |
 | 資料來源 | 無資料庫，純靜態內容 |
@@ -14,7 +14,7 @@
 
 ## 2. 兩個版本的差異
 
-| | `AI講義.html` | `AI講義_Alex_20260724.html` |
+| | `AIclass.html` | `AI講義_Alex_20260724.html` |
 |---|---|---|
 | 內容來源 | `AI講義.txt`（較完整，含 Antigravity 安裝、GitHub Repository 設定等細節） | `AI講義_Alex_20260724.pptx` 9 張投影片（第 1 張為文字大綱，第 2-9 張為 NotebookLM 產出的圖片） |
 | 呈現方式 | 純文字卡片排版，含目錄導覽 | 文字大綱 + 8 張嵌入圖片（`ai_lecture_20260724_assets/slide_02.png` ~ `slide_09.png`） |
