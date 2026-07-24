@@ -245,6 +245,24 @@
     border-radius: 5px;
     font-size: 0.9em;
   }
+  .dl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 10px;
+    padding: 7px 14px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .dl-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(138,154,142,0.35);
+  }
 
   footer {
     text-align: center;
@@ -338,7 +356,9 @@
         </ul>
       </li>
       <li><strong>實作任務</strong>：讀取指定的雲端 Excel 資料。<a href="https://docs.google.com/spreadsheets/d/1LJMf99ongYEyhs6FnFGtOTAOjigAVL3YRiHoOxHhaIU/edit?gid=0#gid=0" target="_blank" style="color:var(--accent-dark);">開啟雲端 Excel</a></li>
-      <li><strong>AI 指令 (Prompt)</strong>：分析上述網址資料並產出 XX.html 檔案。</li>
+      <li><strong>AI 指令 (Prompt)</strong>：分析上述網址資料並產出 XX.html 檔案。<br>
+        <a class="dl-btn" href="hotel.html" download="hotel.html">⬇ 下載 hotel.html 範例</a>
+      </li>
       <li><strong>檔案管理</strong>：統一存放於本地端路徑 <code class="path">D:\AI\report</code>。</li>
     </ul>
   </div>
