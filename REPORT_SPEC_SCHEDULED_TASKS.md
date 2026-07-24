@@ -88,6 +88,7 @@
 if daily_log.txt 已有今日 "Update Completed" → exit /b 0（寫入 "Already completed today, skipping."）
 
 node generate_a_daily_report.js                    → A_Qware_Revenue_Report_Daily.html
+# 產生後立即獨立 git add/commit/push（2026/07/24 新增，見下方說明），不等後面全部 script 跑完
 node generate_d_ga_funnel_report.js                → D_GA_Funnel_202606_Report.html
 node generate_d_ga_funnel_cart_data.js             → D_GA_Funnel_202606_Report.html（A購物車/結帳每日資料，2026/07/14 加入排程）
 node generate_e_dmp_funnel_report.js               → E_DMP_Funnel_Report.html
@@ -105,6 +106,7 @@ else:                 powershell send_line_notify.ps1 -Template "daily"  → LIN
 
 > ⚠️ 結尾的 `git add .` 會把**當下工作區所有未提交變更**一起 commit 進去。若在排程觸發時段（08:00 前後、登入補跑、15:00 GA 排程）有進行中的手動修改，可能被自動 commit 收走（2026/07/06 曾發生，見 git `f0e940e`）。
 > **失敗告警（2026/07/23 新增）**：與 §4（travel）不同，daily 的每個 node script 出錯只記錄到 `FAILED_STEPS` 變數（用 `;` 分隔的 script 檔名清單），流程照樣往下跑完所有步驟並 push——這是刻意保留的既有行為，因為多支獨立 script 之間沒有依賴關係，某一支失敗（例如 MongoDB 逾時）不該連累其他已成功的報表沒推上去。最後只有一個判斷點：`FAILED_STEPS` 非空（含任何 script 或 git push 失敗）就發 `-Status FAIL` 告警並列出失敗清單，否則照常發送成功通知；不會同一次執行收到兩則通知。
+> **`A_Qware_Revenue_Report_Daily.html` 獨立提交（2026/07/24 新增）**：此檔案是 8 支日報 script 中最早產出的一支，07/21、07/22、07/23 連續三次發生「script log 顯示產生成功，但當天的 `git add .` 沒收進這個檔案的變更、網站仍是舊版」，每次都要靠使用者反映才發現，需人工重跑補推；根因至今未確認（懷疑與它曝險時間最長、後面還有 4 支 script 才輪到最終 commit 有關，但無法證實）。07/24 起改為此 script 跑完後**立即**用同一把 `.git_bat_lock` 互斥鎖獨立執行 `git add`→`commit`→`pull --rebase --autostash`→`push`，把曝險窗口從「整條 pipeline 跑完」縮短為「只到下一支 script 開始前」，其餘 7 支報表仍照原本邏輯在流程尾端一次 `git add .` 合併提交。
 > **停止每日自動更新（2026/07/23，使用者要求）**：`generate_kaohsiung_beer_festival_report.js`（`A_KaohsiungBeerFestival_2026.html`）、`generate_d_ga_clickdata_report.js`（`D_GA_ClickData_Webb_202606_Report.html`）、`generate_d_ga_pageview_report.js`（`D_GA_PageViewData_Webb_202606_Report.html`）三支 script 已從 `daily_update.bat` 移除。三支 script 檔案與對應 HTML 報表本身**都沒有刪除**，只是不再排入每日排程；如需更新改為手動執行對應 script。已確認 `generate_d_ga_funnel_report.js`／`generate_d_ga_funnel_cart_data.js`（仍保留在每日排程內）是直接查詢 MongoDB `GA_D_ClickData_Webb_202606`／`GA_D_PageViewData_Webb_202606` collection，不依賴這三支被移除 script 產出的 HTML，故移除後不影響 D 系統轉換漏斗報表的每日更新。
 
 ### 2.3 產出報表
@@ -381,7 +383,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/23（依使用者要求，`daily_update.bat` 移除 `generate_kaohsiung_beer_festival_report.js`／`generate_d_ga_clickdata_report.js`／`generate_d_ga_pageview_report.js` 三支 script，`A_KaohsiungBeerFestival_2026.html`／`D_GA_ClickData_Webb_202606_Report.html`／`D_GA_PageViewData_Webb_202606_Report.html` 停止每日自動更新；已確認保留的 `generate_d_ga_funnel_report.js`／`generate_d_ga_funnel_cart_data.js` 直接查 MongoDB、不依賴這三支的輸出，移除後不影響。見 §2.2／§2.3）*
+*最後更新：2026/07/24（`A_Qware_Revenue_Report_Daily.html` 三度卡住：07/23、07/24 兩次的自動排程 log 都顯示成功產出新版，但當天 `git add .` 都沒收進變更、網站停在 07/22 舊版，直到使用者反映才發現；已手動重跑補推。這次不再只是補跑，改在 `daily_update.bat` 內把此檔案的產出改為**產生後立即獨立 commit + push**（用同一把 `.git_bat_lock`），與其餘 7 支報表的最終合併 commit 脫鉤，縮短曝險窗口；根因仍未確認。見 §2.2）*
+*2026/07/23（依使用者要求，`daily_update.bat` 移除 `generate_kaohsiung_beer_festival_report.js`／`generate_d_ga_clickdata_report.js`／`generate_d_ga_pageview_report.js` 三支 script，`A_KaohsiungBeerFestival_2026.html`／`D_GA_ClickData_Webb_202606_Report.html`／`D_GA_PageViewData_Webb_202606_Report.html` 停止每日自動更新；已確認保留的 `generate_d_ga_funnel_report.js`／`generate_d_ga_funnel_cart_data.js` 直接查 MongoDB、不依賴這三支的輸出，移除後不影響。見 §2.2／§2.3）*
 *2026/07/23（`TravelExpenseUpdate` 依使用者要求停用（`Disable-ScheduledTask`），`travel/auto_update.bat` 與報表本身未刪除，僅排程停止觸發；同步從 `HTML_Report_Catalog.html` 移除對應列（原 S4），`Scheduled_Tasks_Dashboard.html` 標示為已停用。見 §1 備注、§4）*
 *2026/07/23（`A_Qware_Revenue_Report_Daily.html` 二度卡住：08:08 已成功產出新版，但當天 commit 沒收進去，網站仍是 07/22 舊版，直到使用者反映才發現；已重跑補推 `2066e3e`，追記於 §6.3——這是同一份報表 07/21 之後第二次發生同症狀，推測與它是 daily_update.bat 8 支 script 中最早產出、曝險時間最長有關，但未證實，暫未改 BAT 邏輯）*
 *2026/07/23（新增每月排程 `Qware_DMP_AllTime_Top10_Monthly`（每月 1 日 10:00）+ `update_dmp_alltime_top10.bat`，見新增的 §5.5；同步把 `generate_alltime_top10_v3.js` 從每次全表掃描（~40 分鐘）改成增量架構——狀態序列化內嵌於主報表 HTML（沿用 GA 報表的 `generatedAt`/`SD_START`/`SD_END` 寫法），只查新資料、Top10 新面孔才觸發一次性補齊；不重複訪客改用自製 HyperLogLog（無新增 npm 依賴），避免完整訪客 ID 清單讓報表檔案隨時間無限增長。詳見 `REPORT_SPEC_TRAFFIC_ANALYSIS.md` §3）*

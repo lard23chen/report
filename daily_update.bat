@@ -23,6 +23,29 @@ echo Running generate_a_daily_report.js...
 "D:\nodejs\node.exe" generate_a_daily_report.js >> daily_log.txt 2>&1
 if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_a_daily_report.js;
 
+:: 2026/07/24 新增：A_Qware_Revenue_Report_Daily.html 連續多日「產生成功卻沒被 commit」
+:: （07/21、07/22、07/23、07/24 皆發生，需手動補 commit，原因未確定），改為產生後立即
+:: 獨立 commit，不等後面所有 script 跑完才一次 git add .，降低被中途覆蓋/漏 commit 的風險。
+set GIT_BAT_LOCK=D:\2025\AI\MongoDB\.git_bat_lock
+set /a GITLOCK_TRIES=0
+:acquire_git_lock_revenue
+md "%GIT_BAT_LOCK%" 2>nul && goto git_lock_ok_revenue
+set /a GITLOCK_TRIES+=1
+if %GITLOCK_TRIES% geq 120 goto git_lock_ok_revenue
+ping -n 6 127.0.0.1 >nul
+goto acquire_git_lock_revenue
+:git_lock_ok_revenue
+if exist "D:\2025\AI\MongoDB\.git\rebase-merge" rd /s /q "D:\2025\AI\MongoDB\.git\rebase-merge"
+git add A_Qware_Revenue_Report_Daily.html
+git commit -m "Auto-update A_Qware_Revenue_Report_Daily.html: %date% %time%" >> daily_log.txt 2>&1
+git pull --rebase --autostash origin main >> git_sync.log 2>&1
+if errorlevel 1 (
+    echo [%date% %time%] git pull --rebase failed during early revenue-report commit, aborting rebase. See git_sync.log >> daily_log.txt
+    git rebase --abort >> git_sync.log 2>&1
+)
+git push origin main >> git_sync.log 2>&1
+rd "%GIT_BAT_LOCK%" 2>nul
+
 echo Running generate_d_ga_funnel_report.js...
 "D:\nodejs\node.exe" generate_d_ga_funnel_report.js >> daily_log.txt 2>&1
 if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_d_ga_funnel_report.js;
