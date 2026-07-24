@@ -110,12 +110,21 @@
     gap: 16px;
   }
   .agenda-item {
+    display: block;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 20px 22px;
     box-shadow: var(--shadow);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, border-color 0.15s;
   }
+  .agenda-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+  }
+  .agenda-item:hover h3 { color: var(--accent-dark); }
   .agenda-item .num {
     display: inline-flex;
     align-items: center;
@@ -240,38 +249,38 @@
   <h2>課程大綱 (Agenda)</h2>
   <p style="color:var(--text-muted);margin:-8px 0 20px;">本課程將涵蓋以下八大核心主題：</p>
   <div class="agenda-grid">
-    <div class="agenda-item"><span class="num">1</span>
+    <a class="agenda-item" href="#p2"><span class="num">1</span>
       <h3>數據分析與 HTML 產出</h3>
       <p>從 Excel 或雲端 Excel 讀取資料並分析產出 HTML 檔案。</p>
-    </div>
-    <div class="agenda-item"><span class="num">2</span>
+    </a>
+    <a class="agenda-item" href="#p3"><span class="num">2</span>
       <h3>網頁部署</h3>
       <p>將產出的本地端 HTML 檔案推送 (Push) 到網站上顯示。</p>
-    </div>
-    <div class="agenda-item"><span class="num">3</span>
+    </a>
+    <a class="agenda-item" href="#p4"><span class="num">3</span>
       <h3>雙向互動回寫</h3>
       <p>將讀取的資料進行編輯並回寫到 Excel 檔案或雲端 Excel。</p>
-    </div>
-    <div class="agenda-item"><span class="num">4</span>
+    </a>
+    <a class="agenda-item" href="#p5"><span class="num">4</span>
       <h3>個人化應用</h3>
       <p>建立個人程式列表（如知識庫或生活管理系統）。</p>
-    </div>
-    <div class="agenda-item"><span class="num">5</span>
+    </a>
+    <a class="agenda-item" href="#p6"><span class="num">5</span>
       <h3>資料庫整合</h3>
       <p>將 Excel 資料轉入 MongoDB。</p>
-    </div>
-    <div class="agenda-item"><span class="num">6</span>
+    </a>
+    <a class="agenda-item" href="#p7"><span class="num">6</span>
       <h3>自動化排程</h3>
       <p>使用排程工具將每日資料進行自動更新。</p>
-    </div>
-    <div class="agenda-item"><span class="num">7</span>
+    </a>
+    <a class="agenda-item" href="#p7"><span class="num">7</span>
       <h3>即時通知系統</h3>
       <p>當資料更新完成後，自動進行 LINE 通知。</p>
-    </div>
-    <div class="agenda-item"><span class="num">8</span>
+    </a>
+    <a class="agenda-item" href="#p8"><span class="num">8</span>
       <h3>系統優化與安全</h3>
       <p>整體系統效能優化與資訊安全防護。</p>
-    </div>
+    </a>
   </div>
 </section>
 </div>
