@@ -215,12 +215,22 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 8px;
+    position: relative;
   }
+  .li-shots figure:hover { z-index: 10; }
   .li-shots img {
     display: block;
     width: 100%;
     height: auto;
     border-radius: 6px;
+    cursor: zoom-in;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transform-origin: center;
+  }
+  .li-shots img:hover {
+    transform: scale(2.1);
+    box-shadow: 0 18px 44px rgba(0,0,0,0.45);
+    position: relative;
   }
   .li-shots figcaption {
     margin-top: 6px;
