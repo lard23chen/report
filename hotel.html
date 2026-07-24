@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>國旅住宿記錄分析</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#121212; --card:#1e1e1e; --ink:#e0e0e0; --ink-2:#a0a0a0; --accent:#3987e5; --border:#2c2c2c; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); font-family:'Outfit','Noto Sans TC',sans-serif; padding:24px; }
+  .wrap { max-width:1180px; margin:0 auto; }
+  header { background:var(--card); border-radius:12px; padding:24px 28px; border-bottom:3px solid var(--accent); display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:18px; }
+  h1 { font-size:1.6em; font-weight:800; color:var(--accent); }
+  h1 span { color:var(--ink); font-weight:300; }
+  .meta { color:var(--ink-2); font-size:0.85em; text-align:right; line-height:1.6; }
+  .meta a { color: var(--accent); }
+
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin:18px 0; }
+  .stat { background:var(--card); border-radius:10px; padding:18px 20px; border-left:3px solid var(--accent); }
+  .stat .lbl { color:var(--ink-2); font-size:0.82em; margin-bottom:6px; }
+  .stat .val { font-size:1.55em; font-weight:800; }
+  .stat.hero { border-left-color:#199e70; } .stat.hero .val { color:#7fd4ae; }
+  .stat.warn { border-left-color:#e6a23c; } .stat.warn .val { color:#f0c26e; }
+
+  .card { background:var(--card); border-radius:12px; padding:22px 24px; margin-bottom:18px; border:1px solid var(--border); }
+  .card h2 { font-size:1.05em; color:var(--accent); margin-bottom:16px; font-weight:700; }
+  .chart-wrap { height:320px; }
+
+  table { width:100%; border-collapse:collapse; font-size:0.88em; }
+  th { text-align:left; color:var(--ink-2); font-weight:600; padding:10px 12px; border-bottom:2px solid var(--border); white-space:nowrap; font-size:0.85em; }
+  td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tr:hover td { background: rgba(57,135,229,0.05); }
+  .num { text-align:right; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  .price-free { color:#7fd4ae; font-weight:700; }
+  .notes { color:var(--ink-2); font-size:0.92em; max-width:420px; }
+  .month-badge { display:inline-block; background:#0a0a0a; color:var(--accent); border-radius:6px; padding:2px 8px; font-size:0.82em; font-weight:700; }
+  .table-wrap { overflow-x:auto; }
+
+  .note-box { background: rgba(230,162,60,0.08); border:1px solid rgba(230,162,60,0.3); border-radius:10px; padding:16px 20px; font-size:0.9em; color:var(--ink-2); line-height:1.8; }
+  .note-box b { color:#f0c26e; }
+
+  footer { text-align:center; padding:24px; color:var(--ink-2); font-size:0.82em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>🏨 國旅住宿記錄<span>分析</span></h1>
+    </div>
+    <div class="meta">
+      資料來源：Google Sheets（住宿記錄）<br>
+      涵蓋期間：4 月 – 12 月・26 筆入住紀錄
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat hero">
+      <div class="lbl">總花費</div>
+      <div class="val">$95,918</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">總入住次數</div>
+      <div class="val">26</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">總晚數</div>
+      <div class="val">31</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">不重複飯店數</div>
+      <div class="val">19</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">平均每晚房價</div>
+      <div class="val">$3,094</div>
+    </div>
+    <div class="stat hero">
+      <div class="lbl">點數兌換入住</div>
+      <div class="val">3 次</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📊 每月花費與晚數</h2>
+    <div class="chart-wrap"><canvas id="monthChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2>📋 入住明細（26 筆）</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>月</th><th>飯店</th><th>入住日期</th><th>退房</th>
+            <th class="num">晚數</th><th class="num">價格</th><th>優惠 / 備註</th>
+          </tr>
+        </thead>
+        <tbody id="stayRows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🍽️ 其他消費（餐飲／住宿券，5 筆・合計 $11,564）</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>月</th><th>項目</th><th>日期</th><th class="num">金額</th></tr></thead>
+        <tbody id="extraRows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💳 已知回饋 / 補助（來自原始記錄備註）</h2>
+    <div class="note-box">
+      公司補助 <b>$22,000</b>・三倍券 <b>$4,000</b>・安心旅遊補助 <b>$2,000</b>・玉山世界卡退款 <b>$348</b>（美福訂金＋喜來登升等）・ShopBack 回饋 <b>$104</b>（喜來登）・大戶回饋 <b>$241</b>（Proverbs + Hilton）<br>
+      回饋／補助合計約 <b>$28,693</b>，估算實際淨支出約 <b>$67,225</b>（僅供參考，未逐筆核銷追蹤）
+    </div>
+  </div>
+
+  <footer>由 Google Sheets 住宿記錄試算表分析產出・僅供個人參考</footer>
+</div>
+
+<script>
+const monthMap = {"4":{"nights":1,"spend":6052,"stays":1},"5":{"nights":2,"spend":7980,"stays":1},"6":{"nights":4,"spend":7951,"stays":3},"7":{"nights":1,"spend":3000,"stays":1},"8":{"nights":2,"spend":3000,"stays":1},"9":{"nights":3,"spend":10717,"stays":3},"10":{"nights":9,"spend":30802,"stays":8},"11":{"nights":6,"spend":17559,"stays":6},"12":{"nights":3,"spend":8857,"stays":2}};
+
+const stays = [
+{"month":4,"hotel":"大安金普頓 (1棟紅房子)","dateStr":"4/30(四)","nights":1,"returnDate":"5/2(六)","price":6052,"notes":"1.附早餐 2.買一送一 3.可帶寵物入住 4.SNP-2684"},
+{"month":5,"hotel":"大倉久和 (4棟黑房子)","dateStr":"5/23(五)-5/24(六)","nights":2,"returnDate":"5/25(日)","price":7980,"notes":"1.附早餐 2.送餐飲券一晚1500*2=3000 3.check in 12:00 check out 15:00"},
+{"month":6,"hotel":"大安金普頓 (1棟紅房子)","dateStr":"6/6(六)","nights":1,"returnDate":"6/7(日)","price":0,"notes":"1.附早餐 2.可帶寵物入住"},
+{"month":6,"hotel":"中山老爺","dateStr":"6/25(四)","nights":1,"returnDate":"","price":2333,"notes":"早餐/晚餐買一送一"},
+{"month":6,"hotel":"國泰萬怡","dateStr":"6/26(五)-6/27(六)","nights":2,"returnDate":"6/28(日)","price":5618,"notes":"1.附早餐 2.SNP-1583 3.MCO card"},
+{"month":7,"hotel":"逸林希爾頓","dateStr":"7/25(六)","nights":1,"returnDate":"7/26(日)","price":3000,"notes":"1.附早餐 2.使用安心旅遊1000 3.SNP-2969"},
+{"month":8,"hotel":"凱達飯店","dateStr":"8/28(五)-8/29(六)","nights":2,"returnDate":"8/30(日)","price":3000,"notes":"1.附1天早餐 2.提供300抵用券 -->換了牛肉麵當晚餐 3.使用安心旅遊1000 4.中信華航$1100"},
+{"month":9,"hotel":"喜來登 (4棟黑房子)","dateStr":"9/19(六)","nights":1,"returnDate":"9/20(日)","price":3802,"notes":"1.附早餐 2.附住宿抵用券1500 3.餐飲抵用券2000(消費4千抵用1000) 4.已付 KLOOK(聯邦) 5.升等+$802 6.註記下次高樓層不要有小孩住樓上 7.SNP-1583-->4345 get 2726P"},
+{"month":9,"hotel":"晶華 regent hotel (4棟黑房子)","dateStr":"9/25(五)","nights":1,"returnDate":"","price":3678,"notes":"1.附柏麗廳早餐 2.送750ml紅酒 可外帶 3.栢麗廳、泰市場、義饗食堂，於入住期間用餐買一送一(已預約柏麗廳18:00) 4.入住時間為下午三點，退房為中午十一點-->升等寰宇房/下午13:30退房 5.訂金已付$1103 6.柏麗廳$1628"},
+{"month":9,"hotel":"國泰萬怡 Courtyard by Marriott Taipei Downtown","dateStr":"9/26(六)","nights":1,"returnDate":"9/27(日)","price":3237,"notes":"1.附早餐 2.extra 2500 Point 3.cash voucher value at NTD$1,000 per room per stay (期限到10月底) 4.中信華航卡 5.SNP4345-->7841 get 3496P"},
+{"month":10,"hotel":"美福飯店 Grand Mayfull Hotel (4棟黑房子)","dateStr":"10/1(四)~10/2(五)","nights":2,"returnDate":"","price":8900,"notes":"1.早餐 2.買一送一/17:00入住 3.玉山世界卡(10% 回饋) 4.送美福拌拌麵 5.米香餐廳-->$2337 6.訂金2670後再付6230 7.積點OCARD-->101"},
+{"month":10,"hotel":"怡亨酒店 Eclat Hotels","dateStr":"10/3(六)","nights":1,"returnDate":"10/4(日)","price":4958,"notes":"1.早餐 2.中信華航卡 3.升等$800-->4958 4.三倍券支付2000/國泰世界卡2958"},
+{"month":10,"hotel":"新板希爾頓 Hilton Taipei Sinban Hotel","dateStr":"10/8(四)","nights":1,"returnDate":"","price":4900,"notes":"1.好希友專案 2.附早餐 3.附晚餐 4.贈12000券(8000住宿消費券/4000餐飲消費券) 5.房券下次可折抵一半/餐飲可全抵 6.住一晚算兩晚point"},
+{"month":10,"hotel":"新板希爾頓","dateStr":"10/9(五)","nights":1,"returnDate":"","price":2158,"notes":"1.住一晚算兩晚point 2.早餐金卡會員贈送"},
+{"month":10,"hotel":"新板希爾頓","dateStr":"10/10(六)","nights":1,"returnDate":"10/11(日)","price":2158,"notes":"1.住一晚算兩晚point 2.(02) 2958 3000 3.三天共9217-->國泰世界卡刷8217(4900+3317) 4.早餐金卡會員贈送 5,使用4張住宿券付三倍券1000 6.SNP-->2969-->9987 7.購買hilton點數40000($5732)-->1元台幣換6.978點數"},
+{"month":10,"hotel":"君悅 grand-hyatt-taipei","dateStr":"10/17(六)","nights":1,"returnDate":"10/18(日)","price":0,"notes":"1.亞洲萬里通點數兌換(19989) 1哩約0.24元 2.市價約4804 (周年慶七折送早餐) 3.含早餐 4.君悅客房（雙床）"},
+{"month":10,"hotel":"遠東香格里拉 (5棟黑房子) Shangri-La's Far Eastern Plaza Hotel","dateStr":"10/30(五)","nights":1,"returnDate":"","price":3999,"notes":"1.附早餐 2.豪華閤貴賓廊(輕食/雞尾酒/小點) 3.已付 4.聯邦賴點卡"},
+{"month":10,"hotel":"W","dateStr":"10/31(六)","nights":1,"returnDate":"11/1(日)","price":3729,"notes":"1.玉山世界卡 2.早餐65折1人660 3.下午兩點退房 4.代碼:77815341-->已取消 86651668-->新訂"},
+{"month":11,"hotel":"大安金普頓 (1棟紅房子)","dateStr":"11/9(一)","nights":1,"returnDate":"11/10(二)","price":4103,"notes":"1.亞萬國泰卡 2.本次積分1866"},
+{"month":11,"hotel":"君悅 grand-hyatt-taipei","dateStr":"11/14(六)","nights":1,"returnDate":"11/15(日)","price":0,"notes":"1.亞洲萬里通點數兌換(23448) 1哩約0.24元 2.市價約5636 (周年慶七折送早餐) 3.含早餐 4.尊榮客房1張特大雙人床"},
+{"month":11,"hotel":"新板希爾頓","dateStr":"11/20(五)","nights":1,"returnDate":"11/21(六)","price":2158,"notes":"1.住一晚算兩晚point 2.早餐金卡會員贈送 3.使用住宿券抵2000"},
+{"month":11,"hotel":"新板希爾頓","dateStr":"11/21(六)","nights":1,"returnDate":"11/22(日)","price":4447,"notes":"1.買一送一 2.第一晚附早餐 3.大戶 4.送住宿券(周一~週四)"},
+{"month":11,"hotel":"阿樹國際旅店 arTree Hotel","dateStr":"11/27(五)","nights":1,"returnDate":"","price":3136,"notes":"1.附早餐 2. 大戶 3. Klook"},
+{"month":11,"hotel":"賦樂旅居 HOTEL PROVERBS TAIPEI","dateStr":"11/28(六)","nights":1,"returnDate":"","price":3715,"notes":"1.大戶 klook 2.無早餐"},
+{"month":12,"hotel":"新板希爾頓","dateStr":"12/06(日)","nights":1,"returnDate":"12/07(一)","price":2858,"notes":"1.早餐金卡會員贈送 2.使用好稀友住宿券抵$2000 3.J ccard $1251 4.三倍券$1600"},
+{"month":12,"hotel":"六福萬怡 Courtyard by Marriott Taipei Downtown","dateStr":"12/25(五)-12/26(六)","nights":2,"returnDate":"12/27(日)","price":5999,"notes":"1.四人房 2.附早餐 3.第三第四人早餐加購買一送一 4.銀行匯款買券"}
+];
+
+const extras = [
+{"month":"9","name":"晶華柏麗廳","dateStr":"9/25(五)","price":1628},
+{"month":"10","name":"米香餐廳","dateStr":"10/2(五)","price":2337},
+{"month":"10","name":"辰園","dateStr":"10/16(五)","price":2400},
+{"month":"-","name":"香格里拉住宿券","dateStr":"","price":2999},
+{"month":"-","name":"青雅中餐廳","dateStr":"11/21(六)","price":2200}
+];
+
+const stayBody = document.getElementById('stayRows');
+stays.forEach(s => {
+  const tr = document.createElement('tr');
+  const priceCell = s.price === 0
+    ? '<span class="price-free">點數兌換</span>'
+    : '$' + s.price.toLocaleString();
+  tr.innerHTML =
+    '<td><span class="month-badge">' + s.month + '月</span></td>' +
+    '<td>' + s.hotel + '</td>' +
+    '<td>' + s.dateStr + '</td>' +
+    '<td>' + (s.returnDate || '-') + '</td>' +
+    '<td class="num">' + s.nights + '</td>' +
+    '<td class="num">' + priceCell + '</td>' +
+    '<td class="notes">' + s.notes + '</td>';
+  stayBody.appendChild(tr);
+});
+
+const extraBody = document.getElementById('extraRows');
+extras.forEach(e => {
+  const tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td><span class="month-badge">' + e.month + (e.month !== '-' ? '月' : '') + '</span></td>' +
+    '<td>' + e.name + '</td>' +
+    '<td>' + (e.dateStr || '-') + '</td>' +
+    '<td class="num">$' + e.price.toLocaleString() + '</td>';
+  extraBody.appendChild(tr);
+});
+
+const months = Object.keys(monthMap).sort((a,b)=>a-b);
+new Chart(document.getElementById('monthChart').getContext('2d'), {
+  data: {
+    labels: months.map(m => m + '月'),
+    datasets: [
+      { type: 'bar', label: '花費 ($)', data: months.map(m => monthMap[m].spend), backgroundColor: 'rgba(57,135,229,0.65)', borderRadius: 4, yAxisID: 'y' },
+      { type: 'line', label: '晚數', data: months.map(m => monthMap[m].nights), borderColor: '#7fd4ae', backgroundColor: '#7fd4ae', tension: 0.3, yAxisID: 'y1', pointRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#e0e0e0' } } },
+    scales: {
+      y: { position: 'left', beginAtZero: true, ticks: { color: '#a0a0a0' }, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: '花費 (NT$)', color: '#a0a0a0' } },
+      y1: { position: 'right', beginAtZero: true, ticks: { color: '#a0a0a0' }, grid: { display: false }, title: { display: true, text: '晚數', color: '#a0a0a0' } },
+      x: { ticks: { color: '#a0a0a0' }, grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
