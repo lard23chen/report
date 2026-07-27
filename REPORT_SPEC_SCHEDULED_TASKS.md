@@ -61,6 +61,7 @@
 | `TravelExpenseUpdate` | `travel/auto_update.bat` | 每日 06:00 | 2026/07/23 08:08（失敗，Result=1，見 §6.3 追記；已人工補跑） | **Disabled（2026/07/23）** |
 | `Qware_Weekly_Report_Update` | `weekly_update.bat` | 每週四 08:30 | 2026/07/09 10:21（建立時手動驗證成功，git `fe5673f`） | Ready |
 | `Qware_DMP_AllTime_Top10_Monthly` | `update_dmp_alltime_top10.bat` | 每月 1 日 10:00 | 2026/07/23（建立時手動驗證，見 §5.5） | Ready |
+| `Qware_NewReport_Sync_Daily` | `sync_newreport.bat` | 每日 20:00 | 2026/07/27（建立時手動驗證，見 §5.6） | Ready |
 | `QwareDailyReport`（HKCU Run） | `daily_update.bat` | 每次使用者登入 | — | 常駐 |
 
 > **備注**：`Qware_Daily_Report_Update` 與 `Qware_Daily_Report_Update_Final` 原本執行相同的 BAT、觸發時間也相同（皆 08:00），設計上是「兩者並存確保至少一個成功觸發」的備援措施——但 2026/07/22 發現這個備援設計本身就是 §6.3 追記事故的根源（兩者同時觸發、同時各自產出報表、同時搶 git，其中一份報表被另一支排程的 autostash 誤吞）。已停用原始版 `Qware_Daily_Report_Update`，只保留設定較完整的 `_Final`（有 `WorkingDirectory`、`StartWhenAvailable=True` 可補跑、`ExecutionTimeLimit=1H` 較短），從根本消除同時觸發的可能。
@@ -294,6 +295,60 @@ git push origin main（git 輸出寫入 git_sync.log，見 §6.3）→ 失敗 go
 
 ---
 
+## 5.6 sync_newreport.bat（2026/07/27 新增）
+
+### 5.6.1 背景
+
+`https://github.com/lard23chen/NewReport` 是 2026/07/24 從本 repo（`lard23chen/report`）依 `HTML_Report_Catalog.html` 列表複製出的獨立新 repo（各自獨立的 git 歷史，非 fork），本機持久複本在 `D:\2025\AI\NewReport`。複製之後這份鏡像**沒有接任何排程**，S1/S2/S3/S5 產出的報表在主站更新後就會跟鏡像產生落差，使用者兩度反映「`A_Qware_Revenue_Report_Daily.html` 資料沒更新」才發現，皆為人工重跑同步。此 bat 把這個手動同步流程排程化。
+
+### 5.6.2 基本資訊
+
+| 項目 | 說明 |
+|------|------|
+| 路徑 | `D:\2025\AI\MongoDB\sync_newreport.bat` |
+| 對應排程 | `Qware_NewReport_Sync_Daily`（每日 20:00，`StartWhenAvailable`） |
+| 來源 repo | `D:\2025\AI\MongoDB`（本 repo） |
+| 目的 repo | `D:\2025\AI\NewReport`（獨立 git 歷史，另一個 remote） |
+| Log 檔 | `newreport_sync_log.txt`（存在來源 repo，隨下一步驟一起提交，見 5.6.4） |
+
+> **排程時間選在 20:00**：需等當天所有排程（daily/GA 08:00、GA 15:00、weekly 週四 08:30、DMP 每月 1 日 10:00）都跑完才有意義，20:00 有足夠餘裕涵蓋全部同日排程窗口，一天跑一次即可，不需要跟著每個上游排程分別觸發。
+
+### 5.6.3 同步範圍
+
+只同步 `HTML_Report_Catalog.html` 排程區（S1/S2/S3/S5）**輸出的報表本身**，不含目錄／儀表板頁面（那些連結已改寫指向 `NewReport`，與主站本來就不同，不算「落後」）：
+
+| 報表 | 對應排程 |
+|------|---------|
+| `A_Qware_Revenue_Report_Daily.html` | S1 |
+| `D_GA_Funnel_202606_Report.html` | S1 |
+| `E_DMP_Funnel_Report.html` | S1 |
+| `report_index.html` | S1 |
+| `A_GA_Events_Traffic_Report.html` | S2 |
+| `A_Qware_Revenue_Report_Weekly_*.html`（檔名每週變動，只在 NewReport 端不存在時才新增） | S3 |
+| `A_DMP_PageView_Report_AllTime_Top10.html` + `dmp_details_alltime/*.html`（10 份） | S5 |
+
+### 5.6.4 執行步驟
+
+```bat
+# 0. 重複執行保護：newreport_sync_log.txt 已有今日 "Sync check complete." → skip
+# 1. 獨立互斥鎖 %DST%\.sync_lock（與主 repo 的 .git_bat_lock 分開，因為操作的是不同的 git 倉庫）
+# 2. 兩邊各自 git pull --rebase --autostash 確保最新
+# 3. 直接覆蓋複製 5.6.3 列出的檔案到 NewReport（不事先比較差異——比較 CRLF/LF 曾造成誤判「有差異」但
+#    git commit 實際上無事可做，見下方教訓，改成一律複製，用 git commit 自己的內容比對當唯一真相來源）
+cd /d D:\2025\AI\NewReport
+git add <5.6.3 列出的檔案>
+git commit -m "Sync scheduled report outputs from lard23chen/report: ..."
+#   若 errorlevel（無變更可提交）→ 記錄「Nothing changed since last sync.」，不 push、不發通知
+#   否則 → git pull --rebase --autostash → git push origin main → 失敗則 send_line_notify.ps1
+#          -Template newreport_sync -Status FAIL；成功則 -Template newreport_sync（預設 OK）
+# 4. 把這次的 newreport_sync_log.txt 用 D:\2025\AI\MongoDB 自己的 .git_bat_lock 提交回本 repo
+```
+
+> **教訓（建置時發現）**：一開始用 `fc /b` 逐檔比對來源／目的檔案位元組差異，決定要不要複製——但兩個 repo 過去分別經由 bash `cp` 與 Windows git checkout 寫入，換行符（CRLF/LF）不保證一致，導致 `fc /b` 對本來內容相同的檔案也一律判定「有差異」，複製後 `git commit` 卻回報 `nothing to commit`（git 用正規化後的 blob 內容比對，不受這個問題影響）。改為**一律複製全部檔案，只信任 `git commit` 自身的判斷**作為「有沒有真的變更」的唯一依據，徹底避開這個誤判來源。
+> `git add` 一樣只加入 5.6.3 列出的檔案（非 `git add .`），維持整個專案「不動到其他未提交變更」的慣例。
+
+---
+
 ## 6. 維護注意事項
 
 ### 6.1 常見錯誤碼
@@ -383,7 +438,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/24（`A_Qware_Revenue_Report_Daily.html` 三度卡住：07/23、07/24 兩次的自動排程 log 都顯示成功產出新版，但當天 `git add .` 都沒收進變更、網站停在 07/22 舊版，直到使用者反映才發現；已手動重跑補推。這次不再只是補跑，改在 `daily_update.bat` 內把此檔案的產出改為**產生後立即獨立 commit + push**（用同一把 `.git_bat_lock`），與其餘 7 支報表的最終合併 commit 脫鉤，縮短曝險窗口；根因仍未確認。見 §2.2）*
+*最後更新：2026/07/27（新增 `sync_newreport.bat` + 排程 `Qware_NewReport_Sync_Daily`（每日 20:00），把 S1/S2/S3/S5 報表輸出自動同步進 `lard23chen/NewReport` 鏡像，取代先前使用者反映落後才手動同步的作法；本機新增持久複本 `D:\2025\AI\NewReport`（先前只在 session 暫存目錄，重開機即消失）。詳見新增的 §5.6）*
+*2026/07/24（`A_Qware_Revenue_Report_Daily.html` 三度卡住：07/23、07/24 兩次的自動排程 log 都顯示成功產出新版，但當天 `git add .` 都沒收進變更、網站停在 07/22 舊版，直到使用者反映才發現；已手動重跑補推。這次不再只是補跑，改在 `daily_update.bat` 內把此檔案的產出改為**產生後立即獨立 commit + push**（用同一把 `.git_bat_lock`），與其餘 7 支報表的最終合併 commit 脫鉤，縮短曝險窗口；根因仍未確認。見 §2.2）*
 *2026/07/23（依使用者要求，`daily_update.bat` 移除 `generate_kaohsiung_beer_festival_report.js`／`generate_d_ga_clickdata_report.js`／`generate_d_ga_pageview_report.js` 三支 script，`A_KaohsiungBeerFestival_2026.html`／`D_GA_ClickData_Webb_202606_Report.html`／`D_GA_PageViewData_Webb_202606_Report.html` 停止每日自動更新；已確認保留的 `generate_d_ga_funnel_report.js`／`generate_d_ga_funnel_cart_data.js` 直接查 MongoDB、不依賴這三支的輸出，移除後不影響。見 §2.2／§2.3）*
 *2026/07/23（`TravelExpenseUpdate` 依使用者要求停用（`Disable-ScheduledTask`），`travel/auto_update.bat` 與報表本身未刪除，僅排程停止觸發；同步從 `HTML_Report_Catalog.html` 移除對應列（原 S4），`Scheduled_Tasks_Dashboard.html` 標示為已停用。見 §1 備注、§4）*
 *2026/07/23（`A_Qware_Revenue_Report_Daily.html` 二度卡住：08:08 已成功產出新版，但當天 commit 沒收進去，網站仍是 07/22 舊版，直到使用者反映才發現；已重跑補推 `2066e3e`，追記於 §6.3——這是同一份報表 07/21 之後第二次發生同症狀，推測與它是 daily_update.bat 8 支 script 中最早產出、曝險時間最長有關，但未證實，暫未改 BAT 邏輯）*

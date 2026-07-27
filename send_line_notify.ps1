@@ -1,7 +1,7 @@
 ﻿# send_line_notify.ps1
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File send_line_notify.ps1 -Template daily
 #        powershell -NoProfile -ExecutionPolicy Bypass -File send_line_notify.ps1 -Template travel -Status FAIL -Detail "git push 失敗"
-# Templates: daily | ga | travel
+# Templates: daily | ga | travel | dmp_top10 | newreport_sync
 param(
     [string]$Template = "daily",
     [string]$Status = "OK",
@@ -17,6 +17,7 @@ $messages = @{
     ga        = "`n`n[Qware] GA 流量報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
     travel    = "`n`n[Qware] 旅遊記帳 + 購物清單報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
     dmp_top10 = "`n`n[Qware] DMP 歷史 Top10 流量報表更新完成`n執行時間：$now`n已推送至 GitHub Pages"
+    newreport_sync = "`n`n[Qware] NewReport 鏡像同步完成`n執行時間：$now`n已推送至 lard23chen/NewReport"
 }
 
 $failLabels = @{
@@ -25,6 +26,7 @@ $failLabels = @{
     travel    = "旅遊記帳 + 購物清單報表"
     weekly    = "A 系統週報"
     dmp_top10 = "DMP 歷史 Top10 流量報表"
+    newreport_sync = "NewReport 鏡像同步"
 }
 
 if ($Status -eq "FAIL") {
