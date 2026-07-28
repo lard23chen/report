@@ -32,3 +32,6 @@
 ## 4. 相關連結
 
 - 目錄：`ALEX_Life_Catalog.html`（需密碼）
+
+---
+*最後更新：2026/07/28（於 `AIclass.html` 個人化工具章節新增 `aiclass_assets/AIC_5_1.png` 展示圖片）*
