@@ -322,7 +322,7 @@ async function generateDailyReport() {
         .chart-container { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); flex: 1; min-width: 400px; min-height: 400px; }
         .table-container { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); overflow-x: auto; margin-bottom: 30px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #b2ebf2; }
+        th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #b2ebf2; font-size: 0.9em; }
         th { color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
         td { white-space: nowrap; }
         tr:hover { background-color: #e0f7fa; }
