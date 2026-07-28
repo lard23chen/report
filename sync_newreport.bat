@@ -67,7 +67,9 @@ if errorlevel 1 (
     echo [%date% %time%] Nothing changed since last sync. >> "%SRC%\newreport_sync_log.txt"
 ) else (
     git pull --rebase --autostash origin main >> "%SRC%\git_sync.log" 2>&1
+    git pull --rebase --autostash company main >> "%SRC%\git_sync.log" 2>&1
     git push origin main >> "%SRC%\git_sync.log" 2>&1
+    git push company main >> "%SRC%\git_sync.log" 2>&1
     if errorlevel 1 (
         echo [%date% %time%] git push failed, see git_sync.log >> "%SRC%\newreport_sync_log.txt"
         powershell -NoProfile -ExecutionPolicy Bypass -File "%SRC%\send_line_notify.ps1" -Template "newreport_sync" -Status "FAIL" -Detail "git push failed" >> "%SRC%\newreport_sync_log.txt" 2>&1
