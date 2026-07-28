@@ -34,4 +34,4 @@
 - 目錄：`ALEX_Life_Catalog.html`（需密碼）
 
 ---
-*最後更新：2026/07/28（於 `AIclass.html` 個人化工具章節新增 `aiclass_assets/AIC_5_1.png` 展示圖片）*
+*最後更新：2026/07/28（於 `AIclass.html` 第 5 頁與第 6 頁分別新增 `AIC_5_1.png` 與 `AIC_6_1.png` 展示圖片，並加入 MongoDB Atlas 連結）*
