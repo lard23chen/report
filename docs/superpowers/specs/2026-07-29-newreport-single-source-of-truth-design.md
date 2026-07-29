@@ -20,7 +20,7 @@ status: approved
 
 - `D:\2025\AI\MongoDB` 仍是唯一的**執行目錄**：`.env`、MongoDB 連線設定、`node_modules`、所有 `generate_xxx.js` 原始碼都留在原地，不搬家。
 - Windows Task Scheduler 排程本身的路徑、觸發時間不變，只改各 bat 內部的 git push 目標。
-- `D:\2025\AI\NewReport` 的第二個 remote `company`（`git@github-company:org-ticket-mgmt/ViewReport.git`）完全不碰，這次改動只操作 `origin`（`lard23chen/NewReport`）。
+- `D:\2025\AI\NewReport` 的第二個 remote `company`（`git@github-company:org-ticket-mgmt/ViewReport.git`）**需要跟 `origin` 一起推**——查證後發現這不是廢棄設定，`sync_newreport.bat` 現行就會同時推 `origin` 與 `company`，且 `company` 那邊的 `main` 分支與 `origin` 完全同步、還有一個 `codex/ec2-iis-deploy` 分支與開著的 PR #1，判斷是公司內部有系統依賴這份同步（可能部署到 EC2/IIS）。退休 `sync_newreport.bat` 後，這個 push 行為必須由 4 支排程 bat 接手維持，否則公司那邊的資料會停更。
 - `daily_log.txt`、`weekly_log.txt`、`git_sync.log`、`dmp_alltime_top10_log.txt` 等 log 檔案繼續只留在本機 `D:\2025\AI\MongoDB`，不進任何 git（既不進 `report` 也不進 `NewReport`）；本機仍用這些檔案做「今日是否已跑過」的重複執行判斷。
 
 ## 改法：4 支排程 bat 套用同一個模式
@@ -34,10 +34,13 @@ status: approved
    ```
    git add <這支 bat 這次要同步的檔案清單>   # 不用 git add .
    git commit -m "Auto-update <report 名稱>: <timestamp>"
-   git pull --rebase --autostash origin main   # 失敗則 git rebase --abort
-   git push origin main                        # 輸出導向 git_sync.log（NewReport 端另建一份，避免鎖到主 log）
+   git pull --rebase --autostash origin main    # 失敗則 git rebase --abort
+   git pull --rebase --autostash company main   # 同上，失敗則 git rebase --abort
+   git push origin main                         # 輸出導向 git_sync.log（NewReport 端另建一份，避免鎖到主 log）
+   git push company main                        # 沿用 sync_newreport.bat 現行行為，維持公司內部 repo 同步
    ```
-   若 commit 因無變更而 errorlevel（nothing to commit）→ 視為成功、跳過 push，不視為失敗。
+   若 commit 因無變更而 errorlevel（nothing to commit）→ 視為成功、跳過兩個 push，不視為失敗。
+   任一 push（origin 或 company）失敗都視為這次同步失敗，記入 FAILED_STEPS 並在 LINE 告警的 Detail 註明是哪一個 remote 失敗。
 5. **移除**原本在 `D:\2025\AI\MongoDB` 對 `report`（`origin`）的 git add/commit/push 段落（含 `generate_a_daily_report.js` 現有的獨立提交邏輯，§2.2 提到的 2026/07/24 新增機制）。
 6. `GIT_TERMINAL_PROMPT=0`、`GCM_INTERACTIVE=never` 等既有的 git 認證不互動防護，在 NewReport 端的 git 操作一樣套用。
 7. LINE 通知邏輯不變，只是現在的成敗判斷對象是「push 到 NewReport」而非「push 到 report」。
@@ -63,7 +66,7 @@ status: approved
 
 - `lard23chen.github.io/report` 網站本身：之後停止更新但不刪除，繼續掛著當歷史存檔；要不要加導頁提示到 NewReport，之後再議。
 - `D:\2025\AI\MongoDB` 的 git working tree 之後會持續顯示未 commit 的異動（因為不再對 `report` 做 add/commit），屬預期行為、不影響排程運作。
-- NewReport 的 `company` remote 用途未知（不在任何既有 spec 文件中），這次完全不動，僅操作 `origin`。
+- NewReport 的 `company` remote 對應公司內部系統的確切用途（是否真的部署到 EC2/IIS）仍未完全確認，只是從分支/PR 現況推斷；這次維持現有 push 行為，不深究上游用途。
 
 ## 風險
 
