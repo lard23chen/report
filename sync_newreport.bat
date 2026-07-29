@@ -1,4 +1,8 @@
 @echo off
+:: 已停用（2026/07/29）：即時同步已內建到 daily_update.bat / update_ga_report.bat /
+:: weekly_update.bat / update_dmp_alltime_top10.bat 各自的排程尾端，不再需要每日 20:00
+:: 批次補跑。檔案保留供參考，對應排程 Qware_NewReport_Sync_Daily 已 Disable。見
+:: docs/superpowers/specs/2026-07-29-newreport-single-source-of-truth-design.md
 setlocal enabledelayedexpansion
 set SRC=D:\2025\AI\MongoDB
 set DST=D:\2025\AI\NewReport
