@@ -22,33 +22,59 @@ if errorlevel 1 goto :fail_generate
 
 echo [%date% %time%] Update finished. >> dmp_alltime_top10_log.txt
 
-echo Pushing to Git...
-:: Git 互斥鎖：避免多個排程同時操作 git 互踩（2026/07/14 併發事故防護；最多等 10 分鐘後放行）
-set GIT_BAT_LOCK=D:\2025\AI\MongoDB\.git_bat_lock
-set /a GITLOCK_TRIES=0
-:acquire_git_lock
-md "%GIT_BAT_LOCK%" 2>nul && goto git_lock_ok
-set /a GITLOCK_TRIES+=1
-if %GITLOCK_TRIES% geq 120 goto git_lock_ok
+echo Syncing to NewReport...
+:: NewReport push（2026/07/29 起取代原本對 report/origin 的推送；見
+:: docs/superpowers/specs/2026-07-29-newreport-single-source-of-truth-design.md）
+set SYNC_LOCK=D:\2025\AI\NewReport\.sync_lock
+set /a LOCK_TRIES=0
+:acquire_sync_lock
+md "%SYNC_LOCK%" 2>nul && goto sync_lock_ok
+set /a LOCK_TRIES+=1
+if %LOCK_TRIES% geq 120 goto sync_lock_ok
 ping -n 6 127.0.0.1 >nul
-goto acquire_git_lock
-:git_lock_ok
-:: 清掉前次失敗 rebase 的殘留狀態（在互斥鎖內執行，安全）
-if exist "D:\2025\AI\MongoDB\.git\rebase-merge" rd /s /q "D:\2025\AI\MongoDB\.git\rebase-merge"
-git add A_DMP_PageView_Report_AllTime_Top10.html dmp_details_alltime\*.html dmp_alltime_top10_log.txt
-git commit -m "Auto-update DMP AllTime Top10 report: %date% %time%"
-:: Rebase onto remote first so pushes from other machines don't cause non-fast-forward rejection
-git pull --rebase --autostash origin main >> git_sync.log 2>&1
-if errorlevel 1 (
-    echo [%date% %time%] git pull --rebase failed, aborting rebase. See git_sync.log >> dmp_alltime_top10_log.txt
-    git rebase --abort >> git_sync.log 2>&1
+goto acquire_sync_lock
+:sync_lock_ok
+
+cd /d D:\2025\AI\NewReport
+if exist "D:\2025\AI\NewReport\.git\rebase-merge" rd /s /q "D:\2025\AI\NewReport\.git\rebase-merge"
+git pull --rebase --autostash origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+
+copy /y "D:\2025\AI\MongoDB\A_DMP_PageView_Report_AllTime_Top10.html" "D:\2025\AI\NewReport\A_DMP_PageView_Report_AllTime_Top10.html" >nul
+for %%F in ("D:\2025\AI\MongoDB\dmp_details_alltime\*.html") do (
+    copy /y "%%F" "D:\2025\AI\NewReport\dmp_details_alltime\%%~nxF" >nul
 )
-git push origin main >> git_sync.log 2>&1
+
+git add A_DMP_PageView_Report_AllTime_Top10.html dmp_details_alltime\*.html
+git commit -m "Auto-update DMP AllTime Top10 report: %date% %time%" >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 (
-    rd "%GIT_BAT_LOCK%" 2>nul
+    cd /d D:\2025\AI\MongoDB
+    rd "%SYNC_LOCK%" 2>nul
+    powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "dmp_top10" >> dmp_alltime_top10_log.txt 2>&1
+    echo Done.
+    exit /b 0
+)
+git pull --rebase --autostash origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+git push origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 (
+    cd /d D:\2025\AI\MongoDB
+    rd "%SYNC_LOCK%" 2>nul
     goto :fail_push
 )
-rd "%GIT_BAT_LOCK%" 2>nul
+git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+git push company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 (
+    cd /d D:\2025\AI\MongoDB
+    rd "%SYNC_LOCK%" 2>nul
+    goto :fail_push
+)
+
+cd /d D:\2025\AI\MongoDB
+rd "%SYNC_LOCK%" 2>nul
 
 echo Sending LINE notification...
 powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "dmp_top10" >> dmp_alltime_top10_log.txt 2>&1
@@ -62,6 +88,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_lin
 exit /b 1
 
 :fail_push
-echo [%date% %time%] FAILED: git push step. >> dmp_alltime_top10_log.txt
-powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "dmp_top10" -Status "FAIL" -Detail "git push 失敗" >> dmp_alltime_top10_log.txt 2>&1
+echo [%date% %time%] FAILED: NewReport git push step. >> dmp_alltime_top10_log.txt
+powershell -NoProfile -ExecutionPolicy Bypass -File "D:\2025\AI\MongoDB\send_line_notify.ps1" -Template "dmp_top10" -Status "FAIL" -Detail "NewReport git push 失敗" >> dmp_alltime_top10_log.txt 2>&1
 exit /b 1
