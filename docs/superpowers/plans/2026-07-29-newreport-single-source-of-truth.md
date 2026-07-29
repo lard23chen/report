@@ -4,7 +4,9 @@
 
 **Goal:** Stop the 4 scheduled report bats (`daily_update.bat`, `update_ga_report.bat`, `weekly_update.bat`, `update_dmp_alltime_top10.bat`) from pushing to `report` (`origin` in `D:\2025\AI\MongoDB`), and instead have each push its output directly and immediately to `NewReport` (`origin` + `company` remotes in `D:\2025\AI\NewReport`), retiring the once-daily `sync_newreport.bat` batch-sync step.
 
-**Architecture:** Node generation keeps running in `D:\2025\AI\MongoDB` unchanged (this is where `.env`/MongoDB connectivity/`node_modules` live). Each bat, after generating its reports, copies only the files it actually produced into `D:\2025\AI\NewReport` and does `git add <named files>` → `commit` → `pull --rebase --autostash` (both `origin` and `company`) → `push` (both remotes), guarded by the existing `.sync_lock` mutex pattern from `sync_newreport.bat` (needed because all 4 bats now write into the *same* NewReport repo, unlike today where each wrote into a different repo). No `git add .` is used anywhere in this plan — each bat only stages files it deterministically produced, per the corrected file-list table in the spec.
+**Architecture:** Node generation keeps running in `D:\2025\AI\MongoDB` unchanged (this is where `.env`/MongoDB connectivity/`node_modules` live). Each bat, after generating its reports, copies only the files it actually produced into `D:\2025\AI\NewReport` and does `git add <named files>` → `commit` → then, **per remote, interleaved** (`pull --rebase --autostash origin` → `push origin`, then `pull --rebase --autostash company` → `push company` — never batching both pulls before both pushes), guarded by the existing `.sync_lock` mutex pattern from `sync_newreport.bat` (needed because all 4 bats now write into the *same* NewReport repo, unlike today where each wrote into a different repo). No `git add .` is used anywhere in this plan — each bat only stages files it deterministically produced, per the corrected file-list table in the spec.
+>
+> **Correction (found during Task 1 implementation review):** the original draft of this plan batched both remotes' rebases before either push (`pull origin` → `pull company` → `push origin` → `push company`). A code-quality reviewer caught that this rebases the new commit onto `company`'s tip before attempting to push to `origin`, which is **structurally guaranteed to fail non-fast-forward** whenever `origin` and `company` have diverged commit histories (confirmed they already have, 10+ commits back) — even with no real concurrent-write race. All 4 task code blocks below have been corrected to interleave pull+push per remote. If you're implementing from an older copy of this plan, use the interleaved order, not the batched order.
 
 **Tech Stack:** Windows `cmd.exe` batch scripts, git, Windows Task Scheduler (`schtasks`/`ScheduledTasks` PowerShell cmdlets), existing `send_line_notify.ps1`.
 
@@ -43,6 +45,8 @@ Expected: 10 `.html` files listed (already verified present during planning — 
 - Modify: `D:\2025\AI\MongoDB\daily_update.bat`
 
 The existing file has two report-push blocks to remove: the early independent commit for `A_Qware_Revenue_Report_Daily.html` (added 2026/07/24 to reduce a commit-loss window — no longer needed since we stop touching `report` entirely) and the final `git add .` block. Both are replaced by one consolidated NewReport sync block at the end. `setlocal enabledelayedexpansion` is added so the conditional (day-2 monthly / day-10 GA) extra files can be appended to a file list safely inside `if` blocks — plain `%VAR%` expansion happens at block-parse time and would not pick up a value set earlier in the same script reliably once nested inside further blocks, so `!VAR!` (delayed expansion) is used for that one variable.
+
+**Verified against real `cmd.exe` (2026/07/29, during Task 1 implementation):** picking "only the newest matching file" uses `if not defined EXTRA_FILES set EXTRA_FILES=...` inside the `for /f ... do (...)` loop, relying on `dir /b /o-d` sorting newest-modified-first so only the first iteration's assignment sticks — **not** a `goto label` out of the loop. A `goto`-into-a-label-inside-nested-`(...)`-blocks construct was tried first and fails to parse in real `cmd.exe`, even on days the surrounding `if` branch isn't taken, because cmd pre-parses the entire parenthesized block regardless of whether it executes. Apply this same `if not defined` pattern (never `goto`-out-of-a-nested-block) in any other task below that needs "pick the first/newest match" logic.
 
 - [ ] **Step 1: Replace the full file contents**
 
@@ -99,10 +103,8 @@ if "%TODAY_DAY%"=="2" (
         set FAILED_STEPS=%FAILED_STEPS%generate_monthly_report.js;
     ) else (
         for /f "delims=" %%M in ('dir /b /o-d "A_Qware_Revenue_Report_*年*月_分析報表.html" 2^>nul') do (
-            set EXTRA_FILES=!EXTRA_FILES! %%M
-            goto monthly_file_found
+            if not defined EXTRA_FILES set EXTRA_FILES= %%M
         )
-        :monthly_file_found
     )
 )
 if "%TODAY_DAY%"=="10" (
@@ -151,10 +153,10 @@ if errorlevel 1 (
 ) else (
     git pull --rebase --autostash origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-    git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-    if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     git push origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%NewReport-push-origin;
+    git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+    if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     git push company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%NewReport-push-company;
 )
@@ -242,14 +244,14 @@ if errorlevel 1 (
 )
 git pull --rebase --autostash origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 git push origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 (
     cd /d D:\2025\AI\MongoDB
     rd "%SYNC_LOCK%" 2>nul
     goto :fail_push
 )
+git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 git push company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 (
     cd /d D:\2025\AI\MongoDB
@@ -360,14 +362,14 @@ if errorlevel 1 (
 )
 git pull --rebase --autostash origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 git push origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 (
     cd /d D:\2025\AI\MongoDB
     rd "%SYNC_LOCK%" 2>nul
     goto :fail_push
 )
+git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 git push company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 (
     cd /d D:\2025\AI\MongoDB
@@ -478,14 +480,14 @@ if errorlevel 1 (
 )
 git pull --rebase --autostash origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 git push origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 (
     cd /d D:\2025\AI\MongoDB
     rd "%SYNC_LOCK%" 2>nul
     goto :fail_push
 )
+git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 git push company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 (
     cd /d D:\2025\AI\MongoDB
@@ -590,11 +592,11 @@ cd /d D:\2025\AI\NewReport
 git add HTML_Report_Catalog.html Scheduled_Tasks_Dashboard.html
 git commit -m "One-time sync of catalog and dashboard pages ahead of automated weekly sync"
 git pull --rebase --autostash origin main
-git pull --rebase --autostash company main
 git push origin main
+git pull --rebase --autostash company main
 git push company main
 ```
-Expected: both pushes succeed (or report the actual failure — do not silently ignore a push failure here, this is a manual one-off run, not a scheduled task with retry).
+Expected: both pushes succeed (or report the actual failure — do not silently ignore a push failure here, this is a manual one-off run, not a scheduled task with retry). Push per remote immediately after that remote's own pull/rebase (not both pulls before both pushes) — batching both pulls before both pushes rebases the commit onto `company`'s tip first, which then makes the `origin` push fail non-fast-forward whenever the two remotes' histories have diverged (confirmed during Task 1 that they already have).
 
 ---
 
