@@ -49,12 +49,14 @@ status: approved
 
 | bat | 同步到 NewReport 的檔案 |
 |---|---|
-| `daily_update.bat` | `A_Qware_Revenue_Report_Daily.html`、`D_GA_Funnel_202606_Report.html`、`E_DMP_Funnel_Report.html`、`report_index.html`、`HTML_Report_Catalog.html`、（每月 2 日另加）`A_Qware_Revenue_Report_YYYY年MM月_分析報表.html`、（每月 10 日另加）`A_GA_Traffic_Analysis_Report.html` |
-| `update_ga_report.bat` | `A_GA_Events_Traffic_Report.html`、`HTML_Report_Catalog.html`（若有異動） |
-| `weekly_update.bat` | `A_Qware_Revenue_Report_Weekly_*.html`（僅 NewReport 端不存在時新增）、`HTML_Report_Catalog.html` |
-| `update_dmp_alltime_top10.bat` | `A_DMP_PageView_Report_AllTime_Top10.html`、`dmp_details_alltime/*.html`（10 份）、`HTML_Report_Catalog.html` |
+| `daily_update.bat` | `A_Qware_Revenue_Report_Daily.html`、`D_GA_Funnel_202606_Report.html`、`E_DMP_Funnel_Report.html`、`report_index.html`、（每月 2 日另加）`A_Qware_Revenue_Report_YYYY年MM月_分析報表.html`、（每月 10 日另加）`A_GA_Traffic_Analysis_Report.html` |
+| `update_ga_report.bat` | `A_GA_Events_Traffic_Report.html` |
+| `weekly_update.bat` | `A_Qware_Revenue_Report_Weekly_*.html`（僅 NewReport 端不存在時新增）、`report_index.html`、`HTML_Report_Catalog.html` |
+| `update_dmp_alltime_top10.bat` | `A_DMP_PageView_Report_AllTime_Top10.html`、`dmp_details_alltime/*.html`（10 份） |
 
-`Scheduled_Tasks_Dashboard.html` 若有異動（例如排程狀態欄位更新），跟著任一支觸發時一併同步；沒有固定綁在哪支 bat，由改到它的那支負責帶上。
+> **修正（實作前查證）**：原稿以為 daily/GA/DMP 也會動到 `HTML_Report_Catalog.html`，但實際 grep 各 `generate_xxx.js` 後確認**只有 `generate_a_weekly_report.js` 會呼叫 `updateCatalogRow()` 寫入目錄頁**，daily/GA/DMP 三支排程完全不碰它；`report_index.html` 則是 `update_index_stats.js`（daily 排程內）與 `generate_a_weekly_report.js`（weekly 排程內）都會寫入，兩邊都要同步。新流程改用「指名同步」（不像現行 report 端用 `git add .` 會順便撈到任何殘留異動），所以每支 bat 只同步自己腳本實際產出的檔案，不多加。
+>
+> `Scheduled_Tasks_Dashboard.html` 目前沒有任何腳本自動更新它（純手動維護），這次不需要、也不會被排到任何 bat 的自動同步清單裡；遷移時人工複製一份到 NewReport 即可，之後手動編輯要記得手動同步兩邊（不在本次自動化範圍內）。
 
 ## 退休項目
 
