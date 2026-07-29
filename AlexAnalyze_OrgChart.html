@@ -113,6 +113,13 @@
       overflow: auto;
     }
 
+    /* 節點文字：黑色粗體放大 */
+    .chart-wrap table.google-visualization-orgchart-table td {
+      color: #000 !important;
+      font-weight: 800 !important;
+      font-size: 1rem !important;
+    }
+
     .note {
       font-size: 0.82rem;
       color: var(--muted);
@@ -129,12 +136,9 @@
   </div>
 
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('ddt')">7. 數位應用開發 Team 組織圖</button>
-    <button class="tab-btn" onclick="switchTab('ddt-out')">8. 數位應用開發 外包人力</button>
-    <button class="tab-btn" onclick="switchTab('ddt-work')">9. 數位應用開發 工作功能</button>
-    <button class="tab-btn" onclick="switchTab('pdt')">10. 平台應用開發 Team 組織圖</button>
-    <button class="tab-btn" onclick="switchTab('pdt-out')">11. 平台應用開發 外包人力</button>
-    <button class="tab-btn" onclick="switchTab('pdt-work')">12. 平台應用開發 工作功能</button>
+    <button class="tab-btn active" onclick="switchTab('ddt')">數位應用開發 Team 組織圖</button>
+    <button class="tab-btn" onclick="switchTab('ddt-out')">數位應用開發 外包人力</button>
+    <button class="tab-btn" onclick="switchTab('ddt-work')">數位應用開發 工作功能</button>
   </div>
 
   <!-- Panel 7 -->
@@ -164,38 +168,13 @@
     </div>
   </div>
 
-  <!-- Panel 10 -->
-  <div id="panel-pdt" class="tab-panel">
-    <div class="chart-card">
-      <h2>平台應用開發 Team 組織圖 (游國楷)</h2>
-      <div class="chart-wrap"><div id="chart_pdt"></div></div>
-      <p class="note">紅色斜體為職稱 / 角色。</p>
-    </div>
-  </div>
 
-  <!-- Panel 11 -->
-  <div id="panel-pdt-out" class="tab-panel">
-    <div class="chart-card">
-      <h2>平台應用開發 外包人力圖 (游國楷)</h2>
-      <div class="chart-wrap"><div id="chart_pdt_out"></div></div>
-      <p class="note">紅色斜體為職稱 / 角色。</p>
-    </div>
-  </div>
-
-  <!-- Panel 12 -->
-  <div id="panel-pdt-work" class="tab-panel">
-    <div class="chart-card">
-      <h2>平台應用開發 Team 工作功能圖 (游國楷)</h2>
-      <div class="chart-wrap"><div id="chart_pdt_work"></div></div>
-      <p class="note">紅色斜體為職稱 / 角色。</p>
-    </div>
-  </div>
 
   <script>
     /* ── Tab 切換 ── */
     function switchTab(id) {
       document.querySelectorAll('.tab-btn').forEach((b, i) => {
-        const ids = ['ddt','ddt-out','ddt-work','pdt','pdt-out','pdt-work'];
+        const ids = ['ddt','ddt-out','ddt-work'];
         b.classList.toggle('active', ids[i] === id);
       });
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -287,55 +266,7 @@
         ['Azure架構<BR><div style="color:red;font-style:italic">黃陸堃2</div>', 'Azure Web', ''],
       ]);
 
-      /* ── 10. PDT 組織圖 ── */
-      makeOrgChart('chart_pdt', [
-        [{'v':'PDT', 'f':'游國楷<div style="color:red;font-style:italic">平台應用開發team</div>'}, '', 'Manager'],
-        [{'v':'雲端卡', 'f':'雲端開心卡'}, 'PDT', ''],
-        ['游國楷<div style="color:red;font-style:italic">SA</div>', '雲端卡', ''],
-        ['薛仁奇<div style="color:red;font-style:italic">PM</div>', '雲端卡', ''],
-        ['吳文凱<div style="color:red;font-style:italic">PM</div>', '雲端卡', ''],
-        ['簡睿葦<div style="color:red;font-style:italic">PG</div>', '游國楷<div style="color:red;font-style:italic">SA</div>', ''],
-        ['安源禮贈進銷存', 'PDT', ''],
-        ['吳柔潔 <div style="color:red;font-style:italic">SA</div>', '安源禮贈進銷存', ''],
-        ['吳文凱 <div style="color:red;font-style:italic">PM</div>', '安源禮贈進銷存', ''],
-        ['i禮贈', 'PDT', ''],
-        ['曾致洋<div style="color:red;font-style:italic">SA</div>', 'i禮贈', ''],
-        ['羊珮媛<div style="color:red;font-style:italic">PM</div>', 'i禮贈', ''],
-        ['楊仲文<div style="color:red;font-style:italic">PG</div>', '曾致洋<div style="color:red;font-style:italic">SA</div>', ''],
-        ['好康紅利', 'PDT', ''],
-        ['吳柔潔<div style="color:red;font-style:italic">SA</div>', '好康紅利', ''],
-        ['李佳馨<div style="color:red;font-style:italic">PM</div>', '好康紅利', ''],
-        ['蔡恩傑<div style="color:red;font-style:italic">PG</div>', '吳柔潔<div style="color:red;font-style:italic">SA</div>', ''],
-        ['金流平台', 'PDT', ''],
-        ['李冠毅<div style="color:red;font-style:italic">SA</div>', '金流平台', ''],
-        ['陳春惠<div style="color:red;font-style:italic">PM</div>', '金流平台', ''],
-        ['PM群', 'PDT', ''],
-        ['劉道鈞<div style="color:red;font-style:italic">PM</div>', 'PM群', ''],
-      ]);
 
-      /* ── 11. PDT 外包人力 ── */
-      makeOrgChart('chart_pdt_out', [
-        [{'v':'平台應用開發team', 'f':'平台應用開發team<div style="color:red;font-style:italic">游國楷</div>'}, '', 'Manager'],
-        [{'v':'雲端開心卡', 'f':'雲端開心卡<div style="color:red;font-style:italic">精誠</div>'}, '平台應用開發team', ''],
-        [{'v':'進銷存', 'f':'進銷存<div style="color:red;font-style:italic">TBF</div>'}, '平台應用開發team', ''],
-        [{'v':'游國楷', 'f':'游國楷<div style="color:red;font-style:italic">SA</div>'}, '雲端開心卡', ''],
-        ['TBF<BR><div style="color:red;font-style:italic">SA</div>', '進銷存', ''],
-      ]);
-
-      /* ── 12. PDT 工作功能 ── */
-      makeOrgChart('chart_pdt_work', [
-        [{'v':'平台應用開發team', 'f':'平台應用開發team<div style="color:red;font-style:italic">游國楷</div>'}, '', 'Manager'],
-        [{'v':'外包', 'f':'外包<div style="color:red;font-style:italic"></div>'}, '平台應用開發team', ''],
-        [{'v':'Azure Web', 'f':'Azure Web<div style="color:red;font-style:italic"></div>'}, '平台應用開發team', ''],
-        [{'v':'ibon', 'f':'ibon<div style="color:red;font-style:italic"></div>'}, '平台應用開發team', ''],
-        [{'v':'雲端開心卡', 'f':'雲端開心卡<div style="color:red;font-style:italic">一帆</div>'}, '外包', ''],
-        [{'v':'進銷存', 'f':'進銷存<div style="color:red;font-style:italic">一帆</div>'}, '外包', ''],
-        [{'v':'游國楷', 'f':'游國楷<div style="color:red;font-style:italic">SA</div>'}, '雲端開心卡', ''],
-        [{'v':'TBF', 'f':'TBF<div style="color:red;font-style:italic">SA</div>'}, '進銷存', ''],
-        ['金流平台<BR><div style="color:red;font-style:italic">李冠毅</div>', 'Azure Web', ''],
-        ['Wallet平台<BR><div style="color:red;font-style:italic">游國楷</div>', 'Azure Web', ''],
-        ['紅利好康<BR><div style="color:red;font-style:italic">吳柔潔</div>', 'ibon', ''],
-      ]);
 
     }
   </script>
