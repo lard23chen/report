@@ -145,7 +145,6 @@
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('ddt')">數位應用開發 Team 組織圖</button>
     <button class="tab-btn" onclick="switchTab('ddt-out')">數位應用開發 外包人力</button>
-    <button class="tab-btn" onclick="switchTab('ddt-work')">數位應用開發 工作功能</button>
   </div>
 
   <!-- Panel 7 -->
@@ -166,14 +165,7 @@
     </div>
   </div>
 
-  <!-- Panel 9 -->
-  <div id="panel-ddt-work" class="tab-panel">
-    <div class="chart-card">
-      <h2>數位應用開發 Team 工作功能圖 (陳俊良)</h2>
-      <div class="chart-wrap"><div id="chart_ddt_work"></div></div>
-      <p class="note">紅色斜體為職稱 / 角色。</p>
-    </div>
-  </div>
+
 
 
 
@@ -181,7 +173,7 @@
     /* ── Tab 切換 ── */
     function switchTab(id) {
       document.querySelectorAll('.tab-btn').forEach((b, i) => {
-        const ids = ['ddt','ddt-out','ddt-work'];
+        const ids = ['ddt','ddt-out'];
         b.classList.toggle('active', ids[i] === id);
       });
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -259,25 +251,7 @@
         [{'v':'林家銘2<BR><div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">10. </span>林家銘<BR><div style="color:red;font-style:italic">SA</div>'}, '球隊APP', ''],
       ]);
 
-      /* ── 9. DDT 工作功能 ── */
-      makeOrgChart('chart_ddt_work', [
-        [{'v':'數位應用開發team', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">1. </span>數位應用開發team<div style="color:red;font-style:italic">陳俊良</div>'}, '', 'Manager'],
-        [{'v':'外包', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">2. </span>外包<div style="color:red;font-style:italic"></div>'}, '數位應用開發team', ''],
-        [{'v':'Azure Web', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">3. </span>Azure Web<div style="color:red;font-style:italic"></div>'}, '數位應用開發team', ''],
-        [{'v':'D系統擴充', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">4. </span><div class="lvl3-box">D系統擴充<div style="color:red;font-style:italic;font-size:0.9rem;">一帆</div></div>'}, '外包', ''],
-        [{'v':'球隊APP', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">5. </span><div class="lvl3-box">球隊APP<div style="color:red;font-style:italic;font-size:0.9rem;">一帆</div></div>'}, '外包', ''],
-        [{'v':'自主上架', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">6. </span><div class="lvl3-box">自主上架<div style="color:red;font-style:italic;font-size:0.9rem;">電獺</div></div>'}, '外包', ''],
-        [{'v':'訂房網', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">7. </span><div class="lvl3-box">訂房網<div style="color:red;font-style:italic;font-size:0.9rem;">旅圖</div></div>'}, '外包', ''],
-        [{'v':'林家銘', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">8. </span>林家銘<div style="color:red;font-style:italic">SA</div>'}, 'D系統擴充', ''],
-        [{'v':'林家銘2', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">9. </span>林家銘<div style="color:red;font-style:italic">SA</div>'}, '球隊APP', ''],
-        [{'v':'黃士哲', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">10. </span>黃士哲<div style="color:red;font-style:italic">PG</div>'}, '自主上架', ''],
-        [{'v':'黃士哲2<BR><div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">11. </span>黃士哲<BR><div style="color:red;font-style:italic">PG</div>'}, '訂房網', ''],
-        [{'v':'票務資訊網<BR><div style="color:red;font-style:italic">黃陸堃</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">12. </span><div class="lvl3-box">票務資訊網<BR><div style="color:red;font-style:italic;font-size:0.9rem;">黃陸堃</div></div>'}, 'Azure Web', ''],
-        [{'v':'ibon售票系統<BR><div style="color:red;font-style:italic">謝正軒</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">13. </span><div class="lvl3-box">ibon售票系統<BR><div style="color:red;font-style:italic;font-size:0.9rem;">謝正軒</div></div>'}, 'Azure Web', ''],
-        [{'v':'社群會員<BR><div style="color:red;font-style:italic">林家銘</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">14. </span><div class="lvl3-box">社群會員<BR><div style="color:red;font-style:italic;font-size:0.9rem;">林家銘</div></div>'}, 'Azure Web', ''],
-        [{'v':'高鐵加價購<BR><div style="color:red;font-style:italic">鄒易恆</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">15. </span><div class="lvl3-box">高鐵加價購<BR><div style="color:red;font-style:italic;font-size:0.9rem;">鄒易恆</div></div>'}, 'Azure Web', ''],
-        [{'v':'Azure架構<BR><div style="color:red;font-style:italic">黃陸堃2</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">16. </span><div class="lvl3-box">Azure架構<BR><div style="color:red;font-style:italic;font-size:0.9rem;">黃陸堃</div></div>'}, 'Azure Web', ''],
-      ]);
+
 
 
 
