@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 cd /d D:\2025\AI\MongoDB
 
 :: Fail fast instead of hanging forever if git needs credentials (no UI in scheduled session)
@@ -23,29 +24,6 @@ echo Running generate_a_daily_report.js...
 "D:\nodejs\node.exe" generate_a_daily_report.js >> daily_log.txt 2>&1
 if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_a_daily_report.js;
 
-:: 2026/07/24 新增：A_Qware_Revenue_Report_Daily.html 連續多日「產生成功卻沒被 commit」
-:: （07/21、07/22、07/23、07/24 皆發生，需手動補 commit，原因未確定），改為產生後立即
-:: 獨立 commit，不等後面所有 script 跑完才一次 git add .，降低被中途覆蓋/漏 commit 的風險。
-set GIT_BAT_LOCK=D:\2025\AI\MongoDB\.git_bat_lock
-set /a GITLOCK_TRIES=0
-:acquire_git_lock_revenue
-md "%GIT_BAT_LOCK%" 2>nul && goto git_lock_ok_revenue
-set /a GITLOCK_TRIES+=1
-if %GITLOCK_TRIES% geq 120 goto git_lock_ok_revenue
-ping -n 6 127.0.0.1 >nul
-goto acquire_git_lock_revenue
-:git_lock_ok_revenue
-if exist "D:\2025\AI\MongoDB\.git\rebase-merge" rd /s /q "D:\2025\AI\MongoDB\.git\rebase-merge"
-git add A_Qware_Revenue_Report_Daily.html
-git commit -m "Auto-update A_Qware_Revenue_Report_Daily.html: %date% %time%" >> daily_log.txt 2>&1
-git pull --rebase --autostash origin main >> git_sync.log 2>&1
-if errorlevel 1 (
-    echo [%date% %time%] git pull --rebase failed during early revenue-report commit, aborting rebase. See git_sync.log >> daily_log.txt
-    git rebase --abort >> git_sync.log 2>&1
-)
-git push origin main >> git_sync.log 2>&1
-rd "%GIT_BAT_LOCK%" 2>nul
-
 echo Running generate_d_ga_funnel_report.js...
 "D:\nodejs\node.exe" generate_d_ga_funnel_report.js >> daily_log.txt 2>&1
 if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_d_ga_funnel_report.js;
@@ -62,44 +40,75 @@ echo Running update_index_stats.js (monthly stats update)...
 "D:\nodejs\node.exe" update_index_stats.js >> daily_log.txt 2>&1
 if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%update_index_stats.js;
 
+set EXTRA_FILES=
+
 for /f %%d in ('powershell -NoProfile -Command "(Get-Date).Day"') do set TODAY_DAY=%%d
 if "%TODAY_DAY%"=="2" (
     echo [%date% %time%] Day 2 detected - generating previous month report... >> daily_log.txt
     "D:\nodejs\node.exe" generate_monthly_report.js >> daily_log.txt 2>&1
-    if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_monthly_report.js;
+    if errorlevel 1 (
+        set FAILED_STEPS=%FAILED_STEPS%generate_monthly_report.js;
+    ) else (
+        for /f "delims=" %%M in ('dir /b /o-d "A_Qware_Revenue_Report_*年*月_分析報表.html" 2^>nul') do (
+            if not defined EXTRA_FILES set EXTRA_FILES= %%M
+        )
+    )
 )
 if "%TODAY_DAY%"=="10" (
     echo [%date% %time%] Day 10 detected - updating GA Traffic Analysis Report... >> daily_log.txt
     "D:\nodejs\node.exe" generate_ga_report.js >> daily_log.txt 2>&1
-    if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_ga_report.js;
+    if errorlevel 1 (
+        set FAILED_STEPS=%FAILED_STEPS%generate_ga_report.js;
+    ) else (
+        set EXTRA_FILES=!EXTRA_FILES! A_GA_Traffic_Analysis_Report.html
+    )
 )
 
 echo [%date% %time%] Update Completed. >> daily_log.txt
 
-echo Pushing to Git...
-:: Git 互斥鎖：避免多個排程同時操作 git 互踩（2026/07/14 併發事故防護；最多等 10 分鐘後放行）
-set GIT_BAT_LOCK=D:\2025\AI\MongoDB\.git_bat_lock
-set /a GITLOCK_TRIES=0
-:acquire_git_lock
-md "%GIT_BAT_LOCK%" 2>nul && goto git_lock_ok
-set /a GITLOCK_TRIES+=1
-if %GITLOCK_TRIES% geq 120 goto git_lock_ok
+echo Syncing to NewReport...
+:: NewReport push（2026/07/29 起取代原本對 report/origin 的推送；report repo 之後不再由
+:: 排程自動 commit，改為即時同步進 NewReport，見
+:: docs/superpowers/specs/2026-07-29-newreport-single-source-of-truth-design.md）
+set SYNC_FILES=A_Qware_Revenue_Report_Daily.html D_GA_Funnel_202606_Report.html E_DMP_Funnel_Report.html report_index.html!EXTRA_FILES!
+
+set SYNC_LOCK=D:\2025\AI\NewReport\.sync_lock
+set /a LOCK_TRIES=0
+:acquire_sync_lock
+md "%SYNC_LOCK%" 2>nul && goto sync_lock_ok
+set /a LOCK_TRIES+=1
+if %LOCK_TRIES% geq 120 goto sync_lock_ok
 ping -n 6 127.0.0.1 >nul
-goto acquire_git_lock
-:git_lock_ok
-:: 清掉前次失敗 rebase 的殘留狀態（在互斥鎖內執行，安全）
-if exist "D:\2025\AI\MongoDB\.git\rebase-merge" rd /s /q "D:\2025\AI\MongoDB\.git\rebase-merge"
-git add .
-git commit -m "Auto Update Daily Reports: %date% %time%"
-:: Rebase onto remote first so pushes from other machines don't cause non-fast-forward rejection
-git pull --rebase --autostash origin main >> git_sync.log 2>&1
+goto acquire_sync_lock
+:sync_lock_ok
+
+cd /d D:\2025\AI\NewReport
+if exist "D:\2025\AI\NewReport\.git\rebase-merge" rd /s /q "D:\2025\AI\NewReport\.git\rebase-merge"
+git pull --rebase --autostash origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+
+cd /d D:\2025\AI\MongoDB
+for %%F in (%SYNC_FILES%) do copy /y "D:\2025\AI\MongoDB\%%F" "D:\2025\AI\NewReport\%%F" >nul
+
+cd /d D:\2025\AI\NewReport
+git add %SYNC_FILES%
+git commit -m "Auto-update Daily Reports: %date% %time%" >> D:\2025\AI\MongoDB\git_sync.log 2>&1
 if errorlevel 1 (
-    echo [%date% %time%] git pull --rebase failed, aborting rebase. See git_sync.log >> daily_log.txt
-    git rebase --abort >> git_sync.log 2>&1
+    echo [%date% %time%] NewReport: nothing to commit. >> D:\2025\AI\MongoDB\daily_log.txt
+) else (
+    git pull --rebase --autostash origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+    if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+    git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+    if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+    git push origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+    if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%NewReport-push-origin;
+    git push company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+    if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%NewReport-push-company;
 )
-git push origin main >> git_sync.log 2>&1
-if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%git push;
-rd "%GIT_BAT_LOCK%" 2>nul
+cd /d D:\2025\AI\MongoDB
+rd "%SYNC_LOCK%" 2>nul
 
 echo Sending LINE notification...
 if defined FAILED_STEPS (
