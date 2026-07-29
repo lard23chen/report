@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>組織架構圖 - AlexAnalyze</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    :root {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --border: #333;
+      --text: #e0e0e0;
+      --muted: #a0a0a0;
+      --accent: #42A5F5;
+      --purple: #9c27b0;
+      --gold: #ffd700;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 20px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      padding: 8px 20px;
+      background: #1e293b;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: var(--accent); color: #fff; }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--purple);
+    }
+
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tab-btn.active {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* ── Chart panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 8px 16px rgba(0,0,0,.3);
+    }
+
+    .chart-card h2 {
+      font-size: 1.1rem;
+      color: var(--gold);
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    /* Override Google OrgChart default white bg */
+    .chart-wrap {
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px;
+      overflow: auto;
+    }
+
+    .note {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+    .note span { color: #ef9a9a; }
+  </style>
+</head>
+<body>
+
+  <div class="header-row">
+    <a href="ALEX_Life_Catalog.html" class="back-btn">← 回生活管理</a>
+    <h1>🏢 組織架構圖</h1>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('ddt')">7. 數位應用開發 Team 組織圖</button>
+    <button class="tab-btn" onclick="switchTab('ddt-out')">8. 數位應用開發 外包人力</button>
+    <button class="tab-btn" onclick="switchTab('ddt-work')">9. 數位應用開發 工作功能</button>
+    <button class="tab-btn" onclick="switchTab('pdt')">10. 平台應用開發 Team 組織圖</button>
+    <button class="tab-btn" onclick="switchTab('pdt-out')">11. 平台應用開發 外包人力</button>
+    <button class="tab-btn" onclick="switchTab('pdt-work')">12. 平台應用開發 工作功能</button>
+  </div>
+
+  <!-- Panel 7 -->
+  <div id="panel-ddt" class="tab-panel active">
+    <div class="chart-card">
+      <h2>數位應用開發 Team 組織圖 (Alex)</h2>
+      <div class="chart-wrap"><div id="chart_ddt"></div></div>
+      <p class="note">紅色斜體為職稱 / 角色。<span>已隱藏歷史成員（ASP 程式碼中 // 註解）</span></p>
+    </div>
+  </div>
+
+  <!-- Panel 8 -->
+  <div id="panel-ddt-out" class="tab-panel">
+    <div class="chart-card">
+      <h2>數位應用開發 外包人力圖 (陳俊良)</h2>
+      <div class="chart-wrap"><div id="chart_ddt_out"></div></div>
+      <p class="note">紅色斜體為職稱 / 角色。</p>
+    </div>
+  </div>
+
+  <!-- Panel 9 -->
+  <div id="panel-ddt-work" class="tab-panel">
+    <div class="chart-card">
+      <h2>數位應用開發 Team 工作功能圖 (陳俊良)</h2>
+      <div class="chart-wrap"><div id="chart_ddt_work"></div></div>
+      <p class="note">紅色斜體為職稱 / 角色。</p>
+    </div>
+  </div>
+
+  <!-- Panel 10 -->
+  <div id="panel-pdt" class="tab-panel">
+    <div class="chart-card">
+      <h2>平台應用開發 Team 組織圖 (游國楷)</h2>
+      <div class="chart-wrap"><div id="chart_pdt"></div></div>
+      <p class="note">紅色斜體為職稱 / 角色。</p>
+    </div>
+  </div>
+
+  <!-- Panel 11 -->
+  <div id="panel-pdt-out" class="tab-panel">
+    <div class="chart-card">
+      <h2>平台應用開發 外包人力圖 (游國楷)</h2>
+      <div class="chart-wrap"><div id="chart_pdt_out"></div></div>
+      <p class="note">紅色斜體為職稱 / 角色。</p>
+    </div>
+  </div>
+
+  <!-- Panel 12 -->
+  <div id="panel-pdt-work" class="tab-panel">
+    <div class="chart-card">
+      <h2>平台應用開發 Team 工作功能圖 (游國楷)</h2>
+      <div class="chart-wrap"><div id="chart_pdt_work"></div></div>
+      <p class="note">紅色斜體為職稱 / 角色。</p>
+    </div>
+  </div>
+
+  <script>
+    /* ── Tab 切換 ── */
+    function switchTab(id) {
+      document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        const ids = ['ddt','ddt-out','ddt-work','pdt','pdt-out','pdt-work'];
+        b.classList.toggle('active', ids[i] === id);
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+    }
+
+    /* ── Google Charts ── */
+    google.charts.load('current', { packages: ['orgchart'] });
+    google.charts.setOnLoadCallback(drawAllCharts);
+
+    function makeOrgChart(divId, rows) {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Name');
+      data.addColumn('string', 'Manager');
+      data.addColumn('string', 'ToolTip');
+      data.addRows(rows);
+      var chart = new google.visualization.OrgChart(document.getElementById(divId));
+      chart.draw(data, { allowHtml: true });
+    }
+
+    function drawAllCharts() {
+
+      /* ── 7. DDT 組織圖 ── */
+      makeOrgChart('chart_ddt', [
+        [{'v':'Alex', 'f':'Alex<div style="color:red;font-style:italic">數位應用開發team</div>'}, '', 'Manager'],
+        [{'v':'票務網', 'f':'票務網<div style="color:red;font-style:italic">peter/anne</div>'}, 'Alex', '票務網'],
+        [{'v':'A系統', 'f':'A系統'}, '票務網', ''],
+        ['Mog<div style="color:red;font-style:italic">SA</div>', 'A系統', ''],
+        ['jimmy<div style="color:red;font-style:italic">SA</div>', 'A系統', ''],
+        ['chris<div style="color:red;font-style:italic">PG</div>', 'Mog<div style="color:red;font-style:italic">SA</div>', ''],
+        ['Nick<div style="color:red;font-style:italic">PG</div>', 'Mog<div style="color:red;font-style:italic">SA</div>', ''],
+        ['E系統(外)', '票務網', ''],
+        ['Kevin<div style="color:red;font-style:italic">PG</div>', 'E系統(外)', ''],
+        ['K系統', '票務網', ''],
+        ['Nick3<div style="color:red;font-style:italic">PG</div>', 'K系統', ''],
+        ['會員', '票務網', ''],
+        ['jimmy2<div style="color:red;font-style:italic">SA</div>', '會員', ''],
+        ['chris2<div style="color:red;font-style:italic">PG</div>', 'jimmy2<div style="color:red;font-style:italic">SA</div>', ''],
+        ['訂房(外)', '票務網', ''],
+        ['Kevin2<div style="color:red;font-style:italic">SA</div>', '訂房(外)', ''],
+        ['nick2<div style="color:red;font-style:italic">PG</div>', 'Kevin2<div style="color:red;font-style:italic">SA</div>', ''],
+        ['D系統/金流平台', '票務網', ''],
+        ['webb<div style="color:red;font-style:italic">SA</div>', 'D系統/金流平台', ''],
+        ['davis<div style="color:red;font-style:italic">SA</div>', 'D系統/金流平台', ''],
+        ['Jim<div style="color:red;font-style:italic">PG(P)</div>', 'webb<div style="color:red;font-style:italic">SA</div>', ''],
+        ['auzre架構', '票務網', ''],
+        ['webb2<div style="color:red;font-style:italic">SA</div>', 'auzre架構', ''],
+        ['kevin3<div style="color:red;font-style:italic">PG(P)</div>', 'webb2<div style="color:red;font-style:italic">SA</div>', ''],
+        ['排隊平台', '票務網', ''],
+        ['jimmy3<div style="color:red;font-style:italic">SA</div>', '排隊平台', ''],
+        ['PM群', '票務網', ''],
+        ['Tammy<div style="color:red;font-style:italic">PM</div>', 'PM群', ''],
+        ['IDA<div style="color:red;font-style:italic">PM</div>', 'PM群', ''],
+        ['Dolly<div style="color:red;font-style:italic">PM</div>', 'PM群', ''],
+        ['Amber<div style="color:red;font-style:italic">PM</div>', 'PM群', ''],
+      ]);
+
+      /* ── 8. DDT 外包人力 ── */
+      makeOrgChart('chart_ddt_out', [
+        [{'v':'數位應用開發team', 'f':'數位應用開發team<div style="color:red;font-style:italic">陳俊良</div>'}, '', 'Manager'],
+        [{'v':'自主上架', 'f':'自主上架<div style="color:red;font-style:italic">電獺</div>'}, '數位應用開發team', ''],
+        [{'v':'D系統擴充', 'f':'D系統擴充<div style="color:red;font-style:italic">一帆</div>'}, '數位應用開發team', ''],
+        [{'v':'球隊APP', 'f':'球隊APP<div style="color:red;font-style:italic">一帆</div>'}, '數位應用開發team', ''],
+        [{'v':'訂房網', 'f':'訂房網<div style="color:red;font-style:italic">旅圖</div>'}, '數位應用開發team', ''],
+        [{'v':'黃士哲', 'f':'黃士哲<div style="color:red;font-style:italic">PG</div>'}, '自主上架', ''],
+        ['黃士哲2<BR><div style="color:red;font-style:italic">PG</div>', '訂房網', ''],
+        ['鄒易恆<BR><div style="color:red;font-style:italic">PG</div>', '黃士哲2<BR><div style="color:red;font-style:italic">PG</div>', ''],
+        ['林家銘<BR><div style="color:red;font-style:italic">SA</div>', 'D系統擴充', ''],
+        ['林家銘2<BR><div style="color:red;font-style:italic">SA</div>', '球隊APP', ''],
+      ]);
+
+      /* ── 9. DDT 工作功能 ── */
+      makeOrgChart('chart_ddt_work', [
+        [{'v':'數位應用開發team', 'f':'數位應用開發team<div style="color:red;font-style:italic">陳俊良</div>'}, '', 'Manager'],
+        [{'v':'外包', 'f':'外包<div style="color:red;font-style:italic"></div>'}, '數位應用開發team', ''],
+        [{'v':'Azure Web', 'f':'Azure Web<div style="color:red;font-style:italic"></div>'}, '數位應用開發team', ''],
+        [{'v':'D系統擴充', 'f':'D系統擴充<div style="color:red;font-style:italic">一帆</div>'}, '外包', ''],
+        [{'v':'球隊APP', 'f':'球隊APP<div style="color:red;font-style:italic">一帆</div>'}, '外包', ''],
+        [{'v':'自主上架', 'f':'自主上架<div style="color:red;font-style:italic">電獺</div>'}, '外包', ''],
+        [{'v':'訂房網', 'f':'訂房網<div style="color:red;font-style:italic">旅圖</div>'}, '外包', ''],
+        [{'v':'林家銘', 'f':'林家銘<div style="color:red;font-style:italic">SA</div>'}, 'D系統擴充', ''],
+        [{'v':'林家銘2', 'f':'林家銘2<div style="color:red;font-style:italic">SA</div>'}, '球隊APP', ''],
+        [{'v':'黃士哲', 'f':'黃士哲<div style="color:red;font-style:italic">PG</div>'}, '自主上架', ''],
+        ['黃士哲2<BR><div style="color:red;font-style:italic">PG</div>', '訂房網', ''],
+        ['票務資訊網<BR><div style="color:red;font-style:italic">黃陸堃</div>', 'Azure Web', ''],
+        ['ibon售票系統<BR><div style="color:red;font-style:italic">謝正軒</div>', 'Azure Web', ''],
+        ['社群會員<BR><div style="color:red;font-style:italic">林家銘</div>', 'Azure Web', ''],
+        ['高鐵加價購<BR><div style="color:red;font-style:italic">鄒易恆</div>', 'Azure Web', ''],
+        ['Azure架構<BR><div style="color:red;font-style:italic">黃陸堃2</div>', 'Azure Web', ''],
+      ]);
+
+      /* ── 10. PDT 組織圖 ── */
+      makeOrgChart('chart_pdt', [
+        [{'v':'PDT', 'f':'游國楷<div style="color:red;font-style:italic">平台應用開發team</div>'}, '', 'Manager'],
+        [{'v':'雲端卡', 'f':'雲端開心卡'}, 'PDT', ''],
+        ['游國楷<div style="color:red;font-style:italic">SA</div>', '雲端卡', ''],
+        ['薛仁奇<div style="color:red;font-style:italic">PM</div>', '雲端卡', ''],
+        ['吳文凱<div style="color:red;font-style:italic">PM</div>', '雲端卡', ''],
+        ['簡睿葦<div style="color:red;font-style:italic">PG</div>', '游國楷<div style="color:red;font-style:italic">SA</div>', ''],
+        ['安源禮贈進銷存', 'PDT', ''],
+        ['吳柔潔 <div style="color:red;font-style:italic">SA</div>', '安源禮贈進銷存', ''],
+        ['吳文凱 <div style="color:red;font-style:italic">PM</div>', '安源禮贈進銷存', ''],
+        ['i禮贈', 'PDT', ''],
+        ['曾致洋<div style="color:red;font-style:italic">SA</div>', 'i禮贈', ''],
+        ['羊珮媛<div style="color:red;font-style:italic">PM</div>', 'i禮贈', ''],
+        ['楊仲文<div style="color:red;font-style:italic">PG</div>', '曾致洋<div style="color:red;font-style:italic">SA</div>', ''],
+        ['好康紅利', 'PDT', ''],
+        ['吳柔潔<div style="color:red;font-style:italic">SA</div>', '好康紅利', ''],
+        ['李佳馨<div style="color:red;font-style:italic">PM</div>', '好康紅利', ''],
+        ['蔡恩傑<div style="color:red;font-style:italic">PG</div>', '吳柔潔<div style="color:red;font-style:italic">SA</div>', ''],
+        ['金流平台', 'PDT', ''],
+        ['李冠毅<div style="color:red;font-style:italic">SA</div>', '金流平台', ''],
+        ['陳春惠<div style="color:red;font-style:italic">PM</div>', '金流平台', ''],
+        ['PM群', 'PDT', ''],
+        ['劉道鈞<div style="color:red;font-style:italic">PM</div>', 'PM群', ''],
+      ]);
+
+      /* ── 11. PDT 外包人力 ── */
+      makeOrgChart('chart_pdt_out', [
+        [{'v':'平台應用開發team', 'f':'平台應用開發team<div style="color:red;font-style:italic">游國楷</div>'}, '', 'Manager'],
+        [{'v':'雲端開心卡', 'f':'雲端開心卡<div style="color:red;font-style:italic">精誠</div>'}, '平台應用開發team', ''],
+        [{'v':'進銷存', 'f':'進銷存<div style="color:red;font-style:italic">TBF</div>'}, '平台應用開發team', ''],
+        [{'v':'游國楷', 'f':'游國楷<div style="color:red;font-style:italic">SA</div>'}, '雲端開心卡', ''],
+        ['TBF<BR><div style="color:red;font-style:italic">SA</div>', '進銷存', ''],
+      ]);
+
+      /* ── 12. PDT 工作功能 ── */
+      makeOrgChart('chart_pdt_work', [
+        [{'v':'平台應用開發team', 'f':'平台應用開發team<div style="color:red;font-style:italic">游國楷</div>'}, '', 'Manager'],
+        [{'v':'外包', 'f':'外包<div style="color:red;font-style:italic"></div>'}, '平台應用開發team', ''],
+        [{'v':'Azure Web', 'f':'Azure Web<div style="color:red;font-style:italic"></div>'}, '平台應用開發team', ''],
+        [{'v':'ibon', 'f':'ibon<div style="color:red;font-style:italic"></div>'}, '平台應用開發team', ''],
+        [{'v':'雲端開心卡', 'f':'雲端開心卡<div style="color:red;font-style:italic">一帆</div>'}, '外包', ''],
+        [{'v':'進銷存', 'f':'進銷存<div style="color:red;font-style:italic">一帆</div>'}, '外包', ''],
+        [{'v':'游國楷', 'f':'游國楷<div style="color:red;font-style:italic">SA</div>'}, '雲端開心卡', ''],
+        [{'v':'TBF', 'f':'TBF<div style="color:red;font-style:italic">SA</div>'}, '進銷存', ''],
+        ['金流平台<BR><div style="color:red;font-style:italic">李冠毅</div>', 'Azure Web', ''],
+        ['Wallet平台<BR><div style="color:red;font-style:italic">游國楷</div>', 'Azure Web', ''],
+        ['紅利好康<BR><div style="color:red;font-style:italic">吳柔潔</div>', 'ibon', ''],
+      ]);
+
+    }
+  </script>
+
+</body>
+</html>
