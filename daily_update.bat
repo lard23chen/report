@@ -100,10 +100,10 @@ if errorlevel 1 (
 ) else (
     git pull --rebase --autostash origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-    git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
-    if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     git push origin main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%NewReport-push-origin;
+    git pull --rebase --autostash company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
+    if errorlevel 1 git rebase --abort >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     git push company main >> D:\2025\AI\MongoDB\git_sync.log 2>&1
     if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%NewReport-push-company;
 )
