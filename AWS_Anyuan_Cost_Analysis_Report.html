@@ -180,7 +180,7 @@
         </div>
         <div class="meta">
             資料月份: 2026/01 ~ 2026/06<br>
-            產生時間: 2026/7/31 上午10:50:01
+            產生時間: 2026/7/31 上午11:02:19
         </div>
     </header>
 
@@ -225,9 +225,9 @@
 
     <div class="main-content">
         <div class="chart-card full-width">
-            <h3>服務成本排行 (Cost by AWS Service · 2026/06)</h3>
-            <div style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:16px;">當月前三大成本來源：<b style="color:var(--accent-color);">雲端運算資源(EC2)、監控服務、關聯式資料庫</b></div>
-            <div style="height: 672px; width: 100%;">
+            <h3>各服務月費用趨勢 (Monthly Trend by AWS Service)</h3>
+            <div style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:16px;">當月(2026/06)前三大成本來源：<b style="color:var(--accent-color);">雲端運算資源(EC2)、監控服務、關聯式資料庫</b>　<span style="color:#666;">（僅列任一月費用 ≥ $5 的服務）</span></div>
+            <div style="height: 420px; width: 100%;">
                 <canvas id="serviceChart"></canvas>
             </div>
             <table style="margin-top:20px;">
@@ -235,160 +235,71 @@
                     <tr>
                         <th>排名</th>
                         <th>AWS 服務</th>
-                        <th>當月費用(USD)</th>
-                        <th>佔當月比例</th>
-                        <th>年度累計(USD)</th>
-                        <th>年度佔比</th>
+                        <th>2026/01</th><th>2026/02</th><th>2026/03</th><th>2026/04</th><th>2026/05</th><th>2026/06</th>
+                        <th>年度累計</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="color:var(--text-secondary);">1</td>
                         <td><b>Amazon Elastic Compute Cloud</b><br><span style="color:var(--text-secondary);font-size:0.85em;">雲端運算資源(EC2)</span></td>
-                        <td>$1,237.43</td>
-                        <td>35.0%</td>
-                        <td>$10,233.45</td>
-                        <td>34.7%</td>
+                        <td>$1,634.5</td><td>$1,121</td><td>$1,238.1</td><td>$1,158.1</td><td>$3,844.3</td><td>$1,237.4</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$10,233.4</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">2</td>
                         <td><b>AmazonCloudWatch</b><br><span style="color:var(--text-secondary);font-size:0.85em;">監控服務</span></td>
-                        <td>$948.26</td>
-                        <td>26.8%</td>
-                        <td>$7,493.23</td>
-                        <td>25.4%</td>
+                        <td>$2,031.5</td><td>$847.7</td><td>$816.5</td><td>$806.3</td><td>$2,043</td><td>$948.3</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$7,493.2</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">3</td>
                         <td><b>Amazon Relational Database Service</b><br><span style="color:var(--text-secondary);font-size:0.85em;">關聯式資料庫</span></td>
-                        <td>$763.41</td>
-                        <td>21.6%</td>
-                        <td>$4,247.62</td>
-                        <td>14.4%</td>
+                        <td>$1,496.5</td><td>$337.5</td><td>$383.9</td><td>$405.3</td><td>$861.1</td><td>$763.4</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$4,247.6</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">4</td>
                         <td><b>Amazon ElastiCache</b><br><span style="color:var(--text-secondary);font-size:0.85em;">快取服務</span></td>
-                        <td>$275.62</td>
-                        <td>7.8%</td>
-                        <td>$1,854.87</td>
-                        <td>6.3%</td>
+                        <td>$284.2</td><td>$256.7</td><td>$284.2</td><td>$275</td><td>$479.1</td><td>$275.6</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$1,854.9</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">5</td>
                         <td><b>Amazon CloudFront</b><br><span style="color:var(--text-secondary);font-size:0.85em;">內容交付網路(CDN)</span></td>
-                        <td>$148.02</td>
-                        <td>4.2%</td>
-                        <td>$1,220.57</td>
-                        <td>4.1%</td>
+                        <td>$283.9</td><td>$94.1</td><td>$112.7</td><td>$116.3</td><td>$465.6</td><td>$148</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$1,220.6</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">6</td>
                         <td><b>Elastic Load Balancing</b><br><span style="color:var(--text-secondary);font-size:0.85em;">負載平衡服務</span></td>
-                        <td>$105.76</td>
-                        <td>3.0%</td>
-                        <td>$2,325.42</td>
-                        <td>7.9%</td>
+                        <td>$216.7</td><td>$188.5</td><td>$199</td><td>$105</td><td>$1,510.5</td><td>$105.8</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$2,325.4</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">7</td>
                         <td><b>Amazon Virtual Private Cloud</b><br><span style="color:var(--text-secondary);font-size:0.85em;">虛擬私有雲服務</span></td>
-                        <td>$38.15</td>
-                        <td>1.1%</td>
-                        <td>$311.49</td>
-                        <td>1.1%</td>
+                        <td>$61.3</td><td>$52.6</td><td>$57</td><td>$54.7</td><td>$47.8</td><td>$38.2</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$311.5</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">8</td>
                         <td><b>Amazon GuardDuty</b></td>
-                        <td>$4.96</td>
-                        <td>0.1%</td>
-                        <td>$31.72</td>
-                        <td>0.1%</td>
+                        <td>$2.6</td><td>$2</td><td>$2.5</td><td>$2.7</td><td>$17</td><td>$5</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$31.7</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">9</td>
                         <td><b>Amazon Simple Storage Service</b><br><span style="color:var(--text-secondary);font-size:0.85em;">雲端物件儲存服務(S3)</span></td>
-                        <td>$4.47</td>
-                        <td>0.1%</td>
-                        <td>$27.82</td>
-                        <td>0.1%</td>
+                        <td>$3.9</td><td>$3.9</td><td>$4.2</td><td>$4</td><td>$7.4</td><td>$4.5</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$27.8</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">10</td>
                         <td><b>AWS Data Transfer</b><br><span style="color:var(--text-secondary);font-size:0.85em;">資料傳遞</span></td>
-                        <td>$4.34</td>
-                        <td>0.1%</td>
-                        <td>$22.91</td>
-                        <td>0.1%</td>
+                        <td>$2</td><td>$1.8</td><td>$5.2</td><td>$5</td><td>$4.7</td><td>$4.3</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$22.9</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">11</td>
-                        <td><b>AWS Systems Manager</b></td>
-                        <td>$1.65</td>
-                        <td>0.0%</td>
-                        <td>$10.42</td>
-                        <td>0.0%</td>
+                        <td><b>Amazon RDS Optimize CPU License Included Third Party Fees</b></td>
+                        <td>$33.6</td><td>$446.2</td><td>$494</td><td>$466.8</td><td>$65.4</td><td>$0.5</td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$1,506.6</td>
                     </tr><tr>
                         <td style="color:var(--text-secondary);">12</td>
-                        <td><b>AWS CloudTrail</b></td>
-                        <td>$1.48</td>
-                        <td>0.0%</td>
-                        <td>$8.77</td>
-                        <td>0.0%</td>
-                    </tr><tr>
-                        <td style="color:var(--text-secondary);">13</td>
-                        <td><b>AWS Secrets Manager</b></td>
-                        <td>$1.2</td>
-                        <td>0.0%</td>
-                        <td>$8.29</td>
-                        <td>0.0%</td>
-                    </tr><tr>
-                        <td style="color:var(--text-secondary);">14</td>
-                        <td><b>Amazon RDS Optimize CPU License Included Third Party Fees</b></td>
-                        <td>$0.55</td>
-                        <td>0.0%</td>
-                        <td>$1,506.58</td>
-                        <td>5.1%</td>
-                    </tr><tr>
-                        <td style="color:var(--text-secondary);">15</td>
-                        <td><b>Amazon Route 53</b><br><span style="color:var(--text-secondary);font-size:0.85em;">DNS服務</span></td>
-                        <td>$0.2</td>
-                        <td>0.0%</td>
-                        <td>$1.2</td>
-                        <td>0.0%</td>
-                    </tr><tr>
-                        <td style="color:var(--text-secondary);">16</td>
-                        <td><b>Amazon Athena</b><br><span style="color:var(--text-secondary);font-size:0.85em;">互動式查詢服務</span></td>
-                        <td>$0.01</td>
-                        <td>0.0%</td>
-                        <td>$0.04</td>
-                        <td>0.0%</td>
-                    </tr><tr>
-                        <td style="color:var(--text-secondary);">17</td>
-                        <td><b>AWS Lambda</b><br><span style="color:var(--text-secondary);font-size:0.85em;">無伺服器運算</span></td>
-                        <td>$0</td>
-                        <td>0.0%</td>
-                        <td>$0.02</td>
-                        <td>0.0%</td>
-                    </tr><tr>
-                        <td style="color:var(--text-secondary);">18</td>
-                        <td><b>AWS Key Management Service</b><br><span style="color:var(--text-secondary);font-size:0.85em;">金鑰管理服務</span></td>
-                        <td>$0</td>
-                        <td>0.0%</td>
-                        <td>$0</td>
-                        <td>0.0%</td>
-                    </tr><tr>
-                        <td style="color:var(--text-secondary);">19</td>
                         <td><b>AWS Database Migration Service</b></td>
-                        <td>$0</td>
-                        <td>0.0%</td>
-                        <td>$168.22</td>
-                        <td>0.6%</td>
-                    </tr><tr>
-                        <td style="color:var(--text-secondary);">20</td>
-                        <td><b>Amazon Simple Queue Service</b><br><span style="color:var(--text-secondary);font-size:0.85em;">訊息佇列服務</span></td>
-                        <td>$0</td>
-                        <td>0.0%</td>
-                        <td>$0.31</td>
-                        <td>0.0%</td>
-                    </tr><tr>
-                        <td style="color:var(--text-secondary);">21</td>
-                        <td><b>Amazon Cognito</b></td>
-                        <td>$0</td>
-                        <td>0.0%</td>
-                        <td>$0.02</td>
-                        <td>0.0%</td>
+                        <td><span style="color:#555;">—</span></td><td><span style="color:#555;">—</span></td><td>$58.9</td><td>$80.6</td><td>$28.7</td><td><span style="color:#555;">—</span></td>
+                        <td style="font-weight:bold;color:var(--accent-color);">$168.2</td>
                     </tr>
                 </tbody>
             </table>
@@ -496,44 +407,51 @@
 
 <script>
     const monthlyTrend = [{"yearMonth":"2026/01","serviceUSD":6055.117,"exchangeRate":31.465,"serviceNTD":190524,"supportFee":19052,"discount":-31436,"opsFee":17814,"finalNTD":195954},{"yearMonth":"2026/02","serviceUSD":3356.178,"exchangeRate":31.225,"serviceNTD":104797,"supportFee":10480,"discount":-17292,"opsFee":9799,"finalNTD":107784},{"yearMonth":"2026/03","serviceUSD":3661.339,"exchangeRate":31.995,"serviceNTD":117145,"supportFee":11715,"discount":-19329,"opsFee":10953,"finalNTD":120484},{"yearMonth":"2026/04","serviceUSD":3484.637,"exchangeRate":31.66,"serviceNTD":110324,"supportFee":11032,"discount":-18203,"opsFee":10315,"finalNTD":113468},{"yearMonth":"2026/05","serviceUSD":9380.182,"exchangeRate":31.355,"serviceNTD":294116,"supportFee":29412,"discount":-48529,"opsFee":27500,"finalNTD":302499},{"yearMonth":"2026/06","serviceUSD":3535.515,"exchangeRate":31.85,"serviceNTD":112606,"supportFee":11261,"discount":-18580,"opsFee":10529,"finalNTD":115816}];
-    const serviceRanking = [{"name":"Amazon Elastic Compute Cloud","zhName":"雲端運算資源(EC2)","latestUSD":1237.428,"ytdUSD":10233.448},{"name":"AmazonCloudWatch","zhName":"監控服務","latestUSD":948.261,"ytdUSD":7493.231},{"name":"Amazon Relational Database Service","zhName":"關聯式資料庫","latestUSD":763.406,"ytdUSD":4247.615},{"name":"Amazon ElastiCache","zhName":"快取服務","latestUSD":275.615,"ytdUSD":1854.865},{"name":"Amazon CloudFront","zhName":"內容交付網路(CDN)","latestUSD":148.023,"ytdUSD":1220.5739999999998},{"name":"Elastic Load Balancing","zhName":"負載平衡服務","latestUSD":105.759,"ytdUSD":2325.4170000000004},{"name":"Amazon Virtual Private Cloud","zhName":"虛擬私有雲服務","latestUSD":38.15,"ytdUSD":311.491},{"name":"Amazon GuardDuty","zhName":"","latestUSD":4.962,"ytdUSD":31.716},{"name":"Amazon Simple Storage Service","zhName":"雲端物件儲存服務(S3)","latestUSD":4.472,"ytdUSD":27.823},{"name":"AWS Data Transfer","zhName":"資料傳遞","latestUSD":4.343,"ytdUSD":22.908},{"name":"AWS Systems Manager","zhName":"","latestUSD":1.654,"ytdUSD":10.42},{"name":"AWS CloudTrail","zhName":"","latestUSD":1.476,"ytdUSD":8.765},{"name":"AWS Secrets Manager","zhName":"","latestUSD":1.202,"ytdUSD":8.289000000000001},{"name":"Amazon RDS Optimize CPU License Included Third Party Fees","zhName":"","latestUSD":0.546,"ytdUSD":1506.5840000000003},{"name":"Amazon Route 53","zhName":"DNS服務","latestUSD":0.2,"ytdUSD":1.2},{"name":"Amazon Athena","zhName":"互動式查詢服務","latestUSD":0.013,"ytdUSD":0.044},{"name":"AWS Lambda","zhName":"無伺服器運算","latestUSD":0.003,"ytdUSD":0.019},{"name":"AWS Key Management Service","zhName":"金鑰管理服務","latestUSD":0.002,"ytdUSD":0.004},{"name":"AWS Database Migration Service","zhName":"","latestUSD":0,"ytdUSD":168.224},{"name":"Amazon Simple Queue Service","zhName":"訊息佇列服務","latestUSD":0,"ytdUSD":0.313},{"name":"Amazon Cognito","zhName":"","latestUSD":0,"ytdUSD":0.02}];
+    const serviceRanking = [{"name":"Amazon Elastic Compute Cloud","zhName":"雲端運算資源(EC2)","data":[1634.521,1120.976,1238.052,1158.133,3844.338,1237.428],"latestUSD":1237.428,"ytdUSD":10233.448,"maxUSD":3844.338},{"name":"AmazonCloudWatch","zhName":"監控服務","data":[2031.469,847.659,816.529,806.283,2043.03,948.261],"latestUSD":948.261,"ytdUSD":7493.231,"maxUSD":2043.03},{"name":"Amazon Relational Database Service","zhName":"關聯式資料庫","data":[1496.457,337.488,383.866,405.265,861.133,763.406],"latestUSD":763.406,"ytdUSD":4247.615,"maxUSD":1496.457},{"name":"Amazon ElastiCache","zhName":"快取服務","data":[284.209,256.705,284.21,275.042,479.084,275.615],"latestUSD":275.615,"ytdUSD":1854.865,"maxUSD":479.084},{"name":"Amazon CloudFront","zhName":"內容交付網路(CDN)","data":[283.892,94.061,112.662,116.316,465.62,148.023],"latestUSD":148.023,"ytdUSD":1220.5739999999998,"maxUSD":465.62},{"name":"Elastic Load Balancing","zhName":"負載平衡服務","data":[216.657,188.459,199.047,104.969,1510.526,105.759],"latestUSD":105.759,"ytdUSD":2325.4170000000004,"maxUSD":1510.526},{"name":"Amazon Virtual Private Cloud","zhName":"虛擬私有雲服務","data":[61.287,52.643,56.986,54.668,47.757,38.15],"latestUSD":38.15,"ytdUSD":311.491,"maxUSD":61.287},{"name":"Amazon GuardDuty","zhName":"","data":[2.587,1.956,2.532,2.652,17.027,4.962],"latestUSD":4.962,"ytdUSD":31.716,"maxUSD":17.027},{"name":"Amazon Simple Storage Service","zhName":"雲端物件儲存服務(S3)","data":[3.889,3.879,4.199,3.983,7.401,4.472],"latestUSD":4.472,"ytdUSD":27.823,"maxUSD":7.401},{"name":"AWS Data Transfer","zhName":"資料傳遞","data":[1.951,1.785,5.177,5.001,4.651,4.343],"latestUSD":4.343,"ytdUSD":22.908,"maxUSD":5.177},{"name":"Amazon RDS Optimize CPU License Included Third Party Fees","zhName":"","data":[33.56,446.208,494.016,466.834,65.42,0.546],"latestUSD":0.546,"ytdUSD":1506.5840000000003,"maxUSD":494.016},{"name":"AWS Database Migration Service","zhName":"","data":[0,0,58.912,80.64,28.672,0],"latestUSD":0,"ytdUSD":168.224,"maxUSD":80.64}];
+    const serviceMonthLabels = ["2026/01","2026/02","2026/03","2026/04","2026/05","2026/06"];
 
     const labels = monthlyTrend.map(d => d.yearMonth);
     const finalData = monthlyTrend.map(d => d.finalNTD);
     const rawData = monthlyTrend.map(d => d.serviceNTD);
 
-    // 服務成本排行：橫向長條圖，由高到低排列（Chart.js 預設由上到下畫，需 reverse 讓最高費用在最上面）
+    // 各服務月費用趨勢：多線圖，一服務一線，用 HSL 依序旋轉色相產生可分辨的顏色（服務數量不固定，不寫死色票）
+    function serviceColor(i, total) {
+        const hue = Math.round((360 / Math.max(total, 1)) * i);
+        return 'hsl(' + hue + ', 70%, 60%)';
+    }
     new Chart(document.getElementById('serviceChart'), {
-        type: 'bar',
+        type: 'line',
         data: {
-            labels: [...serviceRanking].reverse().map(s => s.zhName || s.name),
-            datasets: [{
-                label: '當月費用(USD)',
-                data: [...serviceRanking].reverse().map(s => s.latestUSD),
-                backgroundColor: '#FF9900'
-            }]
+            labels: serviceMonthLabels,
+            datasets: serviceRanking.map((s, i) => {
+                const color = serviceColor(i, serviceRanking.length);
+                return {
+                    label: s.zhName || s.name,
+                    data: s.data,
+                    borderColor: color,
+                    backgroundColor: color,
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                };
+            })
         },
-        plugins: [ChartDataLabels],
         options: {
-            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: { display: false },
-                datalabels: {
-                    color: '#e0e0e0',
-                    align: 'end',
-                    anchor: 'end',
-                    font: { size: 10, weight: 'bold' },
-                    formatter: v => '$' + v.toLocaleString(undefined, { maximumFractionDigits: 1 })
-                },
+                legend: { labels: { color: '#ccc', boxWidth: 14, font: { size: 11 } } },
                 tooltip: {
-                    backgroundColor: 'rgba(20,20,20,0.9)', titleColor: '#e0e0e0', bodyColor: '#a0a0a0', borderColor: '#333', borderWidth: 1
+                    backgroundColor: 'rgba(20,20,20,0.9)', titleColor: '#e0e0e0', bodyColor: '#a0a0a0', borderColor: '#333', borderWidth: 1,
+                    callbacks: { label: c => c.dataset.label + ': $' + c.parsed.y.toLocaleString(undefined, { maximumFractionDigits: 1 }) }
                 }
             },
             scales: {
                 x: { grid: { color: '#333' }, ticks: { color: '#888' } },
-                y: { grid: { color: '#333' }, ticks: { color: '#ccc', font: { size: 11 } } }
+                y: { grid: { color: '#333' }, ticks: { color: '#888', callback: v => '$' + v.toLocaleString() } }
             }
         }
     });

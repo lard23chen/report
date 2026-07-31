@@ -88,16 +88,17 @@ Chart.js `line`，雙線：
 
 用意：對照「AWS 原始開銷」與「經過 Enterprise Support 費、優惠折扣、維運服務費調整後的實際應繳金額」之間的落差。
 
-### 4.2b 服務成本排行 (Cost by AWS Service)
+### 4.2b 各服務月費用趨勢 (Monthly Trend by AWS Service)
 
-位於每月費用趨勢圖正下方，只呈現「最新月」排行（非歷史趨勢）：
+位於每月費用趨勢圖正下方，呈現**每個服務逐月**的費用起伏（非單月排行）：
 
-- **資料來源**：`parseServiceRows()` 解析 `總表` 各服務值列，`buildServiceRanking()` 依「最新月 USD 費用」由高到低排序，過濾掉年度累計為 0 的服務（如完全未用到的 AWS CloudFormation）
-- **排序依據刻意用最新月而非年度累計**：報表定位是追蹤「當月主要成本來源」，若用年度累計排序，會被 1~5 月一次性大額項目（如 `Amazon RDS Optimize CPU License Included Third Party Fees` 年度累計 $1,506 但 6 月僅 $0.5）誤導成當月排行
+- **資料來源**：`parseServiceRows()` 解析 `總表` 各服務值列（含每月 USD），`buildServiceRanking()` 計算每服務的 `data`（依 `yearMonths` 排序的逐月金額陣列）、`latestUSD`、`ytdUSD`、`maxUSD`
+- **顯示門檻 `MIN_SERVICE_USD = 5`**：只列「任一月費用 ≥ $5」的服務，過濾掉 KMS/Lambda/Athena 等常年 $0.001~$4 等級的雜訊服務。用 `maxUSD`（該服務在資料範圍內的最高單月費用）判斷而非「最新月」或「年度累計」，避免漏掉「某月曾經有意義的花費、但最新月已降到 0」的服務（如 `AWS Database Migration Service` 只在 3~5 月有費用）
+- **排序依據用最新月**（`latestUSD` 由高到低，同分再比 `ytdUSD`）：報表定位是追蹤「當月主要成本來源」，若用年度累計排序，會被曾經的一次性大額項目（如 `Amazon RDS Optimize CPU License Included Third Party Fees` 年度累計 $1,506 但 6 月僅 $0.5）誤導成當月排行
 - **前三大成本來源**摘要文字：`serviceRanking.slice(0,3)` 的中文說明（無中文說明則用英文服務名）
-- **橫向長條圖**：Chart.js `bar` + `indexAxis:'y'`，資料 `reverse()` 使最高費用排在最上面；高度依服務數量動態計算（`Math.max(280, count*32)`px）
-- **表格欄位**：排名 / AWS 服務（英文名 + 中文說明）/ 當月費用(USD) / 佔當月比例 / 年度累計(USD) / 年度佔比
-  - 佔當月比例分母為 `latest.serviceUSD`（= `總表`「服務合計USD」列），年度佔比分母為排行內服務年度累計加總（`ytdServiceUSD`）
+- **多線折線圖**：Chart.js `line`，一服務一線，`serviceColor(i,total)` 用 HSL 依序旋轉色相（`360/total * i`）產生可分辨顏色，服務數量不固定不寫死色票
+- **表格欄位**：排名 / AWS 服務（英文名 + 中文說明）/ 每月金額欄位（依 `yearMonths` 動態展開，如 `2026/01`~`2026/06`）/ 年度累計
+  - 金額為 0 顯示灰色 `—` 而非 `$0`，降低視覺雜訊
 
 ### 4.3 每月費用明細表格
 
@@ -156,10 +157,11 @@ node generate_aws_anyuan_cost_report.js
 ## 7. 已知限制
 
 - 未涵蓋含稅金額（`應繳總金額NTD(含稅)`）：`總表` 分頁沒有這個欄位，只在各月明細分頁才有；若未來需要顯示含稅金額，需改為解析明細分頁最後一列。
-- 服務成本排行只有「最新月」單月排行，沒有各服務的歷史月趨勢圖；若未來需要「某服務近 6 個月費用走勢」，資料已存在於 `parseServiceRows()` 回傳的 `monthlyUSD`（各服務逐月 USD），只是目前 `buildServiceRanking()` 只取最新月與 YTD 加總，未逐月輸出。
-- 服務成本排行未拆解地區/用量（如 CloudFront 在哪個 region 用量最高），該資訊在各月明細分頁，目前未解析。
+- 服務成本趨勢未拆解地區/用量（如 CloudFront 在哪個 region 用量最高），該資訊在各月明細分頁，目前未解析。
+- `MIN_SERVICE_USD = 5` 門檻寫死在 generator，若未來需要調整顯示標準（如改成 $10 或依總費用百分比），需修改該常數並重跑腳本。
 
 ---
 
+*2026/07/31：§4.2b 由單月排行改為「各服務月費用趨勢」，多線圖 + 逐月矩陣表格呈現每個服務的月度起伏，並加上 `MIN_SERVICE_USD=5` 顯示門檻濾掉雜訊服務*
 *2026/07/31：新增「服務成本排行」區塊（§4.2b），呈現最新月 AWS 各服務成本排名 + 前三大成本來源摘要；目錄／首頁卡片系統別由「營運」改標為「D系統」（售票網為 D 系統正式環境）*
 *建立日期：2026/07/31（首次建立，來源檔案 `安源資訊_售票網_正式環境_2026_06.xlsx`，資料範圍 2026/01～2026/06）*

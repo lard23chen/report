@@ -88,14 +88,19 @@ function parseServiceRows(data, months, year) {
     return services;
 }
 
+// 服務要出現在排行/趨勢圖的門檻：任一月費用 >= MIN_SERVICE_USD 才顯示，濾掉 $0.001~$4 等級的雜訊服務（KMS/Lambda/Athena 等）
+const MIN_SERVICE_USD = 5;
+
 function buildServiceRanking(services, yearMonths) {
     return services
         .map(s => {
-            const latestUSD = s.monthlyUSD[yearMonths[yearMonths.length - 1]] || 0;
-            const ytdUSD = yearMonths.reduce((sum, ym) => sum + (s.monthlyUSD[ym] || 0), 0);
-            return { name: s.name, zhName: s.zhName, latestUSD, ytdUSD };
+            const data = yearMonths.map(ym => s.monthlyUSD[ym] || 0);
+            const latestUSD = data[data.length - 1] || 0;
+            const ytdUSD = data.reduce((sum, v) => sum + v, 0);
+            const maxUSD = Math.max(...data, 0);
+            return { name: s.name, zhName: s.zhName, data, latestUSD, ytdUSD, maxUSD };
         })
-        .filter(s => s.ytdUSD > 0)
+        .filter(s => s.maxUSD >= MIN_SERVICE_USD)
         .sort((a, b) => b.latestUSD - a.latestUSD || b.ytdUSD - a.ytdUSD);
 }
 
@@ -137,7 +142,6 @@ function generateReport() {
     const yearMonths = monthlyTrend.map(d => d.yearMonth);
     const services = parseServiceRows(data, months, year);
     const serviceRanking = buildServiceRanking(services, yearMonths);
-    const ytdServiceUSD = serviceRanking.reduce((s, d) => s + d.ytdUSD, 0);
 
     // MoM 分析文字（沿用 Azure Cost Report 的紅漲/綠跌語意：費用上升=壞=紅，下降=好=綠）
     let momSection = '';
@@ -167,18 +171,15 @@ function generateReport() {
     </div>`;
     }
 
-    // 服務成本排行：依「最新月」USD 費用排序（買量最大的服務優先），只列有實際費用(年度累計>0)的服務
+    // 服務成本排行：依「最新月」USD 費用排序（費用最大的服務優先），只列任一月費用 >= $${MIN_SERVICE_USD} 的服務
     const top3 = serviceRanking.slice(0, 3).map(s => s.zhName || s.name).join('、');
+    const fmtUSD = v => v === 0 ? '<span style="color:#555;">—</span>' : '$' + v.toLocaleString(undefined, { maximumFractionDigits: 1 });
     const serviceRankingRows = serviceRanking.map((s, i) => {
-        const latestPct = latest.serviceUSD ? (s.latestUSD / latest.serviceUSD * 100) : 0;
-        const ytdPct = ytdServiceUSD ? (s.ytdUSD / ytdServiceUSD * 100) : 0;
         return `<tr>
                         <td style="color:var(--text-secondary);">${i + 1}</td>
                         <td><b>${s.name}</b>${s.zhName ? `<br><span style="color:var(--text-secondary);font-size:0.85em;">${s.zhName}</span>` : ''}</td>
-                        <td>$${s.latestUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                        <td>${latestPct.toFixed(1)}%</td>
-                        <td>$${s.ytdUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                        <td>${ytdPct.toFixed(1)}%</td>
+                        ${s.data.map(v => `<td>${fmtUSD(v)}</td>`).join('')}
+                        <td style="font-weight:bold;color:var(--accent-color);">${fmtUSD(s.ytdUSD)}</td>
                     </tr>`;
     }).join('');
 
@@ -415,9 +416,9 @@ function generateReport() {
 
     <div class="main-content">
         <div class="chart-card full-width">
-            <h3>服務成本排行 (Cost by AWS Service · ${latest.yearMonth})</h3>
-            <div style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:16px;">當月前三大成本來源：<b style="color:var(--accent-color);">${top3}</b></div>
-            <div style="height: ${Math.max(280, serviceRanking.length * 32)}px; width: 100%;">
+            <h3>各服務月費用趨勢 (Monthly Trend by AWS Service)</h3>
+            <div style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:16px;">當月(${latest.yearMonth})前三大成本來源：<b style="color:var(--accent-color);">${top3}</b>　<span style="color:#666;">（僅列任一月費用 ≥ $${MIN_SERVICE_USD} 的服務）</span></div>
+            <div style="height: 420px; width: 100%;">
                 <canvas id="serviceChart"></canvas>
             </div>
             <table style="margin-top:20px;">
@@ -425,10 +426,8 @@ function generateReport() {
                     <tr>
                         <th>排名</th>
                         <th>AWS 服務</th>
-                        <th>當月費用(USD)</th>
-                        <th>佔當月比例</th>
-                        <th>年度累計(USD)</th>
-                        <th>年度佔比</th>
+                        ${yearMonths.map(ym => `<th>${ym}</th>`).join('')}
+                        <th>年度累計</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -498,43 +497,50 @@ function generateReport() {
 <script>
     const monthlyTrend = ${JSON.stringify(monthlyTrend)};
     const serviceRanking = ${JSON.stringify(serviceRanking)};
+    const serviceMonthLabels = ${JSON.stringify(yearMonths)};
 
     const labels = monthlyTrend.map(d => d.yearMonth);
     const finalData = monthlyTrend.map(d => d.finalNTD);
     const rawData = monthlyTrend.map(d => d.serviceNTD);
 
-    // 服務成本排行：橫向長條圖，由高到低排列（Chart.js 預設由上到下畫，需 reverse 讓最高費用在最上面）
+    // 各服務月費用趨勢：多線圖，一服務一線，用 HSL 依序旋轉色相產生可分辨的顏色（服務數量不固定，不寫死色票）
+    function serviceColor(i, total) {
+        const hue = Math.round((360 / Math.max(total, 1)) * i);
+        return 'hsl(' + hue + ', 70%, 60%)';
+    }
     new Chart(document.getElementById('serviceChart'), {
-        type: 'bar',
+        type: 'line',
         data: {
-            labels: [...serviceRanking].reverse().map(s => s.zhName || s.name),
-            datasets: [{
-                label: '當月費用(USD)',
-                data: [...serviceRanking].reverse().map(s => s.latestUSD),
-                backgroundColor: '#FF9900'
-            }]
+            labels: serviceMonthLabels,
+            datasets: serviceRanking.map((s, i) => {
+                const color = serviceColor(i, serviceRanking.length);
+                return {
+                    label: s.zhName || s.name,
+                    data: s.data,
+                    borderColor: color,
+                    backgroundColor: color,
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                };
+            })
         },
-        plugins: [ChartDataLabels],
         options: {
-            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: { display: false },
-                datalabels: {
-                    color: '#e0e0e0',
-                    align: 'end',
-                    anchor: 'end',
-                    font: { size: 10, weight: 'bold' },
-                    formatter: v => '$' + v.toLocaleString(undefined, { maximumFractionDigits: 1 })
-                },
+                legend: { labels: { color: '#ccc', boxWidth: 14, font: { size: 11 } } },
                 tooltip: {
-                    backgroundColor: 'rgba(20,20,20,0.9)', titleColor: '#e0e0e0', bodyColor: '#a0a0a0', borderColor: '#333', borderWidth: 1
+                    backgroundColor: 'rgba(20,20,20,0.9)', titleColor: '#e0e0e0', bodyColor: '#a0a0a0', borderColor: '#333', borderWidth: 1,
+                    callbacks: { label: c => c.dataset.label + ': $' + c.parsed.y.toLocaleString(undefined, { maximumFractionDigits: 1 }) }
                 }
             },
             scales: {
                 x: { grid: { color: '#333' }, ticks: { color: '#888' } },
-                y: { grid: { color: '#333' }, ticks: { color: '#ccc', font: { size: 11 } } }
+                y: { grid: { color: '#333' }, ticks: { color: '#888', callback: v => '$' + v.toLocaleString() } }
             }
         }
     });
