@@ -174,11 +174,22 @@ function generateReport() {
     // 服務成本排行：依「最新月」USD 費用排序（費用最大的服務優先），只列任一月費用 >= $${MIN_SERVICE_USD} 的服務
     const top3 = serviceRanking.slice(0, 3).map(s => s.zhName || s.name).join('、');
     const fmtUSD = v => v === 0 ? '<span style="color:#555;">—</span>' : '$' + v.toLocaleString(undefined, { maximumFractionDigits: 1 });
+    // 月費用漲跌幅：cost 上升=壞=紅、下降=好=綠（與其他表格語意一致）；prev 為 0 時無法算百分比，改標「新增」；兩者皆 0 或無上月資料則不顯示
+    const changeBadge = (cur, prev) => {
+        if (prev === undefined || (prev === 0 && cur === 0)) return '';
+        if (prev === 0) return '<br><span style="color:#ef5350;font-size:0.72em;font-weight:bold;">新增</span>';
+        const diff = cur - prev;
+        if (diff === 0) return '<br><span style="color:#666;font-size:0.72em;">- 0%</span>';
+        const pct = Math.abs(diff / prev * 100).toFixed(0);
+        const clr = diff > 0 ? '#ef5350' : '#66BB6A';
+        const arrow = diff > 0 ? '▲' : '▼';
+        return `<br><span style="color:${clr};font-size:0.72em;font-weight:bold;">${arrow} ${pct}%</span>`;
+    };
     const serviceRankingRows = serviceRanking.map((s, i) => {
         return `<tr>
                         <td style="color:var(--text-secondary);">${i + 1}</td>
                         <td><b>${s.name}</b>${s.zhName ? `<br><span style="color:var(--text-secondary);font-size:0.85em;">${s.zhName}</span>` : ''}</td>
-                        ${s.data.map(v => `<td>${fmtUSD(v)}</td>`).join('')}
+                        ${s.data.map((v, m) => `<td>${fmtUSD(v)}${changeBadge(v, m > 0 ? s.data[m - 1] : undefined)}</td>`).join('')}
                         <td style="font-weight:bold;color:var(--accent-color);">${fmtUSD(s.ytdUSD)}</td>
                     </tr>`;
     }).join('');
