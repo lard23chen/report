@@ -56,7 +56,47 @@ function parseSummarySheet(workbook) {
         rows[key] = row;
     });
 
-    return { months, rows };
+    return { data, months, rows };
+}
+
+// 逐一 AWS 服務（如 Amazon Elastic Compute Cloud／Amazon CloudWatch）的每月 USD 費用。
+// 每個服務在「總表」佔兩列：值列（英文服務名 + 各月數字）+ 中文說明列（值欄位皆空，部分服務無中文說明）。
+// 用「該列任一月份欄位為 number」判斷是不是值列，藉此跳過空白列與中文說明列，不依賴固定 row index。
+function parseServiceRows(data, months, year) {
+    const stopIdx = data.findIndex(r => String(r[0]).trim() === SUMMARY_LABELS.serviceUSD);
+    if (stopIdx === -1) throw new Error(`總表缺少「${SUMMARY_LABELS.serviceUSD}」列，無法定位服務明細範圍`);
+
+    const services = [];
+    for (let i = 1; i < stopIdx; i++) {
+        const row = data[i];
+        const name = String(row[0]).trim();
+        if (!name) continue;
+        const hasNum = months.some(({ colIdx }) => typeof row[colIdx] === 'number');
+        if (!hasNum) continue;
+
+        const nextRow = data[i + 1];
+        const zhName = nextRow ? String(nextRow[0]).trim() : '';
+
+        const monthlyUSD = {};
+        months.forEach(({ colIdx, monthNum }) => {
+            const v = toNumber(row[colIdx]);
+            if (v !== null) monthlyUSD[`${year}/${String(monthNum).padStart(2, '0')}`] = v;
+        });
+
+        services.push({ name, zhName, monthlyUSD });
+    }
+    return services;
+}
+
+function buildServiceRanking(services, yearMonths) {
+    return services
+        .map(s => {
+            const latestUSD = s.monthlyUSD[yearMonths[yearMonths.length - 1]] || 0;
+            const ytdUSD = yearMonths.reduce((sum, ym) => sum + (s.monthlyUSD[ym] || 0), 0);
+            return { name: s.name, zhName: s.zhName, latestUSD, ytdUSD };
+        })
+        .filter(s => s.ytdUSD > 0)
+        .sort((a, b) => b.latestUSD - a.latestUSD || b.ytdUSD - a.ytdUSD);
 }
 
 function buildMonthlyTrend(year, months, rows) {
@@ -81,7 +121,7 @@ function generateReport() {
     const year = match[1];
 
     const workbook = XLSX.readFile(path.join(__dirname, sourceFile));
-    const { months, rows } = parseSummarySheet(workbook);
+    const { data, months, rows } = parseSummarySheet(workbook);
     const monthlyTrend = buildMonthlyTrend(year, months, rows);
 
     if (monthlyTrend.length === 0) {
@@ -93,6 +133,11 @@ function generateReport() {
     const ytdTotal = monthlyTrend.reduce((s, d) => s + d.finalNTD, 0);
     const avgMonthly = ytdTotal / monthlyTrend.length;
     const reportTime = new Date().toLocaleString('zh-TW');
+
+    const yearMonths = monthlyTrend.map(d => d.yearMonth);
+    const services = parseServiceRows(data, months, year);
+    const serviceRanking = buildServiceRanking(services, yearMonths);
+    const ytdServiceUSD = serviceRanking.reduce((s, d) => s + d.ytdUSD, 0);
 
     // MoM 分析文字（沿用 Azure Cost Report 的紅漲/綠跌語意：費用上升=壞=紅，下降=好=綠）
     let momSection = '';
@@ -121,6 +166,21 @@ function generateReport() {
         </div>
     </div>`;
     }
+
+    // 服務成本排行：依「最新月」USD 費用排序（買量最大的服務優先），只列有實際費用(年度累計>0)的服務
+    const top3 = serviceRanking.slice(0, 3).map(s => s.zhName || s.name).join('、');
+    const serviceRankingRows = serviceRanking.map((s, i) => {
+        const latestPct = latest.serviceUSD ? (s.latestUSD / latest.serviceUSD * 100) : 0;
+        const ytdPct = ytdServiceUSD ? (s.ytdUSD / ytdServiceUSD * 100) : 0;
+        return `<tr>
+                        <td style="color:var(--text-secondary);">${i + 1}</td>
+                        <td><b>${s.name}</b>${s.zhName ? `<br><span style="color:var(--text-secondary);font-size:0.85em;">${s.zhName}</span>` : ''}</td>
+                        <td>$${s.latestUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                        <td>${latestPct.toFixed(1)}%</td>
+                        <td>$${s.ytdUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                        <td>${ytdPct.toFixed(1)}%</td>
+                    </tr>`;
+    }).join('');
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -355,6 +415,31 @@ function generateReport() {
 
     <div class="main-content">
         <div class="chart-card full-width">
+            <h3>服務成本排行 (Cost by AWS Service · ${latest.yearMonth})</h3>
+            <div style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:16px;">當月前三大成本來源：<b style="color:var(--accent-color);">${top3}</b></div>
+            <div style="height: ${Math.max(280, serviceRanking.length * 32)}px; width: 100%;">
+                <canvas id="serviceChart"></canvas>
+            </div>
+            <table style="margin-top:20px;">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>AWS 服務</th>
+                        <th>當月費用(USD)</th>
+                        <th>佔當月比例</th>
+                        <th>年度累計(USD)</th>
+                        <th>年度佔比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${serviceRankingRows}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="chart-card full-width">
             <h3>每月費用明細 (Monthly Detail)</h3>
             <table>
                 <thead>
@@ -412,10 +497,47 @@ function generateReport() {
 
 <script>
     const monthlyTrend = ${JSON.stringify(monthlyTrend)};
+    const serviceRanking = ${JSON.stringify(serviceRanking)};
 
     const labels = monthlyTrend.map(d => d.yearMonth);
     const finalData = monthlyTrend.map(d => d.finalNTD);
     const rawData = monthlyTrend.map(d => d.serviceNTD);
+
+    // 服務成本排行：橫向長條圖，由高到低排列（Chart.js 預設由上到下畫，需 reverse 讓最高費用在最上面）
+    new Chart(document.getElementById('serviceChart'), {
+        type: 'bar',
+        data: {
+            labels: [...serviceRanking].reverse().map(s => s.zhName || s.name),
+            datasets: [{
+                label: '當月費用(USD)',
+                data: [...serviceRanking].reverse().map(s => s.latestUSD),
+                backgroundColor: '#FF9900'
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    color: '#e0e0e0',
+                    align: 'end',
+                    anchor: 'end',
+                    font: { size: 10, weight: 'bold' },
+                    formatter: v => '$' + v.toLocaleString(undefined, { maximumFractionDigits: 1 })
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(20,20,20,0.9)', titleColor: '#e0e0e0', bodyColor: '#a0a0a0', borderColor: '#333', borderWidth: 1
+                }
+            },
+            scales: {
+                x: { grid: { color: '#333' }, ticks: { color: '#888' } },
+                y: { grid: { color: '#333' }, ticks: { color: '#ccc', font: { size: 11 } } }
+            }
+        }
+    });
 
     new Chart(document.getElementById('trendChart'), {
         type: 'line',
