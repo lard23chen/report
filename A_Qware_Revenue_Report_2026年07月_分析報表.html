@@ -133,6 +133,14 @@
         th { color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
         td { white-space: nowrap; }
         tr:hover { background-color: #fff0f5; }
+
+        /* 銷售排行表：節目名稱欄允許換行，避免表格被撐寬而讓外層 .table-container 跑出水平拉桿 */
+        .table-container.no-hscroll { overflow-x: visible; }
+        #topEventsTable td:nth-child(2), #topEventsTable th:nth-child(2),
+        #topTicketsEventsTable td:nth-child(2), #topTicketsEventsTable th:nth-child(2) {
+            white-space: normal;
+            word-break: break-word;
+        }
         
         .status-badge {
             padding: 4px 8px;
@@ -315,7 +323,7 @@
     </div>
     
     <!-- Top 5 Events Table -->
-    <div class="table-container">
+    <div class="table-container no-hscroll">
         <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <span>🏆 銷售排行 Top 5 (By Revenue)</span>
             <span id="rankViewToggle">
@@ -341,7 +349,7 @@
     </div>
 
     <!-- Top 5 Events Table (By Tickets) -->
-    <div class="table-container">
+    <div class="table-container no-hscroll">
         <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🎟️ 銷售排行 Top 5 (By Tickets)</h3>
         <table id="topTicketsEventsTable">
             <thead>
