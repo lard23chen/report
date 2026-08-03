@@ -87,15 +87,15 @@
         <div class="stats-grid">
             <div class="stat-box">
                 <div class="label">總瀏覽量</div>
-                <div class="value" style="color: #60a5fa;">134,179</div>
+                <div class="value" style="color: #60a5fa;">134,192</div>
             </div>
             <div class="stat-box">
                 <div class="label">不重複訪客（估算）</div>
-                <div class="value" style="color: #a78bfa;">11,421</div>
+                <div class="value" style="color: #a78bfa;">11,425</div>
             </div>
             <div class="stat-box">
                 <div class="label">日均瀏覽量</div>
-                <div class="value" style="color: #34d399;">4,328</div>
+                <div class="value" style="color: #34d399;">4,066</div>
             </div>
             <div class="stat-box">
                 <div class="label">尖峰日</div>
@@ -116,7 +116,7 @@
                 <div class="table-wrapper">
                     <table>
                         <thead><tr><th>月份</th><th style="text-align:right;">瀏覽量</th><th style="text-align:right;">佔比</th></tr></thead>
-                        <tbody><tr><td style="color:#94a3b8;">2026-06</td><td style="text-align:right;color:#f8fafc;font-weight:500;">18</td><td style="text-align:right;color:#a78bfa;">0.01%</td></tr><tr><td style="color:#94a3b8;">2026-05</td><td style="text-align:right;color:#f8fafc;font-weight:500;">134,161</td><td style="text-align:right;color:#a78bfa;">99.99%</td></tr></tbody>
+                        <tbody><tr><td style="color:#94a3b8;">2026-08</td><td style="text-align:right;color:#f8fafc;font-weight:500;">9</td><td style="text-align:right;color:#a78bfa;">0.01%</td></tr><tr><td style="color:#94a3b8;">2026-07</td><td style="text-align:right;color:#f8fafc;font-weight:500;">4</td><td style="text-align:right;color:#a78bfa;">0.00%</td></tr><tr><td style="color:#94a3b8;">2026-06</td><td style="text-align:right;color:#f8fafc;font-weight:500;">18</td><td style="text-align:right;color:#a78bfa;">0.01%</td></tr><tr><td style="color:#94a3b8;">2026-05</td><td style="text-align:right;color:#f8fafc;font-weight:500;">134,161</td><td style="text-align:right;color:#a78bfa;">99.98%</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -125,7 +125,7 @@
                 <div style="height: 200px; margin-bottom: 15px;"><canvas id="deviceChart"></canvas></div>
                 <table>
                     <thead><tr><th>裝置類型</th><th style="text-align:right;">次數</th><th style="text-align:right;">佔比</th></tr></thead>
-                    <tbody><tr><td style="color:#94a3b8;">Mobile</td><td style="text-align:right;color:#f8fafc;font-weight:500;">76,540</td><td style="text-align:right;color:#34d399;">57.0%</td></tr><tr><td style="color:#94a3b8;">Desktop</td><td style="text-align:right;color:#f8fafc;font-weight:500;">57,639</td><td style="text-align:right;color:#34d399;">43.0%</td></tr></tbody>
+                    <tbody><tr><td style="color:#94a3b8;">Mobile</td><td style="text-align:right;color:#f8fafc;font-weight:500;">76,553</td><td style="text-align:right;color:#34d399;">57.0%</td></tr><tr><td style="color:#94a3b8;">Desktop</td><td style="text-align:right;color:#f8fafc;font-weight:500;">57,639</td><td style="text-align:right;color:#34d399;">43.0%</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -144,21 +144,21 @@
         // Daily Chart
         new Chart(document.getElementById('dailyChart').getContext('2d'), {
             type: 'line',
-            data: { labels: ["2026-05-06","2026-05-07","2026-05-08","2026-05-09","2026-05-10","2026-05-11","2026-05-12","2026-05-13","2026-05-14","2026-05-15","2026-05-16","2026-05-17","2026-05-18","2026-05-19","2026-05-20","2026-05-21","2026-05-22","2026-05-23","2026-05-24","2026-05-25","2026-05-26","2026-05-27","2026-05-28","2026-06-02","2026-06-04","2026-06-05","2026-06-08","2026-06-11","2026-06-12","2026-06-17","2026-06-24"], datasets: [{ label: 'Page Views', data: [331,247,194,751,212,691,975,1239,1119,5166,104919,5389,4243,3938,2008,851,420,363,351,265,258,192,39,2,1,1,1,1,5,5,2], borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)', borderWidth: 2, tension: 0.2, fill: true, pointRadius: 1 }] },
+            data: { labels: ["2026-05-06","2026-05-07","2026-05-08","2026-05-09","2026-05-10","2026-05-11","2026-05-12","2026-05-13","2026-05-14","2026-05-15","2026-05-16","2026-05-17","2026-05-18","2026-05-19","2026-05-20","2026-05-21","2026-05-22","2026-05-23","2026-05-24","2026-05-25","2026-05-26","2026-05-27","2026-05-28","2026-06-02","2026-06-04","2026-06-05","2026-06-08","2026-06-11","2026-06-12","2026-06-17","2026-06-24","2026-07-31","2026-08-01"], datasets: [{ label: 'Page Views', data: [331,247,194,751,212,691,975,1239,1119,5166,104919,5389,4243,3938,2008,851,420,363,351,265,258,192,39,2,1,1,1,1,5,5,2,4,9], borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)', borderWidth: 2, tension: 0.2, fill: true, pointRadius: 1 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, interaction: { mode: 'index', intersect: false }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 12, maxRotation: 45, font: { size: 10 } } } } }
         });
 
         // Device Doughnut
         new Chart(document.getElementById('deviceChart').getContext('2d'), {
             type: 'doughnut',
-            data: { labels: ["Mobile","Desktop"], datasets: [{ data: [76540,57639], backgroundColor: ['#a78bfa', '#34d399', '#fb923c', '#60a5fa'], borderWidth: 0 }] },
+            data: { labels: ["Mobile","Desktop"], datasets: [{ data: [76553,57639], backgroundColor: ['#a78bfa', '#34d399', '#fb923c', '#60a5fa'], borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#e2e8f0', font: { size: 12 } } }, datalabels: { color: '#fff', formatter: (val, ctx) => { const t = ctx.dataset.data.reduce((a,b)=>a+b,0); return ((val/t)*100).toFixed(1)+'%'; }, font: { weight: 'bold', size: 13 } } } }
         });
 
         // Hourly Bar
         new Chart(document.getElementById('hourlyChart').getContext('2d'), {
             type: 'bar',
-            data: { labels: ["0:00","1:00","2:00","3:00","4:00","5:00","6:00","7:00","8:00","9:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"], datasets: [{ label: 'Views', data: [1145,2184,35775,26503,6609,11902,12326,5837,4957,3559,2908,2950,2856,2814,3066,2616,2136,1472,742,403,315,185,347,572], backgroundColor: 'rgba(251,146,60,0.6)', borderColor: '#fb923c', borderWidth: 1, borderRadius: 4 }] },
+            data: { labels: ["0:00","1:00","2:00","3:00","4:00","5:00","6:00","7:00","8:00","9:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"], datasets: [{ label: 'Views', data: [1145,2184,35775,26503,6612,11907,12326,5837,4957,3560,2908,2950,2857,2814,3066,2617,2136,1474,742,403,315,185,347,572], backgroundColor: 'rgba(251,146,60,0.6)', borderColor: '#fb923c', borderWidth: 1, borderRadius: 4 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
         });
     </script>

@@ -1,4 +1,4 @@
-[2026/03/13 ¶g¤­  9:25:52.49] Starting Daily Report Update... 
+[2026/03/13 ï¿½gï¿½ï¿½  9:25:52.49] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 164542 records.
@@ -11,8 +11,8 @@ Fetching GA Data for ActivityID: 39311
 Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
-[2026/03/13 ¶g¤­  9:26:25.05] Update Completed. 
-[2026/03/13 ¶g¤­  9:27:31.59] Starting Daily Report Update... 
+[2026/03/13 ï¿½gï¿½ï¿½  9:26:25.05] Update Completed. 
+[2026/03/13 ï¿½gï¿½ï¿½  9:27:31.59] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 164542 records.
@@ -25,8 +25,8 @@ Fetching GA Data for ActivityID: 39311
 Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
-[2026/03/13 ¶g¤­  9:28:07.88] Update Completed. 
-[2026/03/14 ¶g¤» 11:38:20.77] Starting Daily Report Update... 
+[2026/03/13 ï¿½gï¿½ï¿½  9:28:07.88] Update Completed. 
+[2026/03/14 ï¿½gï¿½ï¿½ 11:38:20.77] Starting Daily Report Update... 
 Connecting to MongoDB...
 Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.211.33:27017
     at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
@@ -121,8 +121,8 @@ Error generating report: MongoServerSelectionError: connect ETIMEDOUT 159.143.21
     }
   }
 }
-[2026/03/14 ¶g¤» 11:39:27.50] Update Completed. 
-[2026/03/16 ¶g¤@  9:33:40.31] Starting Daily Report Update... 
+[2026/03/14 ï¿½gï¿½ï¿½ 11:39:27.50] Update Completed. 
+[2026/03/16 ï¿½gï¿½@  9:33:40.31] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 190940 records.
@@ -135,8 +135,8 @@ Fetching GA Data for ActivityID: 39311
 Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
-[2026/03/16 ¶g¤@  9:34:19.52] Update Completed. 
-[2026/03/19 ¶g¥|  8:58:24.56] Starting Daily Report Update... 
+[2026/03/16 ï¿½gï¿½@  9:34:19.52] Update Completed. 
+[2026/03/19 ï¿½gï¿½|  8:58:24.56] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 204626 records.
@@ -149,8 +149,8 @@ Fetching GA Data for ActivityID: 39311
 Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
-[2026/03/19 ¶g¥|  9:05:39.81] Update Completed. 
-[2026/03/20 ¶g¤­  8:56:40.90] Starting Daily Report Update... 
+[2026/03/19 ï¿½gï¿½|  9:05:39.81] Update Completed. 
+[2026/03/20 ï¿½gï¿½ï¿½  8:56:40.90] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 212760 records.
@@ -163,8 +163,8 @@ Fetching GA Data for ActivityID: 39311
 Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
-[2026/03/20 ¶g¤­  8:57:42.15] Update Completed. 
-[2026/03/20 ¶g¤­ 10:45:39.65] Starting Daily Report Update... 
+[2026/03/20 ï¿½gï¿½ï¿½  8:57:42.15] Update Completed. 
+[2026/03/20 ï¿½gï¿½ï¿½ 10:45:39.65] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 218307 records.
@@ -177,10 +177,10 @@ Fetching GA Data for ActivityID: 39311
 Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
-[2026/03/20 ¶g¤­ 10:46:19.13] Update Completed. 
+[2026/03/20 ï¿½gï¿½ï¿½ 10:46:19.13] Update Completed. 
 To https://github.com/lard23chen/report.git
    3127791..a4564a1  main -> main
-[2026/03/22 ¶g¤é  9:25:15.95] Starting Daily Report Update... 
+[2026/03/22 ï¿½gï¿½ï¿½  9:25:15.95] Starting Daily Report Update... 
 Connecting to MongoDB...
 Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.211.33:27017
     at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
@@ -275,10 +275,10 @@ Error generating report: MongoServerSelectionError: connect ETIMEDOUT 159.143.21
     }
   }
 }
-[2026/03/22 ¶g¤é  9:52:42.85] Update Completed. 
+[2026/03/22 ï¿½gï¿½ï¿½  9:52:42.85] Update Completed. 
 To https://github.com/lard23chen/report.git
    adfb55e..bb6bd76  main -> main
-[2026/03/23 ¶g¤@  9:01:27.08] Starting Daily Report Update... 
+[2026/03/23 ï¿½gï¿½@  9:01:27.08] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 244884 records.
@@ -291,10 +291,10 @@ Fetching GA Data for ActivityID: 39311
 Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
-[2026/03/23 ¶g¤@  9:02:44.03] Update Completed. 
+[2026/03/23 ï¿½gï¿½@  9:02:44.03] Update Completed. 
 To https://github.com/lard23chen/report.git
    598247e..7e46688  main -> main
-[2026/03/23 ¶g¤@ 10:20:43.54] Starting Daily Report Update... 
+[2026/03/23 ï¿½gï¿½@ 10:20:43.54] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 240945 records.
@@ -307,10 +307,10 @@ Fetching GA Data for ActivityID: 39311
 Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
-[2026/03/23 ¶g¤@ 10:21:36.71] Update Completed. 
+[2026/03/23 ï¿½gï¿½@ 10:21:36.71] Update Completed. 
 To https://github.com/lard23chen/report.git
    18ac5cd..1476652  main -> main
-[2026/03/25 ¶g¤T  8:58:56.99] Starting Daily Report Update... 
+[2026/03/25 ï¿½gï¿½T  8:58:56.99] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 252791 records.
@@ -324,10 +324,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/03/25 ¶g¤T  8:59:58.45] Update Completed. 
+[2026/03/25 ï¿½gï¿½T  8:59:58.45] Update Completed. 
 To https://github.com/lard23chen/report.git
    6dad379..6e5df46  main -> main
-[2026/03/27 ¶g¤­  8:04:13.77] Starting Daily Report Update... 
+[2026/03/27 ï¿½gï¿½ï¿½  8:04:13.77] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 272932 records.
@@ -341,10 +341,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/03/27 ¶g¤­  8:05:45.41] Update Completed. 
+[2026/03/27 ï¿½gï¿½ï¿½  8:05:45.41] Update Completed. 
 To https://github.com/lard23chen/report.git
    d7c5000..c2c8752  main -> main
-[2026/03/30 ¶g¤@  8:59:05.39] Starting Daily Report Update... 
+[2026/03/30 ï¿½gï¿½@  8:59:05.39] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 293555 records.
@@ -358,10 +358,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/03/30 ¶g¤@  9:00:24.55] Update Completed. 
+[2026/03/30 ï¿½gï¿½@  9:00:24.55] Update Completed. 
 To https://github.com/lard23chen/report.git
    2d11602..fb4bae7  main -> main
-[2026/03/31 ¶g¤G  8:00:01.84] Starting Daily Report Update... 
+[2026/03/31 ï¿½gï¿½G  8:00:01.84] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 299643 records.
@@ -375,10 +375,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/03/31 ¶g¤G  8:01:37.72] Update Completed. 
+[2026/03/31 ï¿½gï¿½G  8:01:37.72] Update Completed. 
 To https://github.com/lard23chen/report.git
    6270efc..8429259  main -> main
-[2026/04/01 ¶g¤T  8:58:38.80] Starting Daily Report Update... 
+[2026/04/01 ï¿½gï¿½T  8:58:38.80] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 307096 records.
@@ -392,10 +392,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/01 ¶g¤T  8:59:45.94] Update Completed. 
+[2026/04/01 ï¿½gï¿½T  8:59:45.94] Update Completed. 
 To https://github.com/lard23chen/report.git
    0b71e95..4d3a539  main -> main
-[2026/04/02 ¶g¥|  8:00:01.81] Starting Daily Report Update... 
+[2026/04/02 ï¿½gï¿½|  8:00:01.81] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 9724 records.
@@ -409,10 +409,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/02 ¶g¥|  8:00:27.25] Update Completed. 
+[2026/04/02 ï¿½gï¿½|  8:00:27.25] Update Completed. 
 To https://github.com/lard23chen/report.git
    29e2808..2f651a9  main -> main
-[2026/04/07 ¶g¤G  8:59:33.61] Starting Daily Report Update... 
+[2026/04/07 ï¿½gï¿½G  8:59:33.61] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 33886 records.
@@ -426,10 +426,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/07 ¶g¤G  9:00:11.31] Update Completed. 
+[2026/04/07 ï¿½gï¿½G  9:00:11.31] Update Completed. 
 To https://github.com/lard23chen/report.git
    3e84ec7..adf5d07  main -> main
-[2026/04/08 ¶g¤T  8:57:28.89] Starting Daily Report Update... 
+[2026/04/08 ï¿½gï¿½T  8:57:28.89] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 39996 records.
@@ -443,10 +443,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/08 ¶g¤T  8:57:58.43] Update Completed. 
+[2026/04/08 ï¿½gï¿½T  8:57:58.43] Update Completed. 
 To https://github.com/lard23chen/report.git
    b8f49ef..2eb8b33  main -> main
-[2026/04/09 ¶g¥|  8:00:01.86] Starting Daily Report Update... 
+[2026/04/09 ï¿½gï¿½|  8:00:01.86] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 43495 records.
@@ -460,10 +460,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/09 ¶g¥|  8:00:30.68] Update Completed. 
+[2026/04/09 ï¿½gï¿½|  8:00:30.68] Update Completed. 
 To https://github.com/lard23chen/report.git
    7b65c48..209b990  main -> main
-[2026/04/10 ¶g¤­  8:56:02.02] Starting Daily Report Update... 
+[2026/04/10 ï¿½gï¿½ï¿½  8:56:02.02] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 48488 records.
@@ -477,7 +477,7 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/10 ¶g¤­  8:56:47.83] Update Completed. 
+[2026/04/10 ï¿½gï¿½ï¿½  8:56:47.83] Update Completed. 
 To https://github.com/lard23chen/report.git
  ! [rejected]        main -> main (fetch first)
 error: failed to push some refs to 'https://github.com/lard23chen/report.git'
@@ -486,7 +486,7 @@ hint: have locally. This is usually caused by another repository pushing to
 hint: the same ref. If you want to integrate the remote changes, use
 hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
-[2026/04/20 ¶g¤@  9:09:39.08] Starting Daily Report Update... 
+[2026/04/20 ï¿½gï¿½@  9:09:39.08] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 111819 records.
@@ -500,10 +500,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/20 ¶g¤@  9:13:24.31] Update Completed. 
+[2026/04/20 ï¿½gï¿½@  9:13:24.31] Update Completed. 
 To https://github.com/lard23chen/report.git
    211afd9..f926dcb  main -> main
-[2026/04/20 ¶g¤@  9:23:07.78] Starting Daily Report Update... 
+[2026/04/20 ï¿½gï¿½@  9:23:07.78] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 111819 records.
@@ -517,10 +517,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/20 ¶g¤@  9:23:43.49] Update Completed. 
+[2026/04/20 ï¿½gï¿½@  9:23:43.49] Update Completed. 
 To https://github.com/lard23chen/report.git
    f926dcb..a53dfad  main -> main
-[2026/04/21 ¶g¤G  9:01:58.88] Starting Daily Report Update... 
+[2026/04/21 ï¿½gï¿½G  9:01:58.88] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 116458 records.
@@ -534,10 +534,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/21 ¶g¤G  9:02:42.64] Update Completed. 
+[2026/04/21 ï¿½gï¿½G  9:02:42.64] Update Completed. 
 To https://github.com/lard23chen/report.git
    26b12a7..c6f4b24  main -> main
-[2026/04/24 ¶g¤­  9:38:38.37] Starting Daily Report Update... 
+[2026/04/24 ï¿½gï¿½ï¿½  9:38:38.37] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 142939 records.
@@ -551,10 +551,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/24 ¶g¤­  9:39:30.41] Update Completed. 
+[2026/04/24 ï¿½gï¿½ï¿½  9:39:30.41] Update Completed. 
 To https://github.com/lard23chen/report.git
    33b3b37..39c7669  main -> main
-[2026/04/28 ¶g¤G  8:11:02.57] Starting Daily Report Update... 
+[2026/04/28 ï¿½gï¿½G  8:11:02.57] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 175386 records.
@@ -568,10 +568,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/28 ¶g¤G  8:12:01.61] Update Completed. 
+[2026/04/28 ï¿½gï¿½G  8:12:01.61] Update Completed. 
 To https://github.com/lard23chen/report.git
    d519891..73c4617  main -> main
-[2026/04/29 ¶g¤T  8:43:16.89] Starting Daily Report Update... 
+[2026/04/29 ï¿½gï¿½T  8:43:16.89] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 180491 records.
@@ -585,10 +585,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/29 ¶g¤T  8:44:06.05] Update Completed. 
+[2026/04/29 ï¿½gï¿½T  8:44:06.05] Update Completed. 
 To https://github.com/lard23chen/report.git
    6eed28c..32cf3ca  main -> main
-[2026/04/30 ¶g¥|  8:29:00.88] Starting Daily Report Update... 
+[2026/04/30 ï¿½gï¿½|  8:29:00.88] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 183156 records.
@@ -602,10 +602,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/04/30 ¶g¥|  8:30:00.86] Update Completed. 
+[2026/04/30 ï¿½gï¿½|  8:30:00.86] Update Completed. 
 To https://github.com/lard23chen/report.git
    89cd823..bd3403f  main -> main
-[2026/05/02 ¶g¤»  8:00:02.87] Starting Daily Report Update... 
+[2026/05/02 ï¿½gï¿½ï¿½  8:00:02.87] Starting Daily Report Update... 
 Connecting to MongoDB...
 Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.212.22:27017
     at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
@@ -746,7 +746,7 @@ Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.211.33:27017
     }
   }
 }
-[2026/05/02 ¶g¤»  8:01:40.03] Update Completed. 
+[2026/05/02 ï¿½gï¿½ï¿½  8:01:40.03] Update Completed. 
 remote: error: GH013: Repository rule violations found for refs/heads/main.        
 remote: 
 remote: - GITHUB PUSH PROTECTION        
@@ -773,7 +773,7 @@ remote:
 To https://github.com/lard23chen/report.git
  ! [remote rejected] main -> main (push declined due to repository rule violations)
 error: failed to push some refs to 'https://github.com/lard23chen/report.git'
-[2026/05/03 ¶g¤é 12:54:03.82] Starting Daily Report Update... 
+[2026/05/03 ï¿½gï¿½ï¿½ 12:54:03.82] Starting Daily Report Update... 
 Connecting to MongoDB...
 Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.212.22:27017
     at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
@@ -914,7 +914,7 @@ Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.212.22:27017
     }
   }
 }
-[2026/05/03 ¶g¤é 12:55:36.91] Update Completed. 
+[2026/05/03 ï¿½gï¿½ï¿½ 12:55:36.91] Update Completed. 
 remote: error: GH013: Repository rule violations found for refs/heads/main.        
 remote: 
 remote: - GITHUB PUSH PROTECTION        
@@ -941,7 +941,7 @@ remote:
 To https://github.com/lard23chen/report.git
  ! [remote rejected] main -> main (push declined due to repository rule violations)
 error: failed to push some refs to 'https://github.com/lard23chen/report.git'
-[2026/05/04 ¶g¤@  8:45:45.91] Starting Daily Report Update... 
+[2026/05/04 ï¿½gï¿½@  8:45:45.91] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 14632 records.
@@ -955,7 +955,7 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/04 ¶g¤@  8:46:16.63] Update Completed. 
+[2026/05/04 ï¿½gï¿½@  8:46:16.63] Update Completed. 
 remote: error: GH013: Repository rule violations found for refs/heads/main.        
 remote: 
 remote: - GITHUB PUSH PROTECTION        
@@ -982,7 +982,7 @@ remote:
 To https://github.com/lard23chen/report.git
  ! [remote rejected] main -> main (push declined due to repository rule violations)
 error: failed to push some refs to 'https://github.com/lard23chen/report.git'
-[2026/05/05 ¶g¤G  8:20:31.31] Starting Daily Report Update... 
+[2026/05/05 ï¿½gï¿½G  8:20:31.31] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 19543 records.
@@ -996,10 +996,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/05 ¶g¤G  8:21:19.39] Update Completed. 
+[2026/05/05 ï¿½gï¿½G  8:21:19.39] Update Completed. 
 To https://github.com/lard23chen/report.git
    366ead7..3485db6  main -> main
-[2026/05/06 ¶g¤T  8:52:35.37] Starting Daily Report Update... 
+[2026/05/06 ï¿½gï¿½T  8:52:35.37] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 38612 records.
@@ -1013,10 +1013,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/06 ¶g¤T  8:53:18.42] Update Completed. 
+[2026/05/06 ï¿½gï¿½T  8:53:18.42] Update Completed. 
 To https://github.com/lard23chen/report.git
    18eff47..32e6270  main -> main
-[2026/05/07 ¶g¥|  8:21:09.91] Starting Daily Report Update... 
+[2026/05/07 ï¿½gï¿½|  8:21:09.91] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 48944 records.
@@ -1030,10 +1030,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/07 ¶g¥|  8:21:45.50] Update Completed. 
+[2026/05/07 ï¿½gï¿½|  8:21:45.50] Update Completed. 
 To https://github.com/lard23chen/report.git
    60e254e..38070a8  main -> main
-[2026/05/08 ¶g¤­  8:45:35.03] Starting Daily Report Update... 
+[2026/05/08 ï¿½gï¿½ï¿½  8:45:35.03] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 60631 records.
@@ -1047,10 +1047,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/08 ¶g¤­  8:46:18.11] Update Completed. 
+[2026/05/08 ï¿½gï¿½ï¿½  8:46:18.11] Update Completed. 
 To https://github.com/lard23chen/report.git
    a9160a0..b430f51  main -> main
-[2026/05/11 ¶g¤@  8:40:05.94] Starting Daily Report Update... 
+[2026/05/11 ï¿½gï¿½@  8:40:05.94] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 60631 records.
@@ -1064,10 +1064,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/11 ¶g¤@  8:41:02.56] Update Completed. 
+[2026/05/11 ï¿½gï¿½@  8:41:02.56] Update Completed. 
 To https://github.com/lard23chen/report.git
    705ee65..25fad33  main -> main
-[2026/05/12 ¶g¤G  8:23:46.18] Starting Daily Report Update... 
+[2026/05/12 ï¿½gï¿½G  8:23:46.18] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 82009 records.
@@ -1081,10 +1081,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/12 ¶g¤G  8:24:41.41] Update Completed. 
+[2026/05/12 ï¿½gï¿½G  8:24:41.41] Update Completed. 
 To https://github.com/lard23chen/report.git
    902a801..19bba6e  main -> main
-[2026/05/13 ¶g¤T  8:32:56.93] Starting Daily Report Update... 
+[2026/05/13 ï¿½gï¿½T  8:32:56.93] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 89068 records.
@@ -1098,10 +1098,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/13 ¶g¤T  8:33:36.92] Update Completed. 
+[2026/05/13 ï¿½gï¿½T  8:33:36.92] Update Completed. 
 To https://github.com/lard23chen/report.git
    fa7f66b..b1e5d71  main -> main
-[2026/05/14 ¶g¥| 11:00:32.91] Starting Daily Report Update... 
+[2026/05/14 ï¿½gï¿½| 11:00:32.91] Starting Daily Report Update... 
 Connecting to MongoDB...
 Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.212.22:27017
     at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
@@ -1242,10 +1242,10 @@ Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.211.33:27017
     }
   }
 }
-[2026/05/14 ¶g¥| 11:02:10.50] Update Completed. 
+[2026/05/14 ï¿½gï¿½| 11:02:10.50] Update Completed. 
 To https://github.com/lard23chen/report.git
    c618fdc..d5f1f09  main -> main
-[2026/05/17 ¶g¤é  8:00:02.24] Starting Daily Report Update... 
+[2026/05/17 ï¿½gï¿½ï¿½  8:00:02.24] Starting Daily Report Update... 
 Connecting to MongoDB...
 Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.211.33:27017
     at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
@@ -1386,10 +1386,10 @@ Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.212.22:27017
     }
   }
 }
-[2026/05/17 ¶g¤é  8:01:41.10] Update Completed. 
+[2026/05/17 ï¿½gï¿½ï¿½  8:01:41.10] Update Completed. 
 To https://github.com/lard23chen/report.git
    68ffbf8..0f17b5b  main -> main
-[2026/05/18 ¶g¤@  8:34:11.47] Starting Daily Report Update... 
+[2026/05/18 ï¿½gï¿½@  8:34:11.47] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 170107 records.
@@ -1403,10 +1403,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/18 ¶g¤@  8:35:17.16] Update Completed. 
+[2026/05/18 ï¿½gï¿½@  8:35:17.16] Update Completed. 
 To https://github.com/lard23chen/report.git
    81e372c..8aed792  main -> main
-[2026/05/19 ¶g¤G  8:17:51.32] Starting Daily Report Update... 
+[2026/05/19 ï¿½gï¿½G  8:17:51.32] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 175925 records.
@@ -1420,10 +1420,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/19 ¶g¤G  8:18:54.73] Update Completed. 
+[2026/05/19 ï¿½gï¿½G  8:18:54.73] Update Completed. 
 To https://github.com/lard23chen/report.git
    0f3fcc5..6a9bd91  main -> main
-[2026/05/20 ¶g¤T  8:39:05.96] Starting Daily Report Update... 
+[2026/05/20 ï¿½gï¿½T  8:39:05.96] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 179811 records.
@@ -1437,10 +1437,10 @@ Fetching Session/Pageview Data (Qware_A_Traffic_session_data)...
 Fetching Member Data for Nationalities...
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/20 ¶g¤T  8:40:07.43] Update Completed. 
+[2026/05/20 ï¿½gï¿½T  8:40:07.43] Update Completed. 
 To https://github.com/lard23chen/report.git
    7e441d5..35f0d4d  main -> main
-[2026/05/22 ¶g¤­  9:51:44.15] Starting Daily Report Update... 
+[2026/05/22 ï¿½gï¿½ï¿½  9:51:44.15] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 192913 records.
@@ -1455,10 +1455,10 @@ Fetching Member Data for Nationalities...
 Fetched 2 cloud cost records.
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/22 ¶g¤­  9:52:58.70] Update Completed. 
+[2026/05/22 ï¿½gï¿½ï¿½  9:52:58.70] Update Completed. 
 To https://github.com/lard23chen/report.git
    f1c5900..f4835c8  main -> main
-[2026/05/25 ¶g¤@  8:51:50.36] Starting Daily Report Update... 
+[2026/05/25 ï¿½gï¿½@  8:51:50.36] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 206658 records.
@@ -1473,10 +1473,10 @@ Fetching Member Data for Nationalities...
 Fetched 2 cloud cost records.
 Report generated successfully: D:\2025\AI\MongoDB\A_GoldenDisc_Report_2026-02-06.html
 Updating report with activity data in chart tooltips...
-[2026/05/25 ¶g¤@  8:53:03.92] Update Completed. 
+[2026/05/25 ï¿½gï¿½@  8:53:03.92] Update Completed. 
 To https://github.com/lard23chen/report.git
    5fb66a9..a8e016a  main -> main
-[2026/05/26 ¶g¤G  8:16:45.85] Starting Daily Report Update... 
+[2026/05/26 ï¿½gï¿½G  8:16:45.85] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 209141 records.
@@ -1486,10 +1486,10 @@ Fetching data for: 2026 7â€“ELEVEN é«˜é›„å•¤é…’éŸ³æ¨‚ç¯€...
 Fetched 36986 records.
 Fetched 48 page view records.
 Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (35588 KB)
-[2026/05/26 ¶g¤G  8:18:17.71] Update Completed. 
+[2026/05/26 ï¿½gï¿½G  8:18:17.71] Update Completed. 
 To https://github.com/lard23chen/report.git
    372b964..58e1050  main -> main
-[2026/05/27 ¶g¤T  8:46:36.03] Starting Daily Report Update... 
+[2026/05/27 ï¿½gï¿½T  8:46:36.03] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 211939 records.
@@ -1499,10 +1499,10 @@ Fetching data for: 2026 7â€“ELEVEN é«˜é›„å•¤é…’éŸ³æ¨‚ç¯€...
 Fetched 37033 records.
 Fetched 48 page view records.
 Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (35635 KB)
-[2026/05/27 ¶g¤T  8:47:40.00] Update Completed. 
+[2026/05/27 ï¿½gï¿½T  8:47:40.00] Update Completed. 
 To https://github.com/lard23chen/report.git
    c9fc7f4..c84ef6d  main -> main
-[2026/05/28 ¶g¥|  8:20:18.02] Starting Daily Report Update... 
+[2026/05/28 ï¿½gï¿½|  8:20:18.02] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 218576 records.
@@ -1512,10 +1512,10 @@ Fetching data for: 2026 7â€“ELEVEN é«˜é›„å•¤é…’éŸ³æ¨‚ç¯€...
 Fetched 37069 records.
 Fetched 48 page view records.
 Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (35671 KB)
-[2026/05/28 ¶g¥|  8:21:15.47] Update Completed. 
+[2026/05/28 ï¿½gï¿½|  8:21:15.47] Update Completed. 
 To https://github.com/lard23chen/report.git
    2f4f44d..a7c36ae  main -> main
-[2026/05/29 ¶g¤­  8:34:22.05] Starting Daily Report Update... 
+[2026/05/29 ï¿½gï¿½ï¿½  8:34:22.05] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 227460 records.
@@ -1525,10 +1525,10 @@ Fetching data for: 2026 7â€“ELEVEN é«˜é›„å•¤é…’éŸ³æ¨‚ç¯€...
 Fetched 37121 records.
 Fetched 48 page view records.
 Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (35722 KB)
-[2026/05/29 ¶g¤­  8:35:39.90] Update Completed. 
+[2026/05/29 ï¿½gï¿½ï¿½  8:35:39.90] Update Completed. 
 To https://github.com/lard23chen/report.git
    44c1197..31d8e2c  main -> main
-[2026/05/30 ¶g¤» 12:38:47.00] Starting Daily Report Update... 
+[2026/05/30 ï¿½gï¿½ï¿½ 12:38:47.00] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 237136 records.
@@ -1538,11 +1538,11 @@ Fetching data for: 2026 7â€“ELEVEN é«˜é›„å•¤é…’éŸ³æ¨‚ç¯€...
 Fetched 37172 records.
 Fetched 48 page view records.
 Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (35772 KB)
-[2026/05/30 ¶g¤» 12:40:07.90] Update Completed. 
+[2026/05/30 ï¿½gï¿½ï¿½ 12:40:07.90] Update Completed. 
 To https://github.com/lard23chen/report.git
    b3d7772..53ef7e6  main -> main
 [LINE] OK: daily
-[2026/05/31 ¶g¤é 12:38:54.27] Starting Daily Report Update... 
+[2026/05/31 ï¿½gï¿½ï¿½ 12:38:54.27] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 241639 records.
@@ -1552,11 +1552,11 @@ Fetching data for: 2026 7â€“ELEVEN é«˜é›„å•¤é…’éŸ³æ¨‚ç¯€...
 Fetched 37227 records.
 Fetched 48 page view records.
 Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (35827 KB)
-[2026/05/31 ¶g¤é 12:40:41.64] Update Completed. 
+[2026/05/31 ï¿½gï¿½ï¿½ 12:40:41.64] Update Completed. 
 To https://github.com/lard23chen/report.git
    021ae9b..5ec0cf9  main -> main
 [LINE] OK: daily
-[2026/06/01 ¶g¤@  8:48:53.71] Starting Daily Report Update... 
+[2026/06/01 ï¿½gï¿½@  8:48:53.71] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 245598 records.
@@ -1566,11 +1566,11 @@ Fetching data for: 2026 7â€“ELEVEN é«˜é›„å•¤é…’éŸ³æ¨‚ç¯€...
 Fetched 37292 records.
 Fetched 48 page view records.
 Report generated: D:\2025\AI\MongoDB\A_KaohsiungBeerFestival_2026.html (35889 KB)
-[2026/06/01 ¶g¤@  8:50:01.13] Update Completed. 
+[2026/06/01 ï¿½gï¿½@  8:50:01.13] Update Completed. 
 To https://github.com/lard23chen/report.git
    410c31b..0d4500b  main -> main
 [LINE] OK: daily
-[2026/06/02 ¶g¤G  8:32:03.27] Starting Daily Report Update... 
+[2026/06/02 ï¿½gï¿½G  8:32:03.27] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 4056 records.
@@ -1678,17 +1678,17 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/02 ¶g¤G  8:32:43.30] Day 2 detected - generating previous month report... 
+[2026/06/02 ï¿½gï¿½G  8:32:43.30] Day 2 detected - generating previous month report... 
 Generating report for: 2026-05 (2026å¹´05æœˆ)
 Connecting to MongoDB...
 Fetching and aggregating 2026-05 data...
 Processing 245598 records...
 Monthly report generated: A_Qware_Revenue_Report_2026å¹´05æœˆ_åˆ†æžå ±è¡¨.html
-[2026/06/02 ¶g¤G  8:33:12.35] Update Completed. 
+[2026/06/02 ï¿½gï¿½G  8:33:12.35] Update Completed. 
 To https://github.com/lard23chen/report.git
    235a7a0..83156c8  main -> main
 [LINE] OK: daily
-[2026/06/03 ¶g¤T  8:49:30.41] Starting Daily Report Update... 
+[2026/06/03 ï¿½gï¿½T  8:49:30.41] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 10279 records.
@@ -1796,11 +1796,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/03 ¶g¤T  8:50:14.11] Update Completed. 
+[2026/06/03 ï¿½gï¿½T  8:50:14.11] Update Completed. 
 To https://github.com/lard23chen/report.git
    35af436..d91cadf  main -> main
 [LINE] OK: daily
-[2026/06/04 ¶g¥|  8:13:02.66] Starting Daily Report Update... 
+[2026/06/04 ï¿½gï¿½|  8:13:02.66] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 18540 records.
@@ -1908,11 +1908,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/04 ¶g¥|  8:13:47.87] Update Completed. 
+[2026/06/04 ï¿½gï¿½|  8:13:47.87] Update Completed. 
 To https://github.com/lard23chen/report.git
    b9a65fe..edd3f68  main -> main
 [LINE] OK: daily
-[2026/06/05 ¶g¤­  8:40:40.86] Starting Daily Report Update... 
+[2026/06/05 ï¿½gï¿½ï¿½  8:40:40.86] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 41520 records.
@@ -2020,11 +2020,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/05 ¶g¤­  8:41:39.59] Update Completed. 
+[2026/06/05 ï¿½gï¿½ï¿½  8:41:39.59] Update Completed. 
 To https://github.com/lard23chen/report.git
    3560532..8863937  main -> main
 [LINE] OK: daily
-[2026/06/08 ¶g¤@  8:54:47.36] Starting Daily Report Update... 
+[2026/06/08 ï¿½gï¿½@  8:54:47.36] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 91154 records.
@@ -2132,11 +2132,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/08 ¶g¤@  8:55:39.39] Update Completed. 
+[2026/06/08 ï¿½gï¿½@  8:55:39.39] Update Completed. 
 To https://github.com/lard23chen/report.git
    dd0f418..991b64b  main -> main
 [LINE] OK: daily
-[2026/06/09 ¶g¤G  8:34:40.37] Starting Daily Report Update... 
+[2026/06/09 ï¿½gï¿½G  8:34:40.37] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 93778 records.
@@ -2252,11 +2252,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/09 ¶g¤G  8:35:48.10] Update Completed. 
+[2026/06/09 ï¿½gï¿½G  8:35:48.10] Update Completed. 
 To https://github.com/lard23chen/report.git
    35d0fad..5e0a0f2  main -> main
 [LINE] OK: daily
-[2026/06/10 ¶g¤T 13:02:31.35] Starting Daily Report Update... 
+[2026/06/10 ï¿½gï¿½T 13:02:31.35] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 105906 records.
@@ -2372,11 +2372,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/10 ¶g¤T 13:03:18.03] Update Completed. 
+[2026/06/10 ï¿½gï¿½T 13:03:18.03] Update Completed. 
 To https://github.com/lard23chen/report.git
    69d3682..7e0dca3  main -> main
 [LINE] OK: daily
-[2026/06/11 ¶g¥|  8:19:16.54] Starting Daily Report Update... 
+[2026/06/11 ï¿½gï¿½|  8:19:16.54] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 110980 records.
@@ -2492,12 +2492,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/11 ¶g¥|  8:20:29.66] Update Completed. 
+[2026/06/11 ï¿½gï¿½|  8:20:29.66] Update Completed. 
 To https://github.com/lard23chen/report.git
    05223e7..27b42db  main -> main
 [LINE] OK: daily
-[2026/06/11 ¶g¥|  8:22:38.82] Already completed today, skipping. 
-[2026/06/12 ¶g¤­  8:00:04.40] Starting Daily Report Update... 
+[2026/06/11 ï¿½gï¿½|  8:22:38.82] Already completed today, skipping. 
+[2026/06/12 ï¿½gï¿½ï¿½  8:00:04.40] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 113314 records.
@@ -2613,12 +2613,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/12 ¶g¤­  8:01:01.90] Update Completed. 
+[2026/06/12 ï¿½gï¿½ï¿½  8:01:01.90] Update Completed. 
 To https://github.com/lard23chen/report.git
    eb5ec3d..264d1b0  main -> main
 [LINE] OK: daily
-[2026/06/12 ¶g¤­ 21:41:48.33] Already completed today, skipping. 
-[2026/06/16 ¶g¤G 20:04:46.16] Starting Daily Report Update... 
+[2026/06/12 ï¿½gï¿½ï¿½ 21:41:48.33] Already completed today, skipping. 
+[2026/06/16 ï¿½gï¿½G 20:04:46.16] Starting Daily Report Update... 
 Connecting to MongoDB...
 Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
     at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
@@ -2659,10 +2659,10 @@ Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb
   syscall: 'querySrv',
   hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
 }
-[2026/06/16 ¶g¤G 20:05:02.95] Update Completed. 
+[2026/06/16 ï¿½gï¿½G 20:05:02.95] Update Completed. 
 fatal: unable to access 'https://github.com/lard23chen/report.git/': Could not resolve host: github.com
-[LINE] FAILED: µLªk¸ÑªR»·ºÝ¦WºÙ: 'publiclinemessageapi.azurewebsites.net'
-[2026/06/17 ¶g¤T  8:33:21.98] Starting Daily Report Update... 
+[LINE] FAILED: ï¿½Lï¿½kï¿½ÑªRï¿½ï¿½ï¿½Ý¦Wï¿½ï¿½: 'publiclinemessageapi.azurewebsites.net'
+[2026/06/17 ï¿½gï¿½T  8:33:21.98] Starting Daily Report Update... 
 Connecting to MongoDB...
 Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.211.33:27017
     at Topology.selectServer (D:\2025\AI\MongoDB\node_modules\mongodb\lib\sdam\topology.js:347:38)
@@ -2898,11 +2898,11 @@ Error: MongoServerSelectionError: connect ETIMEDOUT 159.143.208.6:27017
     }
   }
 }
-[2026/06/17 ¶g¤T  8:36:19.82] Update Completed. 
+[2026/06/17 ï¿½gï¿½T  8:36:19.82] Update Completed. 
 To https://github.com/lard23chen/report.git
    8801172..4dec3a3  main -> main
 [LINE] OK: daily
-[2026/06/18 ¶g¥| 14:13:33.61] Starting Daily Report Update... 
+[2026/06/18 ï¿½gï¿½| 14:13:33.61] Starting Daily Report Update... 
 Connecting to MongoDB...
 Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net
     at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17) {
@@ -2943,11 +2943,11 @@ Error: Error: querySrv ECONNREFUSED _mongodb._tcp.for-aws-loadtest.f0fpg.mongodb
   syscall: 'querySrv',
   hostname: '_mongodb._tcp.for-aws-loadtest.f0fpg.mongodb.net'
 }
-[2026/06/18 ¶g¥| 14:13:51.75] Update Completed. 
+[2026/06/18 ï¿½gï¿½| 14:13:51.75] Update Completed. 
 fatal: unable to access 'https://github.com/lard23chen/report.git/': Could not resolve host: github.com
-[LINE] FAILED: µLªk¸ÑªR»·ºÝ¦WºÙ: 'publiclinemessageapi.azurewebsites.net'
-[2026/06/18 ¶g¥| 20:32:40.07] Already completed today, skipping. 
-[2026/06/22 ¶g¤@  8:22:07.82] Starting Daily Report Update... 
+[LINE] FAILED: ï¿½Lï¿½kï¿½ÑªRï¿½ï¿½ï¿½Ý¦Wï¿½ï¿½: 'publiclinemessageapi.azurewebsites.net'
+[2026/06/18 ï¿½gï¿½| 20:32:40.07] Already completed today, skipping. 
+[2026/06/22 ï¿½gï¿½@  8:22:07.82] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 160571 records.
@@ -3069,11 +3069,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/22 ¶g¤@  8:24:15.07] Update Completed. 
+[2026/06/22 ï¿½gï¿½@  8:24:15.07] Update Completed. 
 To https://github.com/lard23chen/report.git
    128e43b..c8248da  main -> main
 [LINE] OK: daily
-[2026/06/23 ¶g¤G  8:53:12.13] Starting Daily Report Update... 
+[2026/06/23 ï¿½gï¿½G  8:53:12.13] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 165838 records.
@@ -3195,12 +3195,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/23 ¶g¤G  8:54:50.41] Update Completed. 
+[2026/06/23 ï¿½gï¿½G  8:54:50.41] Update Completed. 
 To https://github.com/lard23chen/report.git
    f6095bc..577f32e  main -> main
 [LINE] OK: daily
-[2026/06/23 ¶g¤G  8:57:17.51] Already completed today, skipping. 
-[2026/06/24 ¶g¤T  8:00:04.89] Starting Daily Report Update... 
+[2026/06/23 ï¿½gï¿½G  8:57:17.51] Already completed today, skipping. 
+[2026/06/24 ï¿½gï¿½T  8:00:04.89] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 207023 records.
@@ -3325,12 +3325,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/24 ¶g¤T  8:01:33.56] Update Completed. 
+[2026/06/24 ï¿½gï¿½T  8:01:33.56] Update Completed. 
 To https://github.com/lard23chen/report.git
    a4c489f..a048cb8  main -> main
 [LINE] OK: daily
-[2026/06/24 ¶g¤T  8:47:30.84] Already completed today, skipping. 
-[2026/06/25 ¶g¥|  8:57:54.43] Starting Daily Report Update... 
+[2026/06/24 ï¿½gï¿½T  8:47:30.84] Already completed today, skipping. 
+[2026/06/25 ï¿½gï¿½|  8:57:54.43] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 264936 records.
@@ -3455,12 +3455,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/25 ¶g¥|  8:59:39.02] Update Completed. 
+[2026/06/25 ï¿½gï¿½|  8:59:39.02] Update Completed. 
 To https://github.com/lard23chen/report.git
    21eb8e4..b395fea  main -> main
 [LINE] OK: daily
-[2026/06/25 ¶g¥|  9:02:21.99] Already completed today, skipping. 
-[2026/06/26 ¶g¤­  8:43:51.46] Starting Daily Report Update... 
+[2026/06/25 ï¿½gï¿½|  9:02:21.99] Already completed today, skipping. 
+[2026/06/26 ï¿½gï¿½ï¿½  8:43:51.46] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 286682 records.
@@ -3585,12 +3585,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/26 ¶g¤­  8:46:33.42] Update Completed. 
+[2026/06/26 ï¿½gï¿½ï¿½  8:46:33.42] Update Completed. 
 To https://github.com/lard23chen/report.git
    23dfa44..addb0a6  main -> main
 [LINE] OK: daily
-[2026/06/26 ¶g¤­ 17:10:05.36] Already completed today, skipping. 
-[2026/06/27 ¶g¤» 11:21:04.08] Starting Daily Report Update... 
+[2026/06/26 ï¿½gï¿½ï¿½ 17:10:05.36] Already completed today, skipping. 
+[2026/06/27 ï¿½gï¿½ï¿½ 11:21:04.08] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 305659 records.
@@ -3733,11 +3733,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/27 ¶g¤» 11:22:52.96] Update Completed. 
+[2026/06/27 ï¿½gï¿½ï¿½ 11:22:52.96] Update Completed. 
 To https://github.com/lard23chen/report.git
    18e5f8b..ff8dc4f  main -> main
 [LINE] OK: daily
-[2026/06/28 ¶g¤é 11:17:00.31] Starting Daily Report Update... 
+[2026/06/28 ï¿½gï¿½ï¿½ 11:17:00.31] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 324716 records.
@@ -3880,11 +3880,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/28 ¶g¤é 11:19:08.53] Update Completed. 
+[2026/06/28 ï¿½gï¿½ï¿½ 11:19:08.53] Update Completed. 
 To https://github.com/lard23chen/report.git
    ec147c2..df93996  main -> main
 [LINE] OK: daily
-[2026/06/29 ¶g¤@  8:43:03.48] Starting Daily Report Update... 
+[2026/06/29 ï¿½gï¿½@  8:43:03.48] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 330102 records.
@@ -4027,11 +4027,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/29 ¶g¤@  8:45:57.19] Update Completed. 
+[2026/06/29 ï¿½gï¿½@  8:45:57.19] Update Completed. 
 To https://github.com/lard23chen/report.git
    d93ce88..3e6b5de  main -> main
 [LINE] OK: daily
-[2026/06/30 ¶g¤G  8:12:48.98] Starting Daily Report Update... 
+[2026/06/30 ï¿½gï¿½G  8:12:48.98] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 335657 records.
@@ -4174,12 +4174,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´05æœˆ
-[2026/06/30 ¶g¤G  8:14:47.00] Update Completed. 
+[2026/06/30 ï¿½gï¿½G  8:14:47.00] Update Completed. 
 To https://github.com/lard23chen/report.git
    f483f62..e6939be  main -> main
 [LINE] OK: daily
-[2026/06/30 ¶g¤G  8:32:21.33] Already completed today, skipping. 
-[2026/07/01 ¶g¤T  8:38:56.05] Starting Daily Report Update... 
+[2026/06/30 ï¿½gï¿½G  8:32:21.33] Already completed today, skipping. 
+[2026/07/01 ï¿½gï¿½T  8:38:56.05] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 351953 records.
@@ -4331,12 +4331,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/01 ¶g¤T  8:41:27.45] Update Completed. 
+[2026/07/01 ï¿½gï¿½T  8:41:27.45] Update Completed. 
 To https://github.com/lard23chen/report.git
    96b48a2..38e9476  main -> main
 [LINE] OK: daily
-[2026/07/01 ¶g¤T 15:16:02.78] Already completed today, skipping. 
-[2026/07/02 ¶g¥|  8:40:49.07] Starting Daily Report Update... 
+[2026/07/01 ï¿½gï¿½T 15:16:02.78] Already completed today, skipping. 
+[2026/07/02 ï¿½gï¿½|  8:40:49.07] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 9683 records.
@@ -4488,20 +4488,20 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/02 ¶g¥|  8:42:04.25] Day 2 detected - generating previous month report... 
+[2026/07/02 ï¿½gï¿½|  8:42:04.25] Day 2 detected - generating previous month report... 
 Generating report for: 2026-06 (2026å¹´06æœˆ)
 Connecting to MongoDB...
 Fetching and aggregating 2026-06 data...
 Processing 351953 records...
 Monthly report generated: A_Qware_Revenue_Report_2026å¹´06æœˆ_åˆ†æžå ±è¡¨.html
-[2026/07/02 ¶g¥|  8:42:47.81] Update Completed. 
+[2026/07/02 ï¿½gï¿½|  8:42:47.81] Update Completed. 
 To https://github.com/lard23chen/report.git
    cc08a13..7011e55  main -> main
 [LINE] OK: daily
-[2026/07/02 ¶g¥|  8:44:17.74] Already completed today, skipping. 
-[2026/07/02 ¶g¥| 12:58:50.39] Already completed today, skipping. 
-[2026/07/02 ¶g¥| 16:59:24.90] Already completed today, skipping. 
-[2026/07/03 ¶g¤­  8:32:46.64] Starting Daily Report Update... 
+[2026/07/02 ï¿½gï¿½|  8:44:17.74] Already completed today, skipping. 
+[2026/07/02 ï¿½gï¿½| 12:58:50.39] Already completed today, skipping. 
+[2026/07/02 ï¿½gï¿½| 16:59:24.90] Already completed today, skipping. 
+[2026/07/03 ï¿½gï¿½ï¿½  8:32:46.64] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 16526 records.
@@ -4653,12 +4653,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/03 ¶g¤­  8:33:57.19] Update Completed. 
+[2026/07/03 ï¿½gï¿½ï¿½  8:33:57.19] Update Completed. 
 To https://github.com/lard23chen/report.git
    8b68ff8..ca059a7  main -> main
 [LINE] OK: daily
-[2026/07/03 ¶g¤­ 12:59:09.04] Already completed today, skipping. 
-[2026/07/06 ¶g¤@  9:06:14.64] Starting Daily Report Update... 
+[2026/07/03 ï¿½gï¿½ï¿½ 12:59:09.04] Already completed today, skipping. 
+[2026/07/06 ï¿½gï¿½@  9:06:14.64] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 29359 records.
@@ -4810,12 +4810,12 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/06 ¶g¤@  9:07:27.99] Update Completed. 
+[2026/07/06 ï¿½gï¿½@  9:07:27.99] Update Completed. 
 To https://github.com/lard23chen/report.git
    89daa21..f176470  main -> main
 [LINE] OK: daily
-[2026/07/06 ¶g¤@  9:10:45.63] Already completed today, skipping. 
-[2026/07/07 ¶g¤G  8:01:35.54] Starting Daily Report Update... 
+[2026/07/06 ï¿½gï¿½@  9:10:45.63] Already completed today, skipping. 
+[2026/07/07 ï¿½gï¿½G  8:01:35.54] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 34507 records.
@@ -4968,11 +4968,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/07 ¶g¤G  8:03:05.15] Update Completed. 
+[2026/07/07 ï¿½gï¿½G  8:03:05.15] Update Completed. 
 To https://github.com/lard23chen/report.git
    b43c1fa..c489b29  main -> main
 [LINE] OK: daily
-[2026/07/08 ¶g¤T  8:00:08.21] Starting Daily Report Update... 
+[2026/07/08 ï¿½gï¿½T  8:00:08.21] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 45117 records.
@@ -5132,9 +5132,9 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/08 ¶g¤T  8:03:58.56] Update Completed. 
-[2026/07/08 ¶g¤T  9:09:56.68] Already completed today, skipping. 
-[2026/07/09 ¶g¥|  8:07:36.32] Starting Daily Report Update... 
+[2026/07/08 ï¿½gï¿½T  8:03:58.56] Update Completed. 
+[2026/07/08 ï¿½gï¿½T  9:09:56.68] Already completed today, skipping. 
+[2026/07/09 ï¿½gï¿½|  8:07:36.32] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily...
 Fetched 51797 records.
@@ -5294,11 +5294,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/09 ¶g¥|  8:10:15.09] Update Completed. 
+[2026/07/09 ï¿½gï¿½|  8:10:15.09] Update Completed. 
 To https://github.com/lard23chen/report.git
    0f035c7..74d365c  main -> main
 [LINE] OK: daily
-[2026/07/10 ¶g¤­ 13:49:19.69] Starting Daily Report Update... 
+[2026/07/10 ï¿½gï¿½ï¿½ 13:49:19.69] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 21776 records.
@@ -5458,16 +5458,16 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/10 ¶g¤­ 14:43:41.30] Day 10 detected - updating GA Traffic Analysis Report... 
+[2026/07/10 ï¿½gï¿½ï¿½ 14:43:41.30] Day 10 detected - updating GA Traffic Analysis Report... 
 Connecting to MongoDB...
 Report generated successfully at D:\2025\AI\MongoDB\A_GA_Traffic_Analysis_Report.html
-[2026/07/10 ¶g¤­ 15:13:11.55] Update Completed. 
+[2026/07/10 ï¿½gï¿½ï¿½ 15:13:11.55] Update Completed. 
 error: RPC failed; curl 35 schannel: renegotiation timeout
 send-pack: unexpected disconnect while reading sideband packet
 fatal: the remote end hung up unexpectedly
 Everything up-to-date
 [LINE] OK: daily
-[2026/07/11 ¶g¤» 15:22:50.53] Starting Daily Report Update... 
+[2026/07/11 ï¿½gï¿½ï¿½ 15:22:50.53] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 25242 records.
@@ -5638,7 +5638,7 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/11 ¶g¤» 17:05:24.25] Update Completed. 
+[2026/07/11 ï¿½gï¿½ï¿½ 17:05:24.25] Update Completed. 
 To https://github.com/lard23chen/report.git
  ! [rejected]        main -> main (fetch first)
 error: failed to push some refs to 'https://github.com/lard23chen/report.git'
@@ -5648,7 +5648,7 @@ hint: the same ref. If you want to integrate the remote changes, use
 hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 [LINE] OK: daily
-[2026/07/12 ¶g¤é 16:03:02.12] Starting Daily Report Update... 
+[2026/07/12 ï¿½gï¿½ï¿½ 16:03:02.12] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 28759 records.
@@ -5808,7 +5808,7 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/12 ¶g¤é 17:24:50.79] Update Completed. 
+[2026/07/12 ï¿½gï¿½ï¿½ 17:24:50.79] Update Completed. 
 [é€±ä¸€ 2026/07/13  9:17:21.38] Manual recovery: cleared stuck git/GCM processes 
 [é€±ä¸€ 2026/07/13  9:26:31.29] Starting Daily Report Update... 
 Connecting to MongoDB...
@@ -5972,7 +5972,7 @@ Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
 [é€±ä¸€ 2026/07/13  9:29:21.56] Update Completed. 
 [LINE] OK: daily
-[2026/07/14 ¶g¤G  8:14:45.73] Starting Daily Report Update... 
+[2026/07/14 ï¿½gï¿½G  8:14:45.73] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 35622 records.
@@ -6158,8 +6158,8 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/14 ¶g¤G  8:17:45.04] Update Completed. 
-[2026/07/14 ¶g¤G  8:17:52.18] git pull --rebase failed, aborting rebase. See git_sync.log 
+[2026/07/14 ï¿½gï¿½G  8:17:45.04] Update Completed. 
+[2026/07/14 ï¿½gï¿½G  8:17:52.18] git pull --rebase failed, aborting rebase. See git_sync.log 
 [LINE] OK: daily
 lock-test  
 [é€±ä¸‰ 2026/07/15  9:28:57.71] Starting Daily Report Update... 
@@ -6355,7 +6355,7 @@ Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
 [é€±ä¸‰ 2026/07/15  9:32:24.76] Update Completed. 
 [LINE] OK: daily
-[2026/07/16 ¶g¥|  8:12:37.61] Starting Daily Report Update... 
+[2026/07/16 ï¿½gï¿½|  8:12:37.61] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 57980 records.
@@ -6546,13 +6546,13 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/16 ¶g¥|  8:16:16.17] Update Completed. 
-[2026/07/16 ¶g¥|  8:16:26.95] git pull --rebase failed, aborting rebase. See git_sync.log 
+[2026/07/16 ï¿½gï¿½|  8:16:16.17] Update Completed. 
+[2026/07/16 ï¿½gï¿½|  8:16:26.95] git pull --rebase failed, aborting rebase. See git_sync.log 
 [LINE] OK: daily
-[2026/07/16 ¶g¥| 11:45:16.06] Already completed today, skipping. 
-[2026/07/16 ¶g¥| 14:28:42.90] Already completed today, skipping. 
-[2026/07/16 ¶g¥| 18:10:51.88] Already completed today, skipping. 
-[2026/07/17 ¶g¤­  8:40:46.63] Starting Daily Report Update... 
+[2026/07/16 ï¿½gï¿½| 11:45:16.06] Already completed today, skipping. 
+[2026/07/16 ï¿½gï¿½| 14:28:42.90] Already completed today, skipping. 
+[2026/07/16 ï¿½gï¿½| 18:10:51.88] Already completed today, skipping. 
+[2026/07/17 ï¿½gï¿½ï¿½  8:40:46.63] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 73267 records.
@@ -6743,9 +6743,9 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/17 ¶g¤­  8:45:15.19] Update Completed. 
+[2026/07/17 ï¿½gï¿½ï¿½  8:45:15.19] Update Completed. 
 [LINE] OK: daily
-[2026/07/18 ¶g¤»  8:00:03.97] Starting Daily Report Update... 
+[2026/07/18 ï¿½gï¿½ï¿½  8:00:03.97] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 85253 records.
@@ -6945,9 +6945,9 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/18 ¶g¤»  8:21:51.16] Update Completed. 
+[2026/07/18 ï¿½gï¿½ï¿½  8:21:51.16] Update Completed. 
 [LINE] OK: daily
-[2026/07/19 ¶g¤é 11:54:35.66] Starting Daily Report Update... 
+[2026/07/19 ï¿½gï¿½ï¿½ 11:54:35.66] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 91270 records.
@@ -7009,9 +7009,9 @@ Error: MongoNetworkError: read ECONNRESET
     syscall: 'read'
   }
 }
-[2026/07/19 ¶g¤é 12:10:18.58] Update Completed. 
-[LINE] FAILED: °òÂ¦³s±µ¤wÃö³¬: ±µ¦¬®Éµo¥Í¥¼¹w´Áªº¿ù»~¡C
-[2026/07/20 ¶g¤@  8:39:01.38] Starting Daily Report Update... 
+[2026/07/19 ï¿½gï¿½ï¿½ 12:10:18.58] Update Completed. 
+[LINE] FAILED: ï¿½ï¿½Â¦ï¿½sï¿½ï¿½ï¿½wï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ï¿½Éµoï¿½Í¥ï¿½ï¿½wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½~ï¿½C
+[2026/07/20 ï¿½gï¿½@  8:39:01.38] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 96256 records.
@@ -7202,10 +7202,10 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/20 ¶g¤@  8:43:48.54] Update Completed. 
+[2026/07/20 ï¿½gï¿½@  8:43:48.54] Update Completed. 
 [LINE] OK: daily
-[2026/07/21 ¶g¤G  8:08:26.95] Starting Daily Report Update... 
-[2026/07/21 ¶g¤G  8:08:26.96] Starting Daily Report Update... 
+[2026/07/21 ï¿½gï¿½G  8:08:26.95] Starting Daily Report Update... 
+[2026/07/21 ï¿½gï¿½G  8:08:26.96] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 100393 records.
@@ -7396,10 +7396,10 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/21 ¶g¤G  8:12:41.61] Update Completed. 
+[2026/07/21 ï¿½gï¿½G  8:12:41.61] Update Completed. 
 [LINE] OK: daily
-[2026/07/22 ¶g¤T  8:42:31.19] Starting Daily Report Update... 
-[2026/07/22 ¶g¤T  8:42:31.26] Starting Daily Report Update... 
+[2026/07/22 ï¿½gï¿½T  8:42:31.19] Starting Daily Report Update... 
+[2026/07/22 ï¿½gï¿½T  8:42:31.26] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 103319 records.
@@ -7590,10 +7590,10 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/22 ¶g¤T  8:46:27.18] Update Completed. 
+[2026/07/22 ï¿½gï¿½T  8:46:27.18] Update Completed. 
 [LINE] OK: daily
-[2026/07/22 ¶g¤T 13:55:02.58] Already completed today, skipping. 
-[2026/07/23 ¶g¥|  8:08:18.99] Starting Daily Report Update... 
+[2026/07/22 ï¿½gï¿½T 13:55:02.58] Already completed today, skipping. 
+[2026/07/23 ï¿½gï¿½|  8:08:18.99] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 106653 records.
@@ -7784,11 +7784,11 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/23 ¶g¥|  8:13:44.22] Update Completed. 
+[2026/07/23 ï¿½gï¿½|  8:13:44.22] Update Completed. 
 [LINE] OK: daily
 [é€±å›› 2026/07/23  9:40:01.03] Already completed today, skipping. 
 [é€±å›› 2026/07/23 14:40:56.30] Already completed today, skipping. 
-[2026/07/24 ¶g¤­  8:00:04.01] Starting Daily Report Update... 
+[2026/07/24 ï¿½gï¿½ï¿½  8:00:04.01] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 109390 records.
@@ -7960,9 +7960,9 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/24 ¶g¤­  8:03:53.96] Update Completed. 
+[2026/07/24 ï¿½gï¿½ï¿½  8:03:53.96] Update Completed. 
 [LINE] OK: daily
-[2026/07/25 ¶g¤»  8:00:04.48] Starting Daily Report Update... 
+[2026/07/25 ï¿½gï¿½ï¿½  8:00:04.48] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 112152 records.
@@ -8136,9 +8136,9 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/25 ¶g¤»  8:04:28.66] Update Completed. 
+[2026/07/25 ï¿½gï¿½ï¿½  8:04:28.66] Update Completed. 
 [LINE] OK: daily
-[2026/07/26 ¶g¤é  8:00:04.38] Starting Daily Report Update... 
+[2026/07/26 ï¿½gï¿½ï¿½  8:00:04.38] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 114848 records.
@@ -8312,9 +8312,9 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/26 ¶g¤é  8:04:32.88] Update Completed. 
+[2026/07/26 ï¿½gï¿½ï¿½  8:04:32.88] Update Completed. 
 [LINE] OK: daily
-[2026/07/27 ¶g¤@  8:00:04.33] Starting Daily Report Update... 
+[2026/07/27 ï¿½gï¿½@  8:00:04.33] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 117364 records.
@@ -8488,9 +8488,9 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/27 ¶g¤@  8:04:46.22] Update Completed. 
+[2026/07/27 ï¿½gï¿½@  8:04:46.22] Update Completed. 
 [LINE] OK: daily
-[2026/07/28 ¶g¤G  8:00:03.89] Starting Daily Report Update... 
+[2026/07/28 ï¿½gï¿½G  8:00:03.89] Starting Daily Report Update... 
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 120479 records.
@@ -8664,9 +8664,9 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/28 ¶g¤G  8:04:54.04] Update Completed. 
+[2026/07/28 ï¿½gï¿½G  8:04:54.04] Update Completed. 
 [LINE] OK: daily
-[2026/07/29 ¶g¤T  8:00:03.71] Starting Daily Report Update... 
+[2026/07/29 é€±ä¸‰  8:00:03.71] Starting Daily Report update...
 Connecting to MongoDB...
 Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
 Fetched 124404 records.
@@ -8840,4 +8840,1441 @@ Replacing existing stats block...
 Updated report_index.html successfully.
 Updated header date and time successfully.
 Updated Tab1 monthly card to: 2026å¹´06æœˆ
-[2026/07/29 ¶g¤T  8:03:52.23] Update Completed. 
+[LINE] OK: daily
+[2026/07/29 ï¿½gï¿½T 10:44:18.11] Already completed today, skipping. 
+ï¿½tï¿½ÎµLï¿½kï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Jï¿½ï¿½ï¿½É¶ï¿½ï¿½C
+ï¿½ï¿½Jï¿½sï¿½É¶ï¿½: [2026/07/29 ï¿½gï¿½T 11:26:22.64] Already completed today, skipping. 
+[é€±ä¸‰ 2026/07/29 11:30:22.53] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
+Fetched 124404 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (44 KB)
+Querying PageView...
+Querying ClickData...
+Querying daily PV/Click...
+Done. Activities: 77 (matched:56 pvOnly:13 clickOnly:8), pvTotal:3724619, clickTotal:2663554
+Building ProductId -> ActivityId map from ClickData...
+Mapped 64 ProductIds to ActivityIds.
+Querying add_to_cart events (bucketed by day)...
+Querying purchase events (bucketed by day)...
+Done. Activities with cart data: 63, purchase data: 63
+Querying page_view events (bucketed by day)...
+  21729 (activity, day) PV buckets
+Querying purchase events (bucketed by day, qty + revenue)...
+  6446 (activity, day) purchase buckets
+Done. Activities: 615 (PV: 613, purchase: 374, matched: 372)
+Totals: PV 592,987, qty 118,292, revenue $52,178,874
+Dates: 01/27 â€“ 07/29
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-06',
+    salesOrderCount: 114121,
+    salesTicketCount: 229250,
+    salesAmount: new Decimal128('280024507'),
+    eTicketCount: 77421,
+    paperTicketCount: 151829,
+    refundOrderCount: 9986,
+    refundTicketCount: 17058,
+    refundFee: new Decimal128('1744794.0000')
+  },
+  {
+    _id: '2026-05',
+    salesOrderCount: 84786,
+    salesTicketCount: 153045,
+    salesAmount: new Decimal128('234437280'),
+    eTicketCount: 15486,
+    paperTicketCount: 137559,
+    refundOrderCount: 13740,
+    refundTicketCount: 19469,
+    refundFee: new Decimal128('2335884.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 56786,
+    salesTicketCount: 107441,
+    salesAmount: new Decimal128('131916455'),
+    eTicketCount: 6068,
+    paperTicketCount: 101373,
+    refundOrderCount: 5867,
+    refundTicketCount: 9374,
+    refundFee: new Decimal128('922591.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 105060,
+    salesTicketCount: 205575,
+    salesAmount: new Decimal128('209333847'),
+    eTicketCount: 1428,
+    paperTicketCount: 204147,
+    refundOrderCount: 10688,
+    refundTicketCount: 18023,
+    refundFee: new Decimal128('1506558.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 36902,
+    salesTicketCount: 62463,
+    salesAmount: new Decimal128('68709018'),
+    eTicketCount: 318,
+    paperTicketCount: 62145,
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 19417,
+    salesTicketCount: 28539,
+    salesAmount: new Decimal128('73459515'),
+    eTicketCount: 413,
+    paperTicketCount: 28126,
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 45987,
+    salesTicketCount: 71404,
+    salesAmount: 254367084,
+    eTicketCount: 13374,
+    paperTicketCount: 58030,
+    refundOrderCount: 7364,
+    refundTicketCount: 10510,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 14711,
+    salesTicketCount: 20300,
+    salesAmount: 52156681,
+    eTicketCount: 440,
+    paperTicketCount: 19860,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 17718,
+    salesTicketCount: 31507,
+    salesAmount: 93366542,
+    eTicketCount: 134,
+    paperTicketCount: 31373,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 53869,
+    salesTicketCount: 95574,
+    salesAmount: new Decimal128('134041283'),
+    eTicketCount: 959,
+    paperTicketCount: 94615,
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-03',
+    salesOrderCount: 86404,
+    salesTicketCount: 185367,
+    salesAmount: new Decimal128('379041779'),
+    eTicketCount: 968,
+    paperTicketCount: 184399,
+    refundOrderCount: 14740,
+    refundTicketCount: 24666,
+    refundFee: new Decimal128('2903107.9000')
+  },
+  {
+    _id: '2025-02',
+    salesOrderCount: 41139,
+    salesTicketCount: 80444,
+    salesAmount: new Decimal128('96189022'),
+    eTicketCount: 643,
+    paperTicketCount: 79801,
+    refundOrderCount: 4211,
+    refundTicketCount: 7165,
+    refundFee: new Decimal128('581397.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18197,
+    salesTicketCount: 28601,
+    salesAmount: new Decimal128('71893803'),
+    eTicketCount: 409,
+    paperTicketCount: 28192,
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026å¹´06æœˆ
+[é€±ä¸‰ 2026/07/29 11:40:21.10] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
+Fetched 124404 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (44 KB)
+Querying PageView...
+Querying ClickData...
+Querying daily PV/Click...
+Done. Activities: 77 (matched:56 pvOnly:13 clickOnly:8), pvTotal:3724619, clickTotal:2663554
+Building ProductId -> ActivityId map from ClickData...
+Mapped 64 ProductIds to ActivityIds.
+Querying add_to_cart events (bucketed by day)...
+Querying purchase events (bucketed by day)...
+Done. Activities with cart data: 63, purchase data: 63
+Querying page_view events (bucketed by day)...
+  21727 (activity, day) PV buckets
+Querying purchase events (bucketed by day, qty + revenue)...
+  6444 (activity, day) purchase buckets
+Done. Activities: 615 (PV: 613, purchase: 374, matched: 372)
+Totals: PV 592,964, qty 118,301, revenue $52,178,294
+Dates: 01/27 â€“ 07/29
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-06',
+    salesOrderCount: 114121,
+    salesTicketCount: 229250,
+    salesAmount: new Decimal128('280024507'),
+    eTicketCount: 77421,
+    paperTicketCount: 151829,
+    refundOrderCount: 9986,
+    refundTicketCount: 17058,
+    refundFee: new Decimal128('1744794.0000')
+  },
+  {
+    _id: '2026-05',
+    salesOrderCount: 84786,
+    salesTicketCount: 153045,
+    salesAmount: new Decimal128('234437280'),
+    eTicketCount: 15486,
+    paperTicketCount: 137559,
+    refundOrderCount: 13740,
+    refundTicketCount: 19469,
+    refundFee: new Decimal128('2335884.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 56786,
+    salesTicketCount: 107441,
+    salesAmount: new Decimal128('131916455'),
+    eTicketCount: 6068,
+    paperTicketCount: 101373,
+    refundOrderCount: 5867,
+    refundTicketCount: 9374,
+    refundFee: new Decimal128('922591.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 105060,
+    salesTicketCount: 205575,
+    salesAmount: new Decimal128('209333847'),
+    eTicketCount: 1428,
+    paperTicketCount: 204147,
+    refundOrderCount: 10688,
+    refundTicketCount: 18023,
+    refundFee: new Decimal128('1506558.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 36902,
+    salesTicketCount: 62463,
+    salesAmount: new Decimal128('68709018'),
+    eTicketCount: 318,
+    paperTicketCount: 62145,
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 19417,
+    salesTicketCount: 28539,
+    salesAmount: new Decimal128('73459515'),
+    eTicketCount: 413,
+    paperTicketCount: 28126,
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 45987,
+    salesTicketCount: 71404,
+    salesAmount: 254367084,
+    eTicketCount: 13374,
+    paperTicketCount: 58030,
+    refundOrderCount: 7364,
+    refundTicketCount: 10510,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 14711,
+    salesTicketCount: 20300,
+    salesAmount: 52156681,
+    eTicketCount: 440,
+    paperTicketCount: 19860,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 17718,
+    salesTicketCount: 31507,
+    salesAmount: 93366542,
+    eTicketCount: 134,
+    paperTicketCount: 31373,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 53869,
+    salesTicketCount: 95574,
+    salesAmount: new Decimal128('134041283'),
+    eTicketCount: 959,
+    paperTicketCount: 94615,
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-03',
+    salesOrderCount: 86404,
+    salesTicketCount: 185367,
+    salesAmount: new Decimal128('379041779'),
+    eTicketCount: 968,
+    paperTicketCount: 184399,
+    refundOrderCount: 14740,
+    refundTicketCount: 24666,
+    refundFee: new Decimal128('2903107.9000')
+  },
+  {
+    _id: '2025-02',
+    salesOrderCount: 41139,
+    salesTicketCount: 80444,
+    salesAmount: new Decimal128('96189022'),
+    eTicketCount: 643,
+    paperTicketCount: 79801,
+    refundOrderCount: 4211,
+    refundTicketCount: 7165,
+    refundFee: new Decimal128('581397.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18197,
+    salesTicketCount: 28601,
+    salesAmount: new Decimal128('71893803'),
+    eTicketCount: 409,
+    paperTicketCount: 28192,
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026å¹´06æœˆ
+[é€±ä¸‰ 2026/07/29 11:43:44.52] Update Finished [neutralized-for-retest, was-Completed].
+[é€±ä¸‰ 2026/07/29 11:44:19.17] Completed with failures: NewReport-push-origin; 
+[LINE] OK: daily
+[é€±ä¸‰ 2026/07/29 12:24:25.91] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
+Fetched 124404 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (44 KB)
+Querying PageView...
+Querying ClickData...
+Querying daily PV/Click...
+Done. Activities: 77 (matched:56 pvOnly:13 clickOnly:8), pvTotal:3724619, clickTotal:2663554
+Building ProductId -> ActivityId map from ClickData...
+Mapped 64 ProductIds to ActivityIds.
+Querying add_to_cart events (bucketed by day)...
+Querying purchase events (bucketed by day)...
+Done. Activities with cart data: 63, purchase data: 63
+Querying page_view events (bucketed by day)...
+  21715 (activity, day) PV buckets
+Querying purchase events (bucketed by day, qty + revenue)...
+  6443 (activity, day) purchase buckets
+Done. Activities: 615 (PV: 613, purchase: 374, matched: 372)
+Totals: PV 594,284, qty 118,259, revenue $52,164,094
+Dates: 01/28 â€“ 07/29
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-06',
+    salesOrderCount: 114121,
+    salesTicketCount: 229250,
+    salesAmount: new Decimal128('280024507'),
+    eTicketCount: 77421,
+    paperTicketCount: 151829,
+    refundOrderCount: 9986,
+    refundTicketCount: 17058,
+    refundFee: new Decimal128('1744794.0000')
+  },
+  {
+    _id: '2026-05',
+    salesOrderCount: 84786,
+    salesTicketCount: 153045,
+    salesAmount: new Decimal128('234437280'),
+    eTicketCount: 15486,
+    paperTicketCount: 137559,
+    refundOrderCount: 13740,
+    refundTicketCount: 19469,
+    refundFee: new Decimal128('2335884.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 56786,
+    salesTicketCount: 107441,
+    salesAmount: new Decimal128('131916455'),
+    eTicketCount: 6068,
+    paperTicketCount: 101373,
+    refundOrderCount: 5867,
+    refundTicketCount: 9374,
+    refundFee: new Decimal128('922591.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 105060,
+    salesTicketCount: 205575,
+    salesAmount: new Decimal128('209333847'),
+    eTicketCount: 1428,
+    paperTicketCount: 204147,
+    refundOrderCount: 10688,
+    refundTicketCount: 18023,
+    refundFee: new Decimal128('1506558.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 36902,
+    salesTicketCount: 62463,
+    salesAmount: new Decimal128('68709018'),
+    eTicketCount: 318,
+    paperTicketCount: 62145,
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 19417,
+    salesTicketCount: 28539,
+    salesAmount: new Decimal128('73459515'),
+    eTicketCount: 413,
+    paperTicketCount: 28126,
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 45987,
+    salesTicketCount: 71404,
+    salesAmount: 254367084,
+    eTicketCount: 13374,
+    paperTicketCount: 58030,
+    refundOrderCount: 7364,
+    refundTicketCount: 10510,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 14711,
+    salesTicketCount: 20300,
+    salesAmount: 52156681,
+    eTicketCount: 440,
+    paperTicketCount: 19860,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 17718,
+    salesTicketCount: 31507,
+    salesAmount: 93366542,
+    eTicketCount: 134,
+    paperTicketCount: 31373,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 53869,
+    salesTicketCount: 95574,
+    salesAmount: new Decimal128('134041283'),
+    eTicketCount: 959,
+    paperTicketCount: 94615,
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-03',
+    salesOrderCount: 86404,
+    salesTicketCount: 185367,
+    salesAmount: new Decimal128('379041779'),
+    eTicketCount: 968,
+    paperTicketCount: 184399,
+    refundOrderCount: 14740,
+    refundTicketCount: 24666,
+    refundFee: new Decimal128('2903107.9000')
+  },
+  {
+    _id: '2025-02',
+    salesOrderCount: 41139,
+    salesTicketCount: 80444,
+    salesAmount: new Decimal128('96189022'),
+    eTicketCount: 643,
+    paperTicketCount: 79801,
+    refundOrderCount: 4211,
+    refundTicketCount: 7165,
+    refundFee: new Decimal128('581397.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18197,
+    salesTicketCount: 28601,
+    salesAmount: new Decimal128('71893803'),
+    eTicketCount: 409,
+    paperTicketCount: 28192,
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026å¹´06æœˆ
+[é€±ä¸‰ 2026/07/29 12:28:09.08] Update Completed. 
+[LINE] OK: daily
+[2026/07/30 ¶g¥|  8:00:03.84] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
+Fetched 130838 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (44 KB)
+Querying PageView...
+Querying ClickData...
+Querying daily PV/Click...
+Done. Activities: 78 (matched:56 pvOnly:14 clickOnly:8), pvTotal:3767052, clickTotal:2686979
+Building ProductId -> ActivityId map from ClickData...
+Mapped 64 ProductIds to ActivityIds.
+Querying add_to_cart events (bucketed by day)...
+Querying purchase events (bucketed by day)...
+Done. Activities with cart data: 63, purchase data: 63
+Querying page_view events (bucketed by day)...
+  21778 (activity, day) PV buckets
+Querying purchase events (bucketed by day, qty + revenue)...
+  6461 (activity, day) purchase buckets
+Done. Activities: 620 (PV: 618, purchase: 375, matched: 373)
+Totals: PV 611,733, qty 117,379, revenue $51,988,360
+Dates: 01/28 â€“ 07/30
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-06',
+    salesOrderCount: 114121,
+    salesTicketCount: 229250,
+    salesAmount: new Decimal128('280024507'),
+    eTicketCount: 77421,
+    paperTicketCount: 151829,
+    refundOrderCount: 9986,
+    refundTicketCount: 17058,
+    refundFee: new Decimal128('1744794.0000')
+  },
+  {
+    _id: '2026-05',
+    salesOrderCount: 84786,
+    salesTicketCount: 153045,
+    salesAmount: new Decimal128('234437280'),
+    eTicketCount: 15486,
+    paperTicketCount: 137559,
+    refundOrderCount: 13740,
+    refundTicketCount: 19469,
+    refundFee: new Decimal128('2335884.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 56786,
+    salesTicketCount: 107441,
+    salesAmount: new Decimal128('131916455'),
+    eTicketCount: 6068,
+    paperTicketCount: 101373,
+    refundOrderCount: 5867,
+    refundTicketCount: 9374,
+    refundFee: new Decimal128('922591.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 105060,
+    salesTicketCount: 205575,
+    salesAmount: new Decimal128('209333847'),
+    eTicketCount: 1428,
+    paperTicketCount: 204147,
+    refundOrderCount: 10688,
+    refundTicketCount: 18023,
+    refundFee: new Decimal128('1506558.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 36902,
+    salesTicketCount: 62463,
+    salesAmount: new Decimal128('68709018'),
+    eTicketCount: 318,
+    paperTicketCount: 62145,
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 19417,
+    salesTicketCount: 28539,
+    salesAmount: new Decimal128('73459515'),
+    eTicketCount: 413,
+    paperTicketCount: 28126,
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 45987,
+    salesTicketCount: 71404,
+    salesAmount: 254367084,
+    eTicketCount: 13374,
+    paperTicketCount: 58030,
+    refundOrderCount: 7364,
+    refundTicketCount: 10510,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 14711,
+    salesTicketCount: 20300,
+    salesAmount: 52156681,
+    eTicketCount: 440,
+    paperTicketCount: 19860,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 17718,
+    salesTicketCount: 31507,
+    salesAmount: 93366542,
+    eTicketCount: 134,
+    paperTicketCount: 31373,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 53869,
+    salesTicketCount: 95574,
+    salesAmount: new Decimal128('134041283'),
+    eTicketCount: 959,
+    paperTicketCount: 94615,
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-03',
+    salesOrderCount: 86404,
+    salesTicketCount: 185367,
+    salesAmount: new Decimal128('379041779'),
+    eTicketCount: 968,
+    paperTicketCount: 184399,
+    refundOrderCount: 14740,
+    refundTicketCount: 24666,
+    refundFee: new Decimal128('2903107.9000')
+  },
+  {
+    _id: '2025-02',
+    salesOrderCount: 41139,
+    salesTicketCount: 80444,
+    salesAmount: new Decimal128('96189022'),
+    eTicketCount: 643,
+    paperTicketCount: 79801,
+    refundOrderCount: 4211,
+    refundTicketCount: 7165,
+    refundFee: new Decimal128('581397.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18197,
+    salesTicketCount: 28601,
+    salesAmount: new Decimal128('71893803'),
+    eTicketCount: 409,
+    paperTicketCount: 28192,
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026å¹´06æœˆ
+[2026/07/30 ¶g¥|  8:03:59.67] Update Completed. 
+[LINE] OK: daily
+[2026/07/31 ¶g¤­  8:53:43.27] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
+Fetched 134740 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (44 KB)
+Querying PageView...
+Querying ClickData...
+Querying daily PV/Click...
+Done. Activities: 80 (matched:56 pvOnly:16 clickOnly:8), pvTotal:3837740, clickTotal:2723664
+Building ProductId -> ActivityId map from ClickData...
+Mapped 64 ProductIds to ActivityIds.
+Querying add_to_cart events (bucketed by day)...
+Querying purchase events (bucketed by day)...
+Done. Activities with cart data: 63, purchase data: 63
+Querying page_view events (bucketed by day)...
+  21812 (activity, day) PV buckets
+Querying purchase events (bucketed by day, qty + revenue)...
+  6477 (activity, day) purchase buckets
+Done. Activities: 621 (PV: 619, purchase: 375, matched: 373)
+Totals: PV 607,936, qty 116,910, revenue $51,994,735
+Dates: 01/29 â€“ 07/31
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-06',
+    salesOrderCount: 114121,
+    salesTicketCount: 229250,
+    salesAmount: new Decimal128('280024507'),
+    eTicketCount: 77421,
+    paperTicketCount: 151829,
+    refundOrderCount: 9986,
+    refundTicketCount: 17058,
+    refundFee: new Decimal128('1744794.0000')
+  },
+  {
+    _id: '2026-05',
+    salesOrderCount: 84786,
+    salesTicketCount: 153045,
+    salesAmount: new Decimal128('234437280'),
+    eTicketCount: 15486,
+    paperTicketCount: 137559,
+    refundOrderCount: 13740,
+    refundTicketCount: 19469,
+    refundFee: new Decimal128('2335884.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 56786,
+    salesTicketCount: 107441,
+    salesAmount: new Decimal128('131916455'),
+    eTicketCount: 6068,
+    paperTicketCount: 101373,
+    refundOrderCount: 5867,
+    refundTicketCount: 9374,
+    refundFee: new Decimal128('922591.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 105060,
+    salesTicketCount: 205575,
+    salesAmount: new Decimal128('209333847'),
+    eTicketCount: 1428,
+    paperTicketCount: 204147,
+    refundOrderCount: 10688,
+    refundTicketCount: 18023,
+    refundFee: new Decimal128('1506558.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 36902,
+    salesTicketCount: 62463,
+    salesAmount: new Decimal128('68709018'),
+    eTicketCount: 318,
+    paperTicketCount: 62145,
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 19417,
+    salesTicketCount: 28539,
+    salesAmount: new Decimal128('73459515'),
+    eTicketCount: 413,
+    paperTicketCount: 28126,
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 45987,
+    salesTicketCount: 71404,
+    salesAmount: 254367084,
+    eTicketCount: 13374,
+    paperTicketCount: 58030,
+    refundOrderCount: 7364,
+    refundTicketCount: 10510,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 14711,
+    salesTicketCount: 20300,
+    salesAmount: 52156681,
+    eTicketCount: 440,
+    paperTicketCount: 19860,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 17718,
+    salesTicketCount: 31507,
+    salesAmount: 93366542,
+    eTicketCount: 134,
+    paperTicketCount: 31373,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 53869,
+    salesTicketCount: 95574,
+    salesAmount: new Decimal128('134041283'),
+    eTicketCount: 959,
+    paperTicketCount: 94615,
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-03',
+    salesOrderCount: 86404,
+    salesTicketCount: 185367,
+    salesAmount: new Decimal128('379041779'),
+    eTicketCount: 968,
+    paperTicketCount: 184399,
+    refundOrderCount: 14740,
+    refundTicketCount: 24666,
+    refundFee: new Decimal128('2903107.9000')
+  },
+  {
+    _id: '2025-02',
+    salesOrderCount: 41139,
+    salesTicketCount: 80444,
+    salesAmount: new Decimal128('96189022'),
+    eTicketCount: 643,
+    paperTicketCount: 79801,
+    refundOrderCount: 4211,
+    refundTicketCount: 7165,
+    refundFee: new Decimal128('581397.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18197,
+    salesTicketCount: 28601,
+    salesAmount: new Decimal128('71893803'),
+    eTicketCount: 409,
+    paperTicketCount: 28192,
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026å¹´06æœˆ
+[2026/07/31 ¶g¤­  8:57:35.42] Update Completed. 
+[LINE] OK: daily
+[2026/08/01 ¶g¤» 20:56:55.70] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
+Fetched 145216 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (45 KB)
+Querying PageView...
+Querying ClickData...
+Querying daily PV/Click...
+Done. Activities: 80 (matched:56 pvOnly:16 clickOnly:8), pvTotal:3891105, clickTotal:2750378
+Building ProductId -> ActivityId map from ClickData...
+Mapped 64 ProductIds to ActivityIds.
+Querying add_to_cart events (bucketed by day)...
+Querying purchase events (bucketed by day)...
+Done. Activities with cart data: 63, purchase data: 63
+Querying page_view events (bucketed by day)...
+  21821 (activity, day) PV buckets
+Querying purchase events (bucketed by day, qty + revenue)...
+  6481 (activity, day) purchase buckets
+Done. Activities: 624 (PV: 622, purchase: 376, matched: 374)
+Totals: PV 614,554, qty 118,061, revenue $53,624,911
+Dates: 01/31 â€“ 08/01
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-07',
+    salesOrderCount: 75012,
+    salesTicketCount: 135219,
+    salesAmount: new Decimal128('155900822'),
+    eTicketCount: 40235,
+    paperTicketCount: 94984,
+    refundOrderCount: 6574,
+    refundTicketCount: 9997,
+    refundFee: new Decimal128('1079179.0000')
+  },
+  {
+    _id: '2026-06',
+    salesOrderCount: 109013,
+    salesTicketCount: 218266,
+    salesAmount: new Decimal128('268246841'),
+    eTicketCount: 28917,
+    paperTicketCount: 189349,
+    refundOrderCount: 15696,
+    refundTicketCount: 28042,
+    refundFee: new Decimal128('2591337.0000')
+  },
+  {
+    _id: '2026-05',
+    salesOrderCount: 84786,
+    salesTicketCount: 153045,
+    salesAmount: new Decimal128('234437280'),
+    eTicketCount: 15486,
+    paperTicketCount: 137559,
+    refundOrderCount: 13740,
+    refundTicketCount: 19469,
+    refundFee: new Decimal128('2335884.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 56786,
+    salesTicketCount: 107441,
+    salesAmount: new Decimal128('131916455'),
+    eTicketCount: 6068,
+    paperTicketCount: 101373,
+    refundOrderCount: 5867,
+    refundTicketCount: 9374,
+    refundFee: new Decimal128('922591.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 105060,
+    salesTicketCount: 205575,
+    salesAmount: new Decimal128('209333847'),
+    eTicketCount: 1428,
+    paperTicketCount: 204147,
+    refundOrderCount: 10688,
+    refundTicketCount: 18023,
+    refundFee: new Decimal128('1506558.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 36902,
+    salesTicketCount: 62463,
+    salesAmount: new Decimal128('68709018'),
+    eTicketCount: 318,
+    paperTicketCount: 62145,
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 19417,
+    salesTicketCount: 28539,
+    salesAmount: new Decimal128('73459515'),
+    eTicketCount: 413,
+    paperTicketCount: 28126,
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 45987,
+    salesTicketCount: 71404,
+    salesAmount: 254367084,
+    eTicketCount: 13374,
+    paperTicketCount: 58030,
+    refundOrderCount: 7364,
+    refundTicketCount: 10510,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 14711,
+    salesTicketCount: 20300,
+    salesAmount: 52156681,
+    eTicketCount: 440,
+    paperTicketCount: 19860,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 17718,
+    salesTicketCount: 31507,
+    salesAmount: 93366542,
+    eTicketCount: 134,
+    paperTicketCount: 31373,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 53869,
+    salesTicketCount: 95574,
+    salesAmount: new Decimal128('134041283'),
+    eTicketCount: 959,
+    paperTicketCount: 94615,
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-03',
+    salesOrderCount: 86404,
+    salesTicketCount: 185367,
+    salesAmount: new Decimal128('379041779'),
+    eTicketCount: 968,
+    paperTicketCount: 184399,
+    refundOrderCount: 14740,
+    refundTicketCount: 24666,
+    refundFee: new Decimal128('2903107.9000')
+  },
+  {
+    _id: '2025-02',
+    salesOrderCount: 41139,
+    salesTicketCount: 80444,
+    salesAmount: new Decimal128('96189022'),
+    eTicketCount: 643,
+    paperTicketCount: 79801,
+    refundOrderCount: 4211,
+    refundTicketCount: 7165,
+    refundFee: new Decimal128('581397.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18197,
+    salesTicketCount: 28601,
+    salesAmount: new Decimal128('71893803'),
+    eTicketCount: 409,
+    paperTicketCount: 28192,
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Migrated 2026å¹´06æœˆ card into Tab3 history
+Updated Tab1 monthly card to: 2026å¹´07æœˆ
+[2026/08/01 ¶g¤» 21:12:41.38] Update Completed. 
+[LINE] OK: daily
+[2026/08/02 ¶g¤é 12:20:24.42] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
+Fetched 5955 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (35 KB)
+Querying PageView...
+Querying ClickData...
+Querying daily PV/Click...
+Done. Activities: 81 (matched:56 pvOnly:17 clickOnly:8), pvTotal:4021172, clickTotal:2824186
+Building ProductId -> ActivityId map from ClickData...
+Mapped 64 ProductIds to ActivityIds.
+Querying add_to_cart events (bucketed by day)...
+Querying purchase events (bucketed by day)...
+Done. Activities with cart data: 63, purchase data: 63
+Querying page_view events (bucketed by day)...
+  21836 (activity, day) PV buckets
+Querying purchase events (bucketed by day, qty + revenue)...
+  6478 (activity, day) purchase buckets
+Done. Activities: 624 (PV: 622, purchase: 377, matched: 375)
+Totals: PV 612,851, qty 118,101, revenue $53,651,680
+Dates: 02/01 â€“ 08/02
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-07',
+    salesOrderCount: 75012,
+    salesTicketCount: 135219,
+    salesAmount: new Decimal128('155900822'),
+    eTicketCount: 40235,
+    paperTicketCount: 94984,
+    refundOrderCount: 6574,
+    refundTicketCount: 9997,
+    refundFee: new Decimal128('1079179.0000')
+  },
+  {
+    _id: '2026-06',
+    salesOrderCount: 109013,
+    salesTicketCount: 218266,
+    salesAmount: new Decimal128('268246841'),
+    eTicketCount: 28917,
+    paperTicketCount: 189349,
+    refundOrderCount: 15696,
+    refundTicketCount: 28042,
+    refundFee: new Decimal128('2591337.0000')
+  },
+  {
+    _id: '2026-05',
+    salesOrderCount: 84786,
+    salesTicketCount: 153045,
+    salesAmount: new Decimal128('234437280'),
+    eTicketCount: 15486,
+    paperTicketCount: 137559,
+    refundOrderCount: 13740,
+    refundTicketCount: 19469,
+    refundFee: new Decimal128('2335884.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 56786,
+    salesTicketCount: 107441,
+    salesAmount: new Decimal128('131916455'),
+    eTicketCount: 6068,
+    paperTicketCount: 101373,
+    refundOrderCount: 5867,
+    refundTicketCount: 9374,
+    refundFee: new Decimal128('922591.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 105060,
+    salesTicketCount: 205575,
+    salesAmount: new Decimal128('209333847'),
+    eTicketCount: 1428,
+    paperTicketCount: 204147,
+    refundOrderCount: 10688,
+    refundTicketCount: 18023,
+    refundFee: new Decimal128('1506558.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 36902,
+    salesTicketCount: 62463,
+    salesAmount: new Decimal128('68709018'),
+    eTicketCount: 318,
+    paperTicketCount: 62145,
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 19417,
+    salesTicketCount: 28539,
+    salesAmount: new Decimal128('73459515'),
+    eTicketCount: 413,
+    paperTicketCount: 28126,
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 45987,
+    salesTicketCount: 71404,
+    salesAmount: 254367084,
+    eTicketCount: 13374,
+    paperTicketCount: 58030,
+    refundOrderCount: 7364,
+    refundTicketCount: 10510,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 14711,
+    salesTicketCount: 20300,
+    salesAmount: 52156681,
+    eTicketCount: 440,
+    paperTicketCount: 19860,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 17718,
+    salesTicketCount: 31507,
+    salesAmount: 93366542,
+    eTicketCount: 134,
+    paperTicketCount: 31373,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 53869,
+    salesTicketCount: 95574,
+    salesAmount: new Decimal128('134041283'),
+    eTicketCount: 959,
+    paperTicketCount: 94615,
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-03',
+    salesOrderCount: 86404,
+    salesTicketCount: 185367,
+    salesAmount: new Decimal128('379041779'),
+    eTicketCount: 968,
+    paperTicketCount: 184399,
+    refundOrderCount: 14740,
+    refundTicketCount: 24666,
+    refundFee: new Decimal128('2903107.9000')
+  },
+  {
+    _id: '2025-02',
+    salesOrderCount: 41139,
+    salesTicketCount: 80444,
+    salesAmount: new Decimal128('96189022'),
+    eTicketCount: 643,
+    paperTicketCount: 79801,
+    refundOrderCount: 4211,
+    refundTicketCount: 7165,
+    refundFee: new Decimal128('581397.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18197,
+    salesTicketCount: 28601,
+    salesAmount: new Decimal128('71893803'),
+    eTicketCount: 409,
+    paperTicketCount: 28192,
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026å¹´07æœˆ
+[2026/08/02 ¶g¤é 12:23:32.72] Day 2 detected - generating previous month report... 
+Generating report for: 2026-07 (2026å¹´07æœˆ)
+Connecting to MongoDB...
+Fetching and aggregating 2026-07 data...
+Processing 145216 records...
+Monthly report generated: A_Qware_Revenue_Report_2026å¹´07æœˆ_åˆ†æžå ±è¡¨.html
+[2026/08/02 ¶g¤é 12:27:13.37] Update Completed. 
+[2026/08/02 ¶g¤é 12:30:13.08] Completed with failures: NewReport-push-company; 
+[LINE] FAILED: µLªk³s±µ¦Ü»·ºÝ¦øªA¾¹
+[2026/08/03 ¶g¤@  8:33:00.76] Starting Daily Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily (excluding B-prefix orders)...
+Fetched 12662 records.
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Daily.html (35 KB)
+Querying PageView...
+Querying ClickData...
+Querying daily PV/Click...
+Done. Activities: 81 (matched:57 pvOnly:16 clickOnly:8), pvTotal:4143250, clickTotal:2883573
+Building ProductId -> ActivityId map from ClickData...
+Mapped 65 ProductIds to ActivityIds.
+Querying add_to_cart events (bucketed by day)...
+Querying purchase events (bucketed by day)...
+Done. Activities with cart data: 64, purchase data: 64
+Querying page_view events (bucketed by day)...
+  21876 (activity, day) PV buckets
+Querying purchase events (bucketed by day, qty + revenue)...
+  6486 (activity, day) purchase buckets
+Done. Activities: 625 (PV: 623, purchase: 377, matched: 375)
+Totals: PV 612,736, qty 118,348, revenue $53,774,700
+Dates: 02/01 â€“ 08/03
+Connecting to MongoDB...
+Aggregating data (Distinct Orders & Ticket Counts)...
+Aggregation Results: [
+  {
+    _id: '2026-07',
+    salesOrderCount: 75012,
+    salesTicketCount: 135219,
+    salesAmount: new Decimal128('155900822'),
+    eTicketCount: 40235,
+    paperTicketCount: 94984,
+    refundOrderCount: 6574,
+    refundTicketCount: 9997,
+    refundFee: new Decimal128('1079179.0000')
+  },
+  {
+    _id: '2026-06',
+    salesOrderCount: 109013,
+    salesTicketCount: 218266,
+    salesAmount: new Decimal128('268246841'),
+    eTicketCount: 28917,
+    paperTicketCount: 189349,
+    refundOrderCount: 15696,
+    refundTicketCount: 28042,
+    refundFee: new Decimal128('2591337.0000')
+  },
+  {
+    _id: '2026-05',
+    salesOrderCount: 84786,
+    salesTicketCount: 153045,
+    salesAmount: new Decimal128('234437280'),
+    eTicketCount: 15486,
+    paperTicketCount: 137559,
+    refundOrderCount: 13740,
+    refundTicketCount: 19469,
+    refundFee: new Decimal128('2335884.0000')
+  },
+  {
+    _id: '2026-04',
+    salesOrderCount: 56786,
+    salesTicketCount: 107441,
+    salesAmount: new Decimal128('131916455'),
+    eTicketCount: 6068,
+    paperTicketCount: 101373,
+    refundOrderCount: 5867,
+    refundTicketCount: 9374,
+    refundFee: new Decimal128('922591.0000')
+  },
+  {
+    _id: '2026-03',
+    salesOrderCount: 105060,
+    salesTicketCount: 205575,
+    salesAmount: new Decimal128('209333847'),
+    eTicketCount: 1428,
+    paperTicketCount: 204147,
+    refundOrderCount: 10688,
+    refundTicketCount: 18023,
+    refundFee: new Decimal128('1506558.0000')
+  },
+  {
+    _id: '2026-02',
+    salesOrderCount: 36902,
+    salesTicketCount: 62463,
+    salesAmount: new Decimal128('68709018'),
+    eTicketCount: 318,
+    paperTicketCount: 62145,
+    refundOrderCount: 1375,
+    refundTicketCount: 2074,
+    refundFee: new Decimal128('229451.0000')
+  },
+  {
+    _id: '2026-01',
+    salesOrderCount: 19417,
+    salesTicketCount: 28539,
+    salesAmount: new Decimal128('73459515'),
+    eTicketCount: 413,
+    paperTicketCount: 28126,
+    refundOrderCount: 3144,
+    refundTicketCount: 4018,
+    refundFee: new Decimal128('815541.0000')
+  },
+  {
+    _id: '2025-12',
+    salesOrderCount: 45987,
+    salesTicketCount: 71404,
+    salesAmount: 254367084,
+    eTicketCount: 13374,
+    paperTicketCount: 58030,
+    refundOrderCount: 7364,
+    refundTicketCount: 10510,
+    refundFee: 1284278
+  },
+  {
+    _id: '2025-11',
+    salesOrderCount: 14711,
+    salesTicketCount: 20300,
+    salesAmount: 52156681,
+    eTicketCount: 440,
+    paperTicketCount: 19860,
+    refundOrderCount: 2255,
+    refundTicketCount: 2845,
+    refundFee: 534941
+  },
+  {
+    _id: '2025-10',
+    salesOrderCount: 17718,
+    salesTicketCount: 31507,
+    salesAmount: 93366542,
+    eTicketCount: 134,
+    paperTicketCount: 31373,
+    refundOrderCount: 1123,
+    refundTicketCount: 1431,
+    refundFee: 313665
+  },
+  {
+    _id: '2025-05',
+    salesOrderCount: 53869,
+    salesTicketCount: 95574,
+    salesAmount: new Decimal128('134041283'),
+    eTicketCount: 959,
+    paperTicketCount: 94615,
+    refundOrderCount: 12327,
+    refundTicketCount: 18143,
+    refundFee: new Decimal128('1437901.0000')
+  },
+  {
+    _id: '2025-03',
+    salesOrderCount: 86404,
+    salesTicketCount: 185367,
+    salesAmount: new Decimal128('379041779'),
+    eTicketCount: 968,
+    paperTicketCount: 184399,
+    refundOrderCount: 14740,
+    refundTicketCount: 24666,
+    refundFee: new Decimal128('2903107.9000')
+  },
+  {
+    _id: '2025-02',
+    salesOrderCount: 41139,
+    salesTicketCount: 80444,
+    salesAmount: new Decimal128('96189022'),
+    eTicketCount: 643,
+    paperTicketCount: 79801,
+    refundOrderCount: 4211,
+    refundTicketCount: 7165,
+    refundFee: new Decimal128('581397.0000')
+  },
+  {
+    _id: '2025-01',
+    salesOrderCount: 18197,
+    salesTicketCount: 28601,
+    salesAmount: new Decimal128('71893803'),
+    eTicketCount: 409,
+    paperTicketCount: 28192,
+    refundOrderCount: 7015,
+    refundTicketCount: 11119,
+    refundFee: new Decimal128('856534.0000')
+  }
+]
+Replacing existing stats block...
+Updated report_index.html successfully.
+Updated header date and time successfully.
+Updated Tab1 monthly card to: 2026å¹´07æœˆ
+[2026/08/03 ¶g¤@  8:36:30.56] Update Completed. 
+[LINE] OK: daily
+[2026/08/03 ¶g¤@ 14:00:12.10] Already completed today, skipping. 
+[2026/08/03 ¶g¤@ 16:10:09.76] Already completed today, skipping. 

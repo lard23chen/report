@@ -1,0 +1,647 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ibon售票系統 2026年07月 分析報表 (A系統) - 2026/8/2 下午12:27:13</title>
+    <!-- IP Allowlist: internal network only -->
+    <style>html { visibility: hidden; }</style>
+    <script>
+        (function () {
+            var ALLOWED = [
+                '211.75.181.109', '211.75.181.110',
+                '220.130.6.196',  '220.130.6.197',  '220.130.6.198',
+                '220.130.134.238','220.130.134.239', '220.130.134.240',
+                '133.149.194.24'
+            ];
+            function deny(ip) {
+                document.documentElement.style.visibility = 'visible';
+                document.body.style.cssText = 'margin:0;padding:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh;';
+                document.body.innerHTML =
+                    '<div style="text-align:center;font-family:Outfit,sans-serif;padding:40px">' +
+                    '<div style="font-size:5rem;margin-bottom:20px">🔒</div>' +
+                    '<h1 style="color:#ef4444;font-size:2rem;margin:0 0 14px">存取被拒絕</h1>' +
+                    '<p style="color:#94a3b8;margin:0 0 8px">您目前的 IP 位址：' +
+                    '<code style="background:#1e293b;padding:2px 10px;border-radius:4px;color:#f472b6">' + ip + '</code></p>' +
+                    '<p style="color:#64748b;font-size:0.88rem">此頁面僅限內部網路存取 &middot; Access restricted to internal network only</p>' +
+                    '</div>';
+            }
+            var timer = setTimeout(function () { deny('timeout'); }, 6000);
+            fetch('https://api.ipify.org?format=json')
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    clearTimeout(timer);
+                    if (ALLOWED.indexOf(d.ip) !== -1) {
+                        document.documentElement.style.visibility = 'visible';
+                    } else {
+                        deny(d.ip);
+                    }
+                })
+                .catch(function () { clearTimeout(timer); deny('unknown'); });
+        })();
+    </script>
+    <!-- Chart.js and Annotation Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fce4ec;
+            --card-bg: #ffffff;
+            --text-primary: #880e4f;
+            --text-secondary: #ad1457;
+            --accent-color: #d81b60;
+            --shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        h1 { margin: 0; font-weight: 600; color: var(--accent-color); }
+        .meta { color: var(--text-secondary); font-size: 0.9em; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .card h3 { margin: 0 0 10px 0; font-size: 0.85em; color: var(--text-secondary); opacity: 0.8; }
+        .card .value { font-size: 1.8em; font-weight: 700; color: var(--accent-color); }
+        .card .sub { font-size: 0.8em; color: #888; margin-top: 5px; }
+
+        .charts-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            flex: 1;
+            min-width: 400px;
+            min-height: 400px;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f8bbd0; }
+        th { color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+        td { white-space: nowrap; }
+        tr:hover { background-color: #fff0f5; }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        .status-ok { background: #e8f5e9; color: #2e7d32; }
+        .status-void { background: #ffebee; color: #c62828; }
+
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+        .rank-toggle-btn {
+            border: 1px solid var(--accent-color);
+            background: transparent;
+            color: var(--accent-color);
+            padding: 3px 14px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .rank-toggle-btn:first-child { border-radius: 999px 0 0 999px; }
+        .rank-toggle-btn:last-child { border-radius: 0 999px 999px 0; margin-left: -1px; }
+        .rank-toggle-btn.active { background: var(--accent-color); color: white; }
+
+        @media print {
+            body { background: white; }
+            .card, .chart-container, .table-container { box-shadow: none; border: 1px solid #ddd; }
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: #fff;
+            width: 95%;
+            max-width: 1100px;
+            height: 90vh;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: var(--text-primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fcfcfc;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .analysis-link {
+            color: var(--accent-color);
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        .analysis-link:hover {
+            color: #880e4f;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        /* Print Styles */
+        @media print {
+            @page { size: landscape; margin: 5mm; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
+            .container { width: 100%; max-width: none; margin: 0; padding: 0; }
+            .card, .chart-container, .table-container { 
+                break-inside: avoid; 
+                page-break-inside: avoid; 
+                box-shadow: none; 
+                border: 1px solid #ddd;
+                margin-bottom: 20px;
+            }
+            header { box-shadow: none; border-bottom: 2px solid var(--accent-color); }
+            /* Hide Buttons */
+            button, a[href*="report_index.html"], .close-btn { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARwAAAA8CAYAAAC0LwViAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6N0RBQTM3MDc0ODg3MTFFNDhFODY4MDY0RDRDOEE5QTYiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6N0RBQTM3MDg0ODg3MTFFNDhFODY4MDY0RDRDOEE5QTYiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3REFBMzcwNTQ4ODcxMUU0OEU4NjgwNjRENEM4QTlBNiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3REFBMzcwNjQ4ODcxMUU0OEU4NjgwNjRENEM4QTlBNiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PoomQLgAABLFSURBVHja7F1bkFTF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" alt="ibon Logo" style="height: 45px;">
+            <div>
+                <h1>ibon售票系統 2026年07月 分析報表 (A系統)</h1>
+<!-- Data Source Header -->
+<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
+    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
+    Data Source: MongoDB (QwareAi / Qware_Ticket_Data) &middot; 已排除訂單編號 B 開頭之訂單
+</div>
+                
+            </div>
+        </div>
+        <div class="meta">
+            產出時間: 2026/8/2 下午12:27:13<br>
+            總資料筆數 (Total Rows): <span id="meta-total-rows">--</span><br>
+            製表者: 陳俊良
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="card">
+            <h3>總營收 (Total Revenue)</h3>
+            <div class="value" id="val-revenue">--</div>
+            <div class="sub">含正常交易</div>
+        </div>
+        <div class="card">
+            <h3>客單價 (AOV)</h3>
+            <div class="value" id="val-aov">--</div>
+            <div class="sub">營收 / 訂單筆數</div>
+        </div>
+        <div class="card">
+            <h3>總交易張數 (Total Tickets)</h3>
+            <div class="value" id="val-tickets">--</div>
+            <div class="sub">總售出票券數量</div>
+        </div>
+        <div class="card">
+            <h3>總訂單筆數 (Distinct Orders)</h3>
+            <div class="value" id="val-orders">--</div>
+            <div class="sub">不重複訂單編號</div>
+        </div>
+        <div class="card">
+            <h3>總退票張數 (Total Refunded Tickets)</h3>
+            <div class="value" id="val-refund-tickets">--</div>
+            <div class="sub" style="color: #c62828;">已退票/退票狀態</div>
+        </div>
+        <div class="card">
+            <h3>總退票金額 (Refunded Amt)</h3>
+            <div class="value" id="val-refunded-amount">--</div>
+            <div class="sub">退票票券原總價</div>
+        </div>
+        <div class="card">
+            <h3>退票手續費 (Refund Fees)</h3>
+            <div class="value" id="val-refund-fees">--</div>
+            <div class="sub">退票產生之營收</div>
+        </div>
+    </div>
+
+    <div class="charts-row">
+        <div class="chart-container" style="flex:100%;">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Refund Trend Chart -->
+    <div class="charts-row">
+        <div class="chart-container" style="flex:100%;">
+            <canvas id="refundTrendChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Top 5 Events Table -->
+    <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <span>🏆 銷售排行 Top 5 (By Revenue)</span>
+            <span id="rankViewToggle">
+                <button type="button" class="rank-toggle-btn active" data-mode="all" onclick="switchRankView('all')">全部</button>
+                <button type="button" class="rank-toggle-btn" data-mode="noSports" onclick="switchRankView('noSports')">排除體育</button>
+            </span>
+        </h3>
+        <table id="topEventsTable">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">Rank</th>
+                    <th>節目名稱</th>
+                    <th class="text-right">筆數 (Orders)</th>
+                    <th class="text-right">張數 (Tickets)</th>
+                    <th class="text-right">電子票 (E-Ticket)</th>
+                    <th class="text-right">紙票 (Paper)</th>
+                    <th class="text-right">金額 (Revenue)</th>
+                    <th class="text-right">佔比 (Share)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Top 5 Events Table (By Tickets) -->
+    <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🎟️ 銷售排行 Top 5 (By Tickets)</h3>
+        <table id="topTicketsEventsTable">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">Rank</th>
+                    <th>節目名稱</th>
+                    <th class="text-right">筆數 (Orders)</th>
+                    <th class="text-right">張數 (Tickets)</th>
+                    <th class="text-right">電子票 (E-Ticket)</th>
+                    <th class="text-right">紙票 (Paper)</th>
+                    <th class="text-right">金額 (Revenue)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Top 5 Refund Events Table -->
+    <div class="table-container">
+        <h3 style="color: #c62828; border-bottom: 2px solid #c62828; padding-bottom: 10px;">📉 退票排行 Top 5 (By Refund Amount)</h3>
+        <table id="topRefundTable">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">Rank</th>
+                    <th>節目名稱</th>
+                    <th class="text-right">筆數 (Orders)</th>
+                    <th class="text-right">張數 (Tickets)</th>
+                    <th class="text-right">金額 (Amount)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Payment Methods Table -->
+    <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">💳 付款方式分析 (Payment Methods)</h3>
+        <table id="paymentTable">
+            <thead>
+                <tr>
+                    <th>付款方式</th>
+                    <th class="text-right">筆數 (Orders)</th>
+                    <th class="text-right">張數 (Tickets)</th>
+                    <th class="text-right">金額 (Revenue)</th>
+                    <th class="text-right">佔比 (Share)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Sales Point Analysis Table -->
+    <div class="table-container">
+        <h3 style="color: var(--text-secondary); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">🏪 銷售點分析 (Sales Points)</h3>
+        <table id="salesPointTable">
+            <thead>
+                <tr>
+                    <th>銷售點 (Sales Point)</th>
+                    <th class="text-right">筆數 (Orders)</th>
+                    <th class="text-right">張數 (Tickets)</th>
+                    <th class="text-right">金額 (Revenue)</th>
+                    <th class="text-right">佔比 (Share)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Analysis Modal -->
+<div id="analysisModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle" style="margin:0; font-size:1.2em;">Event Analysis</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="stats-grid">
+                <div class="card">
+                    <h3>總營收</h3>
+                    <div class="value" id="m-val-revenue">--</div>
+                </div>
+                <div class="card">
+                    <h3>銷售張數</h3>
+                    <div class="value" id="m-val-tickets">--</div>
+                </div>
+                <div class="card">
+                    <h3>客單價 (AOV)</h3>
+                    <div class="value" id="m-val-aov">--</div>
+                </div>
+                <div class="card">
+                    <h3>退票金額 (Refunds)</h3>
+                    <div class="value" id="m-val-refunds" style="color: #c62828;">--</div>
+                </div>
+            </div>
+            
+            <div class="chart-grid">
+                 <div class="chart-container" style="height:300px;">
+                    <canvas id="modalPriceChart"></canvas>
+                </div>
+                <div class="chart-container" style="height:300px;">
+                    <canvas id="modalTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="table-container" style="margin-top:20px;">
+                <h3>銷售點分析 (Sales Points)</h3>
+                <table id="modalSalesPointTable">
+                    <thead>
+                        <tr><th>銷售點</th><th>張數 (Tickets)</th><th>營收 (Revenue)</th><th class="text-right">佔比 (Share)</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-container" style="margin-top:20px;">
+                <h3>票價銷售詳情</h3>
+                <table id="modalPriceTable">
+                    <thead>
+                        <tr><th>票價</th><th>張數</th><th>營收</th><th class="text-right">佔比</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-container" style="margin-top:20px;">
+                <h3 style="color:#c62828;">退票分析 (Refund Analysis)</h3>
+                <table id="modalRefundTable">
+                    <thead>
+                        <tr><th>退票因素 (Reason)</th><th>張數 (Tickets)</th><th>手續費 (Fee)</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const summaryData = {"totalRevenue":155900822,"totalTickets":135219,"orderCount":75012,"aov":2078,"totalRefundTickets":9140,"totalRefundedValue":13361272,"totalRefundFees":1079179,"trendDates":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"trendSales":[2009321,2111285,1727686,1607312,1499473,2046188,2431704,1888062,2061857,5295525,3290257,9348587,4005284,4678823,22449728,9653099,11163059,7700649,5302784,7294541,3070465,3512628,2854931,2965174,3070655,2342572,2331244,2691813,7563053,3746375,14186688],"peakAnnotations":[{"date":"2026-07-12","value":9348587,"label":"Enemies With Be"},{"date":"2026-07-15","value":22449728,"label":"J－LIONS主題日「非‧日常"},{"date":"2026-07-16","value":9653099,"label":"J－LIONS主題日「非‧日常"},{"date":"2026-07-17","value":11163059,"label":"J－LIONS主題日「非‧日常"},{"date":"2026-07-18","value":7700649,"label":"U－KNOW PROJECT "},{"date":"2026-07-20","value":7294541,"label":"2026 XLOV ASIA "},{"date":"2026-07-29","value":7563053,"label":"UNDERTALE：The D"},{"date":"2026-07-31","value":14186688,"label":"中華職棒37年Rakuten主"}],"refundDates":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31","2026-08-01"],"refundAmounts":[65458,83778,97083,104558,92987,127873,148314,143061,133599,246836,172617,524454,264889,491125,804908,705808,464065,1126029,526197,1869441,963994,514972,433420,276686,125544,138578,142984,222468,629296,287645,749877,27498],"topByRevenue":[{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","category":"運動票","revenue":42495900,"tickets":27029,"eTickets":9880,"paperTickets":17149,"refunds":252170,"refundTickets":1456,"priceStats":{"300":30,"400":74,"500":71,"550":8,"600":1117,"750":92,"800":3298,"850":61,"900":449,"950":90,"1000":3128,"1100":377,"1150":137,"1200":610,"1300":52,"1400":311,"1500":4095,"1600":221,"1700":2014,"1800":321,"1900":3148,"2000":736,"2300":5064,"2600":1525},"pointStats":{"網站手機":38721100,"APP購票":1191600,"ibon":2583200},"refundReasons":{"因事退票":{"count":1456,"fee":252170}},"orderCount":14512,"refundOrderCount":984,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[629250,580000,455650,458500,482400,466700,717100,490000,534850,434800,715300,491700,2407250,2842600,1295300,2613000,1259450,881950,1059900,905250,894400,1011350,1206050,1512100,1570600,997950,409700,247050,1893800,1048100,11983850]}},{"name":"J－LIONS主題日「非‧日常」","category":"運動票","revenue":39088250,"tickets":30617,"eTickets":10367,"paperTickets":20250,"refunds":261551,"refundTickets":2046,"priceStats":{"350":84,"400":93,"450":57,"500":57,"550":45,"590":93,"600":357,"640":135,"650":127,"700":1904,"800":2937,"900":2529,"990":217,"1000":3850,"1040":294,"1100":413,"1180":1723,"1200":2538,"1280":1589,"1300":3849,"1980":4651,"2080":3075},"pointStats":{"網站手機":37723490,"ibon":1364760},"refundReasons":{"因事退票":{"count":2046,"fee":261551}},"orderCount":14152,"refundOrderCount":1137,"trendData":{"labels":["2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[17023990,2994760,7936950,2636950,3462170,895420,566430,392180,380810,289860,352930,338800,478850,390150,288970,347150,311880]}},{"name":"中華職棒37年例行賽統一獅主場（下）","category":"運動票","revenue":10355020,"tickets":21795,"eTickets":2024,"paperTickets":19771,"refunds":40664,"refundTickets":1100,"priceStats":{"125":55,"175":913,"200":232,"245":4,"250":2961,"280":600,"300":685,"320":60,"350":2356,"400":1988,"450":9,"500":7265,"590":7,"600":1359,"700":412,"740":24,"750":23,"800":2281,"850":11,"1080":45,"1100":18,"1180":51,"1250":46,"1380":26,"1480":330,"1700":21,"1780":2,"1900":8,"3260":3},"pointStats":{"網站手機":8744140,"ibon":1610880},"refundReasons":{"因事退票":{"count":749,"fee":40664},"因雨退票":{"count":351,"fee":0}},"orderCount":10636,"refundOrderCount":563,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[352270,338405,274655,303065,330320,514950,449490,322370,302125,294120,533990,257740,211670,240340,247620,210105,214140,214790,195395,260085,395610,444510,304000,192775,207525,305930,555510,508260,413440,501850,457965]}},{"name":"Enemies With Benefits 1st Fan meeting in Taipei","category":"娛樂票","revenue":7634200,"tickets":1025,"eTickets":530,"paperTickets":495,"refunds":25465,"refundTickets":69,"priceStats":{"2500":10,"5000":162,"7000":291,"8300":440,"9100":122},"pointStats":{"ibon":1935200,"網站手機":5699000},"refundReasons":{"因事退票":{"count":69,"fee":25465}},"orderCount":918,"refundOrderCount":67,"trendData":{"labels":["2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-25"],"values":[7284600,20300,47200,113400,124800,43900]}},{"name":"2026年台灣精品中華職棒明星對抗賽","category":"運動票","revenue":7344775,"tickets":9006,"eTickets":89,"paperTickets":8917,"refunds":133497,"refundTickets":1429,"priceStats":{"200":141,"250":74,"300":69,"350":20,"400":2323,"495":132,"500":1765,"600":1018,"645":63,"700":329,"945":67,"990":1084,"1045":66,"1195":39,"1290":761,"1890":472,"2090":284,"2195":2,"2390":258,"4390":39},"pointStats":{"網站手機":6781925,"ibon":562850},"refundReasons":{"因事退票":{"count":1429,"fee":133497}},"orderCount":5011,"refundOrderCount":937,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19"],"values":[119830,111775,117575,103165,113965,412330,650335,447140,591570,271540,220290,315780,442710,876665,1020160,799775,401830,327240,1100]}}],"topByTickets":[{"name":"J－LIONS主題日「非‧日常」","category":"運動票","revenue":39088250,"tickets":30617,"eTickets":10367,"paperTickets":20250,"refunds":261551,"refundTickets":2046,"priceStats":{"350":84,"400":93,"450":57,"500":57,"550":45,"590":93,"600":357,"640":135,"650":127,"700":1904,"800":2937,"900":2529,"990":217,"1000":3850,"1040":294,"1100":413,"1180":1723,"1200":2538,"1280":1589,"1300":3849,"1980":4651,"2080":3075},"pointStats":{"網站手機":37723490,"ibon":1364760},"refundReasons":{"因事退票":{"count":2046,"fee":261551}},"orderCount":14152,"refundOrderCount":1137,"trendData":{"labels":["2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[17023990,2994760,7936950,2636950,3462170,895420,566430,392180,380810,289860,352930,338800,478850,390150,288970,347150,311880]}},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","category":"運動票","revenue":42495900,"tickets":27029,"eTickets":9880,"paperTickets":17149,"refunds":252170,"refundTickets":1456,"priceStats":{"300":30,"400":74,"500":71,"550":8,"600":1117,"750":92,"800":3298,"850":61,"900":449,"950":90,"1000":3128,"1100":377,"1150":137,"1200":610,"1300":52,"1400":311,"1500":4095,"1600":221,"1700":2014,"1800":321,"1900":3148,"2000":736,"2300":5064,"2600":1525},"pointStats":{"網站手機":38721100,"APP購票":1191600,"ibon":2583200},"refundReasons":{"因事退票":{"count":1456,"fee":252170}},"orderCount":14512,"refundOrderCount":984,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[629250,580000,455650,458500,482400,466700,717100,490000,534850,434800,715300,491700,2407250,2842600,1295300,2613000,1259450,881950,1059900,905250,894400,1011350,1206050,1512100,1570600,997950,409700,247050,1893800,1048100,11983850]}},{"name":"中華職棒37年例行賽統一獅主場（下）","category":"運動票","revenue":10355020,"tickets":21795,"eTickets":2024,"paperTickets":19771,"refunds":40664,"refundTickets":1100,"priceStats":{"125":55,"175":913,"200":232,"245":4,"250":2961,"280":600,"300":685,"320":60,"350":2356,"400":1988,"450":9,"500":7265,"590":7,"600":1359,"700":412,"740":24,"750":23,"800":2281,"850":11,"1080":45,"1100":18,"1180":51,"1250":46,"1380":26,"1480":330,"1700":21,"1780":2,"1900":8,"3260":3},"pointStats":{"網站手機":8744140,"ibon":1610880},"refundReasons":{"因事退票":{"count":749,"fee":40664},"因雨退票":{"count":351,"fee":0}},"orderCount":10636,"refundOrderCount":563,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[352270,338405,274655,303065,330320,514950,449490,322370,302125,294120,533990,257740,211670,240340,247620,210105,214140,214790,195395,260085,395610,444510,304000,192775,207525,305930,555510,508260,413440,501850,457965]}},{"name":"中華職棒37年Rakuten主場例行賽","category":"運動票","revenue":6797250,"tickets":14680,"eTickets":2211,"paperTickets":12469,"refunds":26637,"refundTickets":802,"priceStats":{"100":32,"150":31,"175":8,"200":1697,"225":51,"250":334,"275":5,"300":1178,"325":32,"350":458,"375":12,"400":4377,"425":74,"450":813,"475":208,"500":842,"525":16,"550":224,"575":120,"600":1239,"625":96,"650":409,"675":156,"700":710,"725":4,"750":20,"775":236,"800":981,"825":28,"850":154,"975":16,"1000":68,"1100":6,"1175":8,"1200":37},"pointStats":{"網站手機":5356875,"ibon":1020800,"APP購票":419575},"refundReasons":{"因事退票":{"count":531,"fee":26637},"因雨退票":{"count":271,"fee":0}},"orderCount":7337,"refundOrderCount":440,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[109975,116775,96900,102275,102750,114700,87900,101750,120450,136650,262850,362975,214300,274500,259250,180800,318800,167600,102850,118700,104250,145050,134400,99725,138650,186700,314400,807175,744875,451025,318250]}},{"name":"TOY STORY｜PEACEMINUSONE：THE FIRST FAN 臺北站","category":"娛樂票","revenue":2279750,"tickets":9119,"eTickets":3854,"paperTickets":5265,"refunds":14000,"refundTickets":1077,"priceStats":{"250":9119},"pointStats":{"ibon":245750,"網站手機":2034000},"refundReasons":{"因事退票":{"count":1077,"fee":14000}},"orderCount":9119,"refundOrderCount":1077,"trendData":{"labels":["2026-07-16","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25"],"values":[1947750,169000,46500,31250,23000,18250,20750,22750,500]}}],"topByRefunds":[{"name":"J－LIONS主題日「非‧日常」","category":"運動票","revenue":39088250,"tickets":30617,"eTickets":10367,"paperTickets":20250,"refunds":261551,"refundTickets":2046,"priceStats":{"350":84,"400":93,"450":57,"500":57,"550":45,"590":93,"600":357,"640":135,"650":127,"700":1904,"800":2937,"900":2529,"990":217,"1000":3850,"1040":294,"1100":413,"1180":1723,"1200":2538,"1280":1589,"1300":3849,"1980":4651,"2080":3075},"pointStats":{"網站手機":37723490,"ibon":1364760},"refundReasons":{"因事退票":{"count":2046,"fee":261551}},"orderCount":14152,"refundOrderCount":1137,"trendData":{"labels":["2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[17023990,2994760,7936950,2636950,3462170,895420,566430,392180,380810,289860,352930,338800,478850,390150,288970,347150,311880]}},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","category":"運動票","revenue":42495900,"tickets":27029,"eTickets":9880,"paperTickets":17149,"refunds":252170,"refundTickets":1456,"priceStats":{"300":30,"400":74,"500":71,"550":8,"600":1117,"750":92,"800":3298,"850":61,"900":449,"950":90,"1000":3128,"1100":377,"1150":137,"1200":610,"1300":52,"1400":311,"1500":4095,"1600":221,"1700":2014,"1800":321,"1900":3148,"2000":736,"2300":5064,"2600":1525},"pointStats":{"網站手機":38721100,"APP購票":1191600,"ibon":2583200},"refundReasons":{"因事退票":{"count":1456,"fee":252170}},"orderCount":14512,"refundOrderCount":984,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[629250,580000,455650,458500,482400,466700,717100,490000,534850,434800,715300,491700,2407250,2842600,1295300,2613000,1259450,881950,1059900,905250,894400,1011350,1206050,1512100,1570600,997950,409700,247050,1893800,1048100,11983850]}},{"name":"2026年台灣精品中華職棒明星對抗賽","category":"運動票","revenue":7344775,"tickets":9006,"eTickets":89,"paperTickets":8917,"refunds":133497,"refundTickets":1429,"priceStats":{"200":141,"250":74,"300":69,"350":20,"400":2323,"495":132,"500":1765,"600":1018,"645":63,"700":329,"945":67,"990":1084,"1045":66,"1195":39,"1290":761,"1890":472,"2090":284,"2195":2,"2390":258,"4390":39},"pointStats":{"網站手機":6781925,"ibon":562850},"refundReasons":{"因事退票":{"count":1429,"fee":133497}},"orderCount":5011,"refundOrderCount":937,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19"],"values":[119830,111775,117575,103165,113965,412330,650335,447140,591570,271540,220290,315780,442710,876665,1020160,799775,401830,327240,1100]}},{"name":"U－KNOW PROJECT 26：SCENE＃1 in Taipei","category":"娛樂票","revenue":5089715,"tickets":814,"eTickets":814,"paperTickets":0,"refunds":93838,"refundTickets":292,"priceStats":{"3000":2,"4879":6,"4880":88,"5879":15,"5880":127,"6579":24,"6580":552},"pointStats":{"網站手機":5089715},"refundReasons":{"因事退票":{"count":292,"fee":93838}},"orderCount":655,"refundOrderCount":226,"trendData":{"labels":["2026-07-18","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30"],"values":[2740045,1707170,328220,88720,70280,29800,33680,12460,18340,28800,19740,12460]}},{"name":"2026 XLOV ASIA TOUR ＜Serving—X＞ IN TAIPEI","category":"娛樂票","revenue":3548560,"tickets":687,"eTickets":558,"paperTickets":129,"refunds":82960,"refundTickets":305,"priceStats":{"2840":5,"2880":49,"3880":64,"4680":87,"5680":482},"pointStats":{"網站手機":3383200,"ibon":165360},"refundReasons":{"因事退票":{"count":305,"fee":82960}},"orderCount":567,"refundOrderCount":250,"trendData":{"labels":["2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[2989440,229840,103680,49320,38040,26400,9560,25600,10440,11360,37840,17040]}}],"topByRevenueNoSports":[{"name":"Enemies With Benefits 1st Fan meeting in Taipei","category":"娛樂票","revenue":7634200,"tickets":1025,"eTickets":530,"paperTickets":495,"refunds":25465,"refundTickets":69,"priceStats":{"2500":10,"5000":162,"7000":291,"8300":440,"9100":122},"pointStats":{"ibon":1935200,"網站手機":5699000},"refundReasons":{"因事退票":{"count":69,"fee":25465}},"orderCount":918,"refundOrderCount":67,"trendData":{"labels":["2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-25"],"values":[7284600,20300,47200,113400,124800,43900]}},{"name":"U－KNOW PROJECT 26：SCENE＃1 in Taipei","category":"娛樂票","revenue":5089715,"tickets":814,"eTickets":814,"paperTickets":0,"refunds":93838,"refundTickets":292,"priceStats":{"3000":2,"4879":6,"4880":88,"5879":15,"5880":127,"6579":24,"6580":552},"pointStats":{"網站手機":5089715},"refundReasons":{"因事退票":{"count":292,"fee":93838}},"orderCount":655,"refundOrderCount":226,"trendData":{"labels":["2026-07-18","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30"],"values":[2740045,1707170,328220,88720,70280,29800,33680,12460,18340,28800,19740,12460]}},{"name":"UNDERTALE：The Determination Symphony","category":"娛樂票","revenue":3629000,"tickets":1492,"eTickets":1111,"paperTickets":381,"refunds":24490,"refundTickets":190,"priceStats":{"800":2,"1000":7,"1300":6,"1400":9,"1600":222,"2000":350,"2600":414,"2800":185,"3200":297},"pointStats":{"網站手機":2976000,"ibon":653000},"refundReasons":{"因事退票":{"count":190,"fee":24490}},"orderCount":984,"refundOrderCount":125,"trendData":{"labels":["2026-07-02","2026-07-03","2026-07-29","2026-07-30","2026-07-31"],"values":[11200,2000,3188600,323600,103600]}},{"name":"2026 XLOV ASIA TOUR ＜Serving—X＞ IN TAIPEI","category":"娛樂票","revenue":3548560,"tickets":687,"eTickets":558,"paperTickets":129,"refunds":82960,"refundTickets":305,"priceStats":{"2840":5,"2880":49,"3880":64,"4680":87,"5680":482},"pointStats":{"網站手機":3383200,"ibon":165360},"refundReasons":{"因事退票":{"count":305,"fee":82960}},"orderCount":567,"refundOrderCount":250,"trendData":{"labels":["2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[2989440,229840,103680,49320,38040,26400,9560,25600,10440,11360,37840,17040]}},{"name":"2026 蔡琴 不要告別 巡迴演唱會［台北返場］","category":"娛樂票","revenue":3193120,"tickets":744,"eTickets":465,"paperTickets":279,"refunds":17463,"refundTickets":67,"priceStats":{"2280":10,"2580":36,"3280":235,"4280":213,"5580":250},"pointStats":{"網站手機":2923240,"ibon":269880},"refundReasons":{"因事退票":{"count":67,"fee":17463}},"orderCount":363,"refundOrderCount":28,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[140220,73400,5160,48820,88900,89780,43160,54320,55840,55120,110560,93040,61360,34720,92200,33420,74280,94280,70880,73260,66040,75520,27280,48260,132080,95580,112720,197320,336300,323320,385980]}}],"topByTicketsNoSports":[{"name":"TOY STORY｜PEACEMINUSONE：THE FIRST FAN 臺北站","category":"娛樂票","revenue":2279750,"tickets":9119,"eTickets":3854,"paperTickets":5265,"refunds":14000,"refundTickets":1077,"priceStats":{"250":9119},"pointStats":{"ibon":245750,"網站手機":2034000},"refundReasons":{"因事退票":{"count":1077,"fee":14000}},"orderCount":9119,"refundOrderCount":1077,"trendData":{"labels":["2026-07-16","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25"],"values":[1947750,169000,46500,31250,23000,18250,20750,22750,500]}},{"name":"UNDERTALE：The Determination Symphony","category":"娛樂票","revenue":3629000,"tickets":1492,"eTickets":1111,"paperTickets":381,"refunds":24490,"refundTickets":190,"priceStats":{"800":2,"1000":7,"1300":6,"1400":9,"1600":222,"2000":350,"2600":414,"2800":185,"3200":297},"pointStats":{"網站手機":2976000,"ibon":653000},"refundReasons":{"因事退票":{"count":190,"fee":24490}},"orderCount":984,"refundOrderCount":125,"trendData":{"labels":["2026-07-02","2026-07-03","2026-07-29","2026-07-30","2026-07-31"],"values":[11200,2000,3188600,323600,103600]}},{"name":"江美琪《傷心唱出來就沒事了》演唱會 2‧0 台北站","category":"娛樂票","revenue":2708160,"tickets":1396,"eTickets":1160,"paperTickets":236,"refunds":5896,"refundTickets":59,"priceStats":{"1040":8,"1780":624,"2080":764},"pointStats":{"ibon":176680,"網站手機":2531480},"refundReasons":{"因事退票":{"count":59,"fee":5896}},"orderCount":878,"refundOrderCount":43,"trendData":{"labels":["2026-07-10","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[1672600,726140,66520,64120,44840,8320,16340,19000,36820,28800,24660]}},{"name":"2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA 亞洲音樂節","category":"娛樂票","revenue":3131106,"tickets":1244,"eTickets":556,"paperTickets":688,"refunds":20481,"refundTickets":78,"priceStats":{"800":9,"1090":23,"1930":15,"2038":574,"2188":297,"3738":171,"3888":141,"4488":14},"pointStats":{"網站手機":2932550,"ibon":198556},"refundReasons":{"因事退票":{"count":78,"fee":20481}},"orderCount":888,"refundOrderCount":57,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[20040,29480,32880,21928,30922,55120,124918,68060,93774,143900,43144,80942,55194,67544,887768,231904,130956,105484,95542,39096,60538,101248,64302,51474,52950,91144,79744,60124,51698,87348,71940]}},{"name":"Enemies With Benefits 1st Fan meeting in Taipei","category":"娛樂票","revenue":7634200,"tickets":1025,"eTickets":530,"paperTickets":495,"refunds":25465,"refundTickets":69,"priceStats":{"2500":10,"5000":162,"7000":291,"8300":440,"9100":122},"pointStats":{"ibon":1935200,"網站手機":5699000},"refundReasons":{"因事退票":{"count":69,"fee":25465}},"orderCount":918,"refundOrderCount":67,"trendData":{"labels":["2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-25"],"values":[7284600,20300,47200,113400,124800,43900]}}],"paymentList":[{"name":"信用卡","revenue":139116896,"tickets":118922,"orderCount":65287,"share":"89.2"},{"name":"現金","revenue":13189070,"tickets":14525,"orderCount":8315,"share":"8.5"},{"name":"LINE Pay","revenue":2779899,"tickets":1416,"orderCount":1129,"share":"1.8"},{"name":"行動支付","revenue":414957,"tickets":253,"orderCount":208,"share":"0.3"},{"name":"ATM虛擬帳號","revenue":400000,"tickets":103,"orderCount":73,"share":"0.3"}],"spList":[{"name":"網站手機","revenue":141126177,"tickets":119070,"orderCount":65931,"share":"90.5"},{"name":"ibon","revenue":13136970,"tickets":14370,"orderCount":8181,"share":"8.4"},{"name":"APP購票","revenue":1637675,"tickets":1779,"orderCount":900,"share":"1.1"}],"eventSummaryMap":{"中華職棒37年例行賽統一獅主場（下）":{"name":"中華職棒37年例行賽統一獅主場（下）","category":"運動票","revenue":10355020,"tickets":21795,"eTickets":2024,"paperTickets":19771,"refunds":40664,"refundTickets":1100,"priceStats":{"125":55,"175":913,"200":232,"245":4,"250":2961,"280":600,"300":685,"320":60,"350":2356,"400":1988,"450":9,"500":7265,"590":7,"600":1359,"700":412,"740":24,"750":23,"800":2281,"850":11,"1080":45,"1100":18,"1180":51,"1250":46,"1380":26,"1480":330,"1700":21,"1780":2,"1900":8,"3260":3},"pointStats":{"網站手機":8744140,"ibon":1610880},"refundReasons":{"因事退票":{"count":749,"fee":40664},"因雨退票":{"count":351,"fee":0}},"orderCount":10636,"refundOrderCount":563,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[352270,338405,274655,303065,330320,514950,449490,322370,302125,294120,533990,257740,211670,240340,247620,210105,214140,214790,195395,260085,395610,444510,304000,192775,207525,305930,555510,508260,413440,501850,457965]}},"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次":{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","category":"運動票","revenue":42495900,"tickets":27029,"eTickets":9880,"paperTickets":17149,"refunds":252170,"refundTickets":1456,"priceStats":{"300":30,"400":74,"500":71,"550":8,"600":1117,"750":92,"800":3298,"850":61,"900":449,"950":90,"1000":3128,"1100":377,"1150":137,"1200":610,"1300":52,"1400":311,"1500":4095,"1600":221,"1700":2014,"1800":321,"1900":3148,"2000":736,"2300":5064,"2600":1525},"pointStats":{"網站手機":38721100,"APP購票":1191600,"ibon":2583200},"refundReasons":{"因事退票":{"count":1456,"fee":252170}},"orderCount":14512,"refundOrderCount":984,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[629250,580000,455650,458500,482400,466700,717100,490000,534850,434800,715300,491700,2407250,2842600,1295300,2613000,1259450,881950,1059900,905250,894400,1011350,1206050,1512100,1570600,997950,409700,247050,1893800,1048100,11983850]}},"中華職棒37年Rakuten主場例行賽":{"name":"中華職棒37年Rakuten主場例行賽","category":"運動票","revenue":6797250,"tickets":14680,"eTickets":2211,"paperTickets":12469,"refunds":26637,"refundTickets":802,"priceStats":{"100":32,"150":31,"175":8,"200":1697,"225":51,"250":334,"275":5,"300":1178,"325":32,"350":458,"375":12,"400":4377,"425":74,"450":813,"475":208,"500":842,"525":16,"550":224,"575":120,"600":1239,"625":96,"650":409,"675":156,"700":710,"725":4,"750":20,"775":236,"800":981,"825":28,"850":154,"975":16,"1000":68,"1100":6,"1175":8,"1200":37},"pointStats":{"網站手機":5356875,"ibon":1020800,"APP購票":419575},"refundReasons":{"因事退票":{"count":531,"fee":26637},"因雨退票":{"count":271,"fee":0}},"orderCount":7337,"refundOrderCount":440,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[109975,116775,96900,102275,102750,114700,87900,101750,120450,136650,262850,362975,214300,274500,259250,180800,318800,167600,102850,118700,104250,145050,134400,99725,138650,186700,314400,807175,744875,451025,318250]}},"2026年台灣精品中華職棒明星對抗賽":{"name":"2026年台灣精品中華職棒明星對抗賽","category":"運動票","revenue":7344775,"tickets":9006,"eTickets":89,"paperTickets":8917,"refunds":133497,"refundTickets":1429,"priceStats":{"200":141,"250":74,"300":69,"350":20,"400":2323,"495":132,"500":1765,"600":1018,"645":63,"700":329,"945":67,"990":1084,"1045":66,"1195":39,"1290":761,"1890":472,"2090":284,"2195":2,"2390":258,"4390":39},"pointStats":{"網站手機":6781925,"ibon":562850},"refundReasons":{"因事退票":{"count":1429,"fee":133497}},"orderCount":5011,"refundOrderCount":937,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19"],"values":[119830,111775,117575,103165,113965,412330,650335,447140,591570,271540,220290,315780,442710,876665,1020160,799775,401830,327240,1100]}},"2026 蔡琴 不要告別 巡迴演唱會［台北返場］":{"name":"2026 蔡琴 不要告別 巡迴演唱會［台北返場］","category":"娛樂票","revenue":3193120,"tickets":744,"eTickets":465,"paperTickets":279,"refunds":17463,"refundTickets":67,"priceStats":{"2280":10,"2580":36,"3280":235,"4280":213,"5580":250},"pointStats":{"網站手機":2923240,"ibon":269880},"refundReasons":{"因事退票":{"count":67,"fee":17463}},"orderCount":363,"refundOrderCount":28,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[140220,73400,5160,48820,88900,89780,43160,54320,55840,55120,110560,93040,61360,34720,92200,33420,74280,94280,70880,73260,66040,75520,27280,48260,132080,95580,112720,197320,336300,323320,385980]}},"2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA 亞洲音樂節":{"name":"2026 TRENDY TAIPEI 潮臺北—JAM JAM ASIA 亞洲音樂節","category":"娛樂票","revenue":3131106,"tickets":1244,"eTickets":556,"paperTickets":688,"refunds":20481,"refundTickets":78,"priceStats":{"800":9,"1090":23,"1930":15,"2038":574,"2188":297,"3738":171,"3888":141,"4488":14},"pointStats":{"網站手機":2932550,"ibon":198556},"refundReasons":{"因事退票":{"count":78,"fee":20481}},"orderCount":888,"refundOrderCount":57,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[20040,29480,32880,21928,30922,55120,124918,68060,93774,143900,43144,80942,55194,67544,887768,231904,130956,105484,95542,39096,60538,101248,64302,51474,52950,91144,79744,60124,51698,87348,71940]}},"2026 7–ELEVEN 高雄啤酒音樂節":{"name":"2026 7–ELEVEN 高雄啤酒音樂節","category":"娛樂票","revenue":1132657,"tickets":861,"eTickets":1,"paperTickets":860,"refunds":3953,"refundTickets":49,"priceStats":{"999":201,"1000":499,"1499":19,"1999":41,"2999":62,"3048":21,"3999":8,"4048":10},"pointStats":{"網站手機":763615,"ibon":369042},"refundReasons":{"因事退票":{"count":49,"fee":3953}},"orderCount":586,"refundOrderCount":32,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04"],"values":[173502,429974,301479,227702]}},"2026 角頭GATAO唱演會—情義到高雄":{"name":"2026 角頭GATAO唱演會—情義到高雄","category":"娛樂票","revenue":1916600,"tickets":640,"eTickets":371,"paperTickets":269,"refunds":10922,"refundTickets":63,"priceStats":{"1440":6,"1500":4,"1880":194,"2879":18,"2880":190,"3879":14,"3880":80,"4279":8,"4280":126},"pointStats":{"網站手機":1568016,"ibon":348584},"refundReasons":{"因事退票":{"count":63,"fee":10922}},"orderCount":333,"refundOrderCount":28,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-29","2026-07-30","2026-07-31"],"values":[126218,154955,199117,138397,128755,130998,201199,98880,107336,53235,45520,67280,41720,49600,36360,32600,40358,39160,22040,2880,11637,11520,42319,38960,20280,16318,20680,3880,28638,5760]}},"2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in KAOHSIUNG":{"name":"2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in KAOHSIUNG","category":"娛樂票","revenue":547860,"tickets":126,"eTickets":110,"paperTickets":16,"refunds":2052,"refundTickets":8,"priceStats":{"2940":6,"3870":3,"3880":84,"4880":2,"5830":1,"5880":29,"6580":1},"pointStats":{"網站手機":524340,"ibon":23520},"refundReasons":{"因事退票":{"count":8,"fee":2052}},"orderCount":112,"refundOrderCount":7,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-11","2026-07-12","2026-07-13","2026-07-15","2026-07-16","2026-07-17","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-27","2026-07-28","2026-07-29","2026-07-30"],"values":[61260,40790,38910,19400,15520,50560,15510,17520,13640,19520,19520,7760,33160,27280,7760,11760,7760,7760,19520,7760,19470,7760,19520,21400,37040]}},"2026台北羽球公開賽":{"name":"2026台北羽球公開賽","category":"運動票","revenue":2139000,"tickets":3012,"eTickets":490,"paperTickets":2522,"refunds":5370,"refundTickets":67,"priceStats":{"100":26,"150":40,"200":45,"300":357,"400":42,"500":420,"600":667,"800":682,"1000":678,"2900":41,"3200":14},"pointStats":{"網站手機":1633400,"ibon":505600},"refundReasons":{"因事退票":{"count":67,"fee":5370}},"orderCount":1699,"refundOrderCount":33,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[57000,39850,43600,58200,27400,48200,26700,32500,44200,27100,34900,36400,68700,68900,40050,65050,40100,62850,26600,47800,38300,52800,60000,32800,76000,63900,90350,175450,212600,225700,215000]}},"Zenless Live 2026 – Signal Lost DJ Live – 台北站":{"name":"Zenless Live 2026 – Signal Lost DJ Live – 台北站","category":"娛樂票","revenue":479780,"tickets":163,"eTickets":47,"paperTickets":116,"refunds":1118,"refundTickets":8,"priceStats":{"1490":4,"2980":159},"pointStats":{"網站手機":298000,"ibon":181780},"refundReasons":{"因事退票":{"count":8,"fee":1118}},"orderCount":133,"refundOrderCount":7,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-29","2026-07-30","2026-07-31"],"values":[35760,62580,35760,23840,17880,22350,35760,31290,11920,5960,11920,11920,5960,2980,2980,11920,20860,8940,20860,8940,17880,11920,5960,8940,11920,2980,14900,11920,2980]}},"2026星光女孩日":{"name":"2026星光女孩日","category":"運動票","revenue":3885,"tickets":7,"eTickets":2,"paperTickets":5,"refunds":56,"refundTickets":1,"priceStats":{"555":7},"pointStats":{"網站手機":3885},"refundReasons":{"因事退票":{"count":1,"fee":56}},"orderCount":7,"refundOrderCount":1,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-16","2026-07-17","2026-07-19","2026-07-29"],"values":[555,1110,555,555,555,555]}},"EXILE AKIRA 20th ANNIVERSARY SPECIAL LIVE TOUR “URBAN SAVAGE” 台北公演":{"name":"EXILE AKIRA 20th ANNIVERSARY SPECIAL LIVE TOUR “URBAN SAVAGE” 台北公演","category":"娛樂票","revenue":50920,"tickets":19,"eTickets":13,"paperTickets":6,"refunds":268,"refundTickets":2,"priceStats":{"2680":19},"pointStats":{"網站手機":50920},"refundReasons":{"因事退票":{"count":2,"fee":268}},"orderCount":16,"refundOrderCount":2,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-13","2026-07-18","2026-07-26","2026-07-27","2026-07-31"],"values":[2680,2680,5360,13400,2680,2680,10720,2680,5360,2680]}},"2026 T CONCERT《IDOL MEET FEST 偶像相遇祭》":{"name":"2026 T CONCERT《IDOL MEET FEST 偶像相遇祭》","category":"娛樂票","revenue":682980,"tickets":246,"eTickets":74,"paperTickets":172,"refunds":2011,"refundTickets":14,"priceStats":{"1440":10,"1980":15,"2480":72,"2680":34,"2880":64,"3280":40,"4880":11},"pointStats":{"網站手機":535240,"ibon":147740},"refundReasons":{"因事退票":{"count":14,"fee":2011}},"orderCount":185,"refundOrderCount":11,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[23720,18260,43700,15900,40520,50620,8640,7360,22640,45780,18760,5360,23160,15200,5360,4860,10320,4960,24220,11120,11520,14380,8240,19360,11520,30680,24760,20340,62120,22240,57360]}},"COSMOS 1st music concert in Taipei":{"name":"COSMOS 1st music concert in Taipei","category":"娛樂票","revenue":117800,"tickets":18,"eTickets":0,"paperTickets":18,"refunds":365,"refundTickets":1,"priceStats":{"5000":4,"6200":4,"7300":10},"pointStats":{"網站手機":110500,"ibon":7300},"refundReasons":{"因事退票":{"count":1,"fee":365}},"orderCount":16,"refundOrderCount":1,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-10","2026-07-11","2026-07-12","2026-07-16","2026-07-17","2026-07-18"],"values":[12400,6200,10000,14600,10000,29200,14600,13500,7300]}},"ACON 2026 IN TAIPEI":{"name":"ACON 2026 IN TAIPEI","category":"娛樂票","revenue":1387780,"tickets":384,"eTickets":1,"paperTickets":383,"refunds":7653,"refundTickets":42,"priceStats":{"2860":95,"2880":80,"3840":83,"3880":70,"5200":4,"5280":52},"pointStats":{"網站手機":1387780},"refundReasons":{"因事退票":{"count":41,"fee":7653},"因雨退票":{"count":1,"fee":0}},"orderCount":314,"refundOrderCount":37,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25"],"values":[14380,8600,17240,2860,28760,20100,32760,76320,84940,18400,39640,47340,21140,14360,22960,56500,52720,16800,17220,60960,51360,97440,198580,240340,146060]}},"中華職棒37年Rakuten主場例行賽 黑松沙士快樂炒":{"name":"中華職棒37年Rakuten主場例行賽 黑松沙士快樂炒","category":"運動票","revenue":188650,"tickets":391,"eTickets":242,"paperTickets":149,"refunds":1440,"refundTickets":27,"priceStats":{"0":49,"450":164,"550":43,"600":79,"700":10,"800":46},"pointStats":{"網站手機":171350,"APP購票":17300},"refundReasons":{"因事退票":{"count":24,"fee":1440},"因雨退票":{"count":3,"fee":0}},"orderCount":49,"refundOrderCount":3,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-12","2026-07-13","2026-07-14","2026-07-17","2026-07-18","2026-07-21","2026-07-22","2026-07-25","2026-07-26","2026-07-28","2026-07-30"],"values":[14400,2250,3600,10300,7000,5250,5400,1800,6300,33800,17400,13000,18000,4400,9400,2750,3600,4200,13800,12000]}},"閻奕格【逃生出口 Way Out巡迴演唱會— 台北站 】":{"name":"閻奕格【逃生出口 Way Out巡迴演唱會— 台北站 】","category":"娛樂票","revenue":135000,"tickets":90,"eTickets":57,"paperTickets":33,"refunds":0,"refundTickets":0,"priceStats":{"1500":90},"pointStats":{"網站手機":99000,"ibon":36000},"refundReasons":{},"orderCount":59,"refundOrderCount":0,"trendData":{"labels":["2026-07-01","2026-07-03","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-10","2026-07-11","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-25","2026-07-26","2026-07-27","2026-07-31"],"values":[12000,4500,6000,12000,3000,3000,10500,9000,3000,15000,6000,6000,7500,10500,4500,12000,1500,1500,1500,3000,3000]}},"《LA LA LAND IN CONCERT》樂來越愛你 電影交響音樂會":{"name":"《LA LA LAND IN CONCERT》樂來越愛你 電影交響音樂會","category":"娛樂票","revenue":1447200,"tickets":460,"eTickets":212,"paperTickets":248,"refunds":1280,"refundTickets":7,"priceStats":{"1100":4,"1800":2,"2100":2,"2200":149,"2300":2,"3200":92,"3600":142,"4200":28,"4600":39},"pointStats":{"網站手機":1283000,"ibon":164200},"refundReasons":{"因事退票":{"count":7,"fee":1280}},"orderCount":289,"refundOrderCount":5,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[28200,30400,4600,22400,10800,18800,10000,13800,15600,35800,10400,10000,36600,16800,28000,21200,20600,67800,48400,30800,120600,29000,110200,48200,74800,80000,75400,82000,153400,92800,99800]}},"2026東海岸大地藝術節月光．海音樂會－澎湃的海":{"name":"2026東海岸大地藝術節月光．海音樂會－澎湃的海","category":"娛樂票","revenue":311640,"tickets":207,"eTickets":142,"paperTickets":65,"refunds":1938,"refundTickets":8,"priceStats":{"900":9,"1500":159,"1600":33,"2040":6},"pointStats":{"網站手機":241280,"ibon":70360},"refundReasons":{"因事退票":{"count":8,"fee":1938}},"orderCount":110,"refundOrderCount":4,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[13800,6000,6200,4080,6100,7500,3000,7800,6000,3000,20100,10700,1500,6000,15000,14100,7500,7500,3000,15100,3000,12100,6000,22800,22900,12200,18300,30860,19500]}},"THE MUSIC OF SQUARE ENIX－Magic，Memories，and Melodies":{"name":"THE MUSIC OF SQUARE ENIX－Magic，Memories，and Melodies","category":"娛樂票","revenue":157010,"tickets":63,"eTickets":1,"paperTickets":62,"refunds":520,"refundTickets":19,"priceStats":{"1":10,"1250":2,"2000":13,"2500":5,"3000":6,"3300":10,"3800":16,"4200":1},"pointStats":{"ibon":33200,"網站手機":123810},"refundReasons":{"因雨退票":{"count":16,"fee":0},"因事退票":{"count":3,"fee":520}},"orderCount":50,"refundOrderCount":9,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12"],"values":[11601,21201,4200,10800,3801,7100,2,10900,6600,34702,16603,29500]}},"LMSY Love in Our Sweet Yard Fan Meeting in Kaohsiung":{"name":"LMSY Love in Our Sweet Yard Fan Meeting in Kaohsiung","category":"娛樂票","revenue":394660,"tickets":58,"eTickets":0,"paperTickets":58,"refunds":0,"refundTickets":0,"priceStats":{"2500":1,"6880":57},"pointStats":{"ibon":41280,"網站手機":353380},"refundReasons":{},"orderCount":50,"refundOrderCount":0,"trendData":{"labels":["2026-07-01","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25"],"values":[13760,6880,34400,6880,6880,9380,20640,6880,13760,13760,27520,34400,48160,6880,6880,20640,27520,6880,34400,27520,20640]}},"中華職棒37年Rakuten主場例行賽 特色席位＆套票":{"name":"中華職棒37年Rakuten主場例行賽 特色席位＆套票","category":"運動票","revenue":296950,"tickets":498,"eTickets":279,"paperTickets":219,"refunds":1065,"refundTickets":20,"priceStats":{"0":43,"300":3,"350":28,"400":43,"450":34,"500":40,"550":7,"600":79,"700":41,"800":128,"900":18,"1000":22,"1100":12},"pointStats":{"網站手機":267700,"ibon":22850,"APP購票":6400},"refundReasons":{"因事退票":{"count":17,"fee":1065},"因雨退票":{"count":3,"fee":0}},"orderCount":143,"refundOrderCount":8,"trendData":{"labels":["2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[35800,17000,3200,4800,13600,15600,4900,2050,24600,10950,9800,9300,1800,11900,5700,16000,10800,9200,600,2700,3050,13950,7100,10400,16300,14500,14550,6800]}},"中華職棒37年Rakuten主場例行賽 辣酷甜女孩套票":{"name":"中華職棒37年Rakuten主場例行賽 辣酷甜女孩套票","category":"運動票","revenue":27300,"tickets":39,"eTickets":33,"paperTickets":6,"refunds":420,"refundTickets":6,"priceStats":{"700":39},"pointStats":{"網站手機":22400,"APP購票":2800,"ibon":2100},"refundReasons":{"因事退票":{"count":6,"fee":420}},"orderCount":33,"refundOrderCount":5,"trendData":{"labels":["2026-07-01","2026-07-03","2026-07-07","2026-07-09","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-17","2026-07-18","2026-07-19","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-28","2026-07-30","2026-07-31"],"values":[700,700,2800,1400,2800,700,700,700,2100,700,700,1400,1400,1400,3500,700,1400,2100,700,700]}},"UNDERTALE：The Determination Symphony":{"name":"UNDERTALE：The Determination Symphony","category":"娛樂票","revenue":3629000,"tickets":1492,"eTickets":1111,"paperTickets":381,"refunds":24490,"refundTickets":190,"priceStats":{"800":2,"1000":7,"1300":6,"1400":9,"1600":222,"2000":350,"2600":414,"2800":185,"3200":297},"pointStats":{"網站手機":2976000,"ibon":653000},"refundReasons":{"因事退票":{"count":190,"fee":24490}},"orderCount":984,"refundOrderCount":125,"trendData":{"labels":["2026-07-02","2026-07-03","2026-07-29","2026-07-30","2026-07-31"],"values":[11200,2000,3188600,323600,103600]}},"《暗喻幻想》Metaphor：ReFantazio 交響音樂會":{"name":"《暗喻幻想》Metaphor：ReFantazio 交響音樂會","category":"娛樂票","revenue":94400,"tickets":35,"eTickets":23,"paperTickets":12,"refunds":175,"refundTickets":1,"priceStats":{"1600":4,"1750":2,"2000":1,"2500":14,"3000":3,"3500":11},"pointStats":{"網站手機":69900,"ibon":24500},"refundReasons":{"因事退票":{"count":1,"fee":175}},"orderCount":25,"refundOrderCount":1,"trendData":{"labels":["2026-07-02","2026-07-03","2026-07-05","2026-07-06","2026-07-09","2026-07-10","2026-07-11","2026-07-13","2026-07-15","2026-07-16","2026-07-18","2026-07-19","2026-07-23","2026-07-28","2026-07-31"],"values":[1600,17700,14000,8000,2500,2000,5000,9500,1600,2500,7500,9500,7000,3500,2500]}},"TPE48－RESET公演":{"name":"TPE48－RESET公演","category":"娛樂票","revenue":19000,"tickets":19,"eTickets":0,"paperTickets":19,"refunds":0,"refundTickets":0,"priceStats":{"1000":19},"pointStats":{"網站手機":19000},"refundReasons":{},"orderCount":19,"refundOrderCount":0,"trendData":{"labels":["2026-07-02","2026-07-03","2026-07-06","2026-07-17"],"values":[1000,1000,1000,16000]}},"2026 YANG YOSEOP SOLO CONCERT ＜Fade In＞ IN TAIPEI":{"name":"2026 YANG YOSEOP SOLO CONCERT ＜Fade In＞ IN TAIPEI","category":"娛樂票","revenue":290650,"tickets":57,"eTickets":0,"paperTickets":57,"refunds":480,"refundTickets":2,"priceStats":{"2900":1,"4790":5,"4800":32,"5800":19},"pointStats":{"網站手機":290650},"refundReasons":{"因事退票":{"count":2,"fee":480}},"orderCount":53,"refundOrderCount":2,"trendData":{"labels":["2026-07-02","2026-07-04","2026-07-07","2026-07-08","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-15","2026-07-16","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25"],"values":[5800,10600,5800,11600,20200,15400,49200,10600,32800,5800,24000,14390,4800,43180,36480]}},"中華職棒37年Rakuten主場例行賽 小周末套票＿周三版":{"name":"中華職棒37年Rakuten主場例行賽 小周末套票＿周三版","category":"運動票","revenue":4000,"tickets":388,"eTickets":0,"paperTickets":388,"refunds":0,"refundTickets":0,"priceStats":{"0":384,"1000":4},"pointStats":{"網站手機":4000,"ibon":0},"refundReasons":{},"orderCount":71,"refundOrderCount":0,"trendData":{"labels":["2026-07-03","2026-07-12","2026-07-16"],"values":[2000,2000,0]}},"東京獨立流行新星 Himeuzu＋名古屋夢幻流行之星 Blurred City Lights 聯合演出台北站":{"name":"東京獨立流行新星 Himeuzu＋名古屋夢幻流行之星 Blurred City Lights 聯合演出台北站","category":"娛樂票","revenue":21400,"tickets":15,"eTickets":0,"paperTickets":15,"refunds":0,"refundTickets":0,"priceStats":{"800":1,"1400":4,"1500":10},"pointStats":{"網站手機":16900,"ibon":4500},"refundReasons":{},"orderCount":13,"refundOrderCount":0,"trendData":{"labels":["2026-07-06","2026-07-07","2026-07-09","2026-07-12","2026-07-13","2026-07-14","2026-07-16","2026-07-17"],"values":[1500,1500,1500,1500,2800,2300,3000,7300]}},"2026 秋Out 音樂節":{"name":"2026 秋Out 音樂節","category":"娛樂票","revenue":187125,"tickets":100,"eTickets":91,"paperTickets":9,"refunds":417,"refundTickets":4,"priceStats":{"888":17,"999":13,"1314":13,"2480":54,"2680":3},"pointStats":{"網站手機":176206,"ibon":10919},"refundReasons":{"因事退票":{"count":4,"fee":417}},"orderCount":80,"refundOrderCount":4,"trendData":{"labels":["2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-18","2026-07-19","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[63072,38272,5848,4960,4960,2480,10104,7440,4960,6032,17444,14245,4995,2313]}},"江美琪《傷心唱出來就沒事了》演唱會 2‧0 台北站":{"name":"江美琪《傷心唱出來就沒事了》演唱會 2‧0 台北站","category":"娛樂票","revenue":2708160,"tickets":1396,"eTickets":1160,"paperTickets":236,"refunds":5896,"refundTickets":59,"priceStats":{"1040":8,"1780":624,"2080":764},"pointStats":{"ibon":176680,"網站手機":2531480},"refundReasons":{"因事退票":{"count":59,"fee":5896}},"orderCount":878,"refundOrderCount":43,"trendData":{"labels":["2026-07-10","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[1672600,726140,66520,64120,44840,8320,16340,19000,36820,28800,24660]}},"TPE48 演唱會《New Chapter》":{"name":"TPE48 演唱會《New Chapter》","category":"娛樂票","revenue":1930700,"tickets":464,"eTickets":1,"paperTickets":463,"refunds":16430,"refundTickets":45,"priceStats":{"1500":47,"2800":125,"2900":2,"3800":22,"4800":130,"5500":12,"5800":126},"pointStats":{"網站手機":1871900,"ibon":58800},"refundReasons":{"因事退票":{"count":41,"fee":16430},"因雨退票":{"count":4,"fee":0}},"orderCount":459,"refundOrderCount":45,"trendData":{"labels":["2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[1340200,14400,9600,296300,29800,18000,11400,7600,2800,4800,4300,17700,4800,7600,11100,9600,12400,20700,22500,54000,31100]}},"瞪鞋偶像RAY ＋ 另類Vocaloid奇才kinoue64台北聯合公演":{"name":"瞪鞋偶像RAY ＋ 另類Vocaloid奇才kinoue64台北聯合公演","category":"娛樂票","revenue":195590,"tickets":107,"eTickets":97,"paperTickets":10,"refunds":198,"refundTickets":2,"priceStats":{"1500":32,"1680":39,"2270":1,"2280":35},"pointStats":{"網站手機":184790,"ibon":10800},"refundReasons":{"因事退票":{"count":2,"fee":198}},"orderCount":89,"refundOrderCount":2,"trendData":{"labels":["2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-17","2026-07-18","2026-07-19","2026-07-24","2026-07-25","2026-07-26","2026-07-28","2026-07-30","2026-07-31"],"values":[128400,12470,9840,2280,6360,1680,5640,3000,3000,2280,1680,4680,5640,5640,3000]}},"《偶像相遇祭》VIP福利":{"name":"《偶像相遇祭》VIP福利","category":"娛樂票","revenue":1205600,"tickets":995,"eTickets":275,"paperTickets":720,"refunds":4656,"refundTickets":74,"priceStats":{"880":170,"1280":825},"pointStats":{"網站手機":1205600},"refundReasons":{"因事退票":{"count":74,"fee":4656}},"orderCount":995,"refundOrderCount":74,"trendData":{"labels":["2026-07-10","2026-07-11","2026-07-12","2026-07-22"],"values":[512080,610720,12080,70720]}},"特典福利加購－EXILE AKIRA 20th ANNIVERSARY SPECIAL LIVE TOUR “URBAN SAVAGE” 台北公演":{"name":"特典福利加購－EXILE AKIRA 20th ANNIVERSARY SPECIAL LIVE TOUR “URBAN SAVAGE” 台北公演","category":"娛樂票","revenue":512000,"tickets":256,"eTickets":234,"paperTickets":22,"refunds":900,"refundTickets":9,"priceStats":{"2000":256},"pointStats":{"網站手機":512000},"refundReasons":{"因事退票":{"count":9,"fee":900}},"orderCount":256,"refundOrderCount":9,"trendData":{"labels":["2026-07-11","2026-07-12","2026-07-14","2026-07-15","2026-07-16","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29"],"values":[440000,16000,2000,2000,4000,6000,2000,2000,2000,2000,2000,6000,6000,12000,2000,2000,4000]}},"2026年福爾摩沙女子排球國際邀請賽":{"name":"2026年福爾摩沙女子排球國際邀請賽","category":"運動票","revenue":231950,"tickets":444,"eTickets":156,"paperTickets":288,"refunds":2840,"refundTickets":245,"priceStats":{"150":6,"200":25,"300":59,"350":91,"500":218,"1500":45},"pointStats":{"網站手機":187200,"ibon":44750},"refundReasons":{"因雨退票":{"count":207,"fee":0},"因事退票":{"count":38,"fee":2840}},"orderCount":260,"refundOrderCount":143,"trendData":{"labels":["2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[65350,18700,2500,17850,18150,4900,1550,5600,1500,6150,6650,5000,3050,6450,1500,5150,3600,8250,18850,31200]}},"Enemies With Benefits 1st Fan meeting in Taipei":{"name":"Enemies With Benefits 1st Fan meeting in Taipei","category":"娛樂票","revenue":7634200,"tickets":1025,"eTickets":530,"paperTickets":495,"refunds":25465,"refundTickets":69,"priceStats":{"2500":10,"5000":162,"7000":291,"8300":440,"9100":122},"pointStats":{"ibon":1935200,"網站手機":5699000},"refundReasons":{"因事退票":{"count":69,"fee":25465}},"orderCount":918,"refundOrderCount":67,"trendData":{"labels":["2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-25"],"values":[7284600,20300,47200,113400,124800,43900]}},"Girl Rules Fan Meeting in Taipei":{"name":"Girl Rules Fan Meeting in Taipei","category":"娛樂票","revenue":2700,"tickets":1,"eTickets":0,"paperTickets":1,"refunds":0,"refundTickets":0,"priceStats":{"2700":1},"pointStats":{"ibon":2700},"refundReasons":{},"orderCount":1,"refundOrderCount":0,"trendData":{"labels":["2026-07-15"],"values":[2700]}},"鏞不止步-陳鏞基引退系列":{"name":"鏞不止步-陳鏞基引退系列","category":"運動票","revenue":2373350,"tickets":5320,"eTickets":3599,"paperTickets":1721,"refunds":13475,"refundTickets":301,"priceStats":{"100":4,"200":195,"250":254,"350":185,"400":1353,"500":3329},"pointStats":{"ibon":214650,"網站手機":2158700},"refundReasons":{"因事退票":{"count":301,"fee":13475}},"orderCount":2421,"refundOrderCount":165,"trendData":{"labels":["2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[1198900,178500,537950,66900,45500,45900,47750,41000,29250,29000,13100,25850,20300,27600,24400,22800,18650]}},"J－LIONS主題日「非‧日常」":{"name":"J－LIONS主題日「非‧日常」","category":"運動票","revenue":39088250,"tickets":30617,"eTickets":10367,"paperTickets":20250,"refunds":261551,"refundTickets":2046,"priceStats":{"350":84,"400":93,"450":57,"500":57,"550":45,"590":93,"600":357,"640":135,"650":127,"700":1904,"800":2937,"900":2529,"990":217,"1000":3850,"1040":294,"1100":413,"1180":1723,"1200":2538,"1280":1589,"1300":3849,"1980":4651,"2080":3075},"pointStats":{"網站手機":37723490,"ibon":1364760},"refundReasons":{"因事退票":{"count":2046,"fee":261551}},"orderCount":14152,"refundOrderCount":1137,"trendData":{"labels":["2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[17023990,2994760,7936950,2636950,3462170,895420,566430,392180,380810,289860,352930,338800,478850,390150,288970,347150,311880]}},"TOY STORY｜PEACEMINUSONE：THE FIRST FAN 臺北站":{"name":"TOY STORY｜PEACEMINUSONE：THE FIRST FAN 臺北站","category":"娛樂票","revenue":2279750,"tickets":9119,"eTickets":3854,"paperTickets":5265,"refunds":14000,"refundTickets":1077,"priceStats":{"250":9119},"pointStats":{"ibon":245750,"網站手機":2034000},"refundReasons":{"因事退票":{"count":1077,"fee":14000}},"orderCount":9119,"refundOrderCount":1077,"trendData":{"labels":["2026-07-16","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25"],"values":[1947750,169000,46500,31250,23000,18250,20750,22750,500]}},"U－KNOW PROJECT 26：SCENE＃1 in Taipei":{"name":"U－KNOW PROJECT 26：SCENE＃1 in Taipei","category":"娛樂票","revenue":5089715,"tickets":814,"eTickets":814,"paperTickets":0,"refunds":93838,"refundTickets":292,"priceStats":{"3000":2,"4879":6,"4880":88,"5879":15,"5880":127,"6579":24,"6580":552},"pointStats":{"網站手機":5089715},"refundReasons":{"因事退票":{"count":292,"fee":93838}},"orderCount":655,"refundOrderCount":226,"trendData":{"labels":["2026-07-18","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30"],"values":[2740045,1707170,328220,88720,70280,29800,33680,12460,18340,28800,19740,12460]}},"2026 XLOV ASIA TOUR ＜Serving—X＞ IN TAIPEI":{"name":"2026 XLOV ASIA TOUR ＜Serving—X＞ IN TAIPEI","category":"娛樂票","revenue":3548560,"tickets":687,"eTickets":558,"paperTickets":129,"refunds":82960,"refundTickets":305,"priceStats":{"2840":5,"2880":49,"3880":64,"4680":87,"5680":482},"pointStats":{"網站手機":3383200,"ibon":165360},"refundReasons":{"因事退票":{"count":305,"fee":82960}},"orderCount":567,"refundOrderCount":250,"trendData":{"labels":["2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31"],"values":[2989440,229840,103680,49320,38040,26400,9560,25600,10440,11360,37840,17040]}},"【測試】挑戰極限運動（IDA）請勿購票":{"name":"【測試】挑戰極限運動（IDA）請勿購票","category":"運動票","revenue":6700,"tickets":13,"eTickets":1,"paperTickets":12,"refunds":0,"refundTickets":0,"priceStats":{"50":2,"75":2,"150":3,"1000":6},"pointStats":{"網站手機":4700,"ibon":2000},"refundReasons":{},"orderCount":6,"refundOrderCount":0,"trendData":{"labels":["2026-07-14","2026-07-23","2026-07-30"],"values":[1000,5550,150]}},"時速36公里首度海外公演 “市民薄明” Tour 追加 台北站":{"name":"時速36公里首度海外公演 “市民薄明” Tour 追加 台北站","category":"娛樂票","revenue":37600,"tickets":30,"eTickets":27,"paperTickets":3,"refunds":0,"refundTickets":0,"priceStats":{"1200":14,"1300":16},"pointStats":{"網站手機":35000,"ibon":2600},"refundReasons":{},"orderCount":23,"refundOrderCount":0,"trendData":{"labels":["2026-07-24","2026-07-25"],"values":[32400,5200]}},"幽靈書店Ghost Bookstore / 4 Steps ‘Fore the Spiral 首度台北專場":{"name":"幽靈書店Ghost Bookstore / 4 Steps ‘Fore the Spiral 首度台北專場","category":"娛樂票","revenue":49100,"tickets":39,"eTickets":37,"paperTickets":2,"refunds":65,"refundTickets":1,"priceStats":{"1200":16,"1300":23},"pointStats":{"網站手機":49100},"refundReasons":{"因事退票":{"count":1,"fee":65}},"orderCount":31,"refundOrderCount":1,"trendData":{"labels":["2026-07-24","2026-07-25","2026-07-28","2026-07-29","2026-07-31"],"values":[41500,2600,1300,2400,1300]}},"2026 N.Flying LIVE ‘＆CON5：into REM’ IN TAIPEI":{"name":"2026 N.Flying LIVE ‘＆CON5：into REM’ IN TAIPEI","category":"娛樂票","revenue":16600,"tickets":3,"eTickets":0,"paperTickets":3,"refunds":0,"refundTickets":0,"priceStats":{"5200":2,"6200":1},"pointStats":{"ibon":10400,"網站手機":6200},"refundReasons":{},"orderCount":3,"refundOrderCount":0,"trendData":{"labels":["2026-07-27"],"values":[16600]}},"ibon DEMO LIVE SHOW":{"name":"ibon DEMO LIVE SHOW","category":"娛樂票","revenue":9879,"tickets":3,"eTickets":0,"paperTickets":3,"refunds":0,"refundTickets":0,"priceStats":{"1080":1,"1999":1,"6800":1},"pointStats":{"ibon":9879},"refundReasons":{},"orderCount":3,"refundOrderCount":0,"trendData":{"labels":["2026-07-30","2026-07-31"],"values":[1999,7880]}}},"nationalityList":[{"name":"未知","orders":53843,"share":"71.8"},{"name":"台灣","orders":21060,"share":"28.1"},{"name":"其他","orders":66,"share":"0.1"},{"name":"日本","orders":39,"share":"0.1"},{"name":"中國","orders":3,"share":"0.0"},{"name":"韓國","orders":1,"share":"0.0"}],"meta":{"totalRows":145216,"reportTime":"2026/8/2 下午12:27:12"}};
+    const dbData = [];
+    let modalChart = null;
+
+    window.addEventListener('load', function() {
+        const s = summaryData;
+        document.title = "ibon售票系統 2026年07月 分析報表 (A系統)";
+        const metaRows = document.getElementById('meta-total-rows');
+        if (metaRows) metaRows.innerText = s.meta.totalRows.toLocaleString();
+        const h1 = document.querySelector('h1');
+        if(h1) h1.innerText = "ibon售票系統 2026年07月 分析報表 (A系統)";
+
+        document.getElementById('val-revenue').innerText = 'NT$ ' + s.totalRevenue.toLocaleString();
+        document.getElementById('val-tickets').innerText = s.totalTickets.toLocaleString();
+        document.getElementById('val-orders').innerText = s.orderCount.toLocaleString();
+        document.getElementById('val-aov').innerText = 'NT$ ' + s.aov.toLocaleString();
+        document.getElementById('val-refunded-amount').innerText = 'NT$ ' + s.totalRefundedValue.toLocaleString();
+        document.getElementById('val-refund-fees').innerText = 'NT$ ' + s.totalRefundFees.toLocaleString();
+        document.getElementById('val-refund-tickets').innerText = s.totalRefundTickets.toLocaleString();
+
+        const renderTable = (selector, list, templateFn) => {
+            const tbody = document.querySelector(selector + ' tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            list.forEach((item, i) => tbody.innerHTML += templateFn(item, i));
+        };
+
+        // 電子票/紙票欄：張數 + 占該節目張數比例
+        const ttCell = (cnt, total) => `<td class="text-right">${(cnt||0).toLocaleString()}<span style="color:#888; font-size:0.85em;"> (${total ? ((cnt||0)/total*100).toFixed(1) : '0.0'}%)</span></td>`;
+
+        const revenueRowTpl = (item, i) => `<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td>${ttCell(item.eTickets, item.tickets)}${ttCell(item.paperTickets, item.tickets)}<td class="text-right" style="color: var(--accent-color); font-weight:bold;">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right" style="color:#888;">${(item.revenue/s.totalRevenue*100).toFixed(1)}%</td></tr>`;
+        const ticketsRowTpl = (item, i) => `<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right" style="color: var(--accent-color); font-weight:bold;">${item.tickets.toLocaleString()}</td>${ttCell(item.eTickets, item.tickets)}${ttCell(item.paperTickets, item.tickets)}<td class="text-right">NT$ ${item.revenue.toLocaleString()}</td></tr>`;
+        // 銷售排行「全部 / 排除體育」切換（排除體育 = 業態別為運動票的節目不列入）
+        window.switchRankView = function(mode) {
+            const rev = (mode === 'noSports' && s.topByRevenueNoSports) ? s.topByRevenueNoSports : s.topByRevenue;
+            const tik = (mode === 'noSports' && s.topByTicketsNoSports) ? s.topByTicketsNoSports : s.topByTickets;
+            renderTable('#topEventsTable', rev, revenueRowTpl);
+            renderTable('#topTicketsEventsTable', tik, ticketsRowTpl);
+            document.querySelectorAll('#rankViewToggle .rank-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+        };
+        window.switchRankView('all');
+        renderTable('#topRefundTable', s.topByRefunds, (item, i) => `<tr><td><span style="background:#c62828; color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i+1}</span></td><td><span class="analysis-link" onclick="analyzeEvent('${item.name.replace(/'/g, "\\'")}')">${item.name}</span></td><td class="text-right">${item.refundOrderCount.toLocaleString()}</td><td class="text-right">${item.refundTickets.toLocaleString()}</td><td class="text-right" style="color: #c62828; font-weight:bold;">NT$ ${item.refunds.toLocaleString()}</td></tr>`);
+
+        renderTable('#paymentTable', s.paymentList, (item) => `<tr><td class="font-bold">${item.name}</td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right">${item.share}%</td></tr>`);
+        renderTable('#salesPointTable', s.spList, (item) => `<tr><td class="font-bold">${item.name}</td><td class="text-right">${item.orderCount.toLocaleString()}</td><td class="text-right">${item.tickets.toLocaleString()}</td><td class="text-right">NT$ ${item.revenue.toLocaleString()}</td><td class="text-right">${item.share}%</td></tr>`);
+
+        const natColors = ['#d81b60','#e53935','#fb8c00','#fdd835','#43a047','#00acc1','#1e88e5','#5e35b1','#8e24aa','#00897b','#546e7a'];
+        const natLabels = s.nationalityList.map(n => n.name);
+        const natData = s.nationalityList.map(n => n.orders);
+        new Chart(document.getElementById('nationalityChart'), {
+            type: 'doughnut',
+            data: { labels: natLabels, datasets: [{ data: natData, backgroundColor: natColors.slice(0, natLabels.length), borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)' }] },
+            plugins: [ChartDataLabels],
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#444', font: { size: 12 }, padding: 12 } }, tooltip: { callbacks: { label: (ctx) => { const total = ctx.dataset.data.reduce((a, b) => a + b, 0); const pct = (ctx.raw / total * 100).toFixed(1); return ` ${ctx.label}: ${ctx.raw.toLocaleString()} 筆 (${pct}%)`; } } }, datalabels: { color: 'white', font: { weight: 'bold', size: 11 }, formatter: (value, ctx) => { const total = ctx.dataset.data.reduce((a, b) => a + b, 0); const pct = (value / total * 100); if (pct < 2) return ''; return `${ctx.chart.data.labels[ctx.dataIndex]}
+${pct.toFixed(1)}%`; } } } }
+        });
+
+        renderTable('#nationalityTable', s.nationalityList, (item, i) => `<tr><td><span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:inline-block; text-align:center; line-height:24px;">${i + 1}</span></td><td class="font-bold">${item.name}</td><td class="text-right">${item.orders.toLocaleString()}</td><td class="text-right">${item.share}%</td></tr>`);
+
+        const chartAnnotations = {};
+        s.peakAnnotations.forEach((ann, idx) => {
+            chartAnnotations['label' + idx] = { type: 'label', xValue: ann.date, yValue: ann.value, backgroundColor: 'rgba(255, 243, 224, 0.9)', borderColor: '#ff9800', borderWidth: 1, borderRadius: 4, content: [ann.label], font: { size: 11, weight: 'bold' }, padding: 6, position: 'center', yAdjust: -20 };
+        });
+
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: { labels: s.trendDates, datasets: [{ label: '每日營收', data: s.trendSales, borderColor: '#d81b60', backgroundColor: 'rgba(216, 27, 96, 0.1)', fill: true, tension: 0.4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { annotation: { annotations: chartAnnotations } } }
+        });
+
+        new Chart(document.getElementById('refundTrendChart'), {
+            type: 'line',
+            data: { labels: s.refundDates, datasets: [{ label: '每日退票金額', data: s.refundAmounts, borderColor: '#757575', fill: false }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    });
+
+    function analyzeEvent(eventName) {
+        const s = summaryData.eventSummaryMap[eventName];
+        if(!s) return;
+        document.body.style.overflow = 'hidden';
+        document.getElementById('analysisModal').style.display = 'flex';
+        document.getElementById('modalTitle').innerText = eventName;
+        document.getElementById('m-val-revenue').innerText = 'NT$ ' + s.revenue.toLocaleString();
+        document.getElementById('m-val-tickets').innerText = s.tickets.toLocaleString();
+        document.getElementById('m-val-aov').innerText = 'NT$ ' + (s.orderCount ? Math.round(s.revenue/s.orderCount).toLocaleString() : '0');
+        document.getElementById('m-val-refunds').innerText = 'NT$ ' + s.refunds.toLocaleString();
+
+        const pTbody = document.querySelector('#modalPriceTable tbody');
+        if(pTbody) {
+            pTbody.innerHTML = '';
+            Object.entries(s.priceStats).sort((a,b) => b[0]-a[0]).forEach(([price, count]) => {
+                pTbody.innerHTML += `<tr><td>$${Number(price).toLocaleString()}</td><td>${count.toLocaleString()}</td><td>$${(price*count).toLocaleString()}</td><td class="text-right">${(price*count/s.revenue*100).toFixed(1)}%</td></tr>`;
+            });
+        }
+
+        const spTbody = document.querySelector('#modalSalesPointTable tbody');
+        if(spTbody) {
+            spTbody.innerHTML = '';
+            Object.entries(s.pointStats).sort((a,b) => b[1]-a[1]).forEach(([name, rev]) => {
+                spTbody.innerHTML += `<tr><td>${name}</td><td>--</td><td>$${rev.toLocaleString()}</td><td class="text-right">${(rev/s.revenue*100).toFixed(1)}%</td></tr>`;
+            });
+        }
+
+        const rfTbody = document.querySelector('#modalRefundTable tbody');
+        if(rfTbody) {
+            rfTbody.innerHTML = '';
+            Object.entries(s.refundReasons).forEach(([reason, data]) => {
+                rfTbody.innerHTML += `<tr><td>${reason}</td><td>${data.count}</td><td>NT$ ${data.fee.toLocaleString()}</td></tr>`;
+            });
+        }
+
+        if(modalChart) modalChart.destroy();
+        const ctx = document.getElementById('modalTrendChart').getContext('2d');
+        modalChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: s.trendData.labels, datasets: [{ label: '每日營收', data: s.trendData.values, borderColor: '#d81b60', tension: 0.3, fill: true, backgroundColor: 'rgba(216, 27, 96, 0.05)' }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    function closeModal() {
+        document.getElementById('analysisModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+<div style="max-width:1400px; margin:0 auto 40px; padding:0 30px;">
+    <h2 style="font-size:1.1rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; border-left:4px solid var(--accent-color); padding-left:10px; margin-bottom:20px;">訂單國籍占比 (Order Nationality)</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:25px;">
+        <div style="background:var(--card-bg); border-radius:16px; padding:25px; box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.08);">
+            <h3 style="margin-top:0; color:var(--text-primary); border-left:4px solid var(--accent-color); padding-left:10px;">國籍分佈</h3>
+            <div style="height:350px;"><canvas id="nationalityChart"></canvas></div>
+        </div>
+        <div style="background:var(--card-bg); border-radius:16px; padding:25px; box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.08);">
+            <h3 style="margin-top:0; color:var(--text-primary); border-left:4px solid var(--accent-color); padding-left:10px;">國籍明細</h3>
+            <table id="nationalityTable" style="width:100%; border-collapse:collapse; font-size:0.95em;">
+                <thead><tr>
+                    <th style="padding:15px; text-align:left; border-bottom:1px solid rgba(0,0,0,0.1); color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">排名</th>
+                    <th style="padding:15px; text-align:left; border-bottom:1px solid rgba(0,0,0,0.1); color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">國家/地區</th>
+                    <th style="padding:15px; text-align:right; border-bottom:1px solid rgba(0,0,0,0.1); color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">訂單數</th>
+                    <th style="padding:15px; text-align:right; border-bottom:1px solid rgba(0,0,0,0.1); color:var(--accent-color); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">佔比</th>
+                </tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Fixed PDF Button -->
+<button onclick="window.print()" style="position:fixed; bottom:90px; right:30px; background:linear-gradient(135deg,#1e88e5,#1565c0); color:white; padding:12px 24px; border:none; border-radius:50px; cursor:pointer; font-weight:600; font-size:0.95rem; box-shadow:0 4px 15px rgba(30,136,229,0.4); display:flex; align-items:center; gap:8px; transition:all 0.3s ease; z-index:1000;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+    下載 PDF
+</button>
+
+<!-- Fixed Home Button -->
+<a href="report_index.html" style="position:fixed; bottom:30px; right:30px; background:linear-gradient(135deg,#d81b60,#ad1457); color:white; padding:12px 24px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.95rem; box-shadow:0 4px 15px rgba(216,27,96,0.4); display:flex; align-items:center; gap:8px; transition:all 0.3s ease; z-index:1000;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+    回首頁
+</a>
+
+</body></html>

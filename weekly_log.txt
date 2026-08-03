@@ -34,3 +34,26 @@ report_index.html tab7 card inserted.
 HTML_Report_Catalog.html weekly row updated.
 [2026/07/23 ¶g¥|  8:30:19.00] Weekly Update Completed. 
 [é€±å›› 2026/07/23  9:40:06.14] Already completed today, skipping. 
+[é€±ä¸‰ 2026/07/29 15:48:01.41] Starting Weekly Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily...
+Fetched 191499 records.
+Weekly range: 2026-07-16 ~ 2026-07-22
+Excluded 67095 B-prefix rows.
+Rows in weekly range: 49150
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Weekly_20260716-20260722.html (35 KB)
+Tab7 card already exists, skip.
+HTML_Report_Catalog.html weekly row updated.
+[é€±ä¸‰ 2026/07/29 15:48:30.40] Weekly Update Completed. 
+[2026/07/30 ¶g¥|  8:30:02.73] Starting Weekly Report Update... 
+Connecting to MongoDB...
+Fetching all data from Qware_A_Ticket_data_Daily...
+Fetched 207896 records.
+Weekly range: 2026-07-23 ~ 2026-07-29
+Excluded 77058 B-prefix rows.
+Rows in weekly range: 24901
+Report generated: D:\2025\AI\MongoDB\A_Qware_Revenue_Report_Weekly_20260723-20260729.html (39 KB)
+report_index.html tab7 card inserted.
+HTML_Report_Catalog.html weekly row updated.
+[2026/07/30 ¶g¥|  8:30:23.81] Weekly Update Completed. 
+[2026/07/30 ¶g¥|  8:30:37.89] Added new weekly report A_Qware_Revenue_Report_Weekly_20260723-20260729.html to NewReport 

@@ -31,3 +31,35 @@ All done!
 [週四 2026/07/23 14:26:14.55] Update finished. 
 [LINE] OK: dmp_top10
 [週四 2026/07/23 14:27:14.33] Already completed this month, skipping. 
+[2026/08/01 �g�� 20:56:58.56] Starting DMP AllTime Top10 update... 
+Connecting to DMP database...
+Connected!
+Existing state found. Last processed: 2026-07-23T06:26:14.477Z
+Fetching new data since 2026-07-23T06:26:14.477Z...
+incremental: 6.144s
+Step 3: Building detail pages...
+  [1/10] Building: 2026 7–ELEVEN 高雄啤酒音樂節
+    -> Saved A_DMP_PageView_AllTime_Detail_000.html
+  [2/10] Building: 中華職棒37年例行賽統一獅主場（上）
+    -> Saved A_DMP_PageView_AllTime_Detail_001.html
+  [3/10] Building: 國泰世華銀行2026韋禮安「 HI WE1 韋，您好 巡迴演唱會」台北場
+    -> Saved A_DMP_PageView_AllTime_Detail_002.html
+  [4/10] Building: 中華職棒37年Rakuten主場例行賽
+    -> Saved A_DMP_PageView_AllTime_Detail_003.html
+  [5/10] Building: ACON 2026 IN TAIPEI
+    -> Saved A_DMP_PageView_AllTime_Detail_004.html
+  [6/10] Building: Team Taiwan高雄澄清湖自辦練習賽
+    -> Saved A_DMP_PageView_AllTime_Detail_005.html
+  [7/10] Building: deca joins 2026 world tour － 在這裡停一下
+    -> Saved A_DMP_PageView_AllTime_Detail_006.html
+  [8/10] Building: 2026 EXID CONCERT EXID：EXtra ID in TAIPEI
+    -> Saved A_DMP_PageView_AllTime_Detail_007.html
+  [9/10] Building: 2026 tripleS Concert ＜My Secret New Zone＞ in Taipei
+    -> Saved A_DMP_PageView_AllTime_Detail_008.html
+  [10/10] Building: 2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in TAIPEI
+    -> Saved A_DMP_PageView_AllTime_Detail_009.html
+Step 4: Building main Top 10 report...
+Main report regenerated!
+All done!
+[2026/08/01 �g�� 20:57:12.55] Update finished. 
+[LINE] OK: dmp_top10
