@@ -90,26 +90,39 @@
 if daily_log.txt 已有今日 "Update Completed" → exit /b 0（寫入 "Already completed today, skipping."）
 
 node generate_a_daily_report.js                    → A_Qware_Revenue_Report_Daily.html
-# 產生後立即獨立 git add/commit/push（2026/07/24 新增，見下方說明），不等後面全部 script 跑完
 node generate_d_ga_funnel_report.js                → D_GA_Funnel_202606_Report.html
 node generate_d_ga_funnel_cart_data.js             → D_GA_Funnel_202606_Report.html（A購物車/結帳每日資料，2026/07/14 加入排程）
 node generate_e_dmp_funnel_report.js               → E_DMP_Funnel_Report.html
 node update_index_stats.js                         → report_index.html（統計表 + Tab1 月份卡片）
+set EXTRA_FILES=
 if 今日為2日:  node generate_monthly_report.js     → A_Qware_Revenue_Report_YYYY年MM月_分析報表.html
-if 今日為10日: node generate_ga_report.js          → A_GA_Traffic_Analysis_Report.html
+               成功後用 dir /b /o-d 對 "A_Qware_Revenue_Report_*年*月_分析報表.html" 找出最新一份，
+               加進 EXTRA_FILES（見下方 2026/08/02 事故——這一步曾經悄悄失敗過）
+if 今日為10日: node generate_ga_report.js          → A_GA_Traffic_Analysis_Report.html，加進 EXTRA_FILES
 # 每個 node script 之後檢查 errorlevel，失敗只記進 FAILED_STEPS 變數、不中斷（2026/07/23 新增）
 # —— 維持既有 best-effort 精神：其他成功產出的報表仍照常 commit/push，不因單一 script 出錯而全部卡住
-git add . && git commit -m "Auto Update Daily Reports: ..."
-git pull --rebase --autostash origin main（失敗則 git rebase --abort）
-git push origin main（git 輸出寫入 git_sync.log，見 §6.3；失敗也記入 FAILED_STEPS）
-if FAILED_STEPS 非空: powershell send_line_notify.ps1 -Template "daily" -Status "FAIL" -Detail "<失敗的 script 清單>"
+echo Update Completed. >> daily_log.txt
+
+:: 2026/07/29 起：不再對本 repo（report／origin）git add/commit/push，改為同步進 D:\2025\AI\NewReport（見 §5.6.2）
+set SYNC_FILES=A_Qware_Revenue_Report_Daily.html D_GA_Funnel_202606_Report.html E_DMP_Funnel_Report.html report_index.html!EXTRA_FILES!
+用 D:\2025\AI\NewReport\.sync_lock 互斥鎖：
+  cd /d D:\2025\AI\NewReport
+  git pull --rebase --autostash origin main（失敗則 git rebase --abort）
+  git pull --rebase --autostash company main（失敗則 git rebase --abort）
+  copy /y 每個 %SYNC_FILES% 從 D:\2025\AI\MongoDB 覆蓋到 D:\2025\AI\NewReport
+  git add %SYNC_FILES% && git commit -m "Auto-update Daily Reports: ..."
+  無變更可提交 → 視為成功、不 push
+  有變更        → git pull/push origin main，再 git pull/push company main（交錯進行，見 §5.6.3 push 順序說明）
+                  任一 remote push 失敗都記入 FAILED_STEPS（NewReport-push-origin / NewReport-push-company）
+if FAILED_STEPS 非空: powershell send_line_notify.ps1 -Template "daily" -Status "FAIL" -Detail "<失敗的 script/push 清單>"
 else:                 powershell send_line_notify.ps1 -Template "daily"  → LINE 完成通知
 ```
 
-> ⚠️ 結尾的 `git add .` 會把**當下工作區所有未提交變更**一起 commit 進去。若在排程觸發時段（08:00 前後、登入補跑、15:00 GA 排程）有進行中的手動修改，可能被自動 commit 收走（2026/07/06 曾發生，見 git `f0e940e`）。
+> **2026/07/29 改版**：本節原本描述的是「跑完 8 支 script 後 `git add .` 一次提交、push 到 `report`（origin）」的舊流程；`daily_update.bat` 已依 `docs/superpowers/specs/2026-07-29-newreport-single-source-of-truth-design.md` 改為直接同步進 `D:\2025\AI\NewReport`（詳細同步清單與雙 remote push 順序見 §5.6），本節於 2026/08/03 補寫成與實際程式碼一致；下面幾則 07/23～07/24「`git add .` 收走未提交變更／曝險窗口」相關追記是改版前的歷史事故，改版後 `git add .` 已不存在（NewReport 端一律用「指名同步」），保留在文件中作為當初決策脈絡的參考。
 > **失敗告警（2026/07/23 新增）**：與 §4（travel）不同，daily 的每個 node script 出錯只記錄到 `FAILED_STEPS` 變數（用 `;` 分隔的 script 檔名清單），流程照樣往下跑完所有步驟並 push——這是刻意保留的既有行為，因為多支獨立 script 之間沒有依賴關係，某一支失敗（例如 MongoDB 逾時）不該連累其他已成功的報表沒推上去。最後只有一個判斷點：`FAILED_STEPS` 非空（含任何 script 或 git push 失敗）就發 `-Status FAIL` 告警並列出失敗清單，否則照常發送成功通知；不會同一次執行收到兩則通知。
-> **`A_Qware_Revenue_Report_Daily.html` 獨立提交（2026/07/24 新增）**：此檔案是 8 支日報 script 中最早產出的一支，07/21、07/22、07/23 連續三次發生「script log 顯示產生成功，但當天的 `git add .` 沒收進這個檔案的變更、網站仍是舊版」，每次都要靠使用者反映才發現，需人工重跑補推；根因至今未確認（懷疑與它曝險時間最長、後面還有 4 支 script 才輪到最終 commit 有關，但無法證實）。07/24 起改為此 script 跑完後**立即**用同一把 `.git_bat_lock` 互斥鎖獨立執行 `git add`→`commit`→`pull --rebase --autostash`→`push`，把曝險窗口從「整條 pipeline 跑完」縮短為「只到下一支 script 開始前」，其餘 7 支報表仍照原本邏輯在流程尾端一次 `git add .` 合併提交。
+> **`A_Qware_Revenue_Report_Daily.html` 獨立提交（2026/07/24 新增，2026/07/29 隨改版移除）**：此檔案是 8 支日報 script 中最早產出的一支，07/21、07/22、07/23 連續三次發生「script log 顯示產生成功，但當天的 `git add .` 沒收進這個檔案的變更、網站仍是舊版」，每次都要靠使用者反映才發現，需人工重跑補推；根因至今未確認。07/24 起曾一度改為此 script 跑完後立即用 `.git_bat_lock` 互斥鎖獨立 commit/push 到 `report`，縮短曝險窗口；07/29 隨 NewReport 改版，這整段對 `report` 的 commit/push（含這個獨立提交機制）已不存在，改成跟其餘報表一起在流程尾端「指名同步」進 NewReport，是否仍有類似曝險窗口問題尚未在新架構下驗證過。
 > **停止每日自動更新（2026/07/23，使用者要求）**：`generate_kaohsiung_beer_festival_report.js`（`A_KaohsiungBeerFestival_2026.html`）、`generate_d_ga_clickdata_report.js`（`D_GA_ClickData_Webb_202606_Report.html`）、`generate_d_ga_pageview_report.js`（`D_GA_PageViewData_Webb_202606_Report.html`）三支 script 已從 `daily_update.bat` 移除。三支 script 檔案與對應 HTML 報表本身**都沒有刪除**，只是不再排入每日排程；如需更新改為手動執行對應 script。已確認 `generate_d_ga_funnel_report.js`／`generate_d_ga_funnel_cart_data.js`（仍保留在每日排程內）是直接查詢 MongoDB `GA_D_ClickData_Webb_202606`／`GA_D_PageViewData_Webb_202606` collection，不依賴這三支被移除 script 產出的 HTML，故移除後不影響 D 系統轉換漏斗報表的每日更新。
+> **事故（2026/08/02 月報悄悄漏同步，2026/08/03 發現並修復）**：當天是每月 2 日，`generate_monthly_report.js` 正常執行並產出 `A_Qware_Revenue_Report_2026年07月_分析報表.html`（`daily_log.txt` 時間戳與報表內頁產生時間吻合），但當天推去 NewReport 的 commit（`764179d "Auto-update Daily Reports: 2026/08/02"`）只包含 `A_Qware_Revenue_Report_Daily.html`／`D_GA_Funnel_202606_Report.html`／`E_DMP_Funnel_Report.html`／`report_index.html` 四個固定檔案，**完全沒有這份月報**——`EXTRA_FILES` 顯然沒有被正確加進 `SYNC_FILES` 一起 `git add`。`daily_log.txt` 當天只記到 `Completed with failures: NewReport-push-company;`，代表流程「認為」只有 company push 失敗，並未把「月報漏收」視為一種失敗、也沒有觸發告警，是純粹靜默的資料遺失，直到隔天使用者點開連結才發現 404。事後用互動 shell（UTF-8, `chcp 65001`）手動重跑同一段 `dir /b /o-d "A_Qware_Revenue_Report_*年*月_分析報表.html"` 能正確列出檔案，故**懷疑**（未證實）是排程觸發的非互動 session 用了不同主控台字碼頁，導致含中文萬用字元的 `dir` 比對在該環境下行為不同；也不能排除是 cmd.exe 在巢狀 `for /f`／`if` 區塊的其他解析怪癖（同類問題 §5.6 提過 push 順序 bug、`goto`/label 巢狀限制）。**處理方式**：2026/08/03 人工把該檔案與已更新的 `report_index.html` 直接複製進 `D:\2025\AI\NewReport`，commit 並 push 到 `origin`／`company` 補上（`dd6f0a3`／`d8eda82`），未修改 BAT 邏輯；同時也把 `D:\2025\AI\MongoDB` 這邊本來就累積數日的既有修改一併 commit/push 到 `report`（origin）——這與 §5.6.2「`report` 之後不再有排程自動 commit」的既定方向不完全一致，是這次的人工例外；`report` 的 GitHub Pages 目前仍是啟用狀態、舊月份報表連結仍指向它，故手動補推未造成網站異常，但之後若要嚴格維持「NewReport 唯一真相來源」，`report` repo 應避免再有新 commit。**待改進**：若此問題重演，值得考慮讓 `EXTRA_FILES` 直接取 node script 執行後印出的實際檔名（而非事後用 `dir` 猜測），並把「月報/GA 報表該同步卻沒同步進 EXTRA_FILES」也視為 `FAILED_STEPS` 的一種，才能在下次發生時觸發 LINE 告警而非要靠使用者自己發現 404。
 
 ### 2.3 產出報表
 
@@ -440,7 +453,8 @@ Remove-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name 
 - 旅遊報表規範：`REPORT_SPEC_TRAVEL_2026.md`
 
 ---
-*最後更新：2026/07/27（新增 `sync_newreport.bat` + 排程 `Qware_NewReport_Sync_Daily`（每日 20:00），把 S1/S2/S3/S5 報表輸出自動同步進 `lard23chen/NewReport` 鏡像，取代先前使用者反映落後才手動同步的作法；本機新增持久複本 `D:\2025\AI\NewReport`（先前只在 session 暫存目錄，重開機即消失）。詳見新增的 §5.6）*
+*最後更新：2026/08/03（修復 2026/08/02 事故：`daily_update.bat` 每月 2 日產出的月報悄悄漏同步進 NewReport，導致 `report_index.html` 上的連結 404 兩天沒人發現；人工補推 NewReport `dd6f0a3`／`d8eda82`，並把 §2.2 改寫成與 2026/07/29 改版後的實際程式碼一致（原文一直停留在改版前「git add . push report」的舊描述）。詳見新增的 §2.2 事故追記）*
+*2026/07/27（新增 `sync_newreport.bat` + 排程 `Qware_NewReport_Sync_Daily`（每日 20:00），把 S1/S2/S3/S5 報表輸出自動同步進 `lard23chen/NewReport` 鏡像，取代先前使用者反映落後才手動同步的作法；本機新增持久複本 `D:\2025\AI\NewReport`（先前只在 session 暫存目錄，重開機即消失）。詳見新增的 §5.6）*
 *2026/07/24（`A_Qware_Revenue_Report_Daily.html` 三度卡住：07/23、07/24 兩次的自動排程 log 都顯示成功產出新版，但當天 `git add .` 都沒收進變更、網站停在 07/22 舊版，直到使用者反映才發現；已手動重跑補推。這次不再只是補跑，改在 `daily_update.bat` 內把此檔案的產出改為**產生後立即獨立 commit + push**（用同一把 `.git_bat_lock`），與其餘 7 支報表的最終合併 commit 脫鉤，縮短曝險窗口；根因仍未確認。見 §2.2）*
 *2026/07/23（依使用者要求，`daily_update.bat` 移除 `generate_kaohsiung_beer_festival_report.js`／`generate_d_ga_clickdata_report.js`／`generate_d_ga_pageview_report.js` 三支 script，`A_KaohsiungBeerFestival_2026.html`／`D_GA_ClickData_Webb_202606_Report.html`／`D_GA_PageViewData_Webb_202606_Report.html` 停止每日自動更新；已確認保留的 `generate_d_ga_funnel_report.js`／`generate_d_ga_funnel_cart_data.js` 直接查 MongoDB、不依賴這三支的輸出，移除後不影響。見 §2.2／§2.3）*
 *2026/07/23（`TravelExpenseUpdate` 依使用者要求停用（`Disable-ScheduledTask`），`travel/auto_update.bat` 與報表本身未刪除，僅排程停止觸發；同步從 `HTML_Report_Catalog.html` 移除對應列（原 S4），`Scheduled_Tasks_Dashboard.html` 標示為已停用。見 §1 備注、§4）*
