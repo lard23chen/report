@@ -1,7 +1,7 @@
 require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 // Generates the data block for F_MEM_BlackList_Query_Report.html from
 // Qware_MEM_BlackList_202608 (MongoDB QwareAi). Only embeds MEMO0='Y' rows
-// within the last 90 days of CREATE_TIME (full collection is 3.75M+ rows;
+// within the last 90 days of UPDATE_TIME (full collection is 3.75M+ rows;
 // embedding everything would blow up the static file, see REPORT_SPEC_F_MEM_BLACKLIST.md).
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const fs = require('fs');
@@ -32,11 +32,11 @@ async function main() {
         const coll = db.collection('Qware_MEM_BlackList_202608');
 
         const since = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000);
-        console.log(`Querying MEMO0='Y' rows with CREATE_TIME >= ${since.toISOString()} ...`);
+        console.log(`Querying MEMO0='Y' rows with UPDATE_TIME >= ${since.toISOString()} ...`);
         const rows = await coll.find(
-            { MEMO0: 'Y', CREATE_TIME: { $gte: since } },
+            { MEMO0: 'Y', UPDATE_TIME: { $gte: since } },
             { projection: { USER_ID: 1, EMAIL: 1, MOBILE_head: 1, CREATE_TIME: 1, UPDATE_TIME: 1, CREATE_USER: 1, UPDATE_USER: 1 } }
-        ).sort({ CREATE_TIME: -1 }).toArray();
+        ).sort({ UPDATE_TIME: -1 }).toArray();
         console.log(`Fetched ${rows.length} rows.`);
 
         const BLACKLIST_DATA = rows.map(r => ({
@@ -47,9 +47,9 @@ async function main() {
             ut: fmtTaipei(r.UPDATE_TIME),
             cu: r.CREATE_USER || '',
             uu: r.UPDATE_USER || '',
-        })).filter(r => r.ct);
+        })).filter(r => r.ut);
 
-        const days = BLACKLIST_DATA.map(r => r.ct.slice(0, 10)).sort();
+        const days = BLACKLIST_DATA.map(r => r.ut.slice(0, 10)).sort();
         const DATA_META = {
             total: BLACKLIST_DATA.length,
             minDate: days[0] || null,
