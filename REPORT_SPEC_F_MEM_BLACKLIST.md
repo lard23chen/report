@@ -11,17 +11,17 @@
 | 報表名稱 | `F_MEM_BlackList_Query_Report.html` |
 | 產生腳本 | `generate_f_mem_blacklist_query.js` |
 | 資料來源 | MongoDB `QwareAi`（`MONGODB_URI_QWARE`）`Qware_MEM_BlackList_202608` collection |
-| 資料範圍 | **僅嵌入近 90 天內** `UPDATE_TIME` 且 `MEMO0='Y'` 的資料（見 §2 為何限制範圍） |
+| 資料範圍 | **僅嵌入近 30 天內** `UPDATE_TIME` 且 `MEMO0='Y'` 的資料（見 §2 為何限制範圍） |
 | 負責人 | 陳俊良 |
 | 主要目的 | 查詢近期被標記為黑名單（`MEMO0='Y'`）的會員帳號，依「異動日期（UPDATE_TIME）」區間與 `USER_ID` 篩選 |
 
-## 2. 為何限制 90 天範圍（不嵌入全量資料）
+## 2. 為何限制天數範圍（不嵌入全量資料）
 
 `Qware_MEM_BlackList_202608` 總表逾 375 萬筆，其中 `MEMO0='Y'` 有 85,485 筆（2026/08/04 查證）。若整份嵌入靜態頁面，檔案會膨脹到 **~15MB**，是本專案現有報表最大檔案（~500KB 等級）的 30 倍，且每次重新產出都會讓 git repo 再增加 15MB，不符合 `CLAUDE.md` 的容量管理原則。
 
-2026/08/04 與使用者確認後改為：只嵌入近 90 天的 `MEMO0='Y'` 資料。**當日稍後使用者要求查詢日期改用 `UPDATE_TIME`（而非 `CREATE_TIME`）**——因為 `UPDATE_TIME` 恆 ≥ `CREATE_TIME`，同樣 90 天窗篩到的筆數明顯變多：實測 58,622 筆、檔案 ~10.8MB（原 `CREATE_TIME` 版本是 25,272 筆、~4.6MB）。**查更早期資料需另行以 MongoDB 查詢，本報表查不到**（頁面 header 有 warning 提示此限制）。若之後檔案大小成為問題，可考慮縮小 `WINDOW_DAYS`。
+2026/08/04 與使用者確認後改為：只嵌入最近 `WINDOW_DAYS` 天的 `MEMO0='Y'` 資料，初版為 90 天。當日稍後使用者要求查詢日期改用 `UPDATE_TIME`（而非 `CREATE_TIME`）——因為 `UPDATE_TIME` 恆 ≥ `CREATE_TIME`，同樣 90 天窗篩到的筆數明顯變多（58,622 筆、~10.8MB），使用者接著把窗口縮短為 **30 天**：實測 15,651 筆、檔案 ~2.9MB。**查更早期資料需另行以 MongoDB 查詢，本報表查不到**（頁面 header 有 warning 提示此限制）。
 
-若未來需要查更久遠的歷史資料，選項包括：擴大 `WINDOW_DAYS`（會讓檔案線性變大）、或改用真正的後端 API 即時查詢（見 `generate_f_mem_blacklist_query.js` 頂部註解的取捨說明）。
+若未來需要查更久遠的歷史資料，選項包括：調大 `generate_f_mem_blacklist_query.js` 裡的 `WINDOW_DAYS` 常數（會讓檔案線性變大，見上面 90 天 vs 30 天的實測對照）、或改用真正的後端 API 即時查詢。
 
 ## 3. 資料結構
 
@@ -42,7 +42,7 @@
 ### 3.2 DATA_META 物件格式（generator 注入）
 
 ```js
-{ total: 58622, minDate: "2026-05-07", maxDate: "2026-08-03" }
+{ total: 15651, minDate: "2026-07-05", maxDate: "2026-08-03" }
 ```
 
 - `minDate` / `maxDate`：本次嵌入資料中實際存在的 `UPDATE_TIME` 日期範圍（依台北時間），用於 flatpickr 的 `minDate`/`maxDate` 限制與「N天前」按鈕的錨點
@@ -86,7 +86,7 @@ const DATA_META = {…};
 
 | 用途 | Cluster URI | DB | Collection | 篩選 |
 |------|-------------|-------|------------|------|
-| 近 90 天黑名單資料 | `MONGODB_URI_QWARE` | `QwareAi` | `Qware_MEM_BlackList_202608` | `MEMO0:"Y"`, `UPDATE_TIME >= now - 90天` |
+| 近 30 天黑名單資料 | `MONGODB_URI_QWARE` | `QwareAi` | `Qware_MEM_BlackList_202608` | `MEMO0:"Y"`, `UPDATE_TIME >= now - 30天` |
 
 主要欄位：`USER_ID`、`EMAIL`、`MOBILE_head`、`CREATE_TIME`、`UPDATE_TIME`、`CREATE_USER`、`UPDATE_USER`、`MEMO0`（`Y`/`N`/`4`/`null`，只有 `Y` 才是本報表要查的黑名單標記）。collection 只有 `_id` 索引，全表 375 萬筆，`find()` 前務必先用 `MEMO0`+`UPDATE_TIME` 縮小範圍，避免全表掃描。
 
@@ -99,7 +99,7 @@ git commit -m "Update F blacklist query report"
 git push origin main
 ```
 
-**目前沒有排入任何排程**（不在 `daily_update.bat` 等 4 支 bat 的清單內），純手動報表；如需查最新資料，重新執行上述指令即可（90 天滾動窗會自動往前移）。
+**目前沒有排入任何排程**（不在 `daily_update.bat` 等 4 支 bat 的清單內），純手動報表；如需查最新資料，重新執行上述指令即可（30 天滾動窗會自動往前移）。
 
 **同步至 NewReport（使用者實際瀏覽的站台）**：本報表屬於 `newreport-dual-repo-architecture` 定義的「ad-hoc 檔案」，不在任何 bat 的固定同步清單內，更新完 `D:\2025\AI\MongoDB` 後需手動 copy 進 `D:\2025\AI\NewReport` 並 commit + push（`origin`、`company` 兩個 remote 交錯 pull/push，細節見 `REPORT_SPEC_SCHEDULED_TASKS.md` §5.6.3）。
 
@@ -110,3 +110,4 @@ git push origin main
 ---
 *建立日期：2026/08/04｜使用者需求為「用日期 + USER_ID 查詢 MEMO0='Y' 的黑名單資料」；因全量 85,485 筆嵌入會產生 ~15MB 異常檔案，與使用者確認後改為只嵌入近 90 天，預設檢視為近 3 天*
 *2026/08/04：使用者要求日期查詢欄位改用 `UPDATE_TIME`（原為 `CREATE_TIME`），同步修改 generator 查詢條件/排序與頁面篩選邏輯；因 `UPDATE_TIME` 恆 ≥ `CREATE_TIME`，同樣 90 天窗篩到的筆數從 25,272 增至 58,622，檔案從 ~4.6MB 增至 ~10.8MB*
+*2026/08/04：使用者要求把 `WINDOW_DAYS` 從 90 縮短為 30，筆數降到 15,651、檔案降到 ~2.9MB*

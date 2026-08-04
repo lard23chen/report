@@ -1,8 +1,8 @@
 require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 // Generates the data block for F_MEM_BlackList_Query_Report.html from
 // Qware_MEM_BlackList_202608 (MongoDB QwareAi). Only embeds MEMO0='Y' rows
-// within the last 90 days of UPDATE_TIME (full collection is 3.75M+ rows;
-// embedding everything would blow up the static file, see REPORT_SPEC_F_MEM_BLACKLIST.md).
+// within the last WINDOW_DAYS days of UPDATE_TIME (full collection is 3.75M+
+// rows; embedding everything would blow up the static file, see REPORT_SPEC_F_MEM_BLACKLIST.md).
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +15,7 @@ const client = new MongoClient(uri, {
 const OUT_FILE = path.join(__dirname, 'F_MEM_BlackList_Query_Report.html');
 const DATA_START = '// ── Data Start ──────────────────────────────────────────────────────────────';
 const DATA_END   = '// ── Data End ────────────────────────────────────────────────────────────────';
-const WINDOW_DAYS = 90;
+const WINDOW_DAYS = 30;
 
 // Convert a UTC Date to a Taipei (+08:00) "YYYY-MM-DD HH:mm:ss" string.
 function fmtTaipei(d) {
