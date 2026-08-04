@@ -55,8 +55,8 @@ main{padding:20px 28px}
 .fp-input{background:#0f172a;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 9px;width:92px;cursor:pointer;outline:none;text-align:center;transition:.15s}
 .fp-input:focus{border-color:var(--blue)}
 .fp-sep{color:var(--muted);font-size:12px}
-#uidSearch{background:#0f172a;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:6px 10px;width:220px;outline:none;transition:.15s}
-#uidSearch:focus{border-color:var(--blue)}
+#mobileSearch{background:#0f172a;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:6px 10px;width:220px;outline:none;transition:.15s}
+#mobileSearch:focus{border-color:var(--blue)}
 .filter-actions{margin-left:auto;display:flex;gap:8px}
 .filter-btn{background:var(--blue);border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;padding:6px 14px;cursor:pointer;transition:.15s}
 .filter-btn:hover{background:#2563eb}
@@ -85,7 +85,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
   main{padding:14px}header{padding:14px}
   .filter-bar{gap:10px}
   .filter-actions{margin-left:0}
-  #uidSearch{width:100%}
+  #mobileSearch{width:100%}
 }
 </style>
 </head>
@@ -116,8 +116,8 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
     </div>
   </div>
   <div class="filter-group">
-    <span class="filter-label">🔍 USER_ID</span>
-    <input id="uidSearch" type="text" placeholder="輸入完整或部分 USER_ID…" oninput="applyFilter()">
+    <span class="filter-label">🔍 電話號碼</span>
+    <input id="mobileSearch" type="text" placeholder="輸入電話國碼（如 852、886）…" oninput="applyFilter()">
   </div>
   <div class="filter-actions">
     <button class="filter-btn-ghost" onclick="setQuickRange(1)">1天前</button>
@@ -213,11 +213,11 @@ function sortTable(key) {
 function applyFilter() {
   const from = fpFrom.selectedDates[0] ? fpFrom.input.value : DATA_META.minDate;
   const to = fpTo.selectedDates[0] ? fpTo.input.value : DATA_META.maxDate;
-  const kw = (document.getElementById('uidSearch').value || '').trim();
+  const kw = (document.getElementById('mobileSearch').value || '').trim();
   currentData = BLACKLIST_DATA.filter(r => {
     const day = r.ut.slice(0, 10);
     if (day < from || day > to) return false;
-    if (kw && !r.uid.includes(kw)) return false;
+    if (kw && !r.mobile.includes(kw)) return false;
     return true;
   });
   sortTable.__skip = true;
@@ -226,7 +226,7 @@ function applyFilter() {
 }
 
 function resetFilter() {
-  document.getElementById('uidSearch').value = '';
+  document.getElementById('mobileSearch').value = '';
   setQuickRange(3);
 }
 

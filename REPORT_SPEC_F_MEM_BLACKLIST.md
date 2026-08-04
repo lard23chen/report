@@ -13,7 +13,7 @@
 | 資料來源 | MongoDB `QwareAi`（`MONGODB_URI_QWARE`）`Qware_MEM_BlackList_202608` collection |
 | 資料範圍 | **僅嵌入近 30 天內** `UPDATE_TIME` 且 `MEMO0='Y'` 的資料（見 §2 為何限制範圍） |
 | 負責人 | 陳俊良 |
-| 主要目的 | 查詢近期被標記為黑名單（`MEMO0='Y'`）的會員帳號，依「異動日期（UPDATE_TIME）」區間與 `USER_ID` 篩選 |
+| 主要目的 | 查詢近期被標記為黑名單（`MEMO0='Y'`）的會員帳號，依「異動日期（UPDATE_TIME）」區間與電話號碼篩選 |
 
 ## 2. 為何限制天數範圍（不嵌入全量資料）
 
@@ -66,13 +66,15 @@ const DATA_META = {…};
 | 條件 | 說明 |
 |------|------|
 | 日期區間 | 依 `UPDATE_TIME`（最後異動時間，非 `CREATE_TIME`）篩選，flatpickr 雙欄位 `#dtFrom`/`#dtTo`，`dateFormat:'Y-m-d'` |
-| USER_ID | 文字輸入框 `#uidSearch`，**部分字串比對**（`includes`，非完全相符），即時篩選（`oninput`） |
+| 電話號碼 | 文字輸入框 `#mobileSearch`，比對 `mobile`（`MOBILE_head`）欄位，**部分字串比對**（`includes`，非完全相符），即時篩選（`oninput`） |
 
 兩條件為 AND 關係，同時套用於 `applyFilter()`。
 
+⚠️ **`MOBILE_head` 只是國碼**（如 `852`、`886`），collection 裡沒有完整手機號碼欄位。2026/08/04 使用者要求把查詢欄位從 `USER_ID` 改成「電話號碼」，但確認過沒有完整號碼可查後，使用者說「改UI就好」——即只換掉搜尋框的標籤/篩選 key（`uid` → `mobile`），資料本身沒有變、也沒有新增欄位。這代表目前這個搜尋框實際能篩的只有國碼，效用有限；USER_ID 欄位仍完整顯示在表格裡（`sortTable('uid')`），只是不再是搜尋輸入框的篩選對象。
+
 ### 4.2 預設檢視（2026/08/04 與使用者確認）
 
-頁面載入時自動呼叫 `setQuickRange(3)`，預設顯示「近 3 天」（以 `DATA_META.maxDate` 為錨點）的 `MEMO0='Y'` 資料，不需使用者手動操作。「1天前」「7天前」按鈕提供快速切換，「重置」會清空 USER_ID 搜尋並回到預設 3 天檢視。
+頁面載入時自動呼叫 `setQuickRange(3)`，預設顯示「近 3 天」（以 `DATA_META.maxDate` 為錨點）的 `MEMO0='Y'` 資料，不需使用者手動操作。「1天前」「7天前」按鈕提供快速切換，「重置」會清空電話號碼搜尋並回到預設 3 天檢視。
 
 ### 4.3 結果表格
 
@@ -111,3 +113,4 @@ git push origin main
 *建立日期：2026/08/04｜使用者需求為「用日期 + USER_ID 查詢 MEMO0='Y' 的黑名單資料」；因全量 85,485 筆嵌入會產生 ~15MB 異常檔案，與使用者確認後改為只嵌入近 90 天，預設檢視為近 3 天*
 *2026/08/04：使用者要求日期查詢欄位改用 `UPDATE_TIME`（原為 `CREATE_TIME`），同步修改 generator 查詢條件/排序與頁面篩選邏輯；因 `UPDATE_TIME` 恆 ≥ `CREATE_TIME`，同樣 90 天窗篩到的筆數從 25,272 增至 58,622，檔案從 ~4.6MB 增至 ~10.8MB*
 *2026/08/04：使用者要求把 `WINDOW_DAYS` 從 90 縮短為 30，筆數降到 15,651、檔案降到 ~2.9MB*
+*2026/08/04：使用者要求查詢欄位從 USER_ID 改成電話號碼；確認 collection 無完整手機號碼欄位（只有 `MOBILE_head` 國碼）後，使用者選擇「改UI就好」——搜尋框改比對 `mobile`（`MOBILE_head`）而非 `uid`，純前端篩選 key 置換，未動 generator/資料結構，見 §4.1 說明*
