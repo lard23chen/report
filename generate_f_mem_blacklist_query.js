@@ -1,8 +1,16 @@
 require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 // Generates the data block for F_MEM_BlackList_Query_Report.html from
-// Qware_MEM_BlackList_202608 (MongoDB QwareAi). Only embeds MEMO0='Y' rows
-// within the last WINDOW_DAYS days of UPDATE_TIME (full collection is 3.75M+
-// rows; embedding everything would blow up the static file, see REPORT_SPEC_F_MEM_BLACKLIST.md).
+// Qware_MEM_BlackList_202608 (MongoDB QwareAi). BLACKLIST_DATA only embeds
+// MEMO0='Y' rows within the last WINDOW_DAYS days of UPDATE_TIME (full
+// collection is 400k+ rows; embedding everything with full detail would
+// blow up the static file, see REPORT_SPEC_F_MEM_BLACKLIST.md).
+//
+// ALL_INDEX is a separate, much leaner {uid, mobile_head, mobile, memo0}
+// index covering the ENTIRE collection (all ~400k accounts, regardless of
+// blacklist status), so the phone search can find any member, not just
+// recently-blacklisted ones. It's ~25MB by itself - a deliberate size
+// tradeoff the user accepted (see spec doc changelog) so the search can
+// stay fully client-side with no backend.
 //
 // Also precomputes IP_LINKS: for each embedded blacklisted account, its recent
 // (IP_WINDOW_DAYS) login IPs from QWARE_MEM_IP_202608, and for each of those IPs,
@@ -59,12 +67,25 @@ async function main() {
         })).filter(r => r.ut);
 
         const days = BLACKLIST_DATA.map(r => r.ut.slice(0, 10)).sort();
+
+        // ── ALL_INDEX: lean phone-search index over the whole collection ──────
+        console.log('Querying full collection for ALL_INDEX (uid/mobile/memo0 only)...');
+        const allRows = await blColl.find(
+            {},
+            { projection: { USER_ID: 1, MOBILE_head: 1, MOBILE: 1, MEMO0: 1 } }
+        ).toArray();
+        const ALL_INDEX = allRows
+            .filter(r => r.MOBILE)
+            .map(r => ({ u: r.USER_ID || '', h: r.MOBILE_head || '', m: r.MOBILE, f: r.MEMO0 || null }));
+        console.log(`ALL_INDEX: ${ALL_INDEX.length} / ${allRows.length} rows have a MOBILE value.`);
+
         const DATA_META = {
             total: BLACKLIST_DATA.length,
             minDate: days[0] || null,
             maxDate: days[days.length - 1] || null,
             ipWindowDays: IP_WINDOW_DAYS,
             ipLinkCap: IP_LINK_CAP,
+            allIndexTotal: ALL_INDEX.length,
         };
 
         // ── IP_LINKS precomputation ──────────────────────────────────────────
@@ -117,6 +138,7 @@ async function main() {
 const BLACKLIST_DATA = ${JSON.stringify(BLACKLIST_DATA)};
 const DATA_META = ${JSON.stringify(DATA_META)};
 const IP_LINKS = ${JSON.stringify(IP_LINKS)};
+const ALL_INDEX = ${JSON.stringify(ALL_INDEX)};
 ${DATA_END}`;
 
         let html = fs.readFileSync(OUT_FILE, 'utf8');
@@ -130,7 +152,7 @@ ${DATA_END}`;
         html = html.replace(/(<span id="updateTimeLabel">)[^<]*(<\/span>)/, `$1${ts}$2`);
 
         fs.writeFileSync(OUT_FILE, html, 'utf8');
-        console.log(`Done. ${DATA_META.total} rows embedded, range ${DATA_META.minDate} ~ ${DATA_META.maxDate}. IP links for ${withLinks} accounts.`);
+        console.log(`Done. ${DATA_META.total} rows embedded, range ${DATA_META.minDate} ~ ${DATA_META.maxDate}. IP links for ${withLinks} accounts. ALL_INDEX: ${ALL_INDEX.length} accounts.`);
     } catch (err) {
         console.error('Error:', err);
         process.exit(1);
