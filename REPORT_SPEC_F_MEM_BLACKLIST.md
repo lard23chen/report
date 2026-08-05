@@ -10,10 +10,10 @@
 |------|------|
 | 報表名稱 | `F_MEM_BlackList_Query_Report.html` |
 | 產生腳本 | `generate_f_mem_blacklist_query.js` |
-| 資料來源 | MongoDB `QwareAi`（`MONGODB_URI_QWARE`）`Qware_MEM_BlackList_202608` + `QWARE_MEM_IP_202608` collections |
-| 資料範圍 | 黑名單詳情（BLACKLIST_DATA）：**僅嵌入近 30 天內** `UPDATE_TIME` 且 `MEMO0='Y'` 的資料（見 §2）；電話搜尋索引（ALL_INDEX，2026/08/05 新增）：**涵蓋全部會員**，不分黑名單狀態（見 §2.2）；IP 關聯：**僅嵌入近 30 天登入紀錄**，每組 IP 最多列前 30 個共用帳號（見 §2.1） |
+| 資料來源 | MongoDB `QwareAi`（`MONGODB_URI_QWARE`）`Qware_MEM_BlackList_202608` + `QWARE_MEM_IP_202608` + `Qware_A_OrderTemp_log_202608` collections |
+| 資料範圍 | 黑名單詳情（BLACKLIST_DATA）：**僅嵌入近 30 天內** `UPDATE_TIME` 且 `MEMO0='Y'` 的資料（見 §2）；電話搜尋索引（ALL_INDEX，2026/08/05 新增）：**涵蓋全部會員**，不分黑名單狀態（見 §2.2）；IP 關聯：**僅嵌入近 30 天登入紀錄**，每組 IP 最多列前 30 個共用帳號（見 §2.1）；訂單紀錄（BOOKING_DATA，2026/08/05 新增）：**僅嵌入近 7 天訂票暫存 log**，不設每帳號筆數上限（見 §2.3） |
 | 負責人 | 陳俊良 |
-| 主要目的 | 用電話號碼查任一會員（不分是否被標記黑名單）；若該帳號近 30 天內被標記黑名單，額外顯示完整異動紀錄；也可不輸入電話、單純依「異動日期（UPDATE_TIME）」區間瀏覽近期黑名單。並可對單一帳號查詢其近期登入 IP，反查同一 IP 底下是否還有其他帳號（多帳號/共用裝置偵測，見 §4.3） |
+| 主要目的 | 用電話號碼查任一會員（不分是否被標記黑名單）；若該帳號近 30 天內被標記黑名單，額外顯示完整異動紀錄；也可不輸入電話、單純依「異動日期（UPDATE_TIME）」區間瀏覽近期黑名單。並可對單一帳號查詢其近期登入 IP，反查同一 IP 底下是否還有其他帳號（多帳號/共用裝置偵測，見 §4.3）；也可查該帳號近期訂票紀錄（演出/座位/時間/IP），協助判斷是否為搶票機器人（見 §4.3） |
 
 ## 2. 為何限制天數範圍（不嵌入全量資料）
 
@@ -39,6 +39,22 @@
 - `ALL_INDEX` 只有 4 個欄位、沒有時間戳記，所以電話搜尋到的帳號如果**不在** `BLACKLIST_DATA` 裡（近 30 天沒被標記黑名單），CREATE_TIME/UPDATE_TIME/CREATE_USER/UPDATE_USER 這幾欄會顯示「—」，「黑名單狀態」欄改顯示 `MEMO0` 原始值（`Y`/`N`/`4`/`未標記`）；「關聯帳號」也會因為不在 `IP_LINKS`（見 §2.1）裡而顯示「無登入紀錄」。這是資料範圍限制，不是查詢錯誤。
 - generator 對全表做一次 `find({})`（無索引、全表掃描）取回 40 萬餘筆，實測約 8～9 秒，屬於一次性成本、可接受。
 
+### 2.3 訂單紀錄（BOOKING_DATA）為何限制 7 天、不逐帳號設筆數上限
+
+2026/08/05 使用者要求「顯示用電話號碼查出的 user_id 後再查其訂單紀錄資料」——一開始曾單獨新建 `G_MEM_Booking_Accounts_Report.html`（見 `REPORT_SPEC_G_BOOKING_ACCOUNTS.md`）作為獨立報表，使用者後續澄清其實是要**整合進本報表**：查完電話找到帳號後，直接在同一頁查該帳號的訂單紀錄，不要另開報表。
+
+資料源 `Qware_A_OrderTemp_log_202608`（訂票暫存 log，`order_user_id`/`performance_id`/`order_seat`/`book_date_time`/`order_user_ip`）全表 1,236,905 筆、無索引，資料期間僅 ~2 個月（collection 本身不留更久）。實測過三種方案：
+
+| 方案 | 結果 |
+|------|------|
+| 全表逐筆嵌入（139,781 個帳號，各自全部訂單） | 不可行，遠超合理範圍（座位欄位是中文字串，體積大） |
+| 每帳號筆數上限（cap=10，含座位欄位） | ~63MB；不含座位欄位仍要 ~48MB |
+| **改用日期窗口**（近 7 天，不限筆數，使用者拍板方案） | **~15.8MB**，178,240 筆訂單、29,314 個帳號有資料 |
+
+**採用日期窗口方案**：`BOOKING_WINDOW_DAYS = 7`，以 collection 裡 `book_date_time` 的**最大值**為錨點（而非日曆今天，同 §2.1 IP_LINKS 錨點設計），只取最近 7 天的訂單，每個帳號的訂單筆數不設上限（活動異常密集的帳號，例如近 7 天內同一 IP 反覆訂同一場同一批座位數十次，這種訊號本身就是重點，不應該被截斷隱藏）。整份報表檔案因此從 ~33MB 增至 **~50.5MB**，是與使用者確認過的取捨。
+
+`G_MEM_Booking_Accounts_Report.html` 予以保留（彙總全部 139,781 個帳號的訂票統計，涵蓋範圍比 F 報表的 7 天窗更廣），兩份報表資料源相同但用途不同：G 是「哪些帳號訂票最異常」的總覽掃描，F 的訂單紀錄查詢是「查到特定帳號後看他最近訂了什麼」的個案深挖，彼此不互相連結。
+
 ## 3. 資料結構
 
 ### 3.1 BLACKLIST_DATA 陣列格式（generator 注入，短欄位名以縮小檔案）
@@ -60,13 +76,14 @@
 ### 3.2 DATA_META 物件格式（generator 注入）
 
 ```js
-{ total: 15138, minDate: "2026-07-06", maxDate: "2026-08-04", ipWindowDays: 30, ipLinkCap: 30, allIndexTotal: 403350 }
+{ total: 15137, minDate: "2026-07-06", maxDate: "2026-08-04", ipWindowDays: 30, ipLinkCap: 30, allIndexTotal: 403350, bookingWindowDays: 7 }
 ```
 
 - `minDate` / `maxDate`：本次嵌入資料中實際存在的 `UPDATE_TIME` 日期範圍（依台北時間），用於 flatpickr 的 `minDate`/`maxDate` 限制與「N天前」按鈕的錨點
 - **錨點設計與 E 系統月報/漏斗報表相同**：quick range 以 `maxDate`（資料集裡最後一天）為錨點，而非日曆今天，避免 generator 執行當下資料還沒同步到今天時選到空日
 - `ipWindowDays` / `ipLinkCap`：IP 關聯資料的時間窗（天）與每 IP 共用帳號上限，供前端 modal 標題與提示文字使用（見 §4.3、§2.1）
 - `allIndexTotal`：`ALL_INDEX` 的筆數（見 §3.3），顯示於 header「📇 電話可查全部會員：N 筆」
+- `bookingWindowDays`：訂單紀錄的時間窗（天），供 `openBookingModal()` 標題文字使用（見 §3.5、§2.3）
 
 ### 3.3 ALL_INDEX 陣列格式（generator 注入，2026/08/05 新增，見 §2.2）
 
@@ -101,7 +118,23 @@
 - 只有 `BLACKLIST_DATA` 裡、且近 7 天內有登入紀錄的帳號才會出現在 `IP_LINKS` 裡（key 不存在 = 該帳號查無登入紀錄，前端顯示「🔗 無登入紀錄」）
 - `totalOthers > related.length` 時代表被 `IP_LINK_CAP` 截斷，前端顯示「共 N 個共用帳號，僅顯示前 30 個」
 
-### 3.5 Section Marker（Generator 注入點）
+### 3.5 BOOKING_DATA 物件格式（generator 注入，2026/08/05 新增，見 §2.3）
+
+```js
+{
+  "71543683776686754235": [   // key = order_user_id
+    { pid: "B0BC63P7", seat: "VIP9區-33排-34號", t: "2026-07-30 20:34:07", ip: "36.229.168.189" },
+    { pid: "B0BC63P7", seat: "VIP9區-33排-32號", t: "2026-07-30 20:34:07", ip: "36.229.168.189" },
+    // … 該帳號近 7 天內所有訂票紀錄，依 book_date_time 新到舊排序，不設筆數上限
+  ]
+}
+```
+
+- `pid`：`performance_id`；`seat`：`order_seat`（座位描述，中文字串）；`t`：`book_date_time`（台北時間）；`ip`：`order_user_ip`
+- **key 不限於 `BLACKLIST_DATA`／`ALL_INDEX` 裡的帳號**——只要近 7 天內有訂票紀錄就會出現在 `BOOKING_DATA`，即使該 `order_user_id` 不在會員黑名單 collection 裡也一樣（兩個 collection 的帳號集合不完全重疊，見 §2.3 表格底下說明）
+- 不設每帳號筆數上限：同一帳號短時間內大量重複訂同一場同一批座位，這種模式本身是重點訊號，不應被截斷隱藏
+
+### 3.6 Section Marker（Generator 注入點）
 
 ```
 // ── Data Start ──────────────────────────────────────────────────────────────
@@ -109,6 +142,7 @@ const BLACKLIST_DATA = […];
 const DATA_META = {…};
 const IP_LINKS = {…};
 const ALL_INDEX = […];
+const BOOKING_DATA = {…};
 // ── Data End ────────────────────────────────────────────────────────────────
 ```
 
@@ -138,17 +172,19 @@ const ALL_INDEX = […];
 
 ### 4.3 結果表格與 IP 關聯查詢（2026/08/05 新增）
 
-欄位：USER_ID、**黑名單狀態**（2026/08/05 新增，見下）、MOBILE（顯示為 `+國碼 電話號碼`，如 `+81 09018071105`）、CREATE_TIME、UPDATE_TIME、CREATE_USER、UPDATE_USER、**關聯帳號**（EMAIL 欄位已移除，見 §3.1）。點前 7 欄 header 可排序（`sortTable()`），預設依 UPDATE_TIME 由新到舊。表格上方顯示「符合條件：N 筆」。
+欄位：USER_ID、**黑名單狀態**（2026/08/05 新增，見下）、MOBILE（顯示為 `+國碼 電話號碼`，如 `+81 09018071105`）、CREATE_TIME、UPDATE_TIME、CREATE_USER、UPDATE_USER、**關聯帳號**、**訂單紀錄**（2026/08/05 新增，見下）。EMAIL 欄位已移除，見 §3.1。點前 7 欄 header 可排序（`sortTable()`），預設依 UPDATE_TIME 由新到舊；最後兩欄（關聯帳號／訂單紀錄）是操作按鈕，不可排序。表格上方顯示「符合條件：N 筆」。
 
 **黑名單狀態欄**：因電話搜尋現在涵蓋全體會員（見 §2.2），同一張表格可能同時出現黑名單與非黑名單帳號，需要一眼分辨。以 `memoBadge()` 依 `memo0` 值渲染徽章：`Y` → 紅色「黑名單」、`null` → 灰色「未標記」、其他值（如 `4`）→ 琥珀色原樣顯示。CREATE_TIME/UPDATE_TIME/CREATE_USER/UPDATE_USER 若無資料（帳號不在 `BLACKLIST_DATA` 裡）一律顯示「—」，不留空白。
 
-**關聯帳號欄**：每列一顆按鈕，文字依 `IP_LINKS[uid]` 是否存在顯示「🔗 IP關聯 (N)」（N = 近 7 天內用過的相異 IP 數）或「🔗 無登入紀錄」。點擊呼叫 `openIPModal(uid)` 開啟 modal（`#ipModal`），依序列出：
+**關聯帳號欄**：每列一顆按鈕，文字依 `IP_LINKS[uid]` 是否存在顯示「🔗 IP關聯 (N)」（N = 近 30 天內用過的相異 IP 數）或「🔗 無登入紀錄」。點擊呼叫 `openIPModal(uid)` 開啟 modal（`#ipModal`），依序列出：
 
-1. 該帳號近 7 天用過的每個 IP（`entry.ip`）與該 IP 上的最後登入時間（`entry.t`）
-2. 該 IP 底下的其他帳號（`entry.related`，最多 30 筆，依最後登入時間新到舊）與各自最後登入時間；若無其他帳號顯示「此 IP 近7天內查無其他帳號」
+1. 該帳號近 30 天用過的每個 IP（`entry.ip`）與該 IP 上的最後登入時間（`entry.t`）
+2. 該 IP 底下的其他帳號（`entry.related`，最多 30 筆，依最後登入時間新到舊）與各自最後登入時間；若無其他帳號顯示「此 IP 近30天內查無其他帳號」
 3. 若 `totalOthers > related.length`，額外顯示「共 N 個共用帳號，僅顯示前 30 個」截斷提示
 
 這是查案用的「反查關聯帳號」功能：先用電話號碼在表格裡找到主帳號（不分黑名單狀態，見 §2.2） → 點「關聯帳號」看它近期用過哪些 IP → 再看同一 IP 底下還有哪些其他帳號，用來抓同一人／同一裝置註冊多個帳號規避黑名單的狀況。**只有近 30 天 `MEMO0='Y'` 的帳號才有 `IP_LINKS` 資料**，非黑名單帳號一律顯示「無登入紀錄」（見 §2.1）。
+
+**訂單紀錄欄**（2026/08/05 新增）：每列一顆按鈕，文字依 `BOOKING_DATA[uid]` 是否存在顯示「🎫 訂單 (N)」（N = 近 7 天內訂票筆數）或「🎫 無訂單紀錄」。點擊呼叫 `openBookingModal(uid)` 開啟另一個 modal（`#bookModal`），列出該帳號近 7 天所有訂票紀錄（演出代碼、座位、訂票時間、訂票 IP），依時間新到舊排序，**不設筆數上限**（見 §2.3——同一帳號短時間內重複訂同一批座位是重點訊號，不應截斷）。此功能查詢範圍不限於 `BLACKLIST_DATA`／`IP_LINKS`，`BOOKING_DATA` 的 key 只要近 7 天有訂票紀錄就存在，即使該帳號不在會員黑名單 collection 裡也一樣。
 
 ### 4.4 IP 白名單保護
 
@@ -160,11 +196,14 @@ const ALL_INDEX = […];
 |------|-------------|-------|------------|------|
 | 近 30 天黑名單資料 | `MONGODB_URI_QWARE` | `QwareAi` | `Qware_MEM_BlackList_202608` | `MEMO0:"Y"`, `UPDATE_TIME >= now - 30天` |
 | 全會員電話索引（ALL_INDEX） | `MONGODB_URI_QWARE` | `QwareAi` | `Qware_MEM_BlackList_202608` | 無篩選，全表 `find({})` 只投影 4 欄位（見 §2.2） |
-| 近 7 天登入 IP 資料 | `MONGODB_URI_QWARE` | `QwareAi` | `QWARE_MEM_IP_202608` | `CREATE_TIME >= now - 7天`（不篩 user_id，一次抓回全部再於記憶體建對照表，見 §2.1） |
+| 近 30 天登入 IP 資料 | `MONGODB_URI_QWARE` | `QwareAi` | `QWARE_MEM_IP_202608` | `CREATE_TIME >= now - 30天`（不篩 user_id，一次抓回全部再於記憶體建對照表，見 §2.1） |
+| 近 7 天訂單紀錄（BOOKING_DATA） | `MONGODB_URI_QWARE` | `QwareAi` | `Qware_A_OrderTemp_log_202608` | `book_date_time >= 該表最新一筆時間 - 7天`（不篩 user，一次抓回全部再於記憶體依帳號分組，見 §2.3） |
 
 `Qware_MEM_BlackList_202608` 主要欄位：`USER_ID`、`EMAIL`（本報表已不使用）、`MOBILE_head`（國碼）、`MOBILE`（完整電話號碼，本報表查詢用此欄位，見 §4.1）、`CREATE_TIME`、`UPDATE_TIME`、`CREATE_USER`、`UPDATE_USER`、`MEMO0`（`Y`/`N`/`4`/`null`，只有 `Y` 才是本報表要查的黑名單標記）。collection 只有 `_id` 索引，全表 40 萬餘筆，`find()` 前務必先用 `MEMO0`+`UPDATE_TIME` 縮小範圍，避免全表掃描。
 
-`QWARE_MEM_IP_202608` 欄位：`user_id`、`user_ip`、`CREATE_TIME`（登入時間）。同樣只有 `_id` 索引，全表 103 萬筆＋單一 `user_id` 查詢約 0.7 秒；本報表**不對此 collection 逐帳號查詢**，而是用 `CREATE_TIME` 範圍一次抓回整批（7 天窗約 17 萬筆）再於 Node 記憶體建雙向對照表，細節與取捨見 §2.1。
+`QWARE_MEM_IP_202608` 欄位：`user_id`、`user_ip`、`CREATE_TIME`（登入時間）。同樣只有 `_id` 索引，全表 103 萬筆＋單一 `user_id` 查詢約 0.7 秒；本報表**不對此 collection 逐帳號查詢**，而是用 `CREATE_TIME` 範圍一次抓回整批（30 天窗約 50 萬筆）再於 Node 記憶體建雙向對照表，細節與取捨見 §2.1。
+
+`Qware_A_OrderTemp_log_202608` 欄位：`order_user_id`、`performance_id`、`performance_price_area_id`、`order_seat`、`book_date_time`、`order_user_ip`。只有 `_id` 索引，全表 1,236,905 筆、資料期間僅 ~2 個月（collection 本身不留更久）；本報表用 `book_date_time` 範圍一次抓回整批（7 天窗約 17.8 萬筆）再依 `order_user_id` 分組，細節與取捨見 §2.3。**注意有另一個大小寫幾乎相同的 collection `QWARE_A_OrderTemp_log_202608`（371 萬筆），本報表固定使用開頭小寫的 `Qware_A_OrderTemp_log_202608`**，重跑 generator 前請確認沒有誤植。
 
 ## 6. 更新方式
 
@@ -192,3 +231,4 @@ git push origin main
 *2026/08/05：修正電話查詢欄位錯誤——使用者回報查真實號碼（`mobile 94702125`）找不到，追查發現 `Qware_MEM_BlackList_202608` 其實有完整 `MOBILE` 欄位，先前 08/04 建立報表時因 schema 抽樣只挑到 2019～2020 年最早期、還沒有 `MOBILE` 欄位的舊文件，誤判「系統沒有完整電話號碼」，實際搜尋框一直比對的是 `MOBILE_head`（國碼）。已修正 generator 投影與 BLACKLIST_DATA 結構（`mobile` 改存 `MOBILE` 完整號碼、新增 `mh` 存國碼），頁面 MOBILE 欄改顯示 `+國碼 號碼`，搜尋邏輯不變（仍是 `includes` 部分比對，只是比對對象換成真正的完整號碼）。同時修正文件裡多處錯誤的 collection 總筆數（`countDocuments` 實測 403,408，先前誤植「375 萬」）。查詢範圍仍收斂在頁面既有的黑名單帳號（見 §2.1 changelog 更新），未擴大到全體會員*
 *2026/08/05：電話查詢範圍擴大到全體會員——欄位修好後使用者發現剛才那支號碼對應的帳號其實 `MEMO0:null`（未被標記黑名單），指出「要能先找到資料，不管有沒有在黑名單」。新增 §2.2 的 `ALL_INDEX`（對全表 40 萬餘筆只投影 `USER_ID`/`MOBILE_head`/`MOBILE`/`MEMO0` 四欄，~24.8MB）取代原本只查 `BLACKLIST_DATA` 的行為；`applyFilter()` 改為雙模式（見 §4.1）：有輸入電話 → 查 `ALL_INDEX`（忽略日期）、沒輸入 → 查 `BLACKLIST_DATA`（依日期，原行為不變）。表格新增「黑名單狀態」欄（`memoBadge()`），非黑名單帳號的時間/操作者欄位顯示「—」。整份檔案從 ~6.3MB 增至 **~31MB**，是與使用者確認過的取捨（曾提出縮小範圍/改後端 API 兩個替代方案，使用者選擇直接接受全量嵌入）*
 *2026/08/05：使用者要求把「關聯帳號」的 IP 登入紀錄時間窗從 7 天拉長回 30 天，`IP_WINDOW_DAYS` 改回 30（見 §2.1）；`IP_LINKS` 涵蓋帳號數從 2,608 增至 4,278，整份檔案從 ~31MB 再增至 **~33MB**（此次未再另外確認，因為 30 天窗與 §2.2 的檔案量級已有先例可循，屬於直接執行的明確指示）*
+*2026/08/05：使用者要求「再查所有帳號有 booking 的紀錄 Qware_A_OrderTemp_log_202608」，一開始詢問後理解為要獨立新報表，做了 `G_MEM_Booking_Accounts_Report.html`（見 `REPORT_SPEC_G_BOOKING_ACCOUNTS.md`）；使用者接著澄清其實是要在 F 報表裡「用電話號碼查出 user_id 後再查其訂單紀錄」，即整合進本報表既有的查詢流程，而非另開報表。新增 §2.3、§3.5 的 `BOOKING_DATA`：測過全量嵌入（不可行）、每帳號筆數上限 cap=10（~48～63MB）兩種方案後，改用使用者提出的「日期窗口」方案——不限筆數，只取近 7 天訂單（`BOOKING_WINDOW_DAYS=7`，錨定 collection 本身最新一筆時間），實測 ~15.8MB。表格新增「訂單紀錄」按鈕欄（§4.3），點擊開 `#bookModal` 顯示該帳號近 7 天訂票明細（演出/座位/時間/IP）。整份檔案從 ~33MB 增至 **~50.5MB**。`G_MEM_Booking_Accounts_Report.html` 予以保留，兩者用途互補（G 是全帳號彙總掃描，F 是查到帳號後的個案深挖），不互相連結*

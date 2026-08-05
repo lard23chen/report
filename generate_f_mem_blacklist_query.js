@@ -17,6 +17,13 @@ require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 // the other accounts that also logged in from it (capped at IP_LINK_CAP). This is
 // precomputed here (not queried live from the page) because the report is a public
 // static file - shipping the MongoDB URI to client-side JS would leak full DB access.
+//
+// BOOKING_DATA: for any account with booking activity in the last BOOKING_WINDOW_DAYS
+// (anchored to the collection's own latest book_date_time, not calendar today) from
+// Qware_A_OrderTemp_log_202608, their booking records (performance/seat/time/ip) in
+// that window. Full-collection detail would be 60-90MB+ (see REPORT_SPEC changelog
+// for the sizing tests); a 7-day window keeps it to ~16MB while still covering any
+// account currently showing booking-bot-like activity.
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
@@ -32,6 +39,7 @@ const DATA_END   = '// ── Data End ─────────────�
 const WINDOW_DAYS = 30;
 const IP_WINDOW_DAYS = 30;
 const IP_LINK_CAP = 30;
+const BOOKING_WINDOW_DAYS = 7;
 
 // Convert a UTC Date to a Taipei (+08:00) "YYYY-MM-DD HH:mm:ss" string.
 function fmtTaipei(d) {
@@ -47,6 +55,7 @@ async function main() {
         const db = client.db('QwareAi');
         const blColl = db.collection('Qware_MEM_BlackList_202608');
         const ipColl = db.collection('QWARE_MEM_IP_202608');
+        const bookColl = db.collection('Qware_A_OrderTemp_log_202608');
 
         const since = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000);
         console.log(`Querying MEMO0='Y' rows with UPDATE_TIME >= ${since.toISOString()} ...`);
@@ -86,6 +95,7 @@ async function main() {
             ipWindowDays: IP_WINDOW_DAYS,
             ipLinkCap: IP_LINK_CAP,
             allIndexTotal: ALL_INDEX.length,
+            bookingWindowDays: BOOKING_WINDOW_DAYS,
         };
 
         // ── IP_LINKS precomputation ──────────────────────────────────────────
@@ -134,11 +144,45 @@ async function main() {
         }
         console.log(`IP link data built for ${withLinks} / ${blacklistUids.length} blacklisted accounts.`);
 
+        // ── BOOKING_DATA precomputation ────────────────────────────────────────
+        // Anchor to the collection's own latest book_date_time (not calendar today) -
+        // same pattern as IP_LINKS/BLACKLIST_DATA quick-range anchoring elsewhere in
+        // this project, so a lagging batch job doesn't make the window look empty.
+        const latestBookDoc = await bookColl.find({}).sort({ book_date_time: -1 }).limit(1).toArray();
+        const bookAnchor = latestBookDoc[0] ? latestBookDoc[0].book_date_time : new Date();
+        const sinceBooking = new Date(bookAnchor.getTime() - BOOKING_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+        console.log(`Querying Qware_A_OrderTemp_log_202608 with book_date_time >= ${sinceBooking.toISOString()} (anchored to latest record ${bookAnchor.toISOString()}) ...`);
+        const bookRows = await bookColl.find(
+            { book_date_time: { $gte: sinceBooking } },
+            { projection: { order_user_id: 1, performance_id: 1, order_seat: 1, book_date_time: 1, order_user_ip: 1 } }
+        ).toArray();
+        console.log(`Fetched ${bookRows.length} booking rows.`);
+
+        const bookingByUser = new Map();
+        for (const r of bookRows) {
+            const uid = r.order_user_id;
+            if (!uid) continue;
+            if (!bookingByUser.has(uid)) bookingByUser.set(uid, []);
+            bookingByUser.get(uid).push({
+                pid: r.performance_id || '',
+                seat: r.order_seat || '',
+                t: fmtTaipei(r.book_date_time),
+                ip: r.order_user_ip || '',
+            });
+        }
+        const BOOKING_DATA = {};
+        for (const [uid, items] of bookingByUser) {
+            items.sort((a, b) => (a.t < b.t ? 1 : a.t > b.t ? -1 : 0));
+            BOOKING_DATA[uid] = items;
+        }
+        console.log(`BOOKING_DATA built for ${bookingByUser.size} accounts.`);
+
         const block = `${DATA_START}
 const BLACKLIST_DATA = ${JSON.stringify(BLACKLIST_DATA)};
 const DATA_META = ${JSON.stringify(DATA_META)};
 const IP_LINKS = ${JSON.stringify(IP_LINKS)};
 const ALL_INDEX = ${JSON.stringify(ALL_INDEX)};
+const BOOKING_DATA = ${JSON.stringify(BOOKING_DATA)};
 ${DATA_END}`;
 
         let html = fs.readFileSync(OUT_FILE, 'utf8');
@@ -152,7 +196,7 @@ ${DATA_END}`;
         html = html.replace(/(<span id="updateTimeLabel">)[^<]*(<\/span>)/, `$1${ts}$2`);
 
         fs.writeFileSync(OUT_FILE, html, 'utf8');
-        console.log(`Done. ${DATA_META.total} rows embedded, range ${DATA_META.minDate} ~ ${DATA_META.maxDate}. IP links for ${withLinks} accounts. ALL_INDEX: ${ALL_INDEX.length} accounts.`);
+        console.log(`Done. ${DATA_META.total} rows embedded, range ${DATA_META.minDate} ~ ${DATA_META.maxDate}. IP links for ${withLinks} accounts. ALL_INDEX: ${ALL_INDEX.length} accounts. BOOKING_DATA: ${bookingByUser.size} accounts.`);
     } catch (err) {
         console.error('Error:', err);
         process.exit(1);
