@@ -10,10 +10,10 @@
 |------|------|
 | 報表名稱 | `F_MEM_BlackList_Query_Report.html` |
 | 產生腳本 | `generate_f_mem_blacklist_query.js` |
-| 資料來源 | MongoDB `QwareAi`（`MONGODB_URI_QWARE`）`Qware_MEM_BlackList_202608` collection |
-| 資料範圍 | **僅嵌入近 30 天內** `UPDATE_TIME` 且 `MEMO0='Y'` 的資料（見 §2 為何限制範圍） |
+| 資料來源 | MongoDB `QwareAi`（`MONGODB_URI_QWARE`）`Qware_MEM_BlackList_202608` + `QWARE_MEM_IP_202608` collections |
+| 資料範圍 | 黑名單：**僅嵌入近 30 天內** `UPDATE_TIME` 且 `MEMO0='Y'` 的資料（見 §2）；IP 關聯：**僅嵌入近 7 天登入紀錄**，每組 IP 最多列前 30 個共用帳號（見 §2.1） |
 | 負責人 | 陳俊良 |
-| 主要目的 | 查詢近期被標記為黑名單（`MEMO0='Y'`）的會員帳號，依「異動日期（UPDATE_TIME）」區間與電話號碼篩選 |
+| 主要目的 | 查詢近期被標記為黑名單（`MEMO0='Y'`）的會員帳號，依「異動日期（UPDATE_TIME）」區間與電話號碼篩選；並可對單一帳號查詢其近期登入 IP，反查同一 IP 底下是否還有其他帳號（多帳號/共用裝置偵測，見 §4.2） |
 
 ## 2. 為何限制天數範圍（不嵌入全量資料）
 
@@ -23,6 +23,14 @@
 
 若未來需要查更久遠的歷史資料，選項包括：調大 `generate_f_mem_blacklist_query.js` 裡的 `WINDOW_DAYS` 常數（會讓檔案線性變大，見上面 90 天 vs 30 天的實測對照）、或改用真正的後端 API 即時查詢。
 
+### 2.1 IP 關聯資料為何限制 7 天、每 IP 最多 30 個帳號
+
+`QWARE_MEM_IP_202608`（`user_id` → `user_ip` 登入紀錄）逾 103 萬筆、無索引，單一 `user_id` 查詢約需 0.7 秒全表掃描。**本報表部署在公開 GitHub Pages 靜態頁面，不能把 MongoDB 連線字串放進前端 JS**（會外洩整個資料庫存取權限），所以「點一下即時查 DB」這條路不可行；改為在 `generate_f_mem_blacklist_query.js` 執行時**一次性**掃過 IP collection、在記憶體建好 `user_id↔user_ip` 雙向對照表，只為當次嵌入的黑名單帳號（近 30 天 `MEMO0='Y'`，約 1.5 萬筆）預先算出 `IP_LINKS`，寫進靜態頁面，瀏覽器端純查表、不連 DB。
+
+- **時間窗**：初版嘗試近 30 天，`IP_LINKS` JSON 高達 ~5.87MB（總檔案逼近 9MB）；使用者要求縮到近 7 天，降到 ~3.86MB（總檔案 ~6.3MB，見下方 changelog）。
+- **共用帳號上限**：實測發現少數 IP 被 2,000＋不相關帳號共用（電信商 CGNAT／公共網路出口，非真實關聯），使用者選擇不特別過濾這類熱門 IP、而是靠縮短時間窗降雜訊；每個 IP 仍設 30 筆上限（`IP_LINK_CAP`）避免單一熱門 IP 把檔案撐爆，超過上限時前端會顯示「共 N 個共用帳號，僅顯示前 30 個」。
+- **涵蓋範圍**：`IP_LINKS` 只涵蓋目前嵌入頁面的 ~1.5 萬個黑名單帳號（依 §1 的 `MEMO0='Y'` + 近 30 天窗），**不含未被標記黑名單的一般會員**——因為系統裡沒有完整電話號碼欄位，無法做「輸入任意電話 → 查全體會員」的查詢（見 §4.1），範圍自然收斂到頁面本來就有的帳號集合。
+
 ## 3. 資料結構
 
 ### 3.1 BLACKLIST_DATA 陣列格式（generator 注入，短欄位名以縮小檔案）
@@ -30,7 +38,6 @@
 ```js
 {
   uid:    "32395977337438732472",   // USER_ID
-  email:  "0.brick_chipset@icloud.com", // EMAIL（已 trim 前後空白，原始資料常有前導空格）
   mobile: "852",                    // MOBILE_head（國碼，非完整手機號碼）
   ct:     "2026-04-13 14:09:29",    // CREATE_TIME，已轉換為台北時間（+08:00）字串 "YYYY-MM-DD HH:mm:ss"
   ut:     "2026-06-22 09:21:19",    // UPDATE_TIME，同上格式
@@ -39,21 +46,47 @@
 }
 ```
 
+⚠️ 2026/08/05 起不再含 `email` 欄位（原 EMAIL，已從資料與表格移除，見 §4.1／changelog）。
+
 ### 3.2 DATA_META 物件格式（generator 注入）
 
 ```js
-{ total: 15651, minDate: "2026-07-05", maxDate: "2026-08-03" }
+{ total: 15139, minDate: "2026-07-06", maxDate: "2026-08-04", ipWindowDays: 7, ipLinkCap: 30 }
 ```
 
 - `minDate` / `maxDate`：本次嵌入資料中實際存在的 `UPDATE_TIME` 日期範圍（依台北時間），用於 flatpickr 的 `minDate`/`maxDate` 限制與「N天前」按鈕的錨點
 - **錨點設計與 E 系統月報/漏斗報表相同**：quick range 以 `maxDate`（資料集裡最後一天）為錨點，而非日曆今天，避免 generator 執行當下資料還沒同步到今天時選到空日
+- `ipWindowDays` / `ipLinkCap`：IP 關聯資料的時間窗（天）與每 IP 共用帳號上限，供前端 modal 標題與提示文字使用（見 §4.2、§2.1）
 
-### 3.3 Section Marker（Generator 注入點）
+### 3.3 IP_LINKS 物件格式（generator 注入，2026/08/05 新增）
+
+```js
+{
+  "32395977337438732472": [   // key = 黑名單帳號 uid
+    {
+      ip: "104.28.83.101",
+      t: "2026-08-04 21:39:13",       // 該帳號在此 IP 的最後登入時間（台北時間）
+      totalOthers: 47,                // 此 IP 近 7 天內的其他帳號總數（不含自己）
+      related: [                      // 前 IP_LINK_CAP（30）個，依最後登入時間新到舊
+        { uid: "26585652857736531458", t: "2026-08-04 20:10:02" },
+        // …
+      ]
+    },
+    // 該帳號近 7 天內用過的其他 IP…
+  ]
+}
+```
+
+- 只有 `BLACKLIST_DATA` 裡、且近 7 天內有登入紀錄的帳號才會出現在 `IP_LINKS` 裡（key 不存在 = 該帳號查無登入紀錄，前端顯示「🔗 無登入紀錄」）
+- `totalOthers > related.length` 時代表被 `IP_LINK_CAP` 截斷，前端顯示「共 N 個共用帳號，僅顯示前 30 個」
+
+### 3.4 Section Marker（Generator 注入點）
 
 ```
 // ── Data Start ──────────────────────────────────────────────────────────────
 const BLACKLIST_DATA = […];
 const DATA_META = {…};
+const IP_LINKS = {…};
 // ── Data End ────────────────────────────────────────────────────────────────
 ```
 
@@ -72,13 +105,23 @@ const DATA_META = {…};
 
 ⚠️ **`MOBILE_head` 只是國碼**（如 `852`、`886`），collection 裡沒有完整手機號碼欄位。2026/08/04 使用者要求把查詢欄位從 `USER_ID` 改成「電話號碼」，但確認過沒有完整號碼可查後，使用者說「改UI就好」——即只換掉搜尋框的標籤/篩選 key（`uid` → `mobile`），資料本身沒有變、也沒有新增欄位。這代表目前這個搜尋框實際能篩的只有國碼，效用有限；USER_ID 欄位仍完整顯示在表格裡（`sortTable('uid')`），只是不再是搜尋輸入框的篩選對象。
 
-### 4.2 預設檢視（2026/08/04 與使用者確認）
+### 4.2 預設檢視（2026/08/05 改版）
 
-頁面載入時自動呼叫 `setQuickRange(3)`，預設顯示「近 3 天」（以 `DATA_META.maxDate` 為錨點）的 `MEMO0='Y'` 資料，不需使用者手動操作。「1天前」「7天前」按鈕提供快速切換，「重置」會清空電話號碼搜尋並回到預設 3 天檢視。
+⚠️ **2026/08/05 起頁面載入不再自動顯示任何資料**（原本 `setQuickRange(3)` 會自動帶出近 3 天），改為空白狀態＋提示文字「請輸入電話號碼或設定日期區間後按『套用篩選』查詢」。使用者需主動輸入電話號碼、設定日期區間、或點「1天前/3天前/7天前」快速按鈕，才會觸發查詢並顯示表格（皆會設定內部 `hasSearched` 旗標）。「重置」會清空電話號碼搜尋、清空日期選擇，並把畫面帶回未查詢的空白狀態（而不是像改版前那樣退回預設 3 天檢視）。
 
-### 4.3 結果表格
+**原因**：此頁定位從「瀏覽近期黑名單列表」轉為「先用電話查到主帳號、再逐筆查其 IP 關聯」的查案流程（見 §4.3），使用者不希望一進頁面就看到一大串未經篩選的資料。
 
-欄位：USER_ID、EMAIL、MOBILE_head、CREATE_TIME、UPDATE_TIME、CREATE_USER、UPDATE_USER（CREATE_TIME 欄位仍保留顯示與可排序，只是不作為查詢/預設排序依據）。點欄位 header 可排序（`sortTable()`），預設依 UPDATE_TIME 由新到舊。表格上方顯示「符合條件：N 筆」。
+### 4.3 結果表格與 IP 關聯查詢（2026/08/05 新增）
+
+欄位：USER_ID、MOBILE_head、CREATE_TIME、UPDATE_TIME、CREATE_USER、UPDATE_USER、**關聯帳號**（EMAIL 欄位已移除，見 §3.1）。點前 6 欄 header 可排序（`sortTable()`），預設依 UPDATE_TIME 由新到舊。表格上方顯示「符合條件：N 筆」。
+
+**關聯帳號欄**：每列一顆按鈕，文字依 `IP_LINKS[uid]` 是否存在顯示「🔗 IP關聯 (N)」（N = 近 7 天內用過的相異 IP 數）或「🔗 無登入紀錄」。點擊呼叫 `openIPModal(uid)` 開啟 modal（`#ipModal`），依序列出：
+
+1. 該帳號近 7 天用過的每個 IP（`entry.ip`）與該 IP 上的最後登入時間（`entry.t`）
+2. 該 IP 底下的其他帳號（`entry.related`，最多 30 筆，依最後登入時間新到舊）與各自最後登入時間；若無其他帳號顯示「此 IP 近7天內查無其他帳號」
+3. 若 `totalOthers > related.length`，額外顯示「共 N 個共用帳號，僅顯示前 30 個」截斷提示
+
+這是查案用的「反查關聯帳號」功能：先用電話（MOBILE_head）在表格裡找到主帳號 → 點「關聯帳號」看它近期用過哪些 IP → 再看同一 IP 底下還有哪些其他帳號，用來抓同一人／同一裝置註冊多個帳號規避黑名單的狀況。資料背景與限制見 §2.1。
 
 ### 4.4 IP 白名單保護
 
@@ -89,8 +132,11 @@ const DATA_META = {…};
 | 用途 | Cluster URI | DB | Collection | 篩選 |
 |------|-------------|-------|------------|------|
 | 近 30 天黑名單資料 | `MONGODB_URI_QWARE` | `QwareAi` | `Qware_MEM_BlackList_202608` | `MEMO0:"Y"`, `UPDATE_TIME >= now - 30天` |
+| 近 7 天登入 IP 資料 | `MONGODB_URI_QWARE` | `QwareAi` | `QWARE_MEM_IP_202608` | `CREATE_TIME >= now - 7天`（不篩 user_id，一次抓回全部再於記憶體建對照表，見 §2.1） |
 
-主要欄位：`USER_ID`、`EMAIL`、`MOBILE_head`、`CREATE_TIME`、`UPDATE_TIME`、`CREATE_USER`、`UPDATE_USER`、`MEMO0`（`Y`/`N`/`4`/`null`，只有 `Y` 才是本報表要查的黑名單標記）。collection 只有 `_id` 索引，全表 375 萬筆，`find()` 前務必先用 `MEMO0`+`UPDATE_TIME` 縮小範圍，避免全表掃描。
+`Qware_MEM_BlackList_202608` 主要欄位：`USER_ID`、`EMAIL`（本報表已不使用）、`MOBILE_head`、`CREATE_TIME`、`UPDATE_TIME`、`CREATE_USER`、`UPDATE_USER`、`MEMO0`（`Y`/`N`/`4`/`null`，只有 `Y` 才是本報表要查的黑名單標記）。collection 只有 `_id` 索引，全表 375 萬筆，`find()` 前務必先用 `MEMO0`+`UPDATE_TIME` 縮小範圍，避免全表掃描。
+
+`QWARE_MEM_IP_202608` 欄位：`user_id`、`user_ip`、`CREATE_TIME`（登入時間）。同樣只有 `_id` 索引，全表 103 萬筆＋單一 `user_id` 查詢約 0.7 秒；本報表**不對此 collection 逐帳號查詢**，而是用 `CREATE_TIME` 範圍一次抓回整批（7 天窗約 17 萬筆）再於 Node 記憶體建雙向對照表，細節與取捨見 §2.1。
 
 ## 6. 更新方式
 
@@ -114,3 +160,4 @@ git push origin main
 *2026/08/04：使用者要求日期查詢欄位改用 `UPDATE_TIME`（原為 `CREATE_TIME`），同步修改 generator 查詢條件/排序與頁面篩選邏輯；因 `UPDATE_TIME` 恆 ≥ `CREATE_TIME`，同樣 90 天窗篩到的筆數從 25,272 增至 58,622，檔案從 ~4.6MB 增至 ~10.8MB*
 *2026/08/04：使用者要求把 `WINDOW_DAYS` 從 90 縮短為 30，筆數降到 15,651、檔案降到 ~2.9MB*
 *2026/08/04：使用者要求查詢欄位從 USER_ID 改成電話號碼；確認 collection 無完整手機號碼欄位（只有 `MOBILE_head` 國碼）後，使用者選擇「改UI就好」——搜尋框改比對 `mobile`（`MOBILE_head`）而非 `uid`，純前端篩選 key 置換，未動 generator/資料結構，見 §4.1 說明*
+*2026/08/05：新增 IP 關聯查詢功能（§3.3、§4.3）——移除 EMAIL 欄位／改為預設空白頁面需主動查詢（§4.2）／每列新增「關聯帳號」按鈕，查該帳號近期登入 IP 並反查同 IP 下的其他帳號。過程：使用者一開始要求即時查（電話→主帳號→USER_ID 查 `QWARE_MEM_IP_202608` 近期登入IP→反查同IP其他帳號），但該 collection 103 萬筆無索引、且本報表是公開靜態頁無法安全帶 DB 連線字串做即時查詢，改為 generator 端一次性預算好嵌入；IP 資料時間窗原評估 30 天（會膨脹到 ~5.87MB／總檔案逼近 9MB），使用者要求縮到 7 天（~3.86MB／總檔案 ~6.3MB，見 §2.1）；範圍確認為只做目前頁面既有的 ~1.5 萬個黑名單帳號，非全體會員（無完整電話號碼可擴大範圍）*
