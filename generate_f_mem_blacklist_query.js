@@ -44,13 +44,14 @@ async function main() {
         console.log(`Querying MEMO0='Y' rows with UPDATE_TIME >= ${since.toISOString()} ...`);
         const rows = await blColl.find(
             { MEMO0: 'Y', UPDATE_TIME: { $gte: since } },
-            { projection: { USER_ID: 1, MOBILE_head: 1, CREATE_TIME: 1, UPDATE_TIME: 1, CREATE_USER: 1, UPDATE_USER: 1 } }
+            { projection: { USER_ID: 1, MOBILE_head: 1, MOBILE: 1, CREATE_TIME: 1, UPDATE_TIME: 1, CREATE_USER: 1, UPDATE_USER: 1 } }
         ).sort({ UPDATE_TIME: -1 }).toArray();
         console.log(`Fetched ${rows.length} blacklist rows.`);
 
         const BLACKLIST_DATA = rows.map(r => ({
             uid: r.USER_ID || '',
-            mobile: r.MOBILE_head || '',
+            mh: r.MOBILE_head || '',
+            mobile: r.MOBILE || '',
             ct: fmtTaipei(r.CREATE_TIME),
             ut: fmtTaipei(r.UPDATE_TIME),
             cu: r.CREATE_USER || '',
