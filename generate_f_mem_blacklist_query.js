@@ -30,7 +30,7 @@ const OUT_FILE = path.join(__dirname, 'F_MEM_BlackList_Query_Report.html');
 const DATA_START = '// ── Data Start ──────────────────────────────────────────────────────────────';
 const DATA_END   = '// ── Data End ────────────────────────────────────────────────────────────────';
 const WINDOW_DAYS = 30;
-const IP_WINDOW_DAYS = 7;
+const IP_WINDOW_DAYS = 30;
 const IP_LINK_CAP = 30;
 
 // Convert a UTC Date to a Taipei (+08:00) "YYYY-MM-DD HH:mm:ss" string.
