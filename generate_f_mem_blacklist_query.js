@@ -5,10 +5,14 @@ require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 // collection is 400k+ rows; embedding everything with full detail would
 // blow up the static file, see REPORT_SPEC_F_MEM_BLACKLIST.md).
 //
-// ALL_INDEX is a separate, much leaner {uid, mobile_head, mobile, memo0}
-// index covering the ENTIRE collection (all ~400k accounts, regardless of
-// blacklist status), so the phone search can find any member, not just
-// recently-blacklisted ones. It's ~25MB by itself - a deliberate size
+// ALL_INDEX is a separate index covering the ENTIRE collection (all ~400k
+// accounts, regardless of blacklist status), so the phone search can find
+// any member, not just recently-blacklisted ones. It carries full detail
+// (uid/mobile_head/mobile/memo0/create_time/update_time/create_user/
+// update_user) per row - originally a leaner {uid,mobile_head,mobile,memo0}
+// index without timestamps, widened after the user pointed out MongoDB has
+// real CREATE_TIME/UPDATE_TIME/etc. for non-blacklisted accounts too and
+// wanted it shown instead of "—". It's ~59MB by itself - a deliberate size
 // tradeoff the user accepted (see spec doc changelog) so the search can
 // stay fully client-side with no backend.
 //
@@ -77,15 +81,26 @@ async function main() {
 
         const days = BLACKLIST_DATA.map(r => r.ut.slice(0, 10)).sort();
 
-        // ── ALL_INDEX: lean phone-search index over the whole collection ──────
-        console.log('Querying full collection for ALL_INDEX (uid/mobile/memo0 only)...');
+        // ── ALL_INDEX: full-collection phone-search index ──────────────────────
+        // Originally a lean {u,h,m,f} index (no timestamps) to keep it small.
+        // User pushed back on seeing "—" for CREATE_TIME/UPDATE_TIME/CREATE_USER/
+        // UPDATE_USER on non-blacklisted accounts even though MongoDB has real
+        // values for them - only BLACKLIST_DATA (Y-flagged, 30-day window) carried
+        // that detail. Now every ALL_INDEX row carries its own ct/ut/cu/uu directly,
+        // so any account found by phone search shows full detail regardless of
+        // MEMO0 status. This roughly doubles ALL_INDEX's size (~25MB -> ~59MB).
+        console.log('Querying full collection for ALL_INDEX (uid/mobile/memo0 + full detail)...');
         const allRows = await blColl.find(
             {},
-            { projection: { USER_ID: 1, MOBILE_head: 1, MOBILE: 1, MEMO0: 1 } }
+            { projection: { USER_ID: 1, MOBILE_head: 1, MOBILE: 1, MEMO0: 1, CREATE_TIME: 1, UPDATE_TIME: 1, CREATE_USER: 1, UPDATE_USER: 1 } }
         ).toArray();
         const ALL_INDEX = allRows
             .filter(r => r.MOBILE)
-            .map(r => ({ u: r.USER_ID || '', h: r.MOBILE_head || '', m: r.MOBILE, f: r.MEMO0 || null }));
+            .map(r => ({
+                u: r.USER_ID || '', h: r.MOBILE_head || '', m: r.MOBILE, f: r.MEMO0 || null,
+                ct: fmtTaipei(r.CREATE_TIME), ut: fmtTaipei(r.UPDATE_TIME),
+                cu: r.CREATE_USER || '', uu: r.UPDATE_USER || '',
+            }));
         console.log(`ALL_INDEX: ${ALL_INDEX.length} / ${allRows.length} rows have a MOBILE value.`);
 
         const DATA_META = {
