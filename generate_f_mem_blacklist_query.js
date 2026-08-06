@@ -28,6 +28,9 @@ require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 // that window. Full-collection detail would be 60-90MB+ (see REPORT_SPEC changelog
 // for the sizing tests); a 7-day window keeps it to ~16MB while still covering any
 // account currently showing booking-bot-like activity.
+//
+// MAJOR tagging: accounts sharing a phone number (country code + number) with 2+
+// other accounts get wt:'MAJOR' on their ALL_INDEX/BLACKLIST_DATA row (see below).
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
@@ -102,6 +105,29 @@ async function main() {
                 cu: r.CREATE_USER || '', uu: r.UPDATE_USER || '',
             }));
         console.log(`ALL_INDEX: ${ALL_INDEX.length} / ${allRows.length} rows have a MOBILE value.`);
+
+        // ── MAJOR account tagging ────────────────────────────────────────────
+        // Same phone number (country code + number) mapping to MAJOR_THRESHOLD+ distinct
+        // USER_IDs is a shared-device/registration-farm signal - flag every account in such
+        // a group with wt:'MAJOR' (field omitted otherwise to keep the file small).
+        // Started at >=2, but that alone matched 78% of the entire member base (155,903 /
+        // 245,526 phone numbers map to 2+ accounts in this collection - a very common
+        // pattern here, not itself unusual), so it lost all discriminating power. Raised to
+        // >=5 per user confirmation (2026/08/06) to narrow it down to genuinely atypical accounts.
+        const MAJOR_THRESHOLD = 5;
+        const mobileGroups = new Map(); // `${mh}|${mobile}` -> Set(uid)
+        for (const r of ALL_INDEX) {
+            const key = `${r.h}|${r.m}`;
+            if (!mobileGroups.has(key)) mobileGroups.set(key, new Set());
+            mobileGroups.get(key).add(r.u);
+        }
+        const majorUids = new Set();
+        for (const uids of mobileGroups.values()) {
+            if (uids.size >= MAJOR_THRESHOLD) for (const u of uids) majorUids.add(u);
+        }
+        for (const r of ALL_INDEX) { if (majorUids.has(r.u)) r.wt = 'MAJOR'; }
+        for (const r of BLACKLIST_DATA) { if (majorUids.has(r.uid)) r.wt = 'MAJOR'; }
+        console.log(`MAJOR tagging: ${majorUids.size} accounts share a phone number with >=${MAJOR_THRESHOLD - 1} other accounts.`);
 
         const DATA_META = {
             total: BLACKLIST_DATA.length,
