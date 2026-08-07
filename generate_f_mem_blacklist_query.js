@@ -31,6 +31,12 @@ require('dotenv').config({ path: __dirname + '/.env', quiet: true });
 //
 // MAJOR tagging: accounts sharing a phone number (country code + number) with 2+
 // other accounts get wt:'MAJOR' on their ALL_INDEX/BLACKLIST_DATA row (see below).
+//
+// wty (2026/08/07): raw MongoDB `webType` field (login/registration channel -
+// APPLE/FB/GOOGLE/LINE/MAJOR/OP). Note this is UNRELATED to the wt:'MAJOR' tag
+// above despite one of its values also being the string "MAJOR" - a naming
+// coincidence in the source data, not the same concept. Frontend renders them
+// with different badge colors/wording to avoid confusion (see report HTML).
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
@@ -68,7 +74,7 @@ async function main() {
         console.log(`Querying MEMO0='Y' rows with UPDATE_TIME >= ${since.toISOString()} ...`);
         const rows = await blColl.find(
             { MEMO0: 'Y', UPDATE_TIME: { $gte: since } },
-            { projection: { USER_ID: 1, MOBILE_head: 1, MOBILE: 1, CREATE_TIME: 1, UPDATE_TIME: 1, CREATE_USER: 1, UPDATE_USER: 1 } }
+            { projection: { USER_ID: 1, MOBILE_head: 1, MOBILE: 1, CREATE_TIME: 1, UPDATE_TIME: 1, CREATE_USER: 1, UPDATE_USER: 1, webType: 1 } }
         ).sort({ UPDATE_TIME: -1 }).toArray();
         console.log(`Fetched ${rows.length} blacklist rows.`);
 
@@ -80,6 +86,7 @@ async function main() {
             ut: fmtTaipei(r.UPDATE_TIME),
             cu: r.CREATE_USER || '',
             uu: r.UPDATE_USER || '',
+            wty: r.webType || '',
         })).filter(r => r.ut);
 
         const days = BLACKLIST_DATA.map(r => r.ut.slice(0, 10)).sort();
@@ -95,7 +102,7 @@ async function main() {
         console.log('Querying full collection for ALL_INDEX (uid/mobile/memo0 + full detail)...');
         const allRows = await blColl.find(
             {},
-            { projection: { USER_ID: 1, MOBILE_head: 1, MOBILE: 1, MEMO0: 1, CREATE_TIME: 1, UPDATE_TIME: 1, CREATE_USER: 1, UPDATE_USER: 1 } }
+            { projection: { USER_ID: 1, MOBILE_head: 1, MOBILE: 1, MEMO0: 1, CREATE_TIME: 1, UPDATE_TIME: 1, CREATE_USER: 1, UPDATE_USER: 1, webType: 1 } }
         ).toArray();
         const ALL_INDEX = allRows
             .filter(r => r.MOBILE)
@@ -103,6 +110,7 @@ async function main() {
                 u: r.USER_ID || '', h: r.MOBILE_head || '', m: r.MOBILE, f: r.MEMO0 || null,
                 ct: fmtTaipei(r.CREATE_TIME), ut: fmtTaipei(r.UPDATE_TIME),
                 cu: r.CREATE_USER || '', uu: r.UPDATE_USER || '',
+                wty: r.webType || '',
             }));
         console.log(`ALL_INDEX: ${ALL_INDEX.length} / ${allRows.length} rows have a MOBILE value.`);
 

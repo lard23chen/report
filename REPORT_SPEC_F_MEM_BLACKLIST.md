@@ -4,7 +4,7 @@
 
 本文件定義「會員黑名單標記查詢報表」的產出標準，未來更新或重新產出時請遵循本規範。
 
-> ℹ️ **2026/08/07：改回本文件描述的靜態嵌入架構**，2026/08/06 當天短暫改用 Vercel serverless API（`f_blacklist_api.js`）即時查詢，隔天使用者要求「先不用 vercel 了」——理由是 Vercel serverless 沒有固定 outbound IP，而 `QwareAi`（本報表資料庫所在的 Atlas 專案）的 Network Access 不像 `AlexLIFE` 專案那樣開放 `0.0.0.0/0`，導致 API 連線不穩定/連不上。已刪除 `f_blacklist_api.js` 與 `vercel.json` 對應的 build/route 設定，重新執行 `generate_f_mem_blacklist_query.js` 對舊版（含 marker 的）HTML 模板注入最新資料。**目前檔案 ~89.9MB（GitHub 顯示值）**，比 08/06 當時的 88.5MB 又更逼近 GitHub 100MB 硬性上限（資料集持續自然成長）——若未來要重新考慮 API 方案，需先確認/開通 `QwareAi` Atlas 專案的 Network Access（見底部 changelog）。
+> ℹ️ **2026/08/07：改回本文件描述的靜態嵌入架構**，2026/08/06 當天短暫改用 Vercel serverless API（`f_blacklist_api.js`）即時查詢，隔天使用者要求「先不用 vercel 了」——理由是 Vercel serverless 沒有固定 outbound IP，而 `QwareAi`（本報表資料庫所在的 Atlas 專案）的 Network Access 不像 `AlexLIFE` 專案那樣開放 `0.0.0.0/0`，導致 API 連線不穩定/連不上。已刪除 `f_blacklist_api.js` 與 `vercel.json` 對應的 build/route 設定，重新執行 `generate_f_mem_blacklist_query.js` 對舊版（含 marker 的）HTML 模板注入最新資料。**目前檔案 ~99.3MB（GitHub 顯示約 94.7MB／94.67 MiB，2026/08/07 新增 webType 欄位後的最新值，見底部 changelog）**，只剩約 5MB 餘裕即撞到 GitHub 100MB（104.86MB／100 MiB）硬性上限——若未來要重新考慮 API 方案，需先確認/開通 `QwareAi` Atlas 專案的 Network Access（見底部 changelog）。
 
 ## 1. 基本資訊
 
@@ -104,12 +104,19 @@
     cu: "定260804解",             // CREATE_USER
     uu: "464939254",              // UPDATE_USER
     wt: "MAJOR",                   // （2026/08/06 新增，選填）見 §4.4
+    wty: "APPLE",                  // （2026/08/07 新增）MongoDB `webType` 原始值，見 §4.6
   },
   // … 全部 40 萬餘筆會員
 ]
 ```
 
 電話搜尋（`applyFilter()`）直接對這個陣列做 `m.includes(kw)`，找到的每一列**自帶完整欄位**，不需要再去 `BLACKLIST_DATA` 補資料。
+
+### 3.3a wty（webType，2026/08/07 新增）
+
+`Qware_MEM_BlackList_202608` 的 `webType` 欄位（注意是 camelCase，不是 `WEB_TYPE`）——**全體 41.3 萬筆都有值**，實測 6 種：`APPLE` / `FB` / `GOOGLE` / `LINE` / `MAJOR` / `OP`（分布約 MAJOR 46%／OP 25%／GOOGLE 19%／LINE 7%／APPLE 3%／FB <1%，2026/08/07 實測）。研判是會員的登入/註冊管道，但 `OP` 與 `MAJOR` 兩個值的確切業務意義未經業主證實，只如實顯示原始值，不臆測命名。`BLACKLIST_DATA`（近 30 天黑名單）與 `ALL_INDEX`（全體會員）兩個陣列都帶 `wty`，短欄位名沿用專案慣例。
+
+⚠️ **與既有 `wt:'MAJOR'` 標籤（§4.4）撞名，但語意完全無關**：`wt` 是本報表自行計算的「同門號對應 5+ 個 USER_ID」旗標；`wty` 的 `'MAJOR'` 是 MongoDB 原始欄位值之一，只是恰好也叫這個字串，資料庫端沒說明其涵義。前端刻意用不同顏色（`wt` 紫色 pill vs. `wty` 橘色徽章）與不同圖示區隔，`hdr-note` 也加註說明，避免使用者誤以為兩者相關。
 
 ⚠️ **2026/08/06 欄位擴充**：`ALL_INDEX` 原本只有 `u`/`h`/`m`/`f` 4 個極簡欄位（刻意不含時間戳記以控制檔案大小），沒收錄的帳號查到後 CREATE_TIME/UPDATE_TIME/CREATE_USER/UPDATE_USER 一律顯示「—」。使用者查 `94702125` 發現這幾欄空白後追問「為什麼不顯示？」——實際上 MongoDB 裡這些帳號都有真實值，只是 generator 沒抓。改成每列直接帶上 `ct`/`ut`/`cu`/`uu`（等同把原本只給 `BLACKLIST_DATA`（近 30 天 `MEMO0='Y'`）的完整欄位，擴大到全部 40 萬會員都有），`ALL_INDEX` 從 ~24.8MB 增至 **~58.6MB**，整份報表檔案從 ~50.5MB 增至 **~85.3MB**。`BLACKLIST_DATA` 維持不變、繼续作為「黑名單瀏覽」日期篩選模式的資料源（見 §4.1），兩者對同一批黑名單帳號的欄位內容會重複，但保留是為了不動到既有日期篩選邏輯、降低改動風險。
 
@@ -187,7 +194,7 @@ const BOOKING_DATA = {…};
 
 ### 4.3 結果表格與 IP 關聯查詢
 
-欄位：USER_ID（同門號對應 5+ 個 USER_ID 時旁邊帶紫色「MAJOR」標籤，見 §4.4）、**黑名單狀態**、MOBILE（顯示為 `+國碼 電話號碼`，如 `+81 09018071105`）、CREATE_TIME、CREATE_USER、UPDATE_USER、**關聯帳號**、**訂單紀錄**，共 8 欄（UPDATE_TIME 欄已於 2026/08/06 移除，見下）。EMAIL 欄位已移除，見 §3.1。點前 6 欄 header 可排序（`sortTable()`）；最後兩欄（關聯帳號／訂單紀錄）是操作按鈕，不可排序。表格上方顯示「符合條件：N 筆」。
+欄位：USER_ID（同門號對應 5+ 個 USER_ID 時旁邊帶紫色「MAJOR」標籤，見 §4.4）、**黑名單狀態**、MOBILE（顯示為 `+國碼 電話號碼`，如 `+81 09018071105`）、**登入來源**（2026/08/07 新增，見 §4.6）、CREATE_TIME、CREATE_USER、UPDATE_USER、**關聯帳號**、**訂單紀錄**，共 9 欄（UPDATE_TIME 欄已於 2026/08/06 移除，見下）。EMAIL 欄位已移除，見 §3.1。點前 7 欄 header 可排序（`sortTable()`）；最後兩欄（關聯帳號／訂單紀錄）是操作按鈕，不可排序。表格上方顯示「符合條件：N 筆」。
 
 ⚠️ **UPDATE_TIME 欄位移除（2026/08/06）**：**僅移除表格顯示欄位**與其排序功能，`ALL_INDEX`/`BLACKLIST_DATA` 資料本身仍保留 `ut` 欄位供內部排序（依 `ut` 新到舊）使用，只是不再顯示成表格欄位、也沒有對應的日期篩選 UI（見 §4.1）。
 
@@ -212,6 +219,16 @@ Generator 端計算：以 `MOBILE_head + MOBILE`（國碼+完整號碼）為 key
 ### 4.5 IP 白名單保護
 
 比照 E 系統報表機制（`api.ipify.org` 查訪客 IP 比對 9 組授權 IP，不符即整頁換成「存取被拒絕」）。本報表因含 EMAIL / USER_ID 等會員 PII，**建立時就內建此保護**，不是事後補上。清單為手動維護的靜態內容，`generate_f_mem_blacklist_query.js` 只用 marker 區塊替換資料、不會動到 `<head>`。
+
+### 4.6 登入來源欄位（webType，2026/08/07 新增）
+
+顯示 `r.webtype`（來自 `ALL_INDEX`/`BLACKLIST_DATA` 的 `wty`，見 §3.3a）。`webTypeBadge()` 依原始值渲染不同顏色徽章：🍎 Apple（灰）、📘 Facebook（Facebook 藍）、🔍 Google（紅）、💬 LINE（LINE 綠）、⭐ MAJOR（琥珀色）、OP（灰，原樣顯示，無 icon）；未知值 fallback 顯示原字串（灰底），為將來 `webType` 若新增其他值預留。可點欄位 header 排序（`sortTable('webtype')`）。
+
+⚠️ **與 §4.4 的紫色「MAJOR」標籤刻意用不同顏色/圖示區隔**（本欄琥珀色 ⭐，§4.4 是紫色 pill），因為 `webType` 剛好也有一個值叫 `MAJOR`，但這是資料庫欄位值的巧合，跟本報表算出的「同門號 5+ 帳號」旗標完全是两回事，語意無關。`hdr-note` 也加了對應提示文字。
+
+### 4.7 已知效能限制（非本次改動引入，2026/08/07 測試時發現）
+
+`applyFilter()` 綁在 `oninput`，每敲一個字元就對 41.3 萬筆 `ALL_INDEX` 做一次 `filter+map+sort` 並整批塞進 `renderTable()`，**沒有最短字元數門檻、也沒有渲染筆數上限**。若使用者從空白開始逐字輸入（例如打「0918...」的過程中，單一字元「0」就可能比對到數十萬筆電話號碼含有「0」），中間任一步驟若命中筆數過大，會嘗試建立巨量 `<tr>` DOM 節點，實測會讓分頁/瀏覽器分頁明顯卡死數十秒甚至更久（2026/08/07 用 Claude in Chrome 自動化測試時重現：逐字輸入「0918」在第一個字元就使分頁失去回應，需等待或強制關閉分頁）。**目前無已知因這個問題被回報過的實際使用者投訴**，暫列為已知限制而非立即修復項目；若未來要處理，選項包括：① 設定最短查詢字元數（如 4 碼以上才觸發搜尋）、② 對 `renderTable()` 顯示筆數設上限（如超過 200 筆只顯示前 200 並提示「請輸入更精確的號碼」）、③ 把 `oninput` 改回§4.1 修訂前的「按套用篩選才查」模式（但那樣會改變目前逐字即時篩選的既有使用體驗，需與使用者確認是否要犧牲）。
 
 ## 5. MongoDB 連線資訊
 
@@ -260,3 +277,5 @@ git push origin main
 *2026/08/06（同日再次調整）：使用者要求「查詢模式不要日期瀏覽，不用日期查詢」——移除當天稍早才做好的「日期瀏覽／電話／USER_ID」三選一模式，拿掉整個日期區間篩選 UI（flatpickr 雙欄位、1/3/7 天前快速按鈕、flatpickr CDN 引用），只留「電話號碼／USER_ID」二選一，預設模式改為電話號碼（見 §4.1）。`BLACKLIST_DATA` 資料本身不變（generator 仍需要它算 `IP_LINKS` 範圍），只是前端不再有依日期瀏覽它的入口。過程中也順手修正 header 提示文字裡一處忘記從「2 個以上」同步改成「5 個以上」的 MAJOR 閾值敘述（見 §4.4 changelog）。檔案大小因移除 flatpickr CDN 連結與部分 UI/JS 略降，維持 **~88.5MB** 量級*
 *2026/08/06（同日第三次調整，短命的架構改版）：使用者問「不是資料從 MongoDB 來？為什麼檔案這麼大」，藉機討論後改用專案既有的 Vercel 專案（`report-theta-nine.vercel.app`）新增 `f_blacklist_api.js` 即時查詢 MongoDB，前端改為 21KB 的 `fetch()` shell，靜態嵌入的 `BLACKLIST_DATA`/`ALL_INDEX`/`IP_LINKS`/`BOOKING_DATA` 全部拿掉。當時評估 4 個端點（`search`/`ip-links`/`bookings`/`meta`）皆做 IP 白名單雙重檢查（前端＋API 端）、並新增 3 個 MongoDB 索引加速。*
 *2026/08/07：改回本文件版本（見檔案開頭 ℹ️ 提示）——Vercel serverless 沒有固定 outbound IP，`QwareAi` Atlas 專案的 Network Access 未開 `0.0.0.0/0`（不像 `AlexLIFE` 專案），導致 API 連線不穩定，使用者要求「先不用 vercel 了」。原以為 `generate_f_mem_blacklist_query.js` 已在 08/06 架構改版時被刪除，實際檢查發現該檔案從未真正從 git 移除（08/06 那次 commit 只動了 HTML/spec/新增 API 檔案），因此重新對這份舊 generator 補跑即可，不需要重寫。**唯一的坑**：08/06 之後的 `F_MEM_BlackList_Query_Report.html` 已被换成不含 `// ── Data Start ──` marker 的 21KB shell，generator 直接對它跑會拋 `Data markers not found`，需先用 `git show e91e7bb:F_MEM_BlackList_Query_Report.html` 還原回有 marker 的舊模板，才能重新注入資料。已刪除 `f_blacklist_api.js`、`vercel.json` 對應的 build/route 設定（3 個相關 MongoDB 索引未刪除，留著無害，之後若重啟 API 方案可直接用）。重新產出後檔案 **~89.9MB（GitHub 顯示值）**（資料集比 08/06 當時又自然成長了一些），比先前更逼近 100MB 硬上限，見檔案開頭警語*
+
+*2026/08/07（同日再次調整）：新增「登入來源」欄位（webType，見 §3.3a、§4.6）——使用者要求顯示 `Qware_MEM_BlackList_202608` 的 `webType` 欄位（一開始誤記為 `WEB_TYPE`，實際查證欄位名是 camelCase `webType`）。全體 41.3 萬筆會員都有值，6 種：APPLE/FB/GOOGLE/LINE/MAJOR/OP。因其中一個值恰好也叫 `MAJOR`、與 §4.4 既有的紫色「MAJOR」標籤同名但語意無關，經與使用者確認後採用「不同顏色徽章＋不同用詞」方案區隔（本欄琥珀色 ⭐ 徽章，§4.4 維持紫色 pill），並在 `hdr-note` 加註說明兩者無關。`generate_f_mem_blacklist_query.js` 的 `BLACKLIST_DATA`/`ALL_INDEX` 查詢投影與輸出物件新增 `wty` 短欄位。因為要在 41.3 萬筆資料上各加一個字串欄位，整份檔案從 ~89.9MB 增至 **~99.3MB（GitHub 顯示約 94.7MB / 94.67 MiB）**，逼近 100MB（104.86MB／100 MiB）硬性上限，只剩約 5MB 餘裕——**下次若還要在 ALL_INDEX 加欄位，開工前務必先估算大小，很可能會撞到上限**，屆時需考慮拆分報表、改用 Git LFS，或評估是否要重新考慮後端 API 方案（見 §2 開頭 ℹ️ 提示，前提是先解決 Atlas Network Access 限制）。過程中用 Claude in Chrome 對本機起的靜態伺服器做手動驗證時，意外發現 §4.7 記錄的既有效能限制（`applyFilter()` 綁 `oninput`、無最短字元數門檻與渲染筆數上限，逐字輸入短字串會讓分頁卡死），這是本次改動前就存在的問題，非本次引入，先列為已知限制記錄，未進行修復。
