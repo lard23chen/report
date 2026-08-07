@@ -24,10 +24,6 @@
     {
       "src": "structured_products_api.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "f_blacklist_api.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -70,10 +66,6 @@
     {
       "src": "/api/structured-products",
       "dest": "structured_products_api.js"
-    },
-    {
-      "src": "/api/f-blacklist/(.*)",
-      "dest": "f_blacklist_api.js"
     }
   ]
 }

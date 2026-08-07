@@ -4,144 +4,259 @@
 
 本文件定義「會員黑名單標記查詢報表」的產出標準，未來更新或重新產出時請遵循本規範。
 
+> ℹ️ **2026/08/07：改回本文件描述的靜態嵌入架構**，2026/08/06 當天短暫改用 Vercel serverless API（`f_blacklist_api.js`）即時查詢，隔天使用者要求「先不用 vercel 了」——理由是 Vercel serverless 沒有固定 outbound IP，而 `QwareAi`（本報表資料庫所在的 Atlas 專案）的 Network Access 不像 `AlexLIFE` 專案那樣開放 `0.0.0.0/0`，導致 API 連線不穩定/連不上。已刪除 `f_blacklist_api.js` 與 `vercel.json` 對應的 build/route 設定，重新執行 `generate_f_mem_blacklist_query.js` 對舊版（含 marker 的）HTML 模板注入最新資料。**目前檔案 ~94.3MB**，比 08/06 當時的 88.5MB 又更逼近 GitHub 100MB 硬性上限（資料集持續自然成長）——若未來要重新考慮 API 方案，需先確認/開通 `QwareAi` Atlas 專案的 Network Access（見底部 changelog）。
+
 ## 1. 基本資訊
 
 | 項目 | 說明 |
 |------|------|
-| 報表名稱 | `F_MEM_BlackList_Query_Report.html`（精簡版，2026/08/06 起不再嵌入資料，見 §2） |
-| 後端 API | `f_blacklist_api.js`，部署於既有 Vercel 專案 `report-theta-nine.vercel.app`（見 §3） |
-| 資料來源 | MongoDB `QwareAi`（`MONGODB_URI_QWARE`）`Qware_MEM_BlackList_202608` + `QWARE_MEM_IP_202608` + `Qware_A_OrderTemp_log_202608` collections，皆由 API 即時查詢，不再有本機 generator |
-| 資料範圍 | 電話／USER_ID 搜尋：**即時查全部會員**，不分黑名單狀態；IP 關聯：即時查**近 30 天**登入紀錄，每組 IP 最多列前 30 個共用帳號；訂單紀錄：即時查**近 7 天**訂票暫存 log，不設每帳號筆數上限 |
+| 報表名稱 | `F_MEM_BlackList_Query_Report.html` |
+| 產生腳本 | `generate_f_mem_blacklist_query.js` |
+| 資料來源 | MongoDB `QwareAi`（`MONGODB_URI_QWARE`）`Qware_MEM_BlackList_202608` + `QWARE_MEM_IP_202608` + `Qware_A_OrderTemp_log_202608` collections |
+| 資料範圍 | 黑名單詳情（BLACKLIST_DATA）：**僅嵌入近 30 天內** `UPDATE_TIME` 且 `MEMO0='Y'` 的資料（見 §2）；電話搜尋索引（ALL_INDEX，2026/08/05 新增）：**涵蓋全部會員**，不分黑名單狀態（見 §2.2）；IP 關聯：**僅嵌入近 30 天登入紀錄**，每組 IP 最多列前 30 個共用帳號（見 §2.1）；訂單紀錄（BOOKING_DATA，2026/08/05 新增）：**僅嵌入近 7 天訂票暫存 log**，不設每帳號筆數上限（見 §2.3） |
 | 負責人 | 陳俊良 |
-| 主要目的 | 用電話號碼或 USER_ID 查任一會員（不分是否被標記黑名單），顯示完整異動紀錄與黑名單狀態；同門號對應 5 個以上不同 USER_ID 標示「MAJOR」標籤。可對單一帳號查詢其近期登入 IP，反查同一 IP 底下是否還有其他帳號（多帳號/共用裝置偵測，見 §5.3）；也可查該帳號近期訂票紀錄（演出/座位/時間/IP），協助判斷是否為搶票機器人（見 §5.3） |
+| 主要目的 | 用電話號碼查任一會員（不分是否被標記黑名單）；若該帳號近 30 天內被標記黑名單，額外顯示完整異動紀錄；也可不輸入電話、單純依「異動日期（UPDATE_TIME）」區間瀏覽近期黑名單。並可對單一帳號查詢其近期登入 IP，反查同一 IP 底下是否還有其他帳號（多帳號/共用裝置偵測，見 §4.3）；也可查該帳號近期訂票紀錄（演出/座位/時間/IP），協助判斷是否為搶票機器人（見 §4.3） |
 
-## 2. 為何改用即時 API 查詢（取代 2026/08/04～08/06 的靜態嵌入版）
+## 2. 為何限制天數範圍（不嵌入全量資料）
 
-本報表最初（2026/08/04～08/06）採用「generator 預先查好 MongoDB、把結果 JSON 直接寫死進靜態 HTML」的做法，理由是報表部署在公開 GitHub Pages 靜態頁面，不能把 MongoDB 連線字串放進前端 JS（會外洩整個資料庫存取權限）。但隨著查詢範圍一路擴大到全體 40 萬會員 + 完整欄位 + 不限筆數訂單紀錄，檔案在 2026/08/06 當天膨脹到 **~88.5MB**，逼近 GitHub 單檔 100MB 硬性上限（詳細膨脹過程見底部 changelog）。
+> ⚠️ **檔案大小已逼近 GitHub 硬性上限**：截至 2026/08/06 本報表 **~88.5MB**，`git push` 時已跳出「超過建議 50MB」警告（見底部 changelog）。GitHub 對單一檔案的**硬性**上限是 100MB（超過會直接拒絕 push，不像 50MB 只是警告）。目前還有約 11.5MB 餘裕，但這幾天每次新增功能都在往上加：`ALL_INDEX` 全會員化 +25MB（08/05）→ IP 窗口拉長 +2MB（08/05）→ 訂單紀錄 +17MB（08/05）→ `ALL_INDEX` 補齊時間欄位 +35MB（08/06）→ MAJOR 標籤 +3MB（08/06，含資料集自然成長）。**下次若再要對全體 40 萬會員或百萬級 collection 做全量/近全量嵌入，開工前務必先估算大小並確認是否會撞到 100MB**，撞到的話需要改用 Git LFS 或砍掉部分既有嵌入範圍才能繼續 push。
 
-2026/08/06 使用者詢問「不是資料從 MongoDB 來？為什麼檔案這麼大」，藉此機會確認專案裡其實已經有現成的 Vercel 專案（`report-theta-nine.vercel.app`，見 `stock_api.js` 等既有 API），可以用**伺服器端環境變數**保管 `MONGODB_URI_QWARE`、前端改成 `fetch()` 呼叫 API 即時查詢——這樣既不用把連線字串放前端，也不用把資料嵌進靜態頁面。與使用者確認後決定**全面改用 API**，不保留靜態嵌入版本作備援，舊的 `generate_f_mem_blacklist_query.js` 已刪除。
+`Qware_MEM_BlackList_202608` 總表逾 40 萬筆（`countDocuments` 實測 403,408，2026/08/05 查證；先前文件誤植「375 萬」，是 2026/08/04 建立當下用了不精確的計數方式），其中 `MEMO0='Y'` 有 58,093～85,485 筆之間浮動（此欄位會隨掃描/複核作業增減，非單調成長）。若整份嵌入靜態頁面，檔案仍會膨脹到 **10MB 以上**，遠超本專案現有報表最大檔案（~500KB 等級），且每次重新產出都會讓 git repo 跟著長大，不符合 `CLAUDE.md` 的容量管理原則。
 
-**已知取捨**：電話／USER_ID 搜尋維持原本「任意位置部分字串比對」（如打 `018071105` 查得到 `09018071105`），這種查法即使加了索引也無法被 MongoDB 利用（索引只加速前綴比對或完全相符），每次搜尋仍是全表掃描，估計需要數秒。使用者已確認接受這個延遲，換取不用改變既有搜尋習慣。
+2026/08/04 與使用者確認後改為：只嵌入最近 `WINDOW_DAYS` 天的 `MEMO0='Y'` 資料，初版為 90 天。當日稍後使用者要求查詢日期改用 `UPDATE_TIME`（而非 `CREATE_TIME`）——因為 `UPDATE_TIME` 恆 ≥ `CREATE_TIME`，同樣 90 天窗篩到的筆數明顯變多（58,622 筆、~10.8MB），使用者接著把窗口縮短為 **30 天**：實測 15,651 筆、檔案 ~2.9MB。**查更早期資料需另行以 MongoDB 查詢，本報表查不到**（頁面 header 有 warning 提示此限制）。
 
-## 3. API 端點規格
+若未來需要查更久遠的歷史資料，選項包括：調大 `generate_f_mem_blacklist_query.js` 裡的 `WINDOW_DAYS` 常數（會讓檔案線性變大，見上面 90 天 vs 30 天的實測對照）、或改用真正的後端 API 即時查詢。
 
-### 3.1 部署方式
+### 2.1 IP 關聯資料為何限制天數、每 IP 最多 30 個帳號
 
-`f_blacklist_api.js` 比照專案既有 `stock_api.js` 的 Vercel serverless function 模式：Express app、MongoDB 連線快取（`cachedDb`，避免每次 invoke 重新連線）、`module.exports = app`。`vercel.json` 的 `builds`/`routes` 加入對應項目，路由前綴 `/api/f-blacklist/*`。部署方式是**git push 觸發 Vercel 既有的 GitHub 整合自動部署**，不需要額外操作；但 Vercel 專案的環境變數必須已有 `MONGODB_URI_QWARE`（跟本機 `.env` 用同一把），否則 API 連不上 DB——這件事本機無法確認，需使用者自行到 Vercel dashboard 檢查。
+`QWARE_MEM_IP_202608`（`user_id` → `user_ip` 登入紀錄）逾 103 萬筆、無索引，單一 `user_id` 查詢約需 0.7 秒全表掃描。**本報表部署在公開 GitHub Pages 靜態頁面，不能把 MongoDB 連線字串放進前端 JS**（會外洩整個資料庫存取權限），所以「點一下即時查 DB」這條路不可行；改為在 `generate_f_mem_blacklist_query.js` 執行時**一次性**掃過 IP collection、在記憶體建好 `user_id↔user_ip` 雙向對照表，只為當次嵌入的黑名單帳號（近 30 天 `MEMO0='Y'`，約 1.5 萬筆）預先算出 `IP_LINKS`，寫進靜態頁面，瀏覽器端純查表、不連 DB。
 
-### 3.2 端點清單
+- **時間窗**：初版嘗試近 30 天，`IP_LINKS` JSON 高達 ~5.87MB（總檔案逼近 9MB）；使用者當時要求縮到近 7 天，降到 ~3.86MB。**2026/08/05 稍後使用者又要求拉長回 30 天**（見底部 changelog），目前 `IP_WINDOW_DAYS = 30`，實測 `IP_LINKS` 涵蓋 4,278 個帳號（比 7 天窗的 2,608 個多），整份檔案（含 §2.2 的 ALL_INDEX）來到 **~33MB**。
+- **共用帳號上限**：實測發現少數 IP 被 2,000＋不相關帳號共用（電信商 CGNAT／公共網路出口，非真實關聯）；每個 IP 仍設 30 筆上限（`IP_LINK_CAP`）避免單一熱門 IP 把檔案撐爆，超過上限時前端會顯示「共 N 個共用帳號，僅顯示前 30 個」。
+- **涵蓋範圍**：`IP_LINKS` 只涵蓋近 30 天 `MEMO0='Y'` 的 ~1.5 萬個帳號（同 `BLACKLIST_DATA`），**不含 ALL_INDEX 裡其餘未被標記黑名單的會員**——即使電話搜尋現在能找到任何會員（見 §2.2），非黑名單帳號的「關聯帳號」按鈕一律顯示「無登入紀錄」（因為 `IP_LINKS` 裡沒有這個 uid 的 key）。把 `IP_LINKS` 也擴大到全體會員在技術上可行，但代價會跟 §2.2 的 ALL_INDEX 疊加，目前未做，如有需要需另行評估。
 
-所有端點**先做 IP 白名單檢查**（見 §5.4），來源 IP 不在授權清單內一律回 `403 { ok:false, error:'forbidden' }`。
+### 2.2 電話搜尋為何能查全部會員（ALL_INDEX，2026/08/05 新增）
 
-| 端點 | 參數 | 查詢對象 | 說明 |
-|------|------|---------|------|
-| `GET /api/f-blacklist/search` | `mode`(`mobile`\|`userid`)、`kw` | `Qware_MEM_BlackList_202608` | 依 `mode` 對 `MOBILE` 或 `USER_ID` 做部分字串 regex 比對，回傳最多 200 筆（超過時 `truncated:true`），每筆即時算 `isMajor`（見 §3.3） |
-| `GET /api/f-blacklist/ip-links` | `uid` | `QWARE_MEM_IP_202608` | 該帳號近 30 天登入過的 IP，及每個 IP 底下其他帳號（上限 30，含 `totalOthers` 供截斷提示） |
-| `GET /api/f-blacklist/bookings` | `uid` | `Qware_A_OrderTemp_log_202608` | 該帳號近 7 天訂票紀錄，不設筆數上限 |
-| `GET /api/f-blacklist/meta` | 無 | `Qware_MEM_BlackList_202608` | Header 統計數字：全會員數（`countDocuments({})`）、近 30 天 `MEMO0='Y'` 數（靠 §4 的 `MEMO0`+`UPDATE_TIME` 複合索引加速） |
+2026/08/05 使用者要求「不管有沒有在黑名單都要能查到」。原本 `BLACKLIST_DATA` 只收近 30 天 `MEMO0='Y'` 的 ~1.5 萬筆，查不到的帳號不代表電話錯誤，只是不在這個窗口內。解法是新增一份**獨立、極簡欄位**的全量索引 `ALL_INDEX`：對 `Qware_MEM_BlackList_202608` 全表（40 萬餘筆，不加 `MEMO0`/`UPDATE_TIME` 篩選）只投影 `USER_ID`、`MOBILE_head`、`MOBILE`、`MEMO0` 四個欄位，實測 403,350 筆有 `MOBILE` 值、JSON 序列化後 **~24.8MB**。
 
-### 3.3 回傳格式
+- 這讓整份報表檔案從 ~6.3MB 跳到 **~31MB**，是本專案目前最大的報表檔案（其他報表多在 500KB 以下），且每次重新產出都會讓 git repo 再增加 ~25MB。這個取捨已與使用者確認：比起另外架設安全的查詢 API（見 §2.1 的「不能把連線字串放進前端」限制，同樣適用於全會員查詢），純前端嵌入索引是唯一不需要新基礎設施就能達成「查全部會員」的做法，使用者選擇接受檔案變大。
+- `ALL_INDEX`（2026/08/06 起含完整欄位，見 §3.3）電話搜尋到的任何帳號都有完整 CREATE_TIME/UPDATE_TIME/CREATE_USER/UPDATE_USER，「黑名單狀態」欄顯示 `MEMO0` 原始值（`Y`/`N`/`4`/`未標記`）；但「關聯帳號」（`IP_LINKS`，見 §2.1）與「訂單紀錄」（`BOOKING_DATA`，見 §2.3）範圍仍只涵蓋近 30 天黑名單帳號／近 7 天有訂票紀錄的帳號，不在範圍內一律顯示「無登入紀錄」／「無訂單紀錄」。這是這兩項功能各自獨立的資料範圍限制，不是查詢錯誤。
+- generator 對全表做一次 `find({})`（無索引、全表掃描）取回 40 萬餘筆，實測約 8～9 秒，屬於一次性成本、可接受。
+
+### 2.3 訂單紀錄（BOOKING_DATA）為何限制 7 天、不逐帳號設筆數上限
+
+2026/08/05 使用者要求「顯示用電話號碼查出的 user_id 後再查其訂單紀錄資料」——一開始曾單獨新建 `G_MEM_Booking_Accounts_Report.html`（見 `REPORT_SPEC_G_BOOKING_ACCOUNTS.md`）作為獨立報表，使用者後續澄清其實是要**整合進本報表**：查完電話找到帳號後，直接在同一頁查該帳號的訂單紀錄，不要另開報表。
+
+資料源 `Qware_A_OrderTemp_log_202608`（訂票暫存 log，`order_user_id`/`performance_id`/`order_seat`/`book_date_time`/`order_user_ip`）全表 1,236,905 筆、無索引，資料期間僅 ~2 個月（collection 本身不留更久）。實測過三種方案：
+
+| 方案 | 結果 |
+|------|------|
+| 全表逐筆嵌入（139,781 個帳號，各自全部訂單） | 不可行，遠超合理範圍（座位欄位是中文字串，體積大） |
+| 每帳號筆數上限（cap=10，含座位欄位） | ~63MB；不含座位欄位仍要 ~48MB |
+| **改用日期窗口**（近 7 天，不限筆數，使用者拍板方案） | **~15.8MB**，178,240 筆訂單、29,314 個帳號有資料 |
+
+**採用日期窗口方案**：`BOOKING_WINDOW_DAYS = 7`，以 collection 裡 `book_date_time` 的**最大值**為錨點（而非日曆今天，同 §2.1 IP_LINKS 錨點設計），只取最近 7 天的訂單，每個帳號的訂單筆數不設上限（活動異常密集的帳號，例如近 7 天內同一 IP 反覆訂同一場同一批座位數十次，這種訊號本身就是重點，不應該被截斷隱藏）。整份報表檔案因此從 ~33MB 增至 **~50.5MB**，是與使用者確認過的取捨。
+
+`G_MEM_Booking_Accounts_Report.html` 予以保留（彙總全部 139,781 個帳號的訂票統計，涵蓋範圍比 F 報表的 7 天窗更廣），兩份報表資料源相同但用途不同：G 是「哪些帳號訂票最異常」的總覽掃描，F 的訂單紀錄查詢是「查到特定帳號後看他最近訂了什麼」的個案深挖，彼此不互相連結。
+
+## 3. 資料結構
+
+### 3.1 BLACKLIST_DATA 陣列格式（generator 注入，短欄位名以縮小檔案）
 
 ```js
-// GET /api/f-blacklist/search?mode=mobile&kw=09018071105
 {
-  ok: true,
-  truncated: false,          // 符合筆數是否超過 200 上限（超過只回前 200 筆）
-  data: [
-    {
-      uid: "32395977337438732472",      // USER_ID
-      mobileHead: "81",                  // MOBILE_head（國碼）
-      mobile: "09018071105",             // MOBILE（完整電話號碼）
-      memo0: "Y",                        // 'Y' / 'N' / '4' / null
-      createTime: "2026-04-13 14:09:29", // 台北時間字串
-      updateTime: "2026-06-22 09:21:19",
-      createUser: "定期掃描異常帳號",
-      updateUser: "775995263",
-      isMajor: true,                     // 同門號對應 5+ 個不同 USER_ID 時為 true，否則 false
-    },
-  ],
+  uid:    "32395977337438732472",   // USER_ID
+  mh:     "81",                     // MOBILE_head（國碼）
+  mobile: "09018071105",            // MOBILE（完整電話號碼，2026/08/05 起改用此欄位查詢，見 §4.1）
+  ct:     "2026-04-13 14:09:29",    // CREATE_TIME，已轉換為台北時間（+08:00）字串 "YYYY-MM-DD HH:mm:ss"
+  ut:     "2026-06-22 09:21:19",    // UPDATE_TIME，同上格式
+  cu:     "定期掃描異常帳號",         // CREATE_USER（可能是數字 ID 或掃描系統代稱）
+  uu:     "775995263",              // UPDATE_USER
+  wt:     "MAJOR",                  // （2026/08/06 新增，選填）同門號對應 5+ 個不同 USER_ID 時才有此欄位，見 §4.4
 }
-
-// GET /api/f-blacklist/ip-links?uid=xxx
-{
-  ok: true,
-  links: [
-    {
-      ip: "104.28.83.101",
-      lastLogin: "2026-08-04 21:39:13",
-      totalOthers: 47,
-      related: [{ uid: "26585652857736531458", lastLogin: "2026-08-04 20:10:02" }, /* … 最多 30 筆 */],
-    },
-  ],
-}
-
-// GET /api/f-blacklist/bookings?uid=xxx
-{
-  ok: true,
-  bookings: [
-    { performanceId: "B0BC63P7", seat: "VIP9區-33排-34號", time: "2026-07-30 20:34:07", ip: "36.229.168.189" },
-  ],
-}
-
-// GET /api/f-blacklist/meta
-{ ok: true, totalMembers: 409370, blacklistCount30d: 15146, ipWindowDays: 30, ipLinkCap: 30, bookingWindowDays: 7 }
 ```
 
-⚠️ 欄位改用完整英文名（`uid`/`mobile`/`createTime`…），不再沿用靜態嵌入版為了縮小檔案用的短欄位名（`uid`/`mh`/`ct`…，見舊版 changelog）——API 回傳的是單次查詢結果，體積不是問題，可讀性優先。
+⚠️ 2026/08/05 起不再含 `email` 欄位（原 EMAIL，已從資料與表格移除，見 §4.1／changelog）。
 
-### 3.4 MAJOR 判定（`isMajor`，取代舊版 generator 端全表預算）
+### 3.2 DATA_META 物件格式（generator 注入）
 
-舊版（靜態嵌入）在 generator 執行時一次性掃過全體 40 萬會員算好 `wt:'MAJOR'`。API 版改成**針對本次查詢結果裡出現的相異門號，各自即時算一次**：對結果中每個不重複的 `(MOBILE_head, MOBILE)` 組合，執行 `countDocuments({MOBILE_head, MOBILE})`（靠 §4 的複合索引加速），數量 ≥ `MAJOR_THRESHOLD`（5）即為該組所有帳號標記 `isMajor:true`。
+```js
+{ total: 15137, minDate: "2026-07-06", maxDate: "2026-08-04", ipWindowDays: 30, ipLinkCap: 30, allIndexTotal: 403350, bookingWindowDays: 7 }
+```
 
-## 4. MongoDB 索引
+- `minDate` / `maxDate`：本次嵌入資料中實際存在的 `UPDATE_TIME` 日期範圍（依台北時間），用於 flatpickr 的 `minDate`/`maxDate` 限制與「N天前」按鈕的錨點
+- **錨點設計與 E 系統月報/漏斗報表相同**：quick range 以 `maxDate`（資料集裡最後一天）為錨點，而非日曆今天，避免 generator 執行當下資料還沒同步到今天時選到空日
+- `ipWindowDays` / `ipLinkCap`：IP 關聯資料的時間窗（天）與每 IP 共用帳號上限，供前端 modal 標題與提示文字使用（見 §4.3、§2.1）
+- `allIndexTotal`：`ALL_INDEX` 的筆數（見 §3.3），顯示於 header「📇 電話可查全部會員：N 筆」
+- `bookingWindowDays`：訂單紀錄的時間窗（天），供 `openBookingModal()` 標題文字使用（見 §3.5、§2.3）
 
-2026/08/06 新增（執行前已與使用者確認：不影響既有資料，只是額外佔用儲存空間；建立過程對這幾個十萬～百萬筆等級的 collection 可能需要數十秒到數分鐘）：
+### 3.3 ALL_INDEX 陣列格式（generator 注入，2026/08/05 新增，見 §2.2；2026/08/06 加寬為含完整欄位）
 
-| Collection | 索引 | 用途 |
-|------------|------|------|
-| `Qware_MEM_BlackList_202608` | `{MOBILE_head:1, MOBILE:1}` | §3.4 MAJOR 判定的 `countDocuments` 精準查詢 |
-| `Qware_MEM_BlackList_202608` | `{USER_ID:1}` | 未來精準查單一帳號用（目前端點皆為部分比對，暫未直接受益） |
-| `Qware_MEM_BlackList_202608` | `{MEMO0:1, UPDATE_TIME:-1}` | `/meta` 端點的「近 30 天黑名單數」計數 |
-| `QWARE_MEM_IP_202608` | `{user_id:1, CREATE_TIME:-1}` | `/ip-links` 第一步：查該帳號近 30 天登入過的 IP |
-| `QWARE_MEM_IP_202608` | `{user_ip:1, CREATE_TIME:-1}` | `/ip-links` 第二步：反查同 IP 底下近 30 天的其他帳號 |
-| `Qware_A_OrderTemp_log_202608` | `{order_user_id:1, book_date_time:-1}` | `/bookings` 查該帳號近 7 天訂票紀錄 |
+```js
+[
+  {
+    u: "32322139317825347177",   // USER_ID
+    h: "852",                    // MOBILE_head（國碼）
+    m: "94702125",                // MOBILE（完整電話號碼）
+    f: null,                      // MEMO0 原始值（'Y'/'N'/'4'/null）
+    ct: "2023-10-03 16:41:15",   // CREATE_TIME（台北時間）
+    ut: "2026-08-03 18:52:53",   // UPDATE_TIME（台北時間）
+    cu: "定260804解",             // CREATE_USER
+    uu: "464939254",              // UPDATE_USER
+    wt: "MAJOR",                   // （2026/08/06 新增，選填）見 §4.4
+  },
+  // … 全部 40 萬餘筆會員
+]
+```
 
-⚠️ **電話／USER_ID 搜尋本身（`/search` 端點）不受這些索引加速**——`includes` 風格的部分字串比對在 MongoDB 對應不加 `^` 錨點的 regex，無法使用索引，仍是全表掃描。使用者已確認接受（見 §2）。
+電話搜尋（`applyFilter()`）直接對這個陣列做 `m.includes(kw)`，找到的每一列**自帶完整欄位**，不需要再去 `BLACKLIST_DATA` 補資料。
 
-## 5. 前端關鍵組件
+⚠️ **2026/08/06 欄位擴充**：`ALL_INDEX` 原本只有 `u`/`h`/`m`/`f` 4 個極簡欄位（刻意不含時間戳記以控制檔案大小），沒收錄的帳號查到後 CREATE_TIME/UPDATE_TIME/CREATE_USER/UPDATE_USER 一律顯示「—」。使用者查 `94702125` 發現這幾欄空白後追問「為什麼不顯示？」——實際上 MongoDB 裡這些帳號都有真實值，只是 generator 沒抓。改成每列直接帶上 `ct`/`ut`/`cu`/`uu`（等同把原本只給 `BLACKLIST_DATA`（近 30 天 `MEMO0='Y'`）的完整欄位，擴大到全部 40 萬會員都有），`ALL_INDEX` 從 ~24.8MB 增至 **~58.6MB**，整份報表檔案從 ~50.5MB 增至 **~85.3MB**。`BLACKLIST_DATA` 維持不變、繼续作為「黑名單瀏覽」日期篩選模式的資料源（見 §4.1），兩者對同一批黑名單帳號的欄位內容會重複，但保留是為了不動到既有日期篩選邏輯、降低改動風險。
 
-### 5.1 查詢模式
+### 3.4 IP_LINKS 物件格式（generator 注入，2026/08/05 新增）
 
-沿用 2026/08/06 稍早改版後的二選一設計（電話號碼／USER_ID，互斥，單選標籤 `#modeGroup`），細節不變。**差異只在觸發方式**：改版前是 `oninput` 即時篩選，API 版改成**只有按「套用篩選」才呼叫 API**（避免每敲一碼就打一次 API），輸入框保留 `Enter` 鍵可觸發同等效果。查詢中按鈕顯示 loading 狀態、停用避免重複送出。
+```js
+{
+  "32395977337438732472": [   // key = 黑名單帳號 uid
+    {
+      ip: "104.28.83.101",
+      t: "2026-08-04 21:39:13",       // 該帳號在此 IP 的最後登入時間（台北時間）
+      totalOthers: 47,                // 此 IP 近 7 天內的其他帳號總數（不含自己）
+      related: [                      // 前 IP_LINK_CAP（30）個，依最後登入時間新到舊
+        { uid: "26585652857736531458", t: "2026-08-04 20:10:02" },
+        // …
+      ]
+    },
+    // 該帳號近 7 天內用過的其他 IP…
+  ]
+}
+```
 
-### 5.2 預設檢視
+- 只有 `BLACKLIST_DATA` 裡、且近 7 天內有登入紀錄的帳號才會出現在 `IP_LINKS` 裡（key 不存在 = 該帳號查無登入紀錄，前端顯示「🔗 無登入紀錄」）
+- `totalOthers > related.length` 時代表被 `IP_LINK_CAP` 截斷，前端顯示「共 N 個共用帳號，僅顯示前 30 個」
 
-頁面載入不自動查詢，維持空白狀態＋提示文字，行為與改版前相同（見底部 changelog）。
+### 3.5 BOOKING_DATA 物件格式（generator 注入，2026/08/05 新增，見 §2.3）
 
-### 5.3 結果表格與 IP 關聯查詢
+```js
+{
+  "71543683776686754235": [   // key = order_user_id
+    { pid: "B0BC63P7", seat: "VIP9區-33排-34號", t: "2026-07-30 20:34:07", ip: "36.229.168.189" },
+    { pid: "B0BC63P7", seat: "VIP9區-33排-32號", t: "2026-07-30 20:34:07", ip: "36.229.168.189" },
+    // … 該帳號近 7 天內所有訂票紀錄，依 book_date_time 新到舊排序，不設筆數上限
+  ]
+}
+```
 
-欄位與呈現方式維持不變（USER_ID + MAJOR 標籤／黑名單狀態／MOBILE／CREATE_TIME／CREATE_USER／UPDATE_USER／關聯帳號／訂單紀錄，共 8 欄），差異在於「關聯帳號」「訂單紀錄」按鈕改成點擊時才 `fetch()` 對應端點（`/api/f-blacklist/ip-links`、`/api/f-blacklist/bookings`），modal 開啟前顯示 loading，取得資料後才渲染內容；不像舊版所有帳號的 IP/訂單資料都已經在頁面載入時全部備妥。
+- `pid`：`performance_id`；`seat`：`order_seat`（座位描述，中文字串）；`t`：`book_date_time`（台北時間）；`ip`：`order_user_ip`
+- **key 不限於 `BLACKLIST_DATA`／`ALL_INDEX` 裡的帳號**——只要近 7 天內有訂票紀錄就會出現在 `BOOKING_DATA`，即使該 `order_user_id` 不在會員黑名單 collection 裡也一樣（兩個 collection 的帳號集合不完全重疊，見 §2.3 表格底下說明）
+- 不設每帳號筆數上限：同一帳號短時間內大量重複訂同一場同一批座位，這種模式本身是重點訊號，不應被截斷隱藏
 
-### 5.4 IP 白名單保護（前端＋API 雙重）
+### 3.6 Section Marker（Generator 注入點）
 
-前端維持既有機制（`api.ipify.org` 查訪客 IP 比對授權清單，不符即整頁換成「存取被拒絕」，`<style>html{visibility:hidden}</style>` 起手式）。**新增**：`f_blacklist_api.js` 每個端點開頭也重新檢查一次來源 IP（讀 `req.headers['x-forwarded-for']`，比對同一份授權清單），不符合直接回 403，不執行任何查詢。理由：本報表含 EMAIL / USER_ID 等會員 PII，一旦查詢邏輯搬到公開可呼叫的 API endpoint，只靠前端檢查會被繞過（直接打 API URL 就能拿到資料），需要伺服器端再擋一次。兩份授權 IP 清單需保持同步（前端 `<head>` 內聯 JS 一份、`f_blacklist_api.js` 一份），修改時務必同步兩邊。
+```
+// ── Data Start ──────────────────────────────────────────────────────────────
+const BLACKLIST_DATA = […];
+const DATA_META = {…};
+const IP_LINKS = {…};
+const ALL_INDEX = […];
+const BOOKING_DATA = {…};
+// ── Data End ────────────────────────────────────────────────────────────────
+```
 
-## 6. 相關連結
+⚠️ **勿修改 marker 字串**，否則 generator 找不到注入點。`<span id="updateTimeLabel">…</span>` 由 generator 以 regex 整段替換為執行當下時間。
+
+## 4. 關鍵組件
+
+### 4.1 查詢模式（2026/08/06 改版：兩選一，日期瀏覽模式已移除）
+
+篩選列有「查詢模式」單選標籤群（`#modeGroup`，`setQueryMode(mode)`），二選一：`mobile`（電話號碼，預設）、`userid`（USER_ID）。兩者互斥，同一時間只有選中模式對應的輸入框可用（`disabled` 灰階，非選中模式的輸入框即使殘留舊文字也不會被查詢邏輯讀取）。皆查詢 `ALL_INDEX`（見 §3.3，全部 40 萬餘筆會員，不分黑名單狀態），`includes` 部分字串比對，即時篩選（`oninput`）；找到的帳號直接使用 `ALL_INDEX` 該列自帶的 `ct`/`ut`/`cu`/`uu`（見 §3.3），全部 40 萬會員都是完整資料，不顯示「—」佔位。
+
+- 電話搜尋比對 `mobile`（`MOBILE` 完整電話號碼欄位，**不含國碼**）；USER_ID 搜尋比對 `uid`（`USER_ID`）
+- 曾經歷過三版設計：① 最初（2026/08/05）靠「電話輸入框是否有值」自動判斷雙模式；② 2026/08/06 新增 USER_ID 查詢時一度做成「日期瀏覽／電話／USER_ID」三選一模式選擇器，日期瀏覽模式查 `BLACKLIST_DATA`（近 30 天 `MEMO0='Y'`，依 `UPDATE_TIME` 篩選，搭配 flatpickr 日期區間與 1/3/7 天前快速按鈕）；③ 同日使用者接著要求「查詢模式不要日期瀏覽，不用日期查詢」，移除整個日期瀏覽模式與其 UI（flatpickr 區塊、快速按鈕、CDN 引用），只留電話／USER_ID 兩種模式，預設模式改為 `mobile`
+- `BLACKLIST_DATA`（見 §3.1）自 ③ 版起**不再被前端查詢邏輯讀取**，但 generator 內部仍需要它來算 `IP_LINKS` 的帳號範圍（見 §2.1），故資料仍照常嵌入頁面，只是沒有對應的查詢入口
+
+⚠️ **欄位史誤（2026/08/04→08/05 修正）**：2026/08/04 建立本報表時，第一次查 schema 只抽樣到 collection 裡最早期（2019～2020 年）的幾筆文件，剛好都沒有 `MOBILE` 欄位（該欄位是後來才加進 schema 的），因而誤判「collection 裡沒有完整手機號碼欄位」，搜尋框當時比對的其實是 `MOBILE_head`（只有國碼，如 `852`、`886`）。使用者 2026/08/05 實際查號碼查不到（`mobile 94702125`）後回報，才發現 `MOBILE` 欄位其實存在、且在 `MEMO0='Y'` 的記錄裡幾乎 100% 有值。已修正 generator 與頁面改用 `MOBILE`（完整號碼）查詢，`MOBILE_head`（國碼）仍保留在 `mh` 欄位、顯示於表格 MOBILE 欄位前綴（如 `+81 09018071105`）。
+⚠️ **範圍史誤（同日修正）**：欄位修正後，使用者接著指出「查一個真實存在但未被標記黑名單的號碼」仍然查不到——當時電話搜尋還只對 `BLACKLIST_DATA`（近 30 天黑名單）做，範圍本來就不含一般會員。使用者要求「不管有沒有在黑名單都要能先找到資料」，因此新增 §2.2 的 `ALL_INDEX` 把電話搜尋範圍擴大到全體會員，此限制已解除。
+⚠️ **時間欄位史誤（2026/08/06 修正）**：範圍擴大後，非黑名單帳號的 CREATE_TIME/UPDATE_TIME/CREATE_USER/UPDATE_USER 仍顯示「—」——因為當時 `ALL_INDEX` 只有 4 個極簡欄位，這幾項只靠反查 `BLACKLIST_DATA` 補，補不到就留空。使用者查 `94702125` 看到空白後追問「為什麼不顯示？」，才發現 MongoDB 裡這些帳號其實都有真實值，只是沒被抓進 `ALL_INDEX`。已將 `ALL_INDEX` 擴充為含完整欄位（見 §3.3），此限制已解除，代價是整份檔案再增加 ~35MB（~50.5MB → ~85.3MB）。
+
+### 4.2 預設檢視
+
+⚠️ **2026/08/05 起頁面載入不再自動顯示任何資料**，改為空白狀態＋提示文字「請選擇查詢模式並輸入電話號碼或 USER_ID 後按『套用篩選』查詢」。使用者需主動輸入電話號碼或 USER_ID，才會觸發查詢並顯示表格（會設定內部 `hasSearched` 旗標）。「重置」會清空兩個搜尋框、切回預設的 `mobile` 模式，並把畫面帶回未查詢的空白狀態。
+
+**原因**：此頁定位從「瀏覽近期黑名單列表」轉為「先用電話或 USER_ID 查到主帳號、再逐筆查其 IP 關聯」的查案流程（見 §4.3），使用者不希望一進頁面就看到一大串未經篩選的資料。
+
+### 4.3 結果表格與 IP 關聯查詢
+
+欄位：USER_ID（同門號對應 5+ 個 USER_ID 時旁邊帶紫色「MAJOR」標籤，見 §4.4）、**黑名單狀態**、MOBILE（顯示為 `+國碼 電話號碼`，如 `+81 09018071105`）、CREATE_TIME、CREATE_USER、UPDATE_USER、**關聯帳號**、**訂單紀錄**，共 8 欄（UPDATE_TIME 欄已於 2026/08/06 移除，見下）。EMAIL 欄位已移除，見 §3.1。點前 6 欄 header 可排序（`sortTable()`）；最後兩欄（關聯帳號／訂單紀錄）是操作按鈕，不可排序。表格上方顯示「符合條件：N 筆」。
+
+⚠️ **UPDATE_TIME 欄位移除（2026/08/06）**：**僅移除表格顯示欄位**與其排序功能，`ALL_INDEX`/`BLACKLIST_DATA` 資料本身仍保留 `ut` 欄位供內部排序（依 `ut` 新到舊）使用，只是不再顯示成表格欄位、也沒有對應的日期篩選 UI（見 §4.1）。
+
+**黑名單狀態欄**：因搜尋涵蓋全體會員（見 §2.2），同一張表格可能同時出現黑名單與非黑名單帳號，需要一眼分辨。以 `memoBadge()` 依 `memo0` 值渲染徽章：`Y` → 紅色「黑名單」、`null` → 灰色「未標記」、其他值（如 `4`）→ 琥珀色原樣顯示。CREATE_TIME/CREATE_USER/UPDATE_USER 對搜尋到的任何帳號都是完整資料（2026/08/06 起，見 §3.3），不再有「—」佔位的情況。
+
+**關聯帳號欄**：每列一顆按鈕，文字依 `IP_LINKS[uid]` 是否存在顯示「🔗 IP關聯 (N)」（N = 近 30 天內用過的相異 IP 數）或「🔗 無登入紀錄」。點擊呼叫 `openIPModal(uid)` 開啟 modal（`#ipModal`），依序列出：
+
+1. 該帳號近 30 天用過的每個 IP（`entry.ip`）與該 IP 上的最後登入時間（`entry.t`）
+2. 該 IP 底下的其他帳號（`entry.related`，最多 30 筆，依最後登入時間新到舊）與各自最後登入時間；若無其他帳號顯示「此 IP 近30天內查無其他帳號」
+3. 若 `totalOthers > related.length`，額外顯示「共 N 個共用帳號，僅顯示前 30 個」截斷提示
+
+這是查案用的「反查關聯帳號」功能：先用電話號碼或 USER_ID 在表格裡找到主帳號（不分黑名單狀態，見 §2.2） → 點「關聯帳號」看它近期用過哪些 IP → 再看同一 IP 底下還有哪些其他帳號，用來抓同一人／同一裝置註冊多個帳號規避黑名單的狀況。**只有近 30 天 `MEMO0='Y'` 的帳號才有 `IP_LINKS` 資料**，非黑名單帳號一律顯示「無登入紀錄」（見 §2.1）。
+
+**訂單紀錄欄**：每列一顆按鈕，文字依 `BOOKING_DATA[uid]` 是否存在顯示「🎫 訂單 (N)」（N = 近 7 天內訂票筆數）或「🎫 無訂單紀錄」。點擊呼叫 `openBookingModal(uid)` 開啟另一個 modal（`#bookModal`），列出該帳號近 7 天所有訂票紀錄（演出代碼、座位、訂票時間、訂票 IP），依時間新到舊排序，**不設筆數上限**（見 §2.3——同一帳號短時間內重複訂同一批座位是重點訊號，不應截斷）。此功能查詢範圍不限於 `BLACKLIST_DATA`／`IP_LINKS`，`BOOKING_DATA` 的 key 只要近 7 天有訂票紀錄就存在，即使該帳號不在會員黑名單 collection 裡也一樣。
+
+### 4.4 MAJOR 標籤（同門號對應多個 USER_ID，2026/08/06 新增）
+
+Generator 端計算：以 `MOBILE_head + MOBILE`（國碼+完整號碼）為 key，對全體 `ALL_INDEX`（40 萬餘會員）分組，找出同一門號對應 `MAJOR_THRESHOLD` 個以上不同 `USER_ID` 的帳號，一律標記 `wt: 'MAJOR'`（欄位省略＝非 MAJOR，節省檔案大小）。`BLACKLIST_DATA` 裡的對應帳號也同步標記（用同一份 `majorUids` 查表，雖然 §4.1 提到 `BLACKLIST_DATA` 已無查詢入口，但保留標記以防未來重新啟用）。前端在結果表格 USER_ID 欄位文字旁加一個小紫色「MAJOR」標籤（不佔額外欄位）。
+
+⚠️ **閾值史誤（2026/08/06 當場修正）**：使用者原始需求是「出現兩個以上」，第一版用 `MAJOR_THRESHOLD = 2` 實作、跑完 generator 後發現全體 40.9 萬會員裡有 **31.8 萬個（78%）** 被標記 MAJOR——24.6 萬組門號裡有 15.6 萬組（63%）本身就對到 2 個以上不同 USER_ID，這是這份 collection 的真實資料型態（抽查命中最多的 15 組，每組普遍對到 5～6 個不同帳號），不是查詢邏輯錯誤。因為命中率太高、完全失去「標出可疑主帳號」的辨識力，回報使用者後改成 `MAJOR_THRESHOLD = 5`（同門號對應 5 個以上不同 USER_ID 才標記），重跑後命中 **988 個帳號（0.24%）**，符合預期的稀有度。**如需調整敏感度，改 `generate_f_mem_blacklist_query.js` 裡的 `MAJOR_THRESHOLD` 常數即可**，未來若改動請同步更新本節數字。
+
+### 4.5 IP 白名單保護
+
+比照 E 系統報表機制（`api.ipify.org` 查訪客 IP 比對 9 組授權 IP，不符即整頁換成「存取被拒絕」）。本報表因含 EMAIL / USER_ID 等會員 PII，**建立時就內建此保護**，不是事後補上。清單為手動維護的靜態內容，`generate_f_mem_blacklist_query.js` 只用 marker 區塊替換資料、不會動到 `<head>`。
+
+## 5. MongoDB 連線資訊
+
+| 用途 | Cluster URI | DB | Collection | 篩選 |
+|------|-------------|-------|------------|------|
+| 近 30 天黑名單資料 | `MONGODB_URI_QWARE` | `QwareAi` | `Qware_MEM_BlackList_202608` | `MEMO0:"Y"`, `UPDATE_TIME >= now - 30天` |
+| 全會員電話索引（ALL_INDEX） | `MONGODB_URI_QWARE` | `QwareAi` | `Qware_MEM_BlackList_202608` | 無篩選，全表 `find({})` 只投影 4 欄位（見 §2.2） |
+| 近 30 天登入 IP 資料 | `MONGODB_URI_QWARE` | `QwareAi` | `QWARE_MEM_IP_202608` | `CREATE_TIME >= now - 30天`（不篩 user_id，一次抓回全部再於記憶體建對照表，見 §2.1） |
+| 近 7 天訂單紀錄（BOOKING_DATA） | `MONGODB_URI_QWARE` | `QwareAi` | `Qware_A_OrderTemp_log_202608` | `book_date_time >= 該表最新一筆時間 - 7天`（不篩 user，一次抓回全部再於記憶體依帳號分組，見 §2.3） |
+
+`Qware_MEM_BlackList_202608` 主要欄位：`USER_ID`、`EMAIL`（本報表已不使用）、`MOBILE_head`（國碼）、`MOBILE`（完整電話號碼，本報表查詢用此欄位，見 §4.1）、`CREATE_TIME`、`UPDATE_TIME`、`CREATE_USER`、`UPDATE_USER`、`MEMO0`（`Y`/`N`/`4`/`null`，只有 `Y` 才是本報表要查的黑名單標記）。collection 只有 `_id` 索引，全表 40 萬餘筆，`find()` 前務必先用 `MEMO0`+`UPDATE_TIME` 縮小範圍，避免全表掃描。
+
+`QWARE_MEM_IP_202608` 欄位：`user_id`、`user_ip`、`CREATE_TIME`（登入時間）。同樣只有 `_id` 索引，全表 103 萬筆＋單一 `user_id` 查詢約 0.7 秒；本報表**不對此 collection 逐帳號查詢**，而是用 `CREATE_TIME` 範圍一次抓回整批（30 天窗約 50 萬筆）再於 Node 記憶體建雙向對照表，細節與取捨見 §2.1。
+
+`Qware_A_OrderTemp_log_202608` 欄位：`order_user_id`、`performance_id`、`performance_price_area_id`、`order_seat`、`book_date_time`、`order_user_ip`。只有 `_id` 索引，全表 1,236,905 筆、資料期間僅 ~2 個月（collection 本身不留更久）；本報表用 `book_date_time` 範圍一次抓回整批（7 天窗約 17.8 萬筆）再依 `order_user_id` 分組，細節與取捨見 §2.3。**注意有另一個大小寫幾乎相同的 collection `QWARE_A_OrderTemp_log_202608`（371 萬筆），本報表固定使用開頭小寫的 `Qware_A_OrderTemp_log_202608`**，重跑 generator 前請確認沒有誤植。
+
+## 6. 更新方式
+
+```bash
+node generate_f_mem_blacklist_query.js
+git add F_MEM_BlackList_Query_Report.html generate_f_mem_blacklist_query.js
+git commit -m "Update F blacklist query report"
+git push origin main
+```
+
+**目前沒有排入任何排程**（不在 `daily_update.bat` 等 4 支 bat 的清單內），純手動報表；如需查最新資料，重新執行上述指令即可（30 天滾動窗會自動往前移）。
+
+**同步至 NewReport（使用者實際瀏覽的站台）**：本報表屬於 `newreport-dual-repo-architecture` 定義的「ad-hoc 檔案」，不在任何 bat 的固定同步清單內，更新完 `D:\2025\AI\MongoDB` 後需手動 copy 進 `D:\2025\AI\NewReport` 並 commit + push（`origin`、`company` 兩個 remote 交錯 pull/push，細節見 `REPORT_SPEC_SCHEDULED_TASKS.md` §5.6.3）。
+
+## 7. 相關連結
 
 - 目錄：`HTML_Report_Catalog.html`
-- 同架構的既有 API 範例：`stock_api.js`（Vercel serverless function + MongoDB 連線快取寫法）
 
 ---
 *建立日期：2026/08/04｜使用者需求為「用日期 + USER_ID 查詢 MEMO0='Y' 的黑名單資料」；因全量 85,485 筆嵌入會產生 ~15MB 異常檔案，與使用者確認後改為只嵌入近 90 天，預設檢視為近 3 天*
 *2026/08/04：使用者要求日期查詢欄位改用 `UPDATE_TIME`（原為 `CREATE_TIME`），同步修改 generator 查詢條件/排序與頁面篩選邏輯；因 `UPDATE_TIME` 恆 ≥ `CREATE_TIME`，同樣 90 天窗篩到的筆數從 25,272 增至 58,622，檔案從 ~4.6MB 增至 ~10.8MB*
 *2026/08/04：使用者要求把 `WINDOW_DAYS` 從 90 縮短為 30，筆數降到 15,651、檔案降到 ~2.9MB*
-*2026/08/04：使用者要求查詢欄位從 USER_ID 改成電話號碼；確認 collection 無完整手機號碼欄位（只有 `MOBILE_head` 國碼）後，使用者選擇「改UI就好」——搜尋框改比對 `mobile`（`MOBILE_head`）而非 `uid`，純前端篩選 key 置換，未動 generator/資料結構*
-*2026/08/05：新增 IP 關聯查詢功能——移除 EMAIL 欄位／改為預設空白頁面需主動查詢／每列新增「關聯帳號」按鈕，查該帳號近期登入 IP 並反查同 IP 下的其他帳號。過程：使用者一開始要求即時查，但該 collection 103 萬筆無索引、且本報表是公開靜態頁無法安全帶 DB 連線字串做即時查詢，改為 generator 端一次性預算好嵌入；IP 資料時間窗原評估 30 天（會膨脹到 ~5.87MB／總檔案逼近 9MB），使用者要求縮到 7 天（~3.86MB／總檔案 ~6.3MB）；範圍確認為只做目前頁面既有的 ~1.5 萬個黑名單帳號，非全體會員（**此時仍誤判無完整電話號碼欄位，見下一則修正**）*
-*2026/08/05：修正電話查詢欄位錯誤——使用者回報查真實號碼（`mobile 94702125`）找不到，追查發現 `Qware_MEM_BlackList_202608` 其實有完整 `MOBILE` 欄位，先前 08/04 建立報表時因 schema 抽樣只挑到 2019～2020 年最早期、還沒有 `MOBILE` 欄位的舊文件，誤判「系統沒有完整電話號碼」，實際搜尋框一直比對的是 `MOBILE_head`（國碼）。已修正 generator 投影與資料結構（`mobile` 改存 `MOBILE` 完整號碼、新增 `mh` 存國碼），頁面 MOBILE 欄改顯示 `+國碼 號碼`，搜尋邏輯不變（仍是 `includes` 部分比對，只是比對對象換成真正的完整號碼）。同時修正文件裡多處錯誤的 collection 總筆數（`countDocuments` 實測 403,408，先前誤植「375 萬」）。查詢範圍仍收斂在頁面既有的黑名單帳號，未擴大到全體會員*
-*2026/08/05：電話查詢範圍擴大到全體會員——欄位修好後使用者發現剛才那支號碼對應的帳號其實 `MEMO0:null`（未被標記黑名單），指出「要能先找到資料，不管有沒有在黑名單」。新增全量索引 `ALL_INDEX`（對全表 40 萬餘筆只投影 `USER_ID`/`MOBILE_head`/`MOBILE`/`MEMO0` 四欄，~24.8MB）取代原本只查近 30 天黑名單資料的行為；`applyFilter()` 改為雙模式：有輸入電話 → 查全量索引（忽略日期）、沒輸入 → 查近 30 天黑名單（依日期，原行為不變）。表格新增「黑名單狀態」欄，非黑名單帳號的時間/操作者欄位顯示「—」。整份檔案從 ~6.3MB 增至 **~31MB**，是與使用者確認過的取捨（曾提出縮小範圍/改後端 API 兩個替代方案，使用者選擇直接接受全量嵌入）*
-*2026/08/05：使用者要求把「關聯帳號」的 IP 登入紀錄時間窗從 7 天拉長回 30 天；`IP_LINKS` 涵蓋帳號數從 2,608 增至 4,278，整份檔案從 ~31MB 再增至 **~33MB***
-*2026/08/05：使用者要求「再查所有帳號有 booking 的紀錄 Qware_A_OrderTemp_log_202608」，一開始詢問後理解為要獨立新報表，做了 `G_MEM_Booking_Accounts_Report.html`（見 `REPORT_SPEC_G_BOOKING_ACCOUNTS.md`）；使用者接著澄清其實是要在 F 報表裡「用電話號碼查出 user_id 後再查其訂單紀錄」，即整合進本報表既有的查詢流程，而非另開報表。新增 `BOOKING_DATA`：測過全量嵌入（不可行）、每帳號筆數上限 cap=10（~48～63MB）兩種方案後，改用使用者提出的「日期窗口」方案——不限筆數，只取近 7 天訂單，實測 ~15.8MB。表格新增「訂單紀錄」按鈕欄，點擊開 modal 顯示該帳號近 7 天訂票明細（演出/座位/時間/IP）。整份檔案從 ~33MB 增至 **~50.5MB**。`G_MEM_Booking_Accounts_Report.html` 予以保留，兩者用途互補（G 是全帳號彙總掃描，F 是查到帳號後的個案深挖），不互相連結。此次 `git push` 首次跳出 GitHub「檔案超過建議 50MB」warning（非硬性拒絕，仍 push 成功）*
-*2026/08/06：使用者查 `94702125` 發現 CREATE_TIME/UPDATE_TIME/CREATE_USER/UPDATE_USER 全是空值，追問「為什麼不顯示？」——查證後這兩筆帳號在 MongoDB 裡其實都有真實值，只是全量索引當初設計成只含 4 個極簡欄位，非黑名單帳號查到後這幾欄只能顯示「—」。使用者不接受這個折衷，要求顯示出來。改把 `ct`/`ut`/`cu`/`uu` 四個欄位加進全量索引每一列，整份檔案從 ~50.5MB 增至 **~85.3MB**，已逼近 GitHub 100MB 硬性上限*
-*2026/08/06：三項需求一次交付——① 同門號對應多個 USER_ID 標記 MAJOR：原始需求「出現兩個以上」第一版用閾值 2 實作，跑完發現命中全體會員 78%（這份 collection 本身同門號對應多帳號極常見，非查詢邏輯錯誤），回報使用者後改閾值為 5，命中降到 988 個帳號（0.24%），恢復辨識力；② 移除表格 UPDATE_TIME 顯示欄位，保留日期區間篩選功能不變；③ 新增 USER_ID 查詢，與電話搜尋、日期瀏覽整合為三選一的「查詢模式」單選標籤群——過程中使用者一開始要求電話/USER_ID 兩欄互斥且「輸入時自動清空對方」，接著又要求改成「各自獨立」，追問後釐清其實是要「只能擇一」但不要自動清空、也不要 AND 疊加，最終採用明確的模式選擇器 UI 達成三者互斥。整份報表檔案來到 **~88.5MB**（GitHub 100MB 硬性上限剩約 11.5MB 餘裕）*
-*2026/08/06（同日再次調整）：使用者要求「查詢模式不要日期瀏覽，不用日期查詢」——移除當天稍早才做好的「日期瀏覽／電話／USER_ID」三選一模式，拿掉整個日期區間篩選 UI，只留「電話號碼／USER_ID」二選一，預設模式改為電話號碼。檔案維持 **~88.5MB** 量級*
-*2026/08/06（同日第三次調整，架構改版）：使用者問「不是資料從 MongoDB 來？為什麼檔案這麼大」，藉機討論後決定放棄靜態嵌入架構，改用專案既有的 Vercel 專案（`report-theta-nine.vercel.app`）新增 `f_blacklist_api.js` 即時查詢 MongoDB，前端改精簡版純 `fetch()`。過程確認：① 全部 4 塊資料都改即時 API（不折衷保留部分嵌入）；② 不保留靜態嵌入版備援，刪除 `generate_f_mem_blacklist_query.js`；③ 為 3 個相關 collection 新增索引加速精準比對查詢（`/ip-links`、`/bookings`、MAJOR 判定），但發現電話/USER_ID 的「任意位置部分字串比對」索引幫不上忙（MongoDB 只有前綴/完全相符才能用索引），使用者確認接受每次搜尋數秒延遲、不改比對規則；④ API 端也加一層 IP 白名單檢查（原本只有前端擋，可被繞過直接打 API）；⑤ 搜尋觸發方式從 `oninput` 即時篩選改成需按「套用篩選」，避免每敲一碼打一次 API。檔案大小從 ~88.5MB 大幅降至 KB 等級（不再嵌入任何會員資料）*
+*2026/08/04：使用者要求查詢欄位從 USER_ID 改成電話號碼；確認 collection 無完整手機號碼欄位（只有 `MOBILE_head` 國碼）後，使用者選擇「改UI就好」——搜尋框改比對 `mobile`（`MOBILE_head`）而非 `uid`，純前端篩選 key 置換，未動 generator/資料結構，見 §4.1 說明*
+*2026/08/05：新增 IP 關聯查詢功能（§3.3、§4.3）——移除 EMAIL 欄位／改為預設空白頁面需主動查詢（§4.2）／每列新增「關聯帳號」按鈕，查該帳號近期登入 IP 並反查同 IP 下的其他帳號。過程：使用者一開始要求即時查（電話→主帳號→USER_ID 查 `QWARE_MEM_IP_202608` 近期登入IP→反查同IP其他帳號），但該 collection 103 萬筆無索引、且本報表是公開靜態頁無法安全帶 DB 連線字串做即時查詢，改為 generator 端一次性預算好嵌入；IP 資料時間窗原評估 30 天（會膨脹到 ~5.87MB／總檔案逼近 9MB），使用者要求縮到 7 天（~3.86MB／總檔案 ~6.3MB，見 §2.1）；範圍確認為只做目前頁面既有的 ~1.5 萬個黑名單帳號，非全體會員（**此時仍誤判無完整電話號碼欄位，見下一則修正**）*
+*2026/08/05：修正電話查詢欄位錯誤——使用者回報查真實號碼（`mobile 94702125`）找不到，追查發現 `Qware_MEM_BlackList_202608` 其實有完整 `MOBILE` 欄位，先前 08/04 建立報表時因 schema 抽樣只挑到 2019～2020 年最早期、還沒有 `MOBILE` 欄位的舊文件，誤判「系統沒有完整電話號碼」，實際搜尋框一直比對的是 `MOBILE_head`（國碼）。已修正 generator 投影與 BLACKLIST_DATA 結構（`mobile` 改存 `MOBILE` 完整號碼、新增 `mh` 存國碼），頁面 MOBILE 欄改顯示 `+國碼 號碼`，搜尋邏輯不變（仍是 `includes` 部分比對，只是比對對象換成真正的完整號碼）。同時修正文件裡多處錯誤的 collection 總筆數（`countDocuments` 實測 403,408，先前誤植「375 萬」）。查詢範圍仍收斂在頁面既有的黑名單帳號（見 §2.1 changelog 更新），未擴大到全體會員*
+*2026/08/05：電話查詢範圍擴大到全體會員——欄位修好後使用者發現剛才那支號碼對應的帳號其實 `MEMO0:null`（未被標記黑名單），指出「要能先找到資料，不管有沒有在黑名單」。新增 §2.2 的 `ALL_INDEX`（對全表 40 萬餘筆只投影 `USER_ID`/`MOBILE_head`/`MOBILE`/`MEMO0` 四欄，~24.8MB）取代原本只查 `BLACKLIST_DATA` 的行為；`applyFilter()` 改為雙模式（見 §4.1）：有輸入電話 → 查 `ALL_INDEX`（忽略日期）、沒輸入 → 查 `BLACKLIST_DATA`（依日期，原行為不變）。表格新增「黑名單狀態」欄（`memoBadge()`），非黑名單帳號的時間/操作者欄位顯示「—」。整份檔案從 ~6.3MB 增至 **~31MB**，是與使用者確認過的取捨（曾提出縮小範圍/改後端 API 兩個替代方案，使用者選擇直接接受全量嵌入）*
+*2026/08/05：使用者要求把「關聯帳號」的 IP 登入紀錄時間窗從 7 天拉長回 30 天，`IP_WINDOW_DAYS` 改回 30（見 §2.1）；`IP_LINKS` 涵蓋帳號數從 2,608 增至 4,278，整份檔案從 ~31MB 再增至 **~33MB**（此次未再另外確認，因為 30 天窗與 §2.2 的檔案量級已有先例可循，屬於直接執行的明確指示）*
+*2026/08/05：使用者要求「再查所有帳號有 booking 的紀錄 Qware_A_OrderTemp_log_202608」，一開始詢問後理解為要獨立新報表，做了 `G_MEM_Booking_Accounts_Report.html`（見 `REPORT_SPEC_G_BOOKING_ACCOUNTS.md`）；使用者接著澄清其實是要在 F 報表裡「用電話號碼查出 user_id 後再查其訂單紀錄」，即整合進本報表既有的查詢流程，而非另開報表。新增 §2.3、§3.5 的 `BOOKING_DATA`：測過全量嵌入（不可行）、每帳號筆數上限 cap=10（~48～63MB）兩種方案後，改用使用者提出的「日期窗口」方案——不限筆數，只取近 7 天訂單（`BOOKING_WINDOW_DAYS=7`，錨定 collection 本身最新一筆時間），實測 ~15.8MB。表格新增「訂單紀錄」按鈕欄（§4.3），點擊開 `#bookModal` 顯示該帳號近 7 天訂票明細（演出/座位/時間/IP）。整份檔案從 ~33MB 增至 **~50.5MB**。`G_MEM_Booking_Accounts_Report.html` 予以保留，兩者用途互補（G 是全帳號彙總掃描，F 是查到帳號後的個案深挖），不互相連結。此次 `git push` 首次跳出 GitHub「檔案超過建議 50MB」warning（非硬性拒絕，仍 push 成功）*
+*2026/08/06：使用者查 `94702125` 發現 CREATE_TIME/UPDATE_TIME/CREATE_USER/UPDATE_USER 全是空值，追問「為什麼不顯示？」——查證後這兩筆帳號在 MongoDB 裡其實都有真實值，只是 `ALL_INDEX`（見 §3.3）當初設計成只含 4 個極簡欄位，非黑名單帳號查到後這幾欄只能顯示「—」。使用者不接受這個折衷，要求顯示出來。改把 `ct`/`ut`/`cu`/`uu` 四個欄位加進 `ALL_INDEX` 每一列（等同把原本只給近 30 天黑名單帳號的完整資料，擴大到全部 40 萬會員都有），`applyFilter()` 電話搜尋分支同步簡化（直接用 `ALL_INDEX` 自帶欄位，不再需要反查 `BLACKLIST_DATA`）。`ALL_INDEX` 從 ~24.8MB 增至 ~58.6MB，整份檔案從 ~50.5MB 增至 **~85.3MB**，已逼近 GitHub 100MB 硬性上限（見 §2 開頭警語）*
+*2026/08/06：三項需求一次交付——① 同門號對應多個 USER_ID 標記 MAJOR（見 §4.4）：原始需求「出現兩個以上」第一版用閾值 2 實作，跑完發現命中全體會員 78%（這份 collection 本身同門號對應多帳號極常見，非查詢邏輯錯誤），回報使用者後改閾值為 5，命中降到 988 個帳號（0.24%），恢復辨識力；② 移除表格 UPDATE_TIME 顯示欄位，保留日期區間篩選功能不變（見 §4.7）；③ 新增 USER_ID 查詢，與電話搜尋、日期瀏覽整合為三選一的「查詢模式」單選標籤群（見 §4.4、§4.5）——過程中使用者一開始要求電話/USER_ID 兩欄互斥且「輸入時自動清空對方」，接著又要求改成「各自獨立」，追問後釐清其實是要「只能擇一」但不要自動清空、也不要 AND 疊加，最終採用明確的模式選擇器 UI 達成三者互斥。整份報表檔案因新增 `wt` 短欄位與資料集自然成長，來到 **~88.5MB**（GitHub 100MB 硬性上限剩約 11.5MB 餘裕，見 §2 開頭警語）*
+*2026/08/06（同日再次調整）：使用者要求「查詢模式不要日期瀏覽，不用日期查詢」——移除當天稍早才做好的「日期瀏覽／電話／USER_ID」三選一模式，拿掉整個日期區間篩選 UI（flatpickr 雙欄位、1/3/7 天前快速按鈕、flatpickr CDN 引用），只留「電話號碼／USER_ID」二選一，預設模式改為電話號碼（見 §4.1）。`BLACKLIST_DATA` 資料本身不變（generator 仍需要它算 `IP_LINKS` 範圍），只是前端不再有依日期瀏覽它的入口。過程中也順手修正 header 提示文字裡一處忘記從「2 個以上」同步改成「5 個以上」的 MAJOR 閾值敘述（見 §4.4 changelog）。檔案大小因移除 flatpickr CDN 連結與部分 UI/JS 略降，維持 **~88.5MB** 量級*
+*2026/08/06（同日第三次調整，短命的架構改版）：使用者問「不是資料從 MongoDB 來？為什麼檔案這麼大」，藉機討論後改用專案既有的 Vercel 專案（`report-theta-nine.vercel.app`）新增 `f_blacklist_api.js` 即時查詢 MongoDB，前端改為 21KB 的 `fetch()` shell，靜態嵌入的 `BLACKLIST_DATA`/`ALL_INDEX`/`IP_LINKS`/`BOOKING_DATA` 全部拿掉。當時評估 4 個端點（`search`/`ip-links`/`bookings`/`meta`）皆做 IP 白名單雙重檢查（前端＋API 端）、並新增 3 個 MongoDB 索引加速。*
+*2026/08/07：改回本文件版本（見檔案開頭 ℹ️ 提示）——Vercel serverless 沒有固定 outbound IP，`QwareAi` Atlas 專案的 Network Access 未開 `0.0.0.0/0`（不像 `AlexLIFE` 專案），導致 API 連線不穩定，使用者要求「先不用 vercel 了」。原以為 `generate_f_mem_blacklist_query.js` 已在 08/06 架構改版時被刪除，實際檢查發現該檔案從未真正從 git 移除（08/06 那次 commit 只動了 HTML/spec/新增 API 檔案），因此重新對這份舊 generator 補跑即可，不需要重寫。**唯一的坑**：08/06 之後的 `F_MEM_BlackList_Query_Report.html` 已被换成不含 `// ── Data Start ──` marker 的 21KB shell，generator 直接對它跑會拋 `Data markers not found`，需先用 `git show e91e7bb:F_MEM_BlackList_Query_Report.html` 還原回有 marker 的舊模板，才能重新注入資料。已刪除 `f_blacklist_api.js`、`vercel.json` 對應的 build/route 設定（3 個相關 MongoDB 索引未刪除，留著無害，之後若重啟 API 方案可直接用）。重新產出後檔案 **~94.3MB**（資料集比 08/06 當時又自然成長了一些），比先前更逼近 100MB 硬上限，見檔案開頭警語*
