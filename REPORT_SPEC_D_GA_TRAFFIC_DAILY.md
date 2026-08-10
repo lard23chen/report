@@ -98,6 +98,15 @@ const DATA_META = {…};
 
 比照 `D_GA_Funnel_202606_Report.html` 機制（`api.ipify.org` 查訪客 IP 比對 9 組授權 IP，不符即整頁換成「存取被拒絕」）。清單為手動維護的靜態內容，generator 只用 marker 區塊替換資料、不會動到 `<head>`。
 
+### 4.6 整體每日趨勢圖峰值標籤（2026/08/10 新增）
+
+「整體每日 PV / Click 趨勢」線圖（`trendChart`）在 PV 最高的那一天上方固定顯示一個深色小標籤，寫出當天 PV 最高的**單一活動**名稱（`topActivityForDate(date)` 掃描 `PV_BY_DATE` 找出該日 PV 最大的活動，再從 `ACTIVITY_RANKING` 查名稱；超過 16 字元截斷加「…」）。用意是讓看圖的人不用另外去排行榜表格查，一眼就知道整體流量高峰是哪個活動帶動的。
+
+- 只標最高點，其餘點不顯示（用 `chartjs-plugin-datalabels` 的 `datalabels.display` 依 `dataIndex === peakIndex` 判斷），保持圖表乾淨
+- Click 資料集固定 `datalabels:{display:false}`，避免同一天兩個數字重疊
+- Y 軸（PV）加了 `suggestedMax: pvMax * 1.25` 預留頭部空間，否則高峰點常常頂到圖表最上緣，標籤會被裁切或蓋住圖例（`legend`）
+- 峰值是依「目前篩選範圍內的 daily」重新計算，套用日期篩選後標籤會跟著換成該範圍內的最高點與對應活動
+
 ## 5. MongoDB 連線資訊
 
 | 用途 | Cluster URI | DB | Collection |
