@@ -9178,7 +9178,7 @@ function updateCatChart(ranking) {
 }
 
 function renderTable() {
-  let rows = currentRanking().filter(d => currentCatFilter==='all' || d.cat===currentCatFilter);
+  let rows = currentRanking().filter(d => d.pv != null && (currentCatFilter==='all' || d.cat===currentCatFilter));
   const keys = ['idx','name','cat','pv','pvShare','clicks','clickShare','id'];
   const key = keys[sortCol];
   rows = rows.slice().sort((a,b) => {
