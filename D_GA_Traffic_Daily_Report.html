@@ -142,6 +142,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
     </div>
   </div>
   <div class="filter-actions">
+    <span id="monthQuickButtons" style="display:contents"></span>
     <button class="filter-btn-ghost" onclick="setQuickRange(1)">1天前</button>
     <button class="filter-btn-ghost" onclick="setQuickRange(7)">7天前</button>
     <button class="filter-btn-ghost" onclick="setQuickRange(30)">30天前</button>
@@ -9255,9 +9256,29 @@ function setQuickRange(days) {
   applyFilter();
 }
 
+// 依實際有資料的月份動態產生月按鈕（不寫死月份數字），資料每天累積、月份自然跟著變多
+function setMonthRange(month) {
+  const monthDates = allDates.filter(d => d.startsWith(month + '/'));
+  if (!monthDates.length) return;
+  fpFrom.setDate(monthDates[0], true);
+  fpTo.setDate(monthDates[monthDates.length-1], true);
+  applyFilter();
+}
+
+const MONTH_BUTTON_MIN = '06'; // 只顯示 2026/06 起的月按鈕（PV 資料本來就從 06/10 才開始，Click 較早的 05 月不特別列）
+
+function renderMonthQuickButtons() {
+  const months = [...new Set(allDates.map(d => d.split('/')[0]))].filter(m => m >= MONTH_BUTTON_MIN).sort();
+  const container = document.getElementById('monthQuickButtons');
+  container.innerHTML = months.map(m =>
+    `<button class="filter-btn-ghost" onclick="setMonthRange('${m}')">${parseInt(m,10)}月</button>`
+  ).join('');
+}
+
 if (allDates.length) {
   fpFrom = flatpickr('#dateFrom', { dateFormat:'m/d', enable: allDates, defaultDate: allDates[0], disableMobile:true });
   fpTo   = flatpickr('#dateTo',   { dateFormat:'m/d', enable: allDates, defaultDate: allDates[allDates.length-1], disableMobile:true });
+  renderMonthQuickButtons();
 }
 
 // Initial render (unfiltered)

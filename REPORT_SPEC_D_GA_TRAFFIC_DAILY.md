@@ -74,6 +74,8 @@ const DATA_META = {…};
 
 單一日期區間（不像 funnel report 分 PV/Click 兩組區間），套用後同時重新計算：整體每日趨勢圖（`computeDaily()`）、活動排行榜（`computeRanking()`）、類別分布圖。錨點＝`DAILY_TOTAL` 最後一筆日期（資料端，非日曆今天），與本專案其他日期篩選報表（F黑名單、Azure每日費用、D_GA_Funnel）一致的錨點設計。
 
+**月份快速按鈕（2026/08/10 新增）**：除了「1/7/30天前」，篩選列另有「6月」「7月」「8月」...這類整月按鈕，點擊後直接把日期區間設成該月第一天到最後一天（當月未結束就設到目前資料的最後一天，如「8月」= 08/01–08/08）。這排按鈕由 `renderMonthQuickButtons()` **依 `allDates` 實際存在的月份動態產生**（`MONTH_BUTTON_MIN = '06'` 只過濾掉不特別列出的 2026/05），不是寫死 6/7/8 三個月——之後資料自然累積到 9 月、10 月時，按鈕會自動多出來，不需要改程式碼。
+
 ### 4.2 活動排行榜
 
 單一表格同時顯示 PV 與 Click 兩欄（含各自排名 `pvRank`/`clickRank`、佔比 `pvShare`/`clickShare`），透過點擊欄位標題排序（`sortTable()`）達成「PV 排行榜」或「Click 排行榜」的效果，不做成分頁籤——比舊版 `D_GA_PageViewData`/`D_GA_ClickData` 報表各自獨立 TOP10 表格更精簡，避免功能重複的兩份表格。
