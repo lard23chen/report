@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>D系統 GA 每日流量報表</title>
+<!-- IP Allowlist: internal network only -->
+<style>html { visibility: hidden; }</style>
+<script>
+  (function () {
+    var ALLOWED = ['211.75.181.109','211.75.181.110','220.130.6.196','220.130.6.197','220.130.6.198','220.130.134.238','220.130.134.239','220.130.134.240','133.149.194.24'];
+    function deny(ip) {
+      document.documentElement.style.visibility = 'visible';
+      document.body.style.cssText = 'margin:0;padding:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh;';
+      document.body.innerHTML = '<div style="text-align:center;font-family:Outfit,sans-serif;padding:40px"><div style="font-size:5rem;margin-bottom:20px">🔒</div><h1 style="color:#ef4444;font-size:2rem;margin:0 0 14px">存取被拒絕</h1><p style="color:#94a3b8;margin:0 0 8px">您目前的 IP 位址：<code style="background:#1e293b;padding:2px 10px;border-radius:4px;color:#f472b6">' + ip + '</code></p><p style="color:#64748b;font-size:0.88rem">此頁面僅限內部網路存取 · Access restricted to internal network only</p></div>';
+    }
+    var timer = setTimeout(function () { deny('timeout'); }, 6000);
+    fetch('https://api.ipify.org?format=json')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        clearTimeout(timer);
+        if (ALLOWED.indexOf(d.ip) !== -1) { document.documentElement.style.visibility = 'visible'; }
+        else { deny(d.ip); }
+      })
+      .catch(function () { clearTimeout(timer); deny('unknown'); });
+  })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<style>
+:root{
+  --bg:#0f172a;--card:#1e293b;--border:#2d3d55;
+  --text:#f1f5f9;--muted:#94a3b8;
+  --blue:#3b82f6;--purple:#8b5cf6;--rose:#f43f5e;
+  --green:#10b981;--amber:#f59e0b;--cyan:#06b6d4;
+  --sports:#3b82f6;--concert:#8b5cf6;--kpop:#f43f5e;--anime:#10b981;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:14px;min-height:100vh}
+a{color:var(--blue);text-decoration:none}
+header{background:linear-gradient(135deg,#1e3a5f,#1e293b);border-bottom:1px solid var(--border);padding:20px 28px 16px}
+.hdr-row{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.hdr-titles h1{font-size:20px;font-weight:700;color:var(--text)}
+.hdr-tags{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.tag-pv{background:rgba(59,130,246,.18);color:#93c5fd;border:1px solid rgba(59,130,246,.4)}
+.tag-click{background:rgba(139,92,246,.18);color:#c4b5fd;border:1px solid rgba(139,92,246,.4)}
+.tag-info{background:rgba(148,163,184,.12);color:var(--muted);border:1px solid rgba(148,163,184,.25)}
+.hdr-note{margin-left:auto;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 14px;max-width:360px;font-size:11px;color:#fcd34d;line-height:1.6}
+main{padding:20px 28px}
+.filter-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 16px;margin-bottom:16px}
+.filter-group{display:flex;align-items:center;gap:8px}
+.filter-label{font-size:11px;color:var(--muted);white-space:nowrap}
+.fp-wrap{display:flex;align-items:center;gap:5px}
+.fp-input{background:#0f172a;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 9px;width:68px;cursor:pointer;outline:none;text-align:center;transition:.15s}
+.fp-input:focus{border-color:var(--blue)}
+.fp-sep{color:var(--muted);font-size:12px}
+.filter-actions{margin-left:auto;display:flex;gap:8px}
+.filter-btn{background:var(--blue);border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;padding:6px 14px;cursor:pointer;transition:.15s}
+.filter-btn:hover{background:#2563eb}
+.filter-btn-ghost{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;padding:6px 14px;cursor:pointer;transition:.15s}
+.filter-btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi-card .kpi-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.kpi-card .kpi-val{font-size:24px;font-weight:700;line-height:1.1}
+.kpi-card .kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.c-blue{color:var(--blue)}.c-purple{color:var(--purple)}.c-green{color:var(--green)}.c-rose{color:var(--rose)}.c-amber{color:var(--amber)}.c-cyan{color:var(--cyan)}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.chart-card.full{grid-column:1/-1}
+.chart-card h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.chart-card .chart-sub{font-size:11px;color:var(--muted);margin-bottom:12px}
+.chart-wrap{position:relative}
+.table-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.table-section h3{font-size:14px;font-weight:600;margin-bottom:12px}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:rgba(148,163,184,.1);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;transition:.15s}
+.chip.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.chip.sports.active{background:var(--sports)}
+.chip.concert.active{background:var(--concert)}
+.chip.kpop.active{background:var(--kpop)}
+.chip.anime.active{background:var(--anime)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;text-align:left;cursor:pointer;white-space:nowrap;user-select:none}
+th:hover{color:var(--text)}
+th.sort-asc::after{content:' ↑'}th.sort-desc::after{content:' ↓'}
+td{padding:8px 10px;border-bottom:1px solid rgba(45,61,85,.5);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(59,130,246,.04)}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+.badge-sports{background:rgba(59,130,246,.15);color:#93c5fd}
+.badge-concert{background:rgba(139,92,246,.15);color:#c4b5fd}
+.badge-kpop{background:rgba(244,63,94,.15);color:#fda4af}
+.badge-anime{background:rgba(16,185,129,.15);color:#6ee7b7}
+.rank-up{color:var(--green);font-size:11px}
+footer{margin-top:28px;padding:16px 28px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
+footer a{color:var(--muted)}footer a:hover{color:var(--text)}
+@media(max-width:760px){
+  .chart-row{grid-template-columns:1fr}
+  .chart-card.full{grid-column:auto}
+  main{padding:14px}header{padding:14px}
+  .filter-bar{gap:10px}
+  .filter-actions{margin-left:0}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-row">
+    <div class="hdr-titles">
+      <h1>D系統 GA 每日流量報表</h1>
+      <div class="hdr-tags">
+        <span class="tag tag-pv" id="hdr-pv-dates">📄 瀏覽量資料：—</span>
+        <span class="tag tag-click" id="hdr-cl-dates">🖱 點擊量資料：—</span>
+        <span class="tag tag-info" id="hdr-activities">涵蓋活動：— 個</span>
+        <span class="tag tag-info">更新：<span id="updateTimeLabel">—</span></span>
+        <a class="tag" href="D_GA_Funnel_202606_Report.html" style="background:rgba(139,92,246,.15);color:#c4b5fd;border:1px solid rgba(139,92,246,.4);text-decoration:none;transition:.15s" onmouseover="this.style.background='rgba(139,92,246,.3)'" onmouseout="this.style.background='rgba(139,92,246,.15)'">🔗 D系統瀏覽→點擊轉換分析 →</a>
+      </div>
+    </div>
+    <div class="hdr-note">
+      📊 本報表只含 Google Analytics 流量資料（PV 瀏覽量、Click 點擊量），<strong>不含</strong>購物車/結帳等 DMP 資料——那些請看上方連結的轉換分析報表。
+    </div>
+  </div>
+</header>
+
+<main>
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">📅 日期區間</span>
+    <div class="fp-wrap">
+      <input id="dateFrom" class="fp-input" placeholder="06/10" readonly>
+      <span class="fp-sep">–</span>
+      <input id="dateTo" class="fp-input" placeholder="06/28" readonly>
+    </div>
+  </div>
+  <div class="filter-actions">
+    <button class="filter-btn-ghost" onclick="setQuickRange(1)">1天前</button>
+    <button class="filter-btn-ghost" onclick="setQuickRange(7)">7天前</button>
+    <button class="filter-btn-ghost" onclick="setQuickRange(30)">30天前</button>
+    <button class="filter-btn" onclick="applyFilter()">套用篩選</button>
+    <button class="filter-btn-ghost" onclick="resetFilter()">重置</button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">📄 總瀏覽量 (PV)</div>
+    <div class="kpi-val c-blue" id="kpi-pv">—</div>
+    <div class="kpi-sub" id="kpi-pv-sub">—</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">🖱 總點擊量 (Click)</div>
+    <div class="kpi-val c-purple" id="kpi-click">—</div>
+    <div class="kpi-sub" id="kpi-click-sub">—</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">📈 點擊/瀏覽比 (CTR)</div>
+    <div class="kpi-val c-cyan" id="kpi-ctr">—</div>
+    <div class="kpi-sub">clicks / pv</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">🎯 涵蓋活動數</div>
+    <div class="kpi-val c-green" id="kpi-activities">—</div>
+    <div class="kpi-sub">目前篩選範圍內</div>
+  </div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-card full">
+    <h3>整體每日 PV / Click 趨勢</h3>
+    <div class="chart-sub">D 系統全部活動加總，依日期排列</div>
+    <div class="chart-wrap" style="height:280px"><canvas id="trendChart"></canvas></div>
+  </div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-card full">
+    <h3>類別佔比分布</h3>
+    <div class="chart-sub">各類別 PV / Click 佔全體百分比（隨上方日期篩選連動）</div>
+    <div class="chart-wrap" style="height:240px"><canvas id="catChart"></canvas></div>
+  </div>
+</div>
+
+<div class="table-section">
+  <h3>活動排行榜</h3>
+  <div class="chip-row" id="catChips">
+    <span class="chip active" data-cat="all" onclick="setCatFilter('all',this)">全部</span>
+    <span class="chip sports" data-cat="sports" onclick="setCatFilter('sports',this)">運動</span>
+    <span class="chip concert" data-cat="concert" onclick="setCatFilter('concert',this)">演唱會</span>
+    <span class="chip kpop" data-cat="kpop" onclick="setCatFilter('kpop',this)">K-pop</span>
+    <span class="chip anime" data-cat="anime" onclick="setCatFilter('anime',this)">動漫/遊戲</span>
+  </div>
+  <div class="table-wrap">
+    <table id="rankTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>活動名稱</th>
+          <th>類別</th>
+          <th onclick="sortTable(3)" class="sort-desc">PV</th>
+          <th onclick="sortTable(4)">PV 佔比</th>
+          <th onclick="sortTable(5)">Click</th>
+          <th onclick="sortTable(6)">Click 佔比</th>
+          <th onclick="sortTable(7)">ActivityId</th>
+        </tr>
+      </thead>
+      <tbody id="rankTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <span>D系統 GA 每日流量報表</span>
+  <span>資料來源：GA_D_PageViewData_Webb_202606 / GA_D_ClickData_Webb_202606</span>
+  <a href="report_index.html">← 返回報表中心</a>
+</footer>
+
+<script>
+// ── Data Start ──────────────────────────────────────────────────────────────
+const DAILY_TOTAL = [];
+const ACTIVITY_RANKING = [];
+const PV_BY_DATE = {};
+const CLICK_ACT_DAILY = {};
+const DATA_META = { pvDateFrom: '', pvDateTo: '', clickDateFrom: '', clickDateTo: '', totalActivities: 0, generatedAt: '' };
+// ── Data End ────────────────────────────────────────────────────────────────
+
+Chart.register(ChartDataLabels);
+
+const CAT_COLOR = {
+  sports: { bg:'rgba(59,130,246,.75)', border:'#3b82f6', label:'運動' },
+  concert:{ bg:'rgba(139,92,246,.75)', border:'#8b5cf6', label:'演唱會' },
+  kpop:   { bg:'rgba(244,63,94,.75)',  border:'#f43f5e', label:'K-pop' },
+  anime:  { bg:'rgba(16,185,129,.75)', border:'#10b981', label:'動漫/遊戲' },
+};
+const CAT_LABEL = { sports:'運動', concert:'演唱會', kpop:'K-pop', anime:'動漫/遊戲' };
+const CAT_CSS   = { sports:'badge-sports', concert:'badge-concert', kpop:'badge-kpop', anime:'badge-anime' };
+
+function fmtNum(n){ if(n==null) return '—'; return n>=10000 ? (n/10000).toFixed(1)+'萬' : n.toLocaleString(); }
+function padDate(s){ const [m,d]=s.split('/'); return m.padStart(2,'0')+'/'+d.padStart(2,'0'); }
+
+let currentCatFilter = 'all';
+let sortCol = 3, sortDir = 'desc';
+let liveDaily = null;    // null = use DAILY_TOTAL (unfiltered)
+let liveRanking = null;  // null = use ACTIVITY_RANKING (unfiltered)
+let trendChart, catChart, fpFrom, fpTo;
+const allDates = DAILY_TOTAL.map(d => d.date);
+
+document.getElementById('hdr-pv-dates').textContent = `📄 瀏覽量資料：${DATA_META.pvDateFrom} – ${DATA_META.pvDateTo}`;
+document.getElementById('hdr-cl-dates').textContent = `🖱 點擊量資料：${DATA_META.clickDateFrom} – ${DATA_META.clickDateTo}`;
+document.getElementById('hdr-activities').textContent = `涵蓋活動：${DATA_META.totalActivities} 個`;
+document.getElementById('updateTimeLabel').textContent = DATA_META.generatedAt;
+
+function computeRanking(from, to) {
+  const rows = ACTIVITY_RANKING.map(d => {
+    const r = Object.assign({}, d);
+    if (PV_BY_DATE[d.id]) {
+      let pv = 0;
+      for (const [date, cnt] of Object.entries(PV_BY_DATE[d.id])) { if (date >= from && date <= to) pv += cnt; }
+      r.pv = pv > 0 ? pv : null;
+    } else { r.pv = null; }
+    if (CLICK_ACT_DAILY[d.id]) {
+      let cl = 0;
+      for (const e of CLICK_ACT_DAILY[d.id]) { if (e.date >= from && e.date <= to) cl += e.total; }
+      r.clicks = cl > 0 ? cl : null;
+    } else { r.clicks = null; }
+    return r;
+  });
+  const pvTotal = rows.reduce((s,d) => s + (d.pv||0), 0);
+  const clickTotal = rows.reduce((s,d) => s + (d.clicks||0), 0);
+  const pvSorted = rows.filter(d=>d.pv!=null).sort((a,b)=>b.pv-a.pv);
+  pvSorted.forEach((d,i)=>{ d.pvRank=i+1; });
+  const clSorted = rows.filter(d=>d.clicks!=null).sort((a,b)=>b.clicks-a.clicks);
+  clSorted.forEach((d,i)=>{ d.clickRank=i+1; });
+  rows.forEach(d => {
+    d.pvShare = d.pv!=null ? +(d.pv/pvTotal*100).toFixed(1) : null;
+    d.clickShare = d.clicks!=null ? +(d.clicks/clickTotal*100).toFixed(1) : null;
+  });
+  return rows;
+}
+
+function computeDaily(from, to) {
+  return DAILY_TOTAL.filter(d => d.date >= from && d.date <= to);
+}
+
+function currentRanking() { return liveRanking || ACTIVITY_RANKING; }
+
+function updateKPI(ranking, daily) {
+  const pv = ranking.reduce((s,d)=>s+(d.pv||0),0);
+  const click = ranking.reduce((s,d)=>s+(d.clicks||0),0);
+  const activities = ranking.filter(d=>d.pv!=null||d.clicks!=null).length;
+  document.getElementById('kpi-pv').textContent = fmtNum(pv);
+  document.getElementById('kpi-click').textContent = fmtNum(click);
+  document.getElementById('kpi-ctr').textContent = pv ? (click/pv*100).toFixed(1)+'%' : '—';
+  document.getElementById('kpi-activities').textContent = activities;
+  document.getElementById('kpi-pv-sub').textContent = daily.length ? `${daily[0].date} – ${daily[daily.length-1].date}` : '—';
+  document.getElementById('kpi-click-sub').textContent = daily.length ? `${daily.length} 天` : '—';
+}
+
+function updateTrendChart(daily) {
+  const labels = daily.map(d => d.date);
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'PV', data: daily.map(d=>d.pv), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.12)', fill:true, tension:.3, yAxisID:'y' },
+        { label: 'Click', data: daily.map(d=>d.clicks), borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,.12)', fill:true, tension:.3, yAxisID:'y1' },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'top', labels:{color:'#94a3b8'}}, datalabels:{display:false} },
+      scales:{
+        x:{ ticks:{color:'#94a3b8'}, grid:{color:'rgba(148,163,184,.08)'} },
+        y:{ position:'left', ticks:{color:'#3b82f6'}, grid:{color:'rgba(148,163,184,.08)'}, title:{display:true,text:'PV',color:'#3b82f6'} },
+        y1:{ position:'right', ticks:{color:'#8b5cf6'}, grid:{display:false}, title:{display:true,text:'Click',color:'#8b5cf6'} },
+      }
+    }
+  });
+}
+
+function updateCatChart(ranking) {
+  const cats = ['sports','concert','kpop','anime'];
+  const pvTotal = ranking.reduce((s,d)=>s+(d.pv||0),0);
+  const clickTotal = ranking.reduce((s,d)=>s+(d.clicks||0),0);
+  const pvShare = cats.map(c => pvTotal ? +(ranking.filter(d=>d.cat===c).reduce((s,d)=>s+(d.pv||0),0)/pvTotal*100).toFixed(1) : 0);
+  const clickShare = cats.map(c => clickTotal ? +(ranking.filter(d=>d.cat===c).reduce((s,d)=>s+(d.clicks||0),0)/clickTotal*100).toFixed(1) : 0);
+  if (catChart) catChart.destroy();
+  catChart = new Chart(document.getElementById('catChart'), {
+    type: 'bar',
+    data: {
+      labels: cats.map(c => CAT_COLOR[c].label),
+      datasets: [
+        { label: 'PV 佔比 %', data: pvShare, backgroundColor:'rgba(59,130,246,.75)' },
+        { label: 'Click 佔比 %', data: clickShare, backgroundColor:'rgba(139,92,246,.75)' },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'top', labels:{color:'#94a3b8'}}, datalabels:{color:'#f1f5f9', anchor:'end', align:'top', font:{size:10}, formatter:v=>v+'%'} },
+      scales:{
+        x:{ ticks:{color:'#94a3b8'}, grid:{display:false} },
+        y:{ ticks:{color:'#94a3b8'}, grid:{color:'rgba(148,163,184,.08)'}, beginAtZero:true },
+      }
+    }
+  });
+}
+
+function renderTable() {
+  let rows = currentRanking().filter(d => currentCatFilter==='all' || d.cat===currentCatFilter);
+  const keys = ['idx','name','cat','pv','pvShare','clicks','clickShare','id'];
+  const key = keys[sortCol];
+  rows = rows.slice().sort((a,b) => {
+    if (key==='name'||key==='cat'||key==='id') {
+      const av=String(a[key]||''), bv=String(b[key]||'');
+      return sortDir==='asc'? av.localeCompare(bv): bv.localeCompare(av);
+    }
+    const av = a[key]==null?-1:a[key], bv = b[key]==null?-1:b[key];
+    return sortDir==='asc' ? av-bv : bv-av;
+  });
+  const tbody = document.getElementById('rankTableBody');
+  tbody.innerHTML = rows.map((d,i) =>
+    '<tr>' +
+    '<td>'+(i+1)+'</td>' +
+    '<td>'+d.name+'</td>' +
+    '<td><span class="badge '+CAT_CSS[d.cat]+'">'+CAT_LABEL[d.cat]+'</span></td>' +
+    '<td>'+fmtNum(d.pv)+(d.pvRank?' <span class="rank-up">#'+d.pvRank+'</span>':'')+'</td>' +
+    '<td>'+(d.pvShare!=null?d.pvShare+'%':'—')+'</td>' +
+    '<td>'+fmtNum(d.clicks)+(d.clickRank?' <span class="rank-up">#'+d.clickRank+'</span>':'')+'</td>' +
+    '<td>'+(d.clickShare!=null?d.clickShare+'%':'—')+'</td>' +
+    '<td style="color:var(--muted)">'+d.id+'</td>' +
+    '</tr>'
+  ).join('');
+}
+
+function sortTable(col) {
+  if (sortCol === col) { sortDir = sortDir==='asc'?'desc':'asc'; }
+  else { sortCol = col; sortDir = 'desc'; }
+  document.querySelectorAll('#rankTable th').forEach(th=>th.classList.remove('sort-asc','sort-desc'));
+  document.querySelectorAll('#rankTable th')[col].classList.add(sortDir==='asc'?'sort-asc':'sort-desc');
+  renderTable();
+}
+
+function setCatFilter(cat, el) {
+  currentCatFilter = cat;
+  document.querySelectorAll('#catChips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+
+function applyFilter() {
+  const from = padDate(fpFrom.input.value);
+  const to = padDate(fpTo.input.value);
+  liveRanking = computeRanking(from, to);
+  liveDaily = computeDaily(from, to);
+  updateKPI(liveRanking, liveDaily);
+  updateTrendChart(liveDaily);
+  updateCatChart(liveRanking);
+  renderTable();
+}
+
+function resetFilter() {
+  if (allDates.length) {
+    fpFrom.setDate(allDates[0], true);
+    fpTo.setDate(allDates[allDates.length-1], true);
+  }
+  liveRanking = null;
+  liveDaily = null;
+  updateKPI(ACTIVITY_RANKING, DAILY_TOTAL);
+  updateTrendChart(DAILY_TOTAL);
+  updateCatChart(ACTIVITY_RANKING);
+  renderTable();
+}
+
+function setQuickRange(days) {
+  if (!allDates.length) return;
+  const anchor = allDates[allDates.length-1];
+  const [am,ad] = anchor.split('/').map(Number);
+  const anchorDate = new Date(2026, am-1, ad);
+  const desiredDate = new Date(anchorDate.getTime() - (days-1)*86400000);
+  const desired = String(desiredDate.getMonth()+1).padStart(2,'0')+'/'+String(desiredDate.getDate()).padStart(2,'0');
+  const from = allDates.find(d => d >= desired) || allDates[0];
+  fpFrom.setDate(from, true);
+  fpTo.setDate(anchor, true);
+  applyFilter();
+}
+
+if (allDates.length) {
+  fpFrom = flatpickr('#dateFrom', { dateFormat:'m/d', enable: allDates, defaultDate: allDates[0], disableMobile:true });
+  fpTo   = flatpickr('#dateTo',   { dateFormat:'m/d', enable: allDates, defaultDate: allDates[allDates.length-1], disableMobile:true });
+}
+
+// Initial render (unfiltered)
+updateKPI(ACTIVITY_RANKING, DAILY_TOTAL);
+updateTrendChart(DAILY_TOTAL);
+updateCatChart(ACTIVITY_RANKING);
+renderTable();
+</script>
+</body>
+</html>
