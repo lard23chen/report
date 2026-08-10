@@ -107,7 +107,7 @@ async function main() {
             return {
                 id,
                 name: pv?.name || cl?.name || id,
-                cat: CAT_MAP[id] || 'concert',
+                cat: CAT_MAP[id] || 'other',
                 pv: pv?.pv ?? null,
                 pvRank: pv?.pvRank ?? null,
                 pvShare: pv ? +(pv.pv / pvTotal * 100).toFixed(1) : null,

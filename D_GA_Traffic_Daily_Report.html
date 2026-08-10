@@ -84,6 +84,7 @@ main{padding:20px 28px}
 .chip.concert.active{background:var(--concert)}
 .chip.kpop.active{background:var(--kpop)}
 .chip.anime.active{background:var(--anime)}
+.chip.other.active{background:var(--muted)}
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;text-align:left;cursor:pointer;white-space:nowrap;user-select:none}
@@ -97,6 +98,7 @@ tr:hover td{background:rgba(59,130,246,.04)}
 .badge-concert{background:rgba(139,92,246,.15);color:#c4b5fd}
 .badge-kpop{background:rgba(244,63,94,.15);color:#fda4af}
 .badge-anime{background:rgba(16,185,129,.15);color:#6ee7b7}
+.badge-other{background:rgba(148,163,184,.15);color:#cbd5e1}
 .rank-up{color:var(--green);font-size:11px}
 footer{margin-top:28px;padding:16px 28px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
 footer a{color:var(--muted)}footer a:hover{color:var(--text)}
@@ -195,6 +197,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--text)}
     <span class="chip concert" data-cat="concert" onclick="setCatFilter('concert',this)">演唱會</span>
     <span class="chip kpop" data-cat="kpop" onclick="setCatFilter('kpop',this)">K-pop</span>
     <span class="chip anime" data-cat="anime" onclick="setCatFilter('anime',this)">動漫/遊戲</span>
+    <span class="chip other" data-cat="other" onclick="setCatFilter('other',this)">未分類</span>
   </div>
   <div class="table-wrap">
     <table id="rankTable">
@@ -601,7 +604,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39701",
     "name": "2026年台灣精品中華職棒明星對抗賽",
-    "cat": "concert",
+    "cat": "other",
     "pv": 657456,
     "pvRank": 1,
     "pvShare": 13.5,
@@ -634,7 +637,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39697",
     "name": "中華職棒37年例行賽統一獅主場（下）",
-    "cat": "concert",
+    "cat": "other",
     "pv": 336081,
     "pvRank": 4,
     "pvShare": 6.9,
@@ -645,7 +648,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39759",
     "name": "2026 ByeonWooSeok Asia Fanmeeting Tour ＜The Secret Library＞ in Taipei",
-    "cat": "concert",
+    "cat": "other",
     "pv": 307982,
     "pvRank": 5,
     "pvShare": 6.3,
@@ -656,7 +659,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39762",
     "name": "TOY STORY｜PEACEMINUSONE：THE FIRST FAN 臺北站",
-    "cat": "concert",
+    "cat": "other",
     "pv": 260332,
     "pvRank": 6,
     "pvShare": 5.3,
@@ -667,7 +670,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39703",
     "name": "2026 FTISLAND TOUR 0 — XIX — III ‘FaTe’ in KAOHSIUNG",
-    "cat": "concert",
+    "cat": "other",
     "pv": 206844,
     "pvRank": 7,
     "pvShare": 4.2,
@@ -678,7 +681,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39760",
     "name": "J－LIONS主題日「非‧日常」",
-    "cat": "concert",
+    "cat": "other",
     "pv": 199226,
     "pvRank": 8,
     "pvShare": 4.1,
@@ -700,7 +703,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39754",
     "name": "鏞不止步-陳鏞基引退系列",
-    "cat": "concert",
+    "cat": "other",
     "pv": 140897,
     "pvRank": 10,
     "pvShare": 2.9,
@@ -744,7 +747,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39783",
     "name": "2026 N.Flying LIVE ‘＆CON5：into REM’ IN TAIPEI",
-    "cat": "concert",
+    "cat": "other",
     "pv": 96022,
     "pvRank": 14,
     "pvShare": 2,
@@ -799,7 +802,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39529",
     "name": "《LA LA LAND IN CONCERT》樂來越愛你 電影交響音樂會",
-    "cat": "concert",
+    "cat": "other",
     "pv": 70554,
     "pvRank": 19,
     "pvShare": 1.4,
@@ -810,7 +813,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39736",
     "name": "Enemies With Benefits 1st Fan meeting in Taipei",
-    "cat": "concert",
+    "cat": "other",
     "pv": 69060,
     "pvRank": 20,
     "pvShare": 1.4,
@@ -843,7 +846,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39750",
     "name": "U－KNOW PROJECT 26：SCENE＃1 in Taipei",
-    "cat": "concert",
+    "cat": "other",
     "pv": 47157,
     "pvRank": 23,
     "pvShare": 1,
@@ -854,7 +857,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39707",
     "name": "江美琪《傷心唱出來就沒事了》演唱會 2‧0 台北站",
-    "cat": "concert",
+    "cat": "other",
     "pv": 45007,
     "pvRank": 24,
     "pvShare": 0.9,
@@ -887,7 +890,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39687",
     "name": "2026台北羽球公開賽",
-    "cat": "concert",
+    "cat": "other",
     "pv": 37080,
     "pvRank": 27,
     "pvShare": 0.8,
@@ -898,7 +901,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39744",
     "name": "《偶像相遇祭》VIP福利",
-    "cat": "concert",
+    "cat": "other",
     "pv": 36827,
     "pvRank": 28,
     "pvShare": 0.8,
@@ -942,7 +945,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39761",
     "name": "2026 XLOV ASIA TOUR ＜Serving—X＞ IN TAIPEI",
-    "cat": "concert",
+    "cat": "other",
     "pv": 25482,
     "pvRank": 32,
     "pvShare": 0.5,
@@ -1008,7 +1011,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39752",
     "name": "TPE48 演唱會《New Chapter》",
-    "cat": "concert",
+    "cat": "other",
     "pv": 12153,
     "pvRank": 38,
     "pvShare": 0.2,
@@ -1074,7 +1077,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39753",
     "name": "2026年福爾摩沙女子排球國際邀請賽",
-    "cat": "concert",
+    "cat": "other",
     "pv": 9213,
     "pvRank": 44,
     "pvShare": 0.2,
@@ -1107,7 +1110,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39602",
     "name": "2026東海岸大地藝術節月光．海音樂會－澎湃的海",
-    "cat": "concert",
+    "cat": "other",
     "pv": 7048,
     "pvRank": 47,
     "pvShare": 0.1,
@@ -1162,7 +1165,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39746",
     "name": "瞪鞋偶像RAY ＋ 另類Vocaloid奇才kinoue64台北聯合公演",
-    "cat": "concert",
+    "cat": "other",
     "pv": 3772,
     "pvRank": 52,
     "pvShare": 0.1,
@@ -1184,7 +1187,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39745",
     "name": "特典福利加購－EXILE AKIRA 20th ANNIVERSARY SPECIAL LIVE TOUR “URBAN SAVAGE” 台北公演",
-    "cat": "concert",
+    "cat": "other",
     "pv": 3370,
     "pvRank": 54,
     "pvShare": 0.1,
@@ -1206,7 +1209,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39778",
     "name": "幽靈書店Ghost Bookstore / 4 Steps ‘Fore the Spiral 首度台北專場",
-    "cat": "concert",
+    "cat": "other",
     "pv": 2908,
     "pvRank": 56,
     "pvShare": 0.1,
@@ -1217,7 +1220,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39734",
     "name": "2026 秋Out 音樂節",
-    "cat": "concert",
+    "cat": "other",
     "pv": 2588,
     "pvRank": 57,
     "pvShare": 0.1,
@@ -1239,7 +1242,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39776",
     "name": "時速36公里首度海外公演 “市民薄明” Tour 追加 台北站",
-    "cat": "concert",
+    "cat": "other",
     "pv": 2092,
     "pvRank": 59,
     "pvShare": 0,
@@ -1250,7 +1253,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "38847",
     "name": "中華職棒36年Rakuten主場例行賽",
-    "cat": "concert",
+    "cat": "other",
     "pv": 1964,
     "pvRank": 60,
     "pvShare": 0,
@@ -1261,7 +1264,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39847",
     "name": "2026 ONF FANMEETING 〔Door To TAIPEI〕\t\t\t\t\t\t\t",
-    "cat": "concert",
+    "cat": "other",
     "pv": 1948,
     "pvRank": 61,
     "pvShare": 0,
@@ -1283,7 +1286,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39141",
     "name": "2025 Asia Artist Awards IN KAOHSIUNG",
-    "cat": "concert",
+    "cat": "other",
     "pv": 1481,
     "pvRank": 63,
     "pvShare": 0,
@@ -1294,7 +1297,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39545",
     "name": "EXILE AKIRA 20th ANNIVERSARY SPECIAL LIVE TOUR “URBAN SAVAGE” 台北公演",
-    "cat": "concert",
+    "cat": "other",
     "pv": 1392,
     "pvRank": 64,
     "pvShare": 0,
@@ -1316,7 +1319,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39860",
     "name": "日本夢幻數搖水中Spica  2026年專場",
-    "cat": "concert",
+    "cat": "other",
     "pv": 677,
     "pvRank": 66,
     "pvShare": 0,
@@ -1327,7 +1330,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39863",
     "name": "歐陸暗黑奇女子Molly Nilsson Live in Taipei 2026",
-    "cat": "concert",
+    "cat": "other",
     "pv": 584,
     "pvRank": 67,
     "pvShare": 0,
@@ -1338,7 +1341,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39334",
     "name": "2026 FTISLAND CONCERT ‘FTSODE’ in TAIPEI",
-    "cat": "concert",
+    "cat": "other",
     "pv": 445,
     "pvRank": 68,
     "pvShare": 0,
@@ -1349,7 +1352,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "38650",
     "name": "INFINITE 15th ANNIVERSARY CONCERT＜LIMITED EDITION＞IN TAIPEI",
-    "cat": "concert",
+    "cat": "other",
     "pv": 404,
     "pvRank": 69,
     "pvShare": 0,
@@ -1360,7 +1363,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39195",
     "name": "QWER 1ST WORLD TOUR ＜ROCKATION＞ in TAIPEI",
-    "cat": "concert",
+    "cat": "other",
     "pv": 374,
     "pvRank": 70,
     "pvShare": 0,
@@ -1382,7 +1385,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "37729",
     "name": "2023 N.Flying LIVE TOUR ‘DWUW : Do What You Want’ IN TAIPEI",
-    "cat": "concert",
+    "cat": "other",
     "pv": 340,
     "pvRank": 72,
     "pvShare": 0,
@@ -1393,7 +1396,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "38579",
     "name": "2024-2025 PLG桃園璞園領航猿主場",
-    "cat": "concert",
+    "cat": "other",
     "pv": 314,
     "pvRank": 73,
     "pvShare": 0,
@@ -1404,7 +1407,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39582",
     "name": "日本元氣唱作人Tsuji Shion「SUCKER PUNCH」台北站",
-    "cat": "concert",
+    "cat": "other",
     "pv": 130,
     "pvRank": 74,
     "pvShare": 0,
@@ -1415,7 +1418,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39655",
     "name": "東京獨立流行新星 Himeuzu＋名古屋夢幻流行之星 Blurred City Lights 聯合演出台北站",
-    "cat": "concert",
+    "cat": "other",
     "pv": 110,
     "pvRank": 75,
     "pvShare": 0,
@@ -1426,7 +1429,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39407",
     "name": "Girlfreen – Love Letter Solo Fanmeeting in Taipei",
-    "cat": "concert",
+    "cat": "other",
     "pv": 107,
     "pvRank": 76,
     "pvShare": 0,
@@ -1437,7 +1440,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "39773",
     "name": "2026 KANA–BOON「CRITICAL HIT PARADE in TAIPEI」",
-    "cat": "concert",
+    "cat": "other",
     "pv": 104,
     "pvRank": 77,
     "pvShare": 0,
@@ -1448,7 +1451,7 @@ const ACTIVITY_RANKING = [
   {
     "id": "37769",
     "name": "2023 7-ELEVEN高雄啤酒音樂節3.0",
-    "cat": "concert",
+    "cat": "other",
     "pv": 101,
     "pvRank": 78,
     "pvShare": 0,
@@ -8993,7 +8996,7 @@ const DATA_META = {
   "clickDateFrom": "05/27",
   "clickDateTo": "08/08",
   "totalActivities": 86,
-  "generatedAt": "2026/08/10 12:49"
+  "generatedAt": "2026/08/10 13:32"
 };
 // ── Data End ────────────────────────────────────────────────────────────────
 
@@ -9004,9 +9007,10 @@ const CAT_COLOR = {
   concert:{ bg:'rgba(139,92,246,.75)', border:'#8b5cf6', label:'演唱會' },
   kpop:   { bg:'rgba(244,63,94,.75)',  border:'#f43f5e', label:'K-pop' },
   anime:  { bg:'rgba(16,185,129,.75)', border:'#10b981', label:'動漫/遊戲' },
+  other:  { bg:'rgba(148,163,184,.6)', border:'#94a3b8', label:'未分類' },
 };
-const CAT_LABEL = { sports:'運動', concert:'演唱會', kpop:'K-pop', anime:'動漫/遊戲' };
-const CAT_CSS   = { sports:'badge-sports', concert:'badge-concert', kpop:'badge-kpop', anime:'badge-anime' };
+const CAT_LABEL = { sports:'運動', concert:'演唱會', kpop:'K-pop', anime:'動漫/遊戲', other:'未分類' };
+const CAT_CSS   = { sports:'badge-sports', concert:'badge-concert', kpop:'badge-kpop', anime:'badge-anime', other:'badge-other' };
 
 function fmtNum(n){ if(n==null) return '—'; return n>=10000 ? (n/10000).toFixed(1)+'萬' : n.toLocaleString(); }
 function padDate(s){ const [m,d]=s.split('/'); return m.padStart(2,'0')+'/'+d.padStart(2,'0'); }
@@ -9096,7 +9100,7 @@ function updateTrendChart(daily) {
 }
 
 function updateCatChart(ranking) {
-  const cats = ['sports','concert','kpop','anime'];
+  const cats = ['sports','concert','kpop','anime','other'];
   const pvTotal = ranking.reduce((s,d)=>s+(d.pv||0),0);
   const clickTotal = ranking.reduce((s,d)=>s+(d.clicks||0),0);
   const pvShare = cats.map(c => pvTotal ? +(ranking.filter(d=>d.cat===c).reduce((s,d)=>s+(d.pv||0),0)/pvTotal*100).toFixed(1) : 0);
