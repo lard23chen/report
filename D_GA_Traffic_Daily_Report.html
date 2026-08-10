@@ -277,8 +277,10 @@ function computeRanking(from, to) {
   const clickTotal = rows.reduce((s,d) => s + (d.clicks||0), 0);
   const pvSorted = rows.filter(d=>d.pv!=null).sort((a,b)=>b.pv-a.pv);
   pvSorted.forEach((d,i)=>{ d.pvRank=i+1; });
+  rows.filter(d=>d.pv==null).forEach(d=>{ d.pvRank=null; });
   const clSorted = rows.filter(d=>d.clicks!=null).sort((a,b)=>b.clicks-a.clicks);
   clSorted.forEach((d,i)=>{ d.clickRank=i+1; });
+  rows.filter(d=>d.clicks==null).forEach(d=>{ d.clickRank=null; });
   rows.forEach(d => {
     d.pvShare = d.pv!=null ? +(d.pv/pvTotal*100).toFixed(1) : null;
     d.clickShare = d.clicks!=null ? +(d.clicks/clickTotal*100).toFixed(1) : null;
