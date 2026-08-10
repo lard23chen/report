@@ -847,7 +847,8 @@
             <button class="tab-btn" onclick="switchTab('tab3')">歷史報表分析</button>
             <button class="tab-btn" onclick="switchTab('tab4')">各節目報表分析</button>
             <button class="tab-btn" onclick="switchTab('tab5')">會員資料分析</button>
-            <button class="tab-btn" onclick="switchTab('tab6')">流量/費用分析</button>
+            <button class="tab-btn" onclick="switchTab('tab6')">流量分析</button>
+            <button class="tab-btn" onclick="switchTab('tab8')">費用分析</button>
         </div>
 
         <!-- Tab 1: 每日報表 + 上月報表 -->
@@ -1178,7 +1179,7 @@
             </div>
         </div>
 
-        <!-- Tab 6: Traffic/Cost Analysis -->
+        <!-- Tab 6: Traffic Analysis -->
         <div id="tab6" class="tab-content">
             <div class="grid">
                 <div class="card">
@@ -1201,39 +1202,6 @@
                     <div class="card-meta">
                         <span class="badge">Traffic</span>
                         <a href="A_GA_Events_Traffic_Report.html" class="btn-link" style="background-color: #3b82f6;">查看報表</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon icon-analysis" style="background: rgba(251, 192, 45, 0.1); color: #FBC02D;">💰</div>
-                    <div class="card-content">
-                        <h3>Azure 雲端費用分析報表</h3>
-                        <p>跨系統雲端成本趨勢。</p>
-                    </div>
-                    <div class="card-meta">
-                        <span class="badge">Cost</span>
-                        <a href="Azure_Cost_Analysis_Report.html" class="btn-link" style="background-color: #FBC02D; color: #1e1e1e;">查看報表</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon icon-analysis" style="background: rgba(251, 192, 45, 0.1); color: #FBC02D;">💰</div>
-                    <div class="card-content">
-                        <h3>每日雲端費用分析報表</h3>
-                        <p>以每日為單位的雲端費用分析。</p>
-                    </div>
-                    <div class="card-meta">
-                        <span class="badge">Cost</span>
-                        <a href="daily_expense_report.html" class="btn-link" style="background-color: #FBC02D; color: #1e1e1e;">查看報表</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon icon-analysis" style="background: rgba(255, 153, 0, 0.1); color: #FF9900;">💵</div>
-                    <div class="card-content">
-                        <h3>安源資訊 AWS 費用分析報表</h3>
-                        <p>D系統「售票網」正式環境 AWS 雲端費用趨勢，含服務成本排行與優惠折扣拆解。</p>
-                    </div>
-                    <div class="card-meta">
-                        <span class="badge" style="background: rgba(255, 153, 0, 0.15); color: #FF9900;">D系統 · Cost</span>
-                        <a href="AWS_Anyuan_Cost_Analysis_Report.html" class="btn-link" style="background-color: #FF9900; color: #1e1e1e;">查看報表</a>
                     </div>
                 </div>
                 <div class="card">
@@ -1271,6 +1239,45 @@
                 </div>
             </div>
         </div>
+
+        <!-- Tab 8: Cost Analysis -->
+        <div id="tab8" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-icon icon-analysis" style="background: rgba(251, 192, 45, 0.1); color: #FBC02D;">💰</div>
+                    <div class="card-content">
+                        <h3>Azure 雲端費用分析報表</h3>
+                        <p>跨系統雲端成本趨勢。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Cost</span>
+                        <a href="Azure_Cost_Analysis_Report.html" class="btn-link" style="background-color: #FBC02D; color: #1e1e1e;">查看報表</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon icon-analysis" style="background: rgba(251, 192, 45, 0.1); color: #FBC02D;">💰</div>
+                    <div class="card-content">
+                        <h3>每日雲端費用分析報表</h3>
+                        <p>以每日為單位的雲端費用分析。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge">Cost</span>
+                        <a href="daily_expense_report.html" class="btn-link" style="background-color: #FBC02D; color: #1e1e1e;">查看報表</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon icon-analysis" style="background: rgba(255, 153, 0, 0.1); color: #FF9900;">💵</div>
+                    <div class="card-content">
+                        <h3>安源資訊 AWS 費用分析報表</h3>
+                        <p>D系統「售票網」正式環境 AWS 雲端費用趨勢，含服務成本排行與優惠折扣拆解。</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge" style="background: rgba(255, 153, 0, 0.15); color: #FF9900;">D系統 · Cost</span>
+                        <a href="AWS_Anyuan_Cost_Analysis_Report.html" class="btn-link" style="background-color: #FF9900; color: #1e1e1e;">查看報表</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -1295,7 +1302,8 @@
                 'tab3': '歷史報表分析',
                 'tab4': '各節目報表分析',
                 'tab5': '會員資料分析',
-                'tab6': '流量/費用分析'
+                'tab6': '流量分析',
+                'tab8': '費用分析'
             };
             return names[id];
         }

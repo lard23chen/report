@@ -71,9 +71,12 @@ background:
       ├── tab3: 歷史報表分析
       ├── tab4: 各節目報表分析
       ├── tab5: 會員資料分析
-      └── tab6: 流量/費用分析
+      ├── tab6: 流量分析
+      └── tab8: 費用分析
 <footer>
 ```
+
+> ⚠️ **Tab id 非連號**：`tab8` 是 2026/08/10 從原本的 `tab6`（流量/費用分析）拆分費用相關卡片獨立出來的新 tab，沿用 `tab8` 這個 id（跳過 `tab7`，因為 `tab7` 已是「週報報表分析」），純粹是歷史編號問題，不代表頁面排列順序——實際排列順序看 `.tabs` 內 `<button>` 出現順序（tab6 在 tab8 之前）。
 
 ---
 
@@ -129,7 +132,7 @@ background:
 
 ### 4.4 Tab 導覽列
 
-- 共 6 個 Tab（tab1, tab7, tab3, tab4, tab5, tab6；tab7「週報報表分析」於 2026/07/09 新增，位於 tab1 之後）
+- 共 7 個 Tab（tab1, tab7, tab3, tab4, tab5, tab6, tab8；tab7「週報報表分析」於 2026/07/09 新增，位於 tab1 之後；tab8「費用分析」於 2026/08/10 從 tab6 拆分新增，位於 tab6 之後，見上方 §3 的 id 編號說明）
 - 新增 Tab 需同步三處：`.tabs` 內的 `<button>`、對應的 `<div class="tab-content">`、JS `getTabName()` 的名稱對照表
 - **tab7 卡片由 `generate_a_weekly_report.js` 每週四自動插入**（grid 最上方、最新在前，標題與說明帶週期日期），勿手動編輯 tab7 grid 內容；插入邏輯以 `<div id="tab7" class="tab-content">` + `<div class="grid">` 的開頭結構定位，修改此結構需同步改該腳本
 - 切換動畫：`fadeIn`（`opacity: 0 → 1` + `translateY(10px → 0)`，0.5s）
@@ -175,4 +178,5 @@ background:
 ---
 
 *最後更新日期：2026/07/13（月份統計表新增「電子票張數」「紙票張數」兩欄，含占比）*
+*2026/08/10：使用者要求把原本合併的「流量/費用分析」（tab6）拆成兩個獨立 tab——「流量分析」（tab6 保留，5 張卡：GA 流量、搶票事件流量、D系統 PageView/ClickData/漏斗）與「費用分析」（新增 tab8，3 張卡：Azure、每日雲端費用、安源資訊 AWS）。新 tab 沿用 `tab8` id（見 §3 說明），`.tabs` 按鈕、`tab-content`、`getTabName()` 三處同步更新。*
 *2026/07/09：新增 tab7 週報報表分析、月份統計排除 B 開頭訂單*
