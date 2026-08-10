@@ -28,6 +28,10 @@ echo Running generate_d_ga_funnel_report.js...
 "D:\nodejs\node.exe" generate_d_ga_funnel_report.js >> daily_log.txt 2>&1
 if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_d_ga_funnel_report.js;
 
+echo Running generate_d_ga_traffic_daily.js...
+"D:\nodejs\node.exe" generate_d_ga_traffic_daily.js >> daily_log.txt 2>&1
+if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_d_ga_traffic_daily.js;
+
 echo Running generate_d_ga_funnel_cart_data.js...
 "D:\nodejs\node.exe" generate_d_ga_funnel_cart_data.js >> daily_log.txt 2>&1
 if errorlevel 1 set FAILED_STEPS=%FAILED_STEPS%generate_d_ga_funnel_cart_data.js;
@@ -70,7 +74,7 @@ echo Syncing to NewReport...
 :: NewReport push（2026/07/29 起取代原本對 report/origin 的推送；report repo 之後不再由
 :: 排程自動 commit，改為即時同步進 NewReport，見
 :: docs/superpowers/specs/2026-07-29-newreport-single-source-of-truth-design.md）
-set SYNC_FILES=A_Qware_Revenue_Report_Daily.html D_GA_Funnel_202606_Report.html E_DMP_Funnel_Report.html report_index.html!EXTRA_FILES!
+set SYNC_FILES=A_Qware_Revenue_Report_Daily.html D_GA_Funnel_202606_Report.html D_GA_Traffic_Daily_Report.html E_DMP_Funnel_Report.html report_index.html!EXTRA_FILES!
 
 set SYNC_LOCK=D:\2025\AI\NewReport\.sync_lock
 set /a LOCK_TRIES=0
