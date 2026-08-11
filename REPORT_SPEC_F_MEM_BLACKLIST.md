@@ -263,9 +263,11 @@ git commit -m "Update F blacklist query report"
 git push origin main
 ```
 
-**目前沒有排入任何排程**（不在 `daily_update.bat` 等 4 支 bat 的清單內），純手動報表；如需查最新資料，重新執行上述指令即可（30 天滾動窗會自動往前移）。
+**已排入 S1 每日排程（2026/08/11 起）**：`daily_update.bat` 每日 08:00 自動執行 `generate_f_mem_blacklist_query.js`（緊接在 `generate_e_dmp_funnel_report.js` 之後），30 天滾動窗自動往前移，不需要再手動重跑。實測單次執行（查 4 個 collection：黑名單近 30 天+全表 ALL_INDEX、IP 登入近 30 天、訂單近 7 天）約 1 分鐘內完成，可接受排進每日排程。⚠️ 在此之前本報表定位是「純手動報表，不排程」（見下方 changelog），2026/08/11 使用者要求改為排入 S1，需求異動已同步進 `HTML_Report_Catalog.html` 的 S1 列與本報表列。
 
-**同步至 NewReport（使用者實際瀏覽的站台）**：本報表屬於 `newreport-dual-repo-architecture` 定義的「ad-hoc 檔案」，不在任何 bat 的固定同步清單內，更新完 `D:\2025\AI\MongoDB` 後需手動 copy 進 `D:\2025\AI\NewReport` 並 commit + push（`origin`、`company` 兩個 remote 交錯 pull/push，細節見 `REPORT_SPEC_SCHEDULED_TASKS.md` §5.6.3）。
+**同步至 NewReport（使用者實際瀏覽的站台）**：`F_MEM_BlackList_Query_Report.html` 已加入 `daily_update.bat` 的 `SYNC_FILES`，隨每日排程自動 copy 進 `D:\2025\AI\NewReport` 並 commit + push 到 `origin`、`company` 兩個 remote，不再需要手動同步。
+
+⚠️ **檔案大小仍逼近 GitHub 100MB 硬性上限**（見 §2 開頭警語，目前 ~93.7MB，只剩 ~6MB 餘裕）——排入每日自動 push 後，如果資料量持續成長導致某天檔案超過 100MB，`git push` 會直接失敗；`daily_update.bat` 對單一 script/push 失敗採 best-effort（記錄後繼續其他報表，最後統一發 LINE ⚠ 失敗告警），所以不會讓其他報表的每日更新連帶失敗，但這份報表本身會停止更新直到有人處理（拆分報表／改用 Git LFS／評估後端 API 方案）。
 
 ## 7. 相關連結
 
@@ -292,3 +294,5 @@ git push origin main
 *2026/08/11：CREATE_USER 欄新增異常值標記（見 §4.3）——`cu` 值只要不是 `定期掃描異常帳號`（唯一預期的系統自動值），就標紅字加註「⚠️ 請IT確認」，提示這筆帳號的建立者需要人工確認來源。純前端 `createUserCell()` 顯示邏輯，不動資料本身，`generate_f_mem_blacklist_query.js` 未修改，檔案大小不受影響。同日使用者原本另外提了一個「訂單紀錄旁加備註按鈕、寫回 MongoDB `QWare_MEM_BKnote_202608`」的需求，討論到寫入路徑（Vercel 直連 QwareAi 需要先開 Atlas Network Access，即時性 vs 走 Sheets 中介層延遲到下次報表更新）時使用者喊停，未實作、未定案，之後如要重啟這個需求需要重新走一次這個架構決策。*
 
 *2026/08/11（同日再次調整）：CREATE_USER 為「定期掃描異常帳號」時新增封鎖建議（見 §4.3）——使用者接續上一則需求，指定兩條規則：該值時查關聯 IP，同日共用約 10 筆以上其他帳號 → 紅字「(保持封鎖)」；10 筆以下 → 紅字「(可解封鎖)」。討論後決定用**既有** `IP_LINKS` 資料近似計算（比對主帳號在該 IP 的最後登入日期與 `related` 各帳號最後登入日期是否同一天），不改 generator、不新增資料量——因為檔案已逼近 100MB 硬上限（見 §2、§4.6 changelog 的多次警語），使用者選擇犧牲精確度換取不增加撞上限風險，並接受這是近似值（只會低估不會高估）。多個關聯 IP 時取所有 IP 中最高的同日共用數判斷。用 Claude in Chrome 對本機靜態伺服器實測 3 種情境（高共用、低共用、完全無 `IP_LINKS` 資料）皆正確。*
+
+*2026/08/11（同日第三次調整）：排入 S1 每日排程——使用者要求把本報表加進 `daily_update.bat`（見 §6），推翻先前「純手動、不排程」的定案（該定案原因是報表檔案已逼近 GitHub 100MB 上限，多一份每日自動 push 的風險）。手動跑一次 `generate_f_mem_blacklist_query.js` 實測約 1 分鐘完成（黑名單近30天 11,212 筆、全表 ALL_INDEX 431,845 筆、IP 登入近30天 510,651 筆、訂單近7天 181,716 筆），檔案從 ~94.68MB 降到 **~93.7MB**（30 天滾動窗往前移，非成長）；同步把輸出檔加進 `daily_update.bat` 的 `SYNC_FILES`，往後每日自動同步進 NewReport，不再需要手動 copy。用 Claude in Chrome 對重新產出的資料驗證 `createUserCell`/`ipBlockAdvice` 兩個前次新增的函式仍正常運作（generator 只改 Data marker 區塊，不會動到這些顯示邏輯）。*
