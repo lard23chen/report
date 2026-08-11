@@ -200,6 +200,8 @@ const BOOKING_DATA = {…};
 
 **黑名單狀態欄**：因搜尋涵蓋全體會員（見 §2.2），同一張表格可能同時出現黑名單與非黑名單帳號，需要一眼分辨。以 `memoBadge()` 依 `memo0` 值渲染徽章：`Y` → 紅色「黑名單」、`null` → 灰色「未標記」、其他值（如 `4`）→ 琥珀色原樣顯示。CREATE_TIME/CREATE_USER/UPDATE_USER 對搜尋到的任何帳號都是完整資料（2026/08/06 起，見 §3.3），不再有「—」佔位的情況。
 
+**CREATE_USER 異常值標記（2026/08/11 新增）**：`定期掃描異常帳號` 是這個欄位唯一預期的「系統自動」值（代表帳號是定期掃描程式標記的，見 §3.1 範例）；只要 `cu` 有值但**不是**這個字串（例如一串數字 ID），代表這筆是人工或其他來源建立，`createUserCell()` 會把它標成紅字並在後面加註「⚠️ 請IT確認」，提示需要跟 IT 確認來源。`cu` 為空時仍照舊顯示「—」。這是純前端顯示邏輯（比對 `r.cu` 字串），資料本身（`ALL_INDEX`/`BLACKLIST_DATA` 的 `cu` 欄位）不受影響，`generate_f_mem_blacklist_query.js` 不需要跟著修改。
+
 **關聯帳號欄**：每列一顆按鈕，文字依 `IP_LINKS[uid]` 是否存在顯示「🔗 IP關聯 (N)」（N = 近 30 天內用過的相異 IP 數）或「🔗 無登入紀錄」。點擊呼叫 `openIPModal(uid)` 開啟 modal（`#ipModal`），依序列出：
 
 1. 該帳號近 30 天用過的每個 IP（`entry.ip`）與該 IP 上的最後登入時間（`entry.t`）
@@ -279,3 +281,5 @@ git push origin main
 *2026/08/07：改回本文件版本（見檔案開頭 ℹ️ 提示）——Vercel serverless 沒有固定 outbound IP，`QwareAi` Atlas 專案的 Network Access 未開 `0.0.0.0/0`（不像 `AlexLIFE` 專案），導致 API 連線不穩定，使用者要求「先不用 vercel 了」。原以為 `generate_f_mem_blacklist_query.js` 已在 08/06 架構改版時被刪除，實際檢查發現該檔案從未真正從 git 移除（08/06 那次 commit 只動了 HTML/spec/新增 API 檔案），因此重新對這份舊 generator 補跑即可，不需要重寫。**唯一的坑**：08/06 之後的 `F_MEM_BlackList_Query_Report.html` 已被换成不含 `// ── Data Start ──` marker 的 21KB shell，generator 直接對它跑會拋 `Data markers not found`，需先用 `git show e91e7bb:F_MEM_BlackList_Query_Report.html` 還原回有 marker 的舊模板，才能重新注入資料。已刪除 `f_blacklist_api.js`、`vercel.json` 對應的 build/route 設定（3 個相關 MongoDB 索引未刪除，留著無害，之後若重啟 API 方案可直接用）。重新產出後檔案 **~89.9MB（GitHub 顯示值）**（資料集比 08/06 當時又自然成長了一些），比先前更逼近 100MB 硬上限，見檔案開頭警語*
 
 *2026/08/07（同日再次調整）：新增「登入來源」欄位（webType，見 §3.3a、§4.6）——使用者要求顯示 `Qware_MEM_BlackList_202608` 的 `webType` 欄位（一開始誤記為 `WEB_TYPE`，實際查證欄位名是 camelCase `webType`）。全體 41.3 萬筆會員都有值，6 種：APPLE/FB/GOOGLE/LINE/MAJOR/OP。因其中一個值恰好也叫 `MAJOR`、與 §4.4 既有的紫色「MAJOR」標籤同名但語意無關，經與使用者確認後採用「不同顏色徽章＋不同用詞」方案區隔（本欄琥珀色 ⭐ 徽章，§4.4 維持紫色 pill），並在 `hdr-note` 加註說明兩者無關。`generate_f_mem_blacklist_query.js` 的 `BLACKLIST_DATA`/`ALL_INDEX` 查詢投影與輸出物件新增 `wty` 短欄位。因為要在 41.3 萬筆資料上各加一個字串欄位，整份檔案從 ~89.9MB 增至 **~99.3MB（GitHub 顯示約 94.7MB / 94.67 MiB）**，逼近 100MB（104.86MB／100 MiB）硬性上限，只剩約 5MB 餘裕——**下次若還要在 ALL_INDEX 加欄位，開工前務必先估算大小，很可能會撞到上限**，屆時需考慮拆分報表、改用 Git LFS，或評估是否要重新考慮後端 API 方案（見 §2 開頭 ℹ️ 提示，前提是先解決 Atlas Network Access 限制）。過程中用 Claude in Chrome 對本機起的靜態伺服器做手動驗證時，意外發現 §4.7 記錄的既有效能限制（`applyFilter()` 綁 `oninput`、無最短字元數門檻與渲染筆數上限，逐字輸入短字串會讓分頁卡死），這是本次改動前就存在的問題，非本次引入，先列為已知限制記錄，未進行修復。
+
+*2026/08/11：CREATE_USER 欄新增異常值標記（見 §4.3）——`cu` 值只要不是 `定期掃描異常帳號`（唯一預期的系統自動值），就標紅字加註「⚠️ 請IT確認」，提示這筆帳號的建立者需要人工確認來源。純前端 `createUserCell()` 顯示邏輯，不動資料本身，`generate_f_mem_blacklist_query.js` 未修改，檔案大小不受影響。同日使用者原本另外提了一個「訂單紀錄旁加備註按鈕、寫回 MongoDB `QWare_MEM_BKnote_202608`」的需求，討論到寫入路徑（Vercel 直連 QwareAi 需要先開 Atlas Network Access，即時性 vs 走 Sheets 中介層延遲到下次報表更新）時使用者喊停，未實作、未定案，之後如要重啟這個需求需要重新走一次這個架構決策。*
