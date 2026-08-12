@@ -262,7 +262,7 @@ async function main() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GA 事件流量深度分析</title>
+    <title>[20] GA 事件流量深度分析</title>
     <!-- IP Allowlist: internal network only -->
     <style>html { visibility: hidden; }</style>
     <script>

@@ -42,7 +42,7 @@ function generateHTML(data) {
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>每日雲端費用明細與分析報告</title>
+    <title>[25] 每日雲端費用明細與分析報告</title>
     <!-- IP Allowlist: internal network only -->
     <style>html { visibility: hidden; }</style>
     <script>

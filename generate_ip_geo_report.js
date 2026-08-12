@@ -149,7 +149,7 @@ const toNum = v => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>本月 IP 地理分析報表 (A系統) | ${thisMonthLabel}</title>
+<title>[21] 本月 IP 地理分析報表 (A系統) | ${thisMonthLabel}</title>
     <!-- IP Allowlist: internal network only -->
     <style>html { visibility: hidden; }</style>
     <script>

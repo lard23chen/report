@@ -101,7 +101,7 @@ async function generateReport() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GA 系統流量分析報表</title>
+    <title>[18] GA 系統流量分析報表</title>
     <!-- IP Allowlist: internal network only -->
     <style>html { visibility: hidden; }</style>
     <script>

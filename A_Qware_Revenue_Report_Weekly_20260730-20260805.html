@@ -1,347 +1,9 @@
-require('dotenv').config({ path: __dirname + '/.env', quiet: true });
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const fs = require('fs');
-const path = require('path');
-
-const uri = process.env.MONGODB_URI_QWARE;
-const client = new MongoClient(uri, {
-    serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
-});
-
-function parsePrice(val) {
-    if (!val) return 0;
-    if (val.$numberDecimal) return parseFloat(val.$numberDecimal);
-    if (typeof val === 'number') return val;
-    return parseFloat(val) || 0;
-}
-
-// 週報區間：上週四 ~ 本週三（最近一個已過完的週三往前推 6 天）
-function getWeekRange() {
-    const end = new Date();
-    end.setHours(0, 0, 0, 0);
-    // 往回找最近的週三（getDay() === 3）；當天若是週三則往回找上一個週三
-    do { end.setDate(end.getDate() - 1); } while (end.getDay() !== 3);
-    const start = new Date(end);
-    start.setDate(start.getDate() - 6); // 週四
-    const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    return { start: iso(start), end: iso(end), startDate: start, endDate: end };
-}
-
-// 在 report_index.html「週報報表分析」Tab (tab7) grid 最上方插入本週卡片；已存在同檔名連結則略過
-function updateIndexTab7(fileName, week) {
-    const indexPath = path.join(__dirname, 'report_index.html');
-    if (!fs.existsSync(indexPath)) { console.log('report_index.html not found, skip tab7 update.'); return; }
-    let html = fs.readFileSync(indexPath, 'utf-8');
-    if (html.includes(fileName)) { console.log('Tab7 card already exists, skip.'); return; }
-    const slash = (s) => s.replace(/-/g, '/');
-    const card = `
-                <div class="card">
-                    <div class="card-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">🗓️</div>
-                    <div class="card-content">
-                        <h3>週報 分析報表 (A系統) ${slash(week.start)}~${slash(week.end)}</h3>
-                        <p>${slash(week.start)}（週四）～${slash(week.end)}（週三）整週營收分析（排除 B 開頭訂單），包含每日趨勢、銷售排行、付款方式與銷售點分析。</p>
-                    </div>
-                    <div class="card-meta">
-                        <span class="badge" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">Weekly</span>
-                        <a href="${fileName}" class="btn-link" style="background-color: #06b6d4;">查看報表</a>
-                    </div>
-                </div>`;
-    const gridOpen = /(<div id="tab7" class="tab-content">\s*<div class="grid">)/;
-    if (!gridOpen.test(html)) { console.log('Tab7 grid not found, skip.'); return; }
-    html = html.replace(gridOpen, `$1${card}`);
-    fs.writeFileSync(indexPath, html, 'utf-8');
-    console.log('report_index.html tab7 card inserted.');
-}
-
-// 更新 HTML_Report_Catalog.html 週報列：連結/顯示檔名換成最新一週，並更新時間戳
-function updateCatalogRow(fileName) {
-    const catPath = path.join(__dirname, 'HTML_Report_Catalog.html');
-    if (!fs.existsSync(catPath)) { console.log('HTML_Report_Catalog.html not found, skip catalog update.'); return; }
-    let html = fs.readFileSync(catPath, 'utf-8');
-    if (!/A_Qware_Revenue_Report_Weekly[^"<]*\.html/.test(html)) { console.log('Weekly row not found in catalog, skip.'); return; }
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, '0');
-    const nowStr = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    html = html.replace(/A_Qware_Revenue_Report_Weekly[^"<]*\.html/g, fileName);
-    html = html.replace(/<td class="update-time">[^<]*<\/td>(\s*<td><a href="[^"]*A_Qware_Revenue_Report_Weekly)/,
-        `<td class="update-time">${nowStr}</td>$1`);
-    // g flag：同時更新週報列（編號45）與自動排程程式區 S3 列的執行時間戳
-    html = html.replace(/(每週四 08:30[\s\S]{0,300}?<span class="run-time">)[^<]*/g,
-        `$1${nowStr}`);
-    fs.writeFileSync(catPath, html, 'utf-8');
-    console.log('HTML_Report_Catalog.html weekly row updated.');
-}
-
-async function generateWeeklyReport() {
-    try {
-        console.log("Connecting to MongoDB...");
-        await client.connect();
-        const db = client.db("QwareAi");
-        const collection = db.collection('Qware_A_Ticket_data_Daily');
-
-        console.log("Fetching all data from Qware_A_Ticket_data_Daily...");
-        let data = await collection.find({}).toArray();
-        console.log(`Fetched ${data.length} records.`);
-
-        // Normalize date format
-        data.forEach(d => {
-            if (d['交易時間'] && d['交易時間'].includes('/')) {
-                d['交易時間'] = d['交易時間'].replace(/\//g, '-');
-            }
-            if (d['退票時間'] && d['退票時間'].includes('/')) {
-                d['退票時間'] = d['退票時間'].replace(/\//g, '-');
-            }
-        });
-
-        const week = getWeekRange();
-        console.log(`Weekly range: ${week.start} ~ ${week.end}`);
-
-        // 排除訂單編號 B 開頭的訂單
-        const beforeExclude = data.length;
-        data = data.filter(d => !(d['訂單編號'] && String(d['訂單編號'])[0] === 'B'));
-        console.log(`Excluded ${beforeExclude - data.length} B-prefix rows.`);
-
-        // 週期過濾：正常交易看交易時間；退票看退票時間（無值 fallback 交易時間）
-        const inRange = (dateStr) => {
-            if (!dateStr) return false;
-            const day = dateStr.split(' ')[0];
-            return day >= week.start && day <= week.end;
-        };
-        data = data.filter(d => {
-            if (d['狀態'] === '已退票' || d['狀態'] === '退票') {
-                let refDate = d['退票時間'];
-                if (!refDate || refDate === '-') refDate = d['交易時間'];
-                return inRange(refDate);
-            }
-            return inRange(d['交易時間']);
-        });
-        console.log(`Rows in weekly range: ${data.length}`);
-
-        // ============ SERVER-SIDE AGGREGATION ============
-        // 電子票/紙票判定（沿用 generate_report_dec_2025_final.js 慣例）：取票方式 未列印=電子票、已取=紙票
-        const isETicket = (item) => item['取票方式'] === '未列印';
-        const isPaper = (item) => item['取票方式'] === '已取';
-        const totalRows = data.length;
-        const validOrders = data.filter(d => d['狀態'] === '正常');
-        const refundDocs = data.filter(d => d['狀態'] === '已退票' || d['狀態'] === '退票');
-
-        // Summary stats
-        let totalRevenue = 0;
-        const uniqueOrdersAll = new Set();
-        validOrders.forEach(o => {
-            totalRevenue += parsePrice(o['售價']);
-            if (o['訂單編號']) uniqueOrdersAll.add(o['訂單編號'].split('_')[0]);
-        });
-        const totalTickets = validOrders.length;
-        const totalOrders = uniqueOrdersAll.size;
-        const aov = totalOrders ? Math.round(totalRevenue / totalOrders) : 0;
-        const totalRefundedTickets = refundDocs.length;
-        const totalRefundFees = refundDocs.reduce((a, c) => a + parsePrice(c['手續費']), 0);
-
-        // Daily stats
-        const dailyMap = {};
-        data.forEach(item => {
-            let dateStr = item['交易時間'];
-            if ((item['狀態'] === '已退票' || item['狀態'] === '退票')) {
-                if (item['退票時間'] && item['退票時間'] !== '-') dateStr = item['退票時間'];
-            }
-            if (!dateStr) return;
-            const date = dateStr.split(' ')[0];
-            if (!dailyMap[date]) dailyMap[date] = { orders: new Set(), tickets: 0, revenue: 0, eTickets: 0, pTickets: 0, refundTickets: 0, refundFees: 0 };
-            const d = dailyMap[date];
-            const price = parsePrice(item['售價']);
-            const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
-            if (item['狀態'] === '正常') {
-                d.orders.add(orderId);
-                d.tickets += 1;
-                d.revenue += price;
-                if (isETicket(item)) d.eTickets += 1;
-                else if (isPaper(item)) d.pTickets += 1;
-            } else if (item['狀態'] === '已退票' || item['狀態'] === '退票') {
-                d.refundTickets += 1;
-                d.refundFees += parsePrice(item['手續費']);
-            }
-        });
-        const dailyStats = Object.keys(dailyMap).sort().reverse().map(date => ({
-            date,
-            orders: dailyMap[date].orders.size,
-            tickets: dailyMap[date].tickets,
-            revenue: dailyMap[date].revenue,
-            eTickets: dailyMap[date].eTickets,
-            pTickets: dailyMap[date].pTickets,
-            refundTickets: dailyMap[date].refundTickets,
-            refundFees: dailyMap[date].refundFees
-        }));
-
-        // Sales by date (for trend chart, ascending)
-        const salesByDate = {};
-        validOrders.forEach(item => {
-            if (!item['交易時間']) return;
-            const date = item['交易時間'].split(' ')[0];
-            salesByDate[date] = (salesByDate[date] || 0) + parsePrice(item['售價']);
-        });
-        const trendDates = Object.keys(salesByDate).sort();
-        const trendSales = trendDates.map(d => salesByDate[d]);
-
-        // Daily top ticket event (by transaction date)
-        const dailyEventTicketMap = {};
-        validOrders.forEach(item => {
-            if (!item['交易時間']) return;
-            const date = item['交易時間'].split(' ')[0];
-            const name = item['節目/商品名稱'] || 'Unknown';
-            if (!dailyEventTicketMap[date]) dailyEventTicketMap[date] = {};
-            dailyEventTicketMap[date][name] = (dailyEventTicketMap[date][name] || 0) + 1;
-        });
-        const dailyTopTicketEvent = trendDates.map(date => {
-            const events = dailyEventTicketMap[date];
-            if (!events) return { name: '', tickets: 0 };
-            const top = Object.entries(events).sort((a, b) => b[1] - a[1])[0];
-            return { name: top[0], tickets: top[1] };
-        });
-
-        // Refund trend
-        const dailyRefundsMap = {};
-        refundDocs.forEach(item => {
-            let dateStr = item['退票時間'];
-            if (!dateStr || dateStr === '-') dateStr = item['交易時間'];
-            if (!dateStr) return;
-            const date = dateStr.split(' ')[0];
-            dailyRefundsMap[date] = (dailyRefundsMap[date] || 0) + parsePrice(item['手續費']);
-        });
-        const refundTrendDates = Object.keys(dailyRefundsMap).sort();
-        const refundTrendAmounts = refundTrendDates.map(d => dailyRefundsMap[d]);
-
-        // Top 5 events by revenue
-        const eventStats = {};
-        const eventSessions = {}; // Store dates for session analysis
-        validOrders.forEach(item => {
-            const name = item['節目/商品名稱'] || 'Unknown';
-            const price = parsePrice(item['售價']);
-            const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
-            if (!eventStats[name]) eventStats[name] = { orders: new Set(), tickets: 0, revenue: 0, eTickets: 0, pTickets: 0 };
-            eventStats[name].orders.add(orderId);
-            eventStats[name].tickets += 1;
-            eventStats[name].revenue += price;
-            if (isETicket(item)) eventStats[name].eTickets += 1;
-            else if (isPaper(item)) eventStats[name].pTickets += 1;
-
-            // Session tracking
-            if (!eventSessions[name]) eventSessions[name] = {};
-            if (item['場次名稱']) {
-               let sName = item['場次名稱'];
-               let sDate = '';
-               if (item['演出時間/規格'] && item['演出時間/規格'].trim() !== '') {
-                   sDate = item['演出時間/規格'].split(' ')[0];
-                   sName += ` (${sDate})`;
-               }
-               if (!eventSessions[name][sName]) eventSessions[name][sName] = { orders: new Set(), tickets: 0, revenue: 0, date: sDate };
-               eventSessions[name][sName].orders.add(orderId);
-               eventSessions[name][sName].tickets += 1;
-               eventSessions[name][sName].revenue += price;
-               if (!eventSessions[name][sName].date && sDate) eventSessions[name][sName].date = sDate;
-            }
-        });
-        const topByRevenue = Object.entries(eventStats)
-            .map(([name, s]) => {
-                let sessions = [];
-                if (eventSessions[name] && Object.keys(eventSessions[name]).length > 0) {
-                    sessions = Object.entries(eventSessions[name])
-                        .map(([sName, ss]) => ({ name: sName, orders: ss.orders.size, tickets: ss.tickets, revenue: ss.revenue, shareName: s.revenue ? (ss.revenue / s.revenue * 100).toFixed(1) : '0', date: ss.date }))
-                        .sort((a,b) => {
-                            if (a.date && b.date) {
-                                if (a.date === b.date) return b.revenue - a.revenue;
-                                return a.date.localeCompare(b.date); // ASC (由近到遠)
-                            }
-                            if (a.date) return -1;
-                            if (b.date) return 1;
-                            return b.revenue - a.revenue;
-                        });
-                }
-                return { name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue, eTickets: s.eTickets, pTickets: s.pTickets, share: totalRevenue ? (s.revenue / totalRevenue * 100).toFixed(1) : '0', sessions };
-            })
-            .sort((a, b) => b.revenue - a.revenue).slice(0, 5);
-        const topByTickets = Object.entries(eventStats)
-            .map(([name, s]) => ({ name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue, eTickets: s.eTickets, pTickets: s.pTickets }))
-            .sort((a, b) => b.tickets - a.tickets).slice(0, 5);
-
-        // Top 5 refund events
-        const refStats = {};
-        refundDocs.forEach(item => {
-            const name = item['節目/商品名稱'] || 'Unknown';
-            const fee = parsePrice(item['手續費']);
-            const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
-            if (!refStats[name]) refStats[name] = { orders: new Set(), tickets: 0, amount: 0 };
-            refStats[name].orders.add(orderId);
-            refStats[name].tickets += 1;
-            refStats[name].amount += fee;
-        });
-        const topRefunds = Object.entries(refStats)
-            .map(([name, s]) => ({ name, orders: s.orders.size, tickets: s.tickets, amount: s.amount }))
-            .sort((a, b) => b.amount - a.amount).slice(0, 5);
-
-        // Payment methods
-        const paymentStats = {};
-        validOrders.forEach(item => {
-            const method = item['付款方式'] || 'Unknown';
-            const price = parsePrice(item['售價']);
-            const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
-            if (!paymentStats[method]) paymentStats[method] = { orders: new Set(), tickets: 0, revenue: 0 };
-            paymentStats[method].orders.add(orderId);
-            paymentStats[method].tickets += 1;
-            paymentStats[method].revenue += price;
-        });
-        const paymentList = Object.entries(paymentStats)
-            .map(([name, s]) => ({ name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue, share: totalRevenue ? (s.revenue / totalRevenue * 100).toFixed(1) : '0' }))
-            .sort((a, b) => b.revenue - a.revenue);
-
-        // Sales points
-        const spStats = {};
-        validOrders.forEach(item => {
-            const point = item['銷售點'] || 'Unknown';
-            const price = parsePrice(item['售價']);
-            const orderId = item['訂單編號'] ? item['訂單編號'].split('_')[0] : 'unknown';
-            if (!spStats[point]) spStats[point] = { orders: new Set(), tickets: 0, revenue: 0 };
-            spStats[point].orders.add(orderId);
-            spStats[point].tickets += 1;
-            spStats[point].revenue += price;
-        });
-        const salesPointList = Object.entries(spStats)
-            .map(([name, s]) => ({ name, orders: s.orders.size, tickets: s.tickets, revenue: s.revenue, share: totalRevenue ? (s.revenue / totalRevenue * 100).toFixed(1) : '0' }))
-            .sort((a, b) => b.revenue - a.revenue);
-
-        // Build the aggregated data object (small ~10KB)
-        const aggData = {
-            totalRows, totalRevenue, totalTickets, totalOrders, aov, totalRefundedTickets, totalRefundFees,
-            dailyStats,
-            trendDates, trendSales, dailyTopTicketEvent,
-            refundTrendDates, refundTrendAmounts,
-            topByRevenue, topByTickets, topRefunds,
-            paymentList, salesPointList
-        };
-
-        // Date range for title (fixed to the weekly window)
-        const fmtDate = (d) => `${d.getFullYear()}年${String(d.getMonth()+1).padStart(2,'0')}月${String(d.getDate()).padStart(2,'0')}日`;
-        const dateTitle = `${fmtDate(week.startDate)} - ${fmtDate(week.endDate)} 週報分析報表 (A系統)`;
-
-        const reportTime = new Date().toLocaleString('zh-TW');
-
-        let logoBase64 = '';
-        try {
-            const logoPath = path.join(__dirname, 'ibon_logo.png');
-            if (fs.existsSync(logoPath)) {
-                logoBase64 = `data:image/png;base64,${fs.readFileSync(logoPath).toString('base64')}`;
-            }
-        } catch (err) {}
-
-        const logoSrc = logoBase64 || 'https://ticket.ibon.com.tw/assets/img/logo.png';
-
-        // ============ HTML TEMPLATE ============
-        const htmlContent = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[45] ibon售票系統 ${dateTitle} - ${reportTime}</title>
+    <title>[45] ibon售票系統 2026年07月30日 - 2026年08月05日 週報分析報表 (A系統) - 2026/8/6 上午8:30:14</title>
     <!-- IP Allowlist: internal network only -->
     <style>html { visibility: hidden; }</style>
     <script>
@@ -378,8 +40,8 @@ async function generateWeeklyReport() {
                 .catch(function () { clearTimeout(timer); deny('unknown'); });
         })();
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -422,14 +84,19 @@ async function generateWeeklyReport() {
 <div class="container">
     <header>
         <div style="display: flex; align-items: center; gap: 20px;">
-            <img src="${logoSrc}" alt="ibon Logo" style="height: 45px;">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARwAAAA8CAYAAAC0LwViAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6N0RBQTM3MDc0ODg3MTFFNDhFODY4MDY0RDRDOEE5QTYiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6N0RBQTM3MDg0ODg3MTFFNDhFODY4MDY0RDRDOEE5QTYiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3REFBMzcwNTQ4ODcxMUU0OEU4NjgwNjRENEM4QTlBNiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3REFBMzcwNjQ4ODcxMUU0OEU4NjgwNjRENEM4QTlBNiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PoomQLgAABLFSURBVHja7F1bkFTF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" alt="ibon Logo" style="height: 45px;">
             <div>
-                <h1>ibon售票系統 ${dateTitle}</h1>\n<!-- Data Source Header -->\n<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">\n    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> \n    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data_Daily) &middot; 已排除訂單編號 B 開頭之訂單\n</div>
+                <h1>ibon售票系統 2026年07月30日 - 2026年08月05日 週報分析報表 (A系統)</h1>
+<!-- Data Source Header -->
+<div style="margin-top:8px; color: #888; font-size: 0.85em; font-family: sans-serif; display: flex; align-items: center; gap: 5px;">
+    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg> 
+    Data Source: MongoDB (QwareAi / Qware_A_Ticket_data_Daily) &middot; 已排除訂單編號 B 開頭之訂單
+</div>
 
             </div>
         </div>
         <div class="meta">
-            產出時間: ${reportTime}<br>
+            產出時間: 2026/8/6 上午8:30:14<br>
             總資料筆數: <span id="meta-total-rows">--</span><br>
             製表者: 自動產出
         </div>
@@ -513,7 +180,7 @@ async function generateWeeklyReport() {
 </div>
 
 <script>
-const D = '__AGG_DATA__';
+const D = {"totalRows":33950,"totalRevenue":65163098,"totalTickets":31156,"totalOrders":16987,"aov":3836,"totalRefundedTickets":2794,"totalRefundFees":693064,"dailyStats":[{"date":"2026-08-05","orders":5605,"tickets":13228,"revenue":14131646,"eTickets":4938,"pTickets":8290,"refundTickets":538,"refundFees":107304},{"date":"2026-08-04","orders":1235,"tickets":2255,"revenue":3352477,"eTickets":1083,"pTickets":1172,"refundTickets":530,"refundFees":136986},{"date":"2026-08-03","orders":2851,"tickets":4312,"revenue":13906179,"eTickets":2232,"pTickets":2080,"refundTickets":747,"refundFees":199099},{"date":"2026-08-02","orders":4222,"tickets":6120,"revenue":21370464,"eTickets":3125,"pTickets":2995,"refundTickets":520,"refundFees":129847},{"date":"2026-08-01","orders":3074,"tickets":5241,"revenue":12402332,"eTickets":2366,"pTickets":2875,"refundTickets":459,"refundFees":119828}],"trendDates":["2026-08-01","2026-08-02","2026-08-03","2026-08-04","2026-08-05"],"trendSales":[12402332,21370464,13906179,3352477,14131646],"dailyTopTicketEvent":[{"name":"2026 ByeonWooSeok Asia Fanmeeting Tour ＜The Secret Library＞ in Taipei","tickets":1421},{"name":"2026 ByeonWooSeok Asia Fanmeeting Tour ＜The Secret Library＞ in Taipei","tickets":3344},{"name":"2026 N.Flying LIVE ‘＆CON5：into REM’ IN TAIPEI","tickets":1864},{"name":"中華職棒37年例行賽統一獅主場（下）","tickets":455},{"name":"鏞不止步-陳鏞基引退系列","tickets":11101}],"refundTrendDates":["2026-08-01","2026-08-02","2026-08-03","2026-08-04","2026-08-05"],"refundTrendAmounts":[119828,129847,199099,136986,107304],"topByRevenue":[{"name":"2026 ByeonWooSeok Asia Fanmeeting Tour ＜The Secret Library＞ in Taipei","orders":4193,"tickets":4981,"revenue":27801951,"eTickets":3172,"pTickets":1809,"share":"42.7","sessions":[{"name":"2026 ByeonWooSeok Asia Fanmeeting Tour ＜The Secret Library＞ in Taipei (2026-09-25)","orders":4193,"tickets":4981,"revenue":27801951,"shareName":"100.0","date":"2026-09-25"}]},{"name":"2026 N.Flying LIVE ‘＆CON5：into REM’ IN TAIPEI","orders":1722,"tickets":2070,"revenue":12168100,"eTickets":1460,"pTickets":610,"share":"18.7","sessions":[{"name":"2026 N.Flying LIVE ‘＆CON5：into REM’ IN TAIPEI (2026-09-19)","orders":843,"tickets":1024,"revenue":5997700,"shareName":"49.3","date":"2026-09-19"},{"name":"2026 N.Flying LIVE ‘＆CON5：into REM’ IN TAIPEI (2026-09-20)","orders":880,"tickets":1046,"revenue":6170400,"shareName":"50.7","date":"2026-09-20"}]},{"name":"鏞不止步-陳鏞基引退系列","orders":4725,"tickets":11492,"revenue":11638950,"eTickets":4422,"pTickets":7070,"share":"17.9","sessions":[{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-08-11)","orders":128,"tickets":244,"revenue":105350,"shareName":"0.9","date":"2026-08-11"},{"name":"樂天桃猿-統一7-ELEVEn獅 (2026-08-12)","orders":131,"tickets":237,"revenue":105850,"shareName":"0.9","date":"2026-08-12"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-09-19)","orders":2156,"tickets":5356,"revenue":5598077,"shareName":"48.1","date":"2026-09-19"},{"name":"富邦悍將-統一7-ELEVEn獅 (2026-09-20)","orders":2310,"tickets":5655,"revenue":5829673,"shareName":"50.1","date":"2026-09-20"}]},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":1852,"tickets":3528,"revenue":4813700,"eTickets":1889,"pTickets":1639,"share":"7.4","sessions":[{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-28)","orders":269,"tickets":495,"revenue":707000,"shareName":"14.7","date":"2026-08-28"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-29)","orders":1219,"tickets":2367,"revenue":2959900,"shareName":"61.5","date":"2026-08-29"},{"name":"統一7-ELEVEn獅-樂天桃猿 (2026-08-30)","orders":364,"tickets":666,"revenue":1146800,"shareName":"23.8","date":"2026-08-30"}]},{"name":"J－LIONS主題日「非‧日常」","orders":900,"tickets":1960,"revenue":1942440,"eTickets":751,"pTickets":1209,"share":"3.0","sessions":[{"name":"中信兄弟-統一7-ELEVEn獅 (2026-08-21)","orders":271,"tickets":557,"revenue":468060,"shareName":"24.1","date":"2026-08-21"},{"name":"中信兄弟-統一7-ELEVEn獅 (2026-08-22)","orders":314,"tickets":754,"revenue":761440,"shareName":"39.2","date":"2026-08-22"},{"name":"中信兄弟-統一7-ELEVEn獅 (2026-08-23)","orders":315,"tickets":649,"revenue":712940,"shareName":"36.7","date":"2026-08-23"}]}],"topByTickets":[{"name":"鏞不止步-陳鏞基引退系列","orders":4725,"tickets":11492,"revenue":11638950,"eTickets":4422,"pTickets":7070},{"name":"2026 ByeonWooSeok Asia Fanmeeting Tour ＜The Secret Library＞ in Taipei","orders":4193,"tickets":4981,"revenue":27801951,"eTickets":3172,"pTickets":1809},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":1852,"tickets":3528,"revenue":4813700,"eTickets":1889,"pTickets":1639},{"name":"中華職棒37年例行賽統一獅主場（下）","orders":1454,"tickets":3004,"revenue":1469490,"eTickets":605,"pTickets":2399},{"name":"中華職棒37年Rakuten主場例行賽","orders":1083,"tickets":2201,"revenue":1197950,"eTickets":560,"pTickets":1641}],"topRefunds":[{"name":"2026 N.Flying LIVE ‘＆CON5：into REM’ IN TAIPEI","orders":1039,"tickets":1172,"amount":338365},{"name":"2026 ByeonWooSeok Asia Fanmeeting Tour ＜The Secret Library＞ in Taipei","orders":992,"tickets":1100,"amount":300944},{"name":"中華職棒37年Rakuten主場例行賽 臺北大巨蛋場次","orders":83,"tickets":125,"amount":18620},{"name":"鏞不止步-陳鏞基引退系列","orders":85,"tickets":151,"amount":13548},{"name":"J－LIONS主題日「非‧日常」","orders":28,"tickets":55,"amount":5859}],"paymentList":[{"name":"信用卡","orders":15031,"tickets":27940,"revenue":56638864,"share":"86.9"},{"name":"現金","orders":1777,"tickets":2912,"revenue":7329860,"share":"11.2"},{"name":"LINE Pay","orders":126,"tickets":196,"revenue":640817,"share":"1.0"},{"name":"ATM虛擬帳號","orders":38,"tickets":83,"revenue":466760,"share":"0.7"},{"name":"行動支付","orders":15,"tickets":25,"revenue":86797,"share":"0.1"}],"salesPointList":[{"name":"網站手機","orders":15094,"tickets":28134,"revenue":57772178,"share":"88.7"},{"name":"ibon","orders":1748,"tickets":2718,"revenue":7121020,"share":"10.9"},{"name":"APP購票","orders":145,"tickets":304,"revenue":269900,"share":"0.4"}]};
 
 function fmt(n) { return n.toLocaleString(); }
 function ntd(n) { return 'NT$ ' + fmt(n); }
@@ -645,7 +312,7 @@ function renderListTable(sel, items, fields) {
 }
 
 init();
-<\/script>
+</script>
 
 <button onclick="window.print()" class="fixed-btn" style="position:fixed; bottom:90px; right:30px; background:linear-gradient(135deg,#00838f,#006064); color:white; padding:12px 24px; border:none; border-radius:50px; cursor:pointer; font-weight:600; box-shadow:0 4px 15px rgba(0,131,143,0.4); display:flex; align-items:center; gap:8px; z-index:1000;">
     <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> 下載 PDF
@@ -654,27 +321,4 @@ init();
     <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg> 回首頁
 </a>
 </body>
-</html>`;
-
-        // 檔名帶上週期日期，避免每週覆蓋（例：A_Qware_Revenue_Report_Weekly_20260702-20260708.html）
-        const compact = (s) => s.replace(/-/g, '');
-        const fileName = `A_Qware_Revenue_Report_Weekly_${compact(week.start)}-${compact(week.end)}.html`;
-        const filePath = path.join(__dirname, fileName);
-
-        const safeAggData = JSON.stringify(aggData);
-        const finalHtml = htmlContent.replace("'__AGG_DATA__'", safeAggData);
-
-        fs.writeFileSync(filePath, finalHtml);
-        console.log(`Report generated: ${filePath} (${(Buffer.byteLength(finalHtml) / 1024).toFixed(0)} KB)`);
-
-        updateIndexTab7(fileName, week);
-        updateCatalogRow(fileName);
-
-    } catch (e) {
-        console.error("Error:", e);
-    } finally {
-        await client.close();
-    }
-}
-
-generateWeeklyReport();
+</html>
