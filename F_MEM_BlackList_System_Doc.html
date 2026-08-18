@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>會員黑名單標記查詢報表 — 系統文件</title>
+<style>
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#172032;--border:#2d3d55;
+  --text:#f1f5f9;--muted:#94a3b8;--dim:#64748b;
+  --blue:#3b82f6;--rose:#f43f5e;--amber:#f59e0b;--green:#22c55e;--violet:#8b5cf6;
+  --mono:'SFMono-Regular',Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-size:14px;line-height:1.75;min-height:100vh}
+a{color:#60a5fa;text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:var(--mono);font-size:.88em;background:rgba(148,163,184,.13);border:1px solid rgba(148,163,184,.2);border-radius:4px;padding:1px 6px;color:#e2e8f0;white-space:nowrap}
+
+header{background:linear-gradient(135deg,#3f1e2a,#1e293b);border-bottom:1px solid var(--border);padding:26px 32px 22px}
+header h1{font-size:23px;font-weight:700;letter-spacing:.3px}
+header .sub{color:var(--muted);font-size:13px;margin-top:6px}
+.hdr-tags{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tag{font-size:11px;padding:3px 11px;border-radius:20px;font-weight:600;background:rgba(148,163,184,.12);color:var(--muted);border:1px solid rgba(148,163,184,.25)}
+.tag-rose{background:rgba(244,63,94,.16);color:#fda4af;border-color:rgba(244,63,94,.4)}
+
+.layout{display:flex;align-items:flex-start;gap:28px;padding:24px 32px 60px;max-width:1400px}
+nav.toc{position:sticky;top:20px;flex:0 0 208px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 8px 14px 16px;font-size:12.5px}
+nav.toc h4{font-size:11px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:9px}
+nav.toc a{display:block;color:var(--muted);padding:3.5px 0}
+nav.toc a:hover{color:var(--text);text-decoration:none}
+main{flex:1;min-width:0}
+
+section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 26px;margin-bottom:18px}
+section>h2{font-size:17px;font-weight:700;padding-bottom:11px;margin-bottom:16px;border-bottom:1px solid var(--border);scroll-margin-top:20px}
+section>h2 .num{color:var(--blue);margin-right:9px}
+h3{font-size:14px;font-weight:700;color:#cbd5e1;margin:20px 0 9px}
+h3:first-of-type{margin-top:4px}
+p{margin-bottom:11px;color:#dbe2ea}
+ul,ol{margin:0 0 12px 20px}
+li{margin-bottom:5px;color:#dbe2ea}
+.muted{color:var(--muted)}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0 14px}
+th{text-align:left;padding:8px 11px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-weight:600;white-space:nowrap}
+td{padding:8px 11px;border:1px solid var(--border);vertical-align:top;color:#dbe2ea}
+td.nowrap{white-space:nowrap}
+.tbl-wrap{overflow-x:auto}
+
+.note{border-radius:8px;padding:12px 15px;margin:12px 0;font-size:12.5px;line-height:1.8}
+.note-info{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.32);color:#bfdbfe}
+.note-warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.32);color:#fcd34d}
+.note-risk{background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.32);color:#fda4af}
+.note b{color:#fff}
+
+pre{background:#0b1220;border:1px solid var(--border);border-radius:8px;padding:13px 15px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:#cbd5e1;margin:8px 0 14px}
+
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin:10px 0 16px}
+.flow-step{flex:1;min-width:150px;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:12px 14px}
+.flow-step .fs-k{font-size:10.5px;letter-spacing:.6px;color:var(--dim);text-transform:uppercase;margin-bottom:5px}
+.flow-step .fs-t{font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px}
+.flow-step .fs-d{font-size:11.5px;color:var(--muted);line-height:1.6}
+.flow-arrow{display:flex;align-items:center;color:var(--dim);font-size:17px}
+
+.kv{display:grid;grid-template-columns:150px 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.kv dt{background:var(--card2);padding:8px 12px;font-size:12.5px;color:var(--muted);font-weight:600}
+.kv dd{background:var(--card);padding:8px 12px;font-size:12.5px;color:#dbe2ea}
+
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap;border:1px solid}
+.b-rose{background:rgba(244,63,94,.18);color:#fda4af;border-color:rgba(244,63,94,.4)}
+.b-grey{background:rgba(148,163,184,.12);color:var(--muted);border-color:rgba(148,163,184,.25)}
+.b-amber{background:rgba(245,158,11,.16);color:#fcd34d;border-color:rgba(245,158,11,.4)}
+.b-violet{background:rgba(139,92,246,.18);color:#c4b5fd;border-color:rgba(139,92,246,.4)}
+.b-green{background:rgba(34,197,94,.15);color:#86efac;border-color:rgba(34,197,94,.4)}
+.b-blue{background:rgba(59,130,246,.15);color:#93c5fd;border-color:rgba(59,130,246,.4)}
+.flag{color:#fda4af;font-weight:600}
+
+footer{border-top:1px solid var(--border);padding:18px 32px 40px;font-size:11.5px;color:var(--dim);display:flex;gap:18px;flex-wrap:wrap}
+footer a{color:var(--muted)}
+
+@media(max-width:900px){
+  .layout{flex-direction:column;padding:16px;gap:16px}
+  nav.toc{position:static;flex:none;width:100%}
+  header{padding:18px}
+  section{padding:16px 15px}
+  .kv{grid-template-columns:1fr}
+  .kv dt{padding-bottom:2px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>會員黑名單標記查詢報表 — 系統文件</h1>
+  <div class="sub">F_MEM_BlackList_Query_Report.html ｜ 目錄編號 43 ｜ 營運系統</div>
+  <div class="hdr-tags">
+    <span class="tag tag-rose">⚠️ 內含會員 PII</span>
+    <span class="tag">🗄️ MongoDB QwareAi</span>
+    <span class="tag">🕗 每日 08:00 自動更新</span>
+    <span class="tag">📄 文件版本：2026/08/18</span>
+  </div>
+</header>
+
+<div class="layout">
+
+<nav class="toc">
+  <h4>目錄</h4>
+  <a href="#s1">1. 系統概述</a>
+  <a href="#s2">2. 系統架構與資料流</a>
+  <a href="#s3">3. 資料來源</a>
+  <a href="#s4">4. 內嵌資料結構</a>
+  <a href="#s5">5. 功能說明</a>
+  <a href="#s6">6. 判讀規則與門檻</a>
+  <a href="#s7">7. 作業與維運</a>
+  <a href="#s8">8. 設計限制與已知風險</a>
+  <a href="#s9">9. 欄位值對照</a>
+  <a href="#s10">10. 相關檔案</a>
+</nav>
+
+<main>
+
+<section>
+  <h2 id="s1"><span class="num">1</span>系統概述</h2>
+  <dl class="kv">
+    <dt>系統名稱</dt><dd>會員黑名單標記查詢報表</dd>
+    <dt>檔案</dt><dd><code>F_MEM_BlackList_Query_Report.html</code></dd>
+    <dt>正式網址</dt><dd><a href="https://ticket-uat.ibon.com.tw/ReportNew/F_MEM_BlackList_Query_Report.html" target="_blank">ticket-uat.ibon.com.tw/ReportNew/F_MEM_BlackList_Query_Report.html</a></dd>
+    <dt>產生腳本</dt><dd><code>generate_f_mem_blacklist_query.js</code>（Node.js）</dd>
+    <dt>資料庫</dt><dd>MongoDB Atlas — DB <code>QwareAi</code>（連線字串 <code>MONGODB_URI_QWARE</code>，存於本機 <code>.env</code>）</dd>
+    <dt>更新頻率</dt><dd>每日 08:00，由 <code>daily_update.bat</code> 自動執行（S1 日排程第 6 支）</dd>
+    <dt>負責人</dt><dd>陳俊良</dd>
+    <dt>建立日期</dt><dd>2026/08/04（本文件涵蓋至 2026/08/18 的實際運作狀態）</dd>
+  </dl>
+
+  <h3>用途</h3>
+  <p>以<b>電話號碼</b>或 <b>USER_ID</b> 查出任一會員（不分是否被標記黑名單），並針對查到的帳號進一步做兩件事：反查它近期登入過的 IP 底下還有哪些其他帳號（抓同一人／同一裝置註冊多帳號規避封鎖），以及查它近期的訂票紀錄（抓短時間大量下單的搶票機器人特徵）。系統並依既定門檻，對每筆結果自動給出「請IT確認／保持封鎖／可解封鎖／通知IT確認」四種提示。</p>
+
+  <h3>使用者與存取限制</h3>
+  <ul>
+    <li>使用對象：營運／客服／IT 人員，用於個案查核，非給一般使用者瀏覽。</li>
+    <li>頁面內建 IP 白名單（9 組內部 IP），不符者整頁替換為「存取被拒絕」。</li>
+    <li>資料含 <code>USER_ID</code>、<code>MOBILE</code> 等會員個資，屬受限資料。</li>
+  </ul>
+  <div class="note note-warn">⚠️ <b>白名單是「顯示層」保護，不是存取控制。</b>該檢查在瀏覽器端執行（呼叫 <code>api.ipify.org</code> 比對後才把頁面顯示出來），會員資料本身已內嵌在 HTML 檔案裡。任何能連到這個檔案的人（例如直接以 <code>curl</code> 抓檔）都能讀到全部內嵌資料，不會經過這道檢查。真正的邊界是內部網段與站台本身的存取控制。</div>
+</section>
+
+<section>
+  <h2 id="s2"><span class="num">2</span>系統架構與資料流</h2>
+  <p>本報表<b>沒有後端 API</b>。所有查詢都在瀏覽器端對「產出時已內嵌在 HTML 裡的資料」做比對，頁面執行期間不連任何資料庫。</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="fs-k">Source</div>
+      <div class="fs-t">MongoDB QwareAi</div>
+      <div class="fs-d">4 個 collection：黑名單、登入 IP、訂票暫存 log</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="fs-k">Build（每日 08:00）</div>
+      <div class="fs-t">generate_f_mem_blacklist_query.js</div>
+      <div class="fs-d">查詢、篩選時間窗、在記憶體建對照表、算 MAJOR 標記</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="fs-k">Artifact</div>
+      <div class="fs-t">靜態 HTML（約 94 MB）</div>
+      <div class="fs-d">5 個 JS 常數注入 Data marker 區塊，其餘版面不動</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="fs-k">Deploy</div>
+      <div class="fs-t">NewReport → ticket-uat</div>
+      <div class="fs-d">copy 進 NewReport 工作副本後 commit，推 origin 與 company 兩個 remote</div>
+    </div>
+  </div>
+
+  <h3>為什麼是靜態內嵌而不是即時查詢</h3>
+  <ul>
+    <li>頁面是純靜態檔案，<b>不能把 MongoDB 連線字串放進前端 JS</b>，否則等同外洩整個資料庫存取權。</li>
+    <li>來源 collection 皆<b>只有 <code>_id</code> 索引</b>，逐帳號即時查詢需全表掃描（單次約 0.7 秒起跳），互動體驗不可行。</li>
+    <li>2026/08/06 曾改用 Vercel serverless API 即時查詢，隔日回退：Vercel 無固定 outbound IP，而 <code>QwareAi</code> 這個 Atlas 專案的 Network Access 未開放 <code>0.0.0.0/0</code>，連線不穩。<b>若未來要重啟 API 方案，必須先解決 Atlas Network Access。</b></li>
+  </ul>
+
+  <h3>產出機制（marker 注入）</h3>
+  <p>generator 不重建整份 HTML，而是把既有檔案裡兩個 marker 之間的內容整段換掉，因此版面／JS 邏輯的手動修改不會被覆蓋：</p>
+  <pre>// ── Data Start ──────────────────────────────────────────────────────────────
+const BLACKLIST_DATA = […];
+const DATA_META = {…};
+const IP_LINKS = {…};
+const ALL_INDEX = […];
+const BOOKING_DATA = {…};
+// ── Data End ────────────────────────────────────────────────────────────────</pre>
+  <div class="note note-warn">⚠️ marker 字串<b>不可修改</b>，否則 generator 會拋 <code>Data markers not found</code> 而整支失敗。另外 <code>&lt;span id="updateTimeLabel"&gt;</code> 會被 regex 換成執行當下時間。</div>
+</section>
+
+<section>
+  <h2 id="s3"><span class="num">3</span>資料來源</h2>
+  <p>全部位於 MongoDB <code>QwareAi</code>，四段查詢皆為<b>範圍查詢一次撈回、在 Node 記憶體中組裝</b>，不逐帳號查。</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>用途</th><th>Collection</th><th>篩選條件</th><th>實測量（2026/08/18）</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="nowrap">近 30 天黑名單<br><span class="muted">BLACKLIST_DATA</span></td>
+        <td class="nowrap"><code>Qware_MEM_BlackList_202608</code></td>
+        <td><code>MEMO0:'Y'</code> 且 <code>UPDATE_TIME ≥ 今日-30 天</code></td>
+        <td class="nowrap">5,540 筆<br><span class="muted">2026-07-19 ~ 08-17</span></td>
+      </tr>
+      <tr>
+        <td class="nowrap">全會員查詢索引<br><span class="muted">ALL_INDEX</span></td>
+        <td class="nowrap"><code>Qware_MEM_BlackList_202608</code></td>
+        <td>無篩選，全表 <code>find({})</code>，只取有 <code>MOBILE</code> 值者</td>
+        <td class="nowrap">530,015 筆</td>
+      </tr>
+      <tr>
+        <td class="nowrap">近 30 天登入 IP<br><span class="muted">IP_LINKS</span></td>
+        <td class="nowrap"><code>QWARE_MEM_IP_202608</code></td>
+        <td><code>CREATE_TIME ≥ 今日-30 天</code>（不篩帳號）</td>
+        <td class="nowrap">約 50 萬筆登入紀錄</td>
+      </tr>
+      <tr>
+        <td class="nowrap">近 7 天訂票紀錄<br><span class="muted">BOOKING_DATA</span></td>
+        <td class="nowrap"><code>Qware_A_OrderTemp_log_202608</code></td>
+        <td><code>book_date_time ≥ 該表最新一筆 - 7 天</code></td>
+        <td class="nowrap">約 18 萬筆訂單</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note note-risk">🚨 <b>collection 名稱大小寫陷阱</b>：另有一個名稱幾乎相同的 <code>QWARE_A_OrderTemp_log_202608</code>（全大寫開頭，371 萬筆）。本系統固定使用<b>開頭小寫</b>的 <code>Qware_A_OrderTemp_log_202608</code>，改 generator 前務必確認沒有誤植。</div>
+  <div class="note note-info">ℹ️ 時間窗錨點：訂票紀錄以 <b>collection 自身最新一筆 <code>book_date_time</code></b> 為錨點往前推 7 天，而非日曆今天——避免上游批次延遲時，窗口落在沒有資料的區間而整段空白。黑名單與 IP 兩段則以執行當下時間為錨點。</div>
+  <div class="note note-info">ℹ️ 所有時間欄位在 generator 端統一轉為<b>台北時間（+08:00）</b>字串 <code>YYYY-MM-DD HH:mm:ss</code> 後才寫進頁面，前端不再做時區換算。</div>
+</section>
+
+<section>
+  <h2 id="s4"><span class="num">4</span>內嵌資料結構</h2>
+  <p>欄位名刻意縮短（單一字母／兩字母）以壓縮檔案體積。</p>
+
+  <h3>ALL_INDEX — 全會員查詢索引（查詢主力）</h3>
+  <pre>{ u:"32322139317825347177", // USER_ID
+  h:"852", m:"94702125",     // 國碼、完整電話
+  f:null,                    // MEMO0 原始值（'Y'/'N'/'4'/null）
+  ct:"2023-10-03 16:41:15",  // CREATE_TIME（台北時間）
+  ut:"2026-08-03 18:52:53",  // UPDATE_TIME
+  cu:"定260804解", uu:"464939254",  // CREATE_USER / UPDATE_USER
+  wt:"MAJOR",                // 選填：同門號 5+ 帳號旗標（本系統計算）
+  wty:"APPLE" }              // webType 原始值（登入來源）</pre>
+  <p class="muted">前端的電話／USER_ID 查詢<b>只讀這個陣列</b>，每列自帶完整欄位，不需回查其他結構。</p>
+
+  <h3>其餘四個結構</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>常數</th><th>型態</th><th>內容</th><th>前端用途</th></tr></thead>
+    <tbody>
+      <tr><td class="nowrap"><code>BLACKLIST_DATA</code></td><td class="nowrap">陣列</td><td>近 30 天 <code>MEMO0='Y'</code> 帳號的完整欄位</td><td><b>前端已不再讀取</b>；generator 內部用它決定 <code>IP_LINKS</code> 要算哪些帳號，故仍照常嵌入</td></tr>
+      <tr><td class="nowrap"><code>DATA_META</code></td><td class="nowrap">物件</td><td>筆數、資料日期範圍、三個時間窗參數、每 IP 上限</td><td>頁首標籤、modal 標題文字</td></tr>
+      <tr><td class="nowrap"><code>IP_LINKS</code></td><td class="nowrap">物件</td><td>key = 黑名單帳號 uid；值為該帳號用過的每個 IP、最後登入時間、該 IP 的其他帳號（<code>related</code>，最多 30 個）與其他帳號總數 <code>totalOthers</code></td><td>「關聯帳號」modal、封鎖建議計算</td></tr>
+      <tr><td class="nowrap"><code>BOOKING_DATA</code></td><td class="nowrap">物件</td><td>key = <code>order_user_id</code>；值為近 7 天逐筆訂單（演出代碼／座位／時間／IP），<b>不設筆數上限</b></td><td>「訂單紀錄」modal、同日訂單量提示</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note note-info">ℹ️ 三個結構的<b>帳號涵蓋範圍並不相同</b>，這是設計取捨不是查詢錯誤：<code>ALL_INDEX</code> 涵蓋全體會員；<code>IP_LINKS</code> 只涵蓋近 30 天被標記黑名單的帳號（因此一般會員一律顯示「無登入紀錄」）；<code>BOOKING_DATA</code> 只要近 7 天有訂票就有，即使該帳號不在黑名單 collection 裡也一樣。</div>
+</section>
+
+<section>
+  <h2 id="s5"><span class="num">5</span>功能說明</h2>
+
+  <h3>5.1 查詢模式（二選一，互斥）</h3>
+  <p>「電話號碼」（預設）與「USER_ID」兩種模式，同一時間只有選中模式的輸入框可用，另一框會被 <code>disabled</code>，即使殘留舊文字也不會被讀取。兩者皆對 <code>ALL_INDEX</code> 做 <code>includes</code> 部分字串比對，<b>輸入即時篩選</b>（綁 <code>oninput</code>）。電話比對的是不含國碼的完整號碼。</p>
+  <p>頁面載入時<b>不預先顯示任何資料</b>，需主動查詢才出現表格；「重置」會清空輸入、切回電話模式並回到空白狀態。</p>
+
+  <h3>5.2 結果表格（9 欄）</h3>
+  <p>USER_ID ｜ 黑名單狀態 ｜ MOBILE ｜ 登入來源 ｜ CREATE_TIME ｜ CREATE_USER ｜ UPDATE_USER ｜ 關聯帳號 ｜ 訂單紀錄。前 7 欄可點欄位標題排序，預設依 <code>UPDATE_TIME</code> 新到舊；最後兩欄為操作按鈕。</p>
+  <ul>
+    <li><b>黑名單狀態</b>：<span class="badge b-rose">黑名單</span>（<code>MEMO0='Y'</code>）／<span class="badge b-grey">未標記</span>（<code>null</code>）／<span class="badge b-amber">4</span> 等其他值原樣顯示。</li>
+    <li><b>MAJOR 標籤</b>：<span class="badge b-violet">MAJOR</span> 顯示於 USER_ID 旁，代表該門號對應 5 個以上不同 USER_ID。</li>
+    <li><b>登入來源</b>：<code>webType</code> 原始值，以顏色徽章呈現（見 §9）。</li>
+  </ul>
+
+  <h3>5.3 關聯帳號 modal</h3>
+  <p>按鈕顯示「🔗 IP關聯 (N)」（N＝近 30 天用過的相異 IP 數）或「🔗 無登入紀錄」。點開後依序列出：每個 IP 與該帳號在此 IP 的最後登入時間 → 同一 IP 下的其他帳號（依最後登入時間新到舊，<b>最多 30 個</b>）→ 若被截斷則顯示「共 N 個共用帳號，僅顯示前 30 個」。</p>
+  <p class="muted">每 IP 上限 30 的原因：實測有少數 IP 被 2,000＋不相關帳號共用（電信商 CGNAT／公共網路出口），屬非真實關聯，不設限會把檔案撐爆。</p>
+
+  <h3>5.4 訂單紀錄 modal</h3>
+  <p>按鈕顯示「🎫 訂單 (N)」或「🎫 無訂單紀錄」。點開列出該帳號近 7 天全部訂票紀錄（演出代碼、座位、訂票 IP、訂票時間），依時間新到舊，<b>不設筆數上限</b>——同一帳號短時間內重複訂同一批座位本身就是重點訊號，截斷反而會把它藏起來。</p>
+</section>
+
+<section>
+  <h2 id="s6"><span class="num">6</span>判讀規則與門檻</h2>
+  <p>報表頁面下方也有一份「🚩 標記規則說明」卡片，內容與本節一致。</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>提示</th><th>出現位置</th><th>觸發條件</th><th>門檻常數</th><th>精確度</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="nowrap"><span class="flag">⚠️ 請IT確認</span></td>
+        <td class="nowrap">CREATE_USER 欄</td>
+        <td>該欄有值，但<b>不是</b>「定期掃描異常帳號」（代表由人工或其他來源建立，需確認來源）</td>
+        <td class="nowrap">—</td>
+        <td class="nowrap"><span class="badge b-green">精確</span></td>
+      </tr>
+      <tr>
+        <td class="nowrap"><span class="flag">(保持封鎖)</span></td>
+        <td class="nowrap">CREATE_USER 欄</td>
+        <td>值為「定期掃描異常帳號」，且<b>任一</b>關聯 IP 的同日共用帳號數 ≥ 10</td>
+        <td class="nowrap"><code>IP_SAME_DAY_BLOCK_THRESHOLD = 10</code></td>
+        <td class="nowrap"><span class="badge b-amber">近似</span></td>
+      </tr>
+      <tr>
+        <td class="nowrap"><span class="flag">(可解封鎖)</span></td>
+        <td class="nowrap">CREATE_USER 欄</td>
+        <td>同上情境但同日共用數 &lt; 10。完全沒有登入紀錄者<b>兩種建議都不顯示</b>（沒有依據就不下建議）</td>
+        <td class="nowrap">同上</td>
+        <td class="nowrap"><span class="badge b-amber">近似</span></td>
+      </tr>
+      <tr>
+        <td class="nowrap"><span class="flag">⚠️ 通知IT確認</span></td>
+        <td class="nowrap">訂單紀錄欄</td>
+        <td>近 7 天內<b>單一日期</b>訂單筆數 &gt; 10（即 11 筆才觸發），疑似搶票機器人</td>
+        <td class="nowrap"><code>BOOKING_SAME_DAY_ALERT_THRESHOLD = 10</code></td>
+        <td class="nowrap"><span class="badge b-green">精確</span></td>
+      </tr>
+      <tr>
+        <td class="nowrap"><span class="badge b-violet">MAJOR</span></td>
+        <td class="nowrap">USER_ID 旁</td>
+        <td>同一「國碼＋門號」對應 5 個以上不同 USER_ID</td>
+        <td class="nowrap"><code>MAJOR_THRESHOLD = 5</code></td>
+        <td class="nowrap"><span class="badge b-green">精確</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note note-warn">⚠️ <b>封鎖建議是近似值，只會低估不會高估。</b><code>IP_LINKS</code> 裡每個共用帳號只保留「最後一次登入該 IP 的時間」，不是完整登入紀錄；若某帳號當天登入過但最後一次落在別天，就會漏算。要精確計算需重新查 <code>QWARE_MEM_IP_202608</code> 做日級分組並新增一塊資料，因檔案已逼近上限（見 §8）而未採用。滑鼠移到提示文字上會顯示實際估算筆數。</div>
+
+  <div class="note note-info">ℹ️ <b>MAJOR 門檻為何是 5 而不是 2</b>：原始需求是「出現兩個以上」，但門檻 2 會命中全體會員的 78%（24.6 萬組門號裡有 15.6 萬組本來就對應 2 個以上帳號，是這份資料的常態），完全失去辨識力。改為 5 後命中約 0.24%，恢復可用性。要調整敏感度改 generator 裡的 <code>MAJOR_THRESHOLD</code> 常數即可。</div>
+</section>
+
+<section>
+  <h2 id="s7"><span class="num">7</span>作業與維運</h2>
+
+  <h3>7.1 自動排程</h3>
+  <ul>
+    <li>Windows 排程 <code>Qware_Daily_Report_Update_Final</code> 每日 08:00 執行 <code>daily_update.bat</code>；本報表是其中第 6 支腳本，實測單次約 1 分鐘完成。</li>
+    <li>30 天／7 天窗口<b>自動往前滾動</b>，不需人工調整。</li>
+    <li>單支腳本失敗不會中斷其他報表（best-effort），失敗名稱會收集後統一發 LINE 告警。</li>
+  </ul>
+
+  <h3>7.2 發布路徑</h3>
+  <p>產出後由同一支 bat 複製進 <code>D:\2025\AI\NewReport</code>（已列在 <code>SYNC_FILES</code>），commit 後依序推 <code>origin</code>（lard23chen/NewReport）與 <code>company</code>（org-ticket-mgmt/ViewReport）。<b>ticket-uat 的 ReportNew 站台來源是 <code>company</code> 這個 remote</b>，該 remote 推不上去，畫面就不會更新。</p>
+
+  <h3>7.3 手動重跑</h3>
+  <pre>cd D:\2025\AI\MongoDB
+node generate_f_mem_blacklist_query.js
+
+:: 同步到實際站台
+copy /y F_MEM_BlackList_Query_Report.html D:\2025\AI\NewReport\
+cd D:\2025\AI\NewReport
+git add F_MEM_BlackList_Query_Report.html
+git commit -m "Update F blacklist query report"
+git pull --rebase --autostash company main
+git push company main</pre>
+
+  <h3>7.4 調整資料範圍</h3>
+  <p>下列常數全在 <code>generate_f_mem_blacklist_query.js</code> 開頭，改完重跑即可。<b>調大任何一個都會讓檔案變大</b>，動手前請先看 §8。</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>常數</th><th>現值</th><th>影響</th></tr></thead>
+    <tbody>
+      <tr><td class="nowrap"><code>WINDOW_DAYS</code></td><td>30</td><td>黑名單資料窗（同時決定 <code>IP_LINKS</code> 涵蓋哪些帳號）</td></tr>
+      <tr><td class="nowrap"><code>IP_WINDOW_DAYS</code></td><td>30</td><td>登入 IP 回溯天數</td></tr>
+      <tr><td class="nowrap"><code>IP_LINK_CAP</code></td><td>30</td><td>每個 IP 最多列出幾個共用帳號</td></tr>
+      <tr><td class="nowrap"><code>BOOKING_WINDOW_DAYS</code></td><td>7</td><td>訂票紀錄回溯天數</td></tr>
+      <tr><td class="nowrap"><code>MAJOR_THRESHOLD</code></td><td>5</td><td>同門號幾個帳號才標 MAJOR</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="muted">前端門檻（<code>IP_SAME_DAY_BLOCK_THRESHOLD</code>、<code>BOOKING_SAME_DAY_ALERT_THRESHOLD</code>）寫在 HTML 的 JS 區塊，改動不需重跑 generator，但要注意 generator 只覆蓋 Data marker 區塊、不會動到這些程式碼。</p>
+</section>
+
+<section>
+  <h2 id="s8"><span class="num">8</span>設計限制與已知風險</h2>
+
+  <h3>8.1 檔案大小逼近 GitHub 硬性上限 <span class="badge b-rose">高風險</span></h3>
+  <p>目前檔案約 <b>94 MB</b>（98,935,207 bytes），GitHub 對單一檔案的<b>硬性</b>上限是 100 MiB，超過即直接拒絕 push。體積成長史：全會員索引 +25MB → 索引補時間欄位 +35MB → 訂單紀錄 +17MB → webType 欄位 +9MB。</p>
+  <div class="note note-risk">🚨 <b>此風險已實際發生過。</b>2026/08/13～08/17 產出的版本膨脹到 105～110 MB，<code>git push company</code> 被 pre-receive hook 全批拒絕，ticket-uat 的 ReportNew 站台<b>所有報表</b>停留在 08/12 達六天，直到 2026/08/18 把待推的 18 個 commit 壓成單一 commit（只帶當前 98.9MB 的版本）才恢復。日排程每天都有發出 LINE 失敗告警。</div>
+  <p>後續選項（尚未決定）：縮小時間窗或欄位、拆分報表、改用 Git LFS（需確認 company repo 與 IIS 部署流程支援）、或重啟後端 API 方案（需先開通 Atlas Network Access）。</p>
+
+  <h3>8.2 逐字輸入可能讓瀏覽器卡死 <span class="badge b-amber">中風險</span></h3>
+  <p><code>applyFilter()</code> 綁在 <code>oninput</code>，<b>沒有最短字元數門檻，也沒有渲染筆數上限</b>。從空白開始逐字輸入時，單一字元（例如「0」）可能比對到數十萬筆電話號碼，並嘗試建立等量 <code>&lt;tr&gt;</code> 節點，實測可讓分頁失去回應數十秒。目前無實際使用者投訴，列為已知限制。改善選項：設最短查詢字元數（如 4 碼）、限制渲染筆數（如前 200 筆）、或改回「按套用篩選才查」。</p>
+
+  <h3>8.3 告警可能少報一個失敗項 <span class="badge b-amber">中風險</span></h3>
+  <p><code>daily_update.bat</code> 推送區塊（<code>if errorlevel 1 (…) else (…)</code>）內以 <code>%FAILED_STEPS%</code> 而非 <code>!FAILED_STEPS!</code> 累加失敗名稱。批次檔會在解析整個區塊時就展開 <code>%…%</code>，因此當 <b>origin 與 company 兩個 push 都失敗</b>時，後者的賦值會覆蓋前者，LINE 告警只會提到 <code>NewReport-push-company</code>。判讀告警時請直接檢查 <code>git_sync.log</code>，不要只看告警字串。</p>
+
+  <h3>8.4 資料範圍限制（非缺陷）</h3>
+  <ul>
+    <li>查得到帳號、但「關聯帳號」顯示無登入紀錄 → 該帳號不在近 30 天黑名單範圍內，屬正常。</li>
+    <li>更早期的黑名單異動紀錄本報表查不到，需另行以 MongoDB 查詢。</li>
+    <li>來源 collection 名稱含年月（<code>…_202608</code>）。<b>跨月時若上游改用新 collection，generator 需同步改名</b>，否則資料會停在舊表。</li>
+  </ul>
+
+  <h3>8.5 產出失敗的常見原因</h3>
+  <p>2026/08/15、08/16 兩次 generator 失敗皆為 MongoDB 連線逾時（<code>MongoNetworkTimeoutError</code> / <code>PoolClearedOnNetworkError</code>），非邏輯錯誤——全表掃描 53 萬筆＋50 萬筆登入紀錄對 Atlas 壓力較大，偶發逾時重跑即可。</p>
+</section>
+
+<section>
+  <h2 id="s9"><span class="num">9</span>欄位值對照</h2>
+
+  <h3>MEMO0（黑名單狀態）</h3>
+  <table>
+    <thead><tr><th>值</th><th>顯示</th><th>說明</th></tr></thead>
+    <tbody>
+      <tr><td class="nowrap"><code>Y</code></td><td><span class="badge b-rose">黑名單</span></td><td>唯一代表「已標記黑名單」的值</td></tr>
+      <tr><td class="nowrap"><code>null</code></td><td><span class="badge b-grey">未標記</span></td><td>一般會員</td></tr>
+      <tr><td class="nowrap"><code>N</code> / <code>4</code> 等</td><td><span class="badge b-amber">原樣顯示</span></td><td>其他值原樣呈現，不做語意解讀</td></tr>
+    </tbody>
+  </table>
+
+  <h3>webType（登入來源）</h3>
+  <p>MongoDB 原始欄位（camelCase，非 <code>WEB_TYPE</code>），全體會員皆有值，共 6 種。研判為註冊／登入管道，但 <code>OP</code> 與 <code>MAJOR</code> 的確切業務意義<b>未經業主證實</b>，系統只如實顯示原始值、不臆測。</p>
+  <p>
+    <span class="badge b-grey">🍎 APPLE</span>
+    <span class="badge b-blue">📘 FB</span>
+    <span class="badge b-rose">🔍 GOOGLE</span>
+    <span class="badge b-green">💬 LINE</span>
+    <span class="badge b-amber">⭐ MAJOR</span>
+    <span class="badge b-grey">OP</span>
+    <span class="muted">（約 MAJOR 46%／OP 25%／GOOGLE 19%／LINE 7%／APPLE 3%／FB &lt;1%）</span>
+  </p>
+  <div class="note note-warn">⚠️ <b>兩個 MAJOR 完全無關。</b>登入來源欄的橘色 <span class="badge b-amber">⭐ MAJOR</span> 是資料庫 <code>webType</code> 的其中一個值；USER_ID 旁的紫色 <span class="badge b-violet">MAJOR</span> 是本系統自行計算的「同門號 5+ 帳號」旗標。只是字串恰好同名，刻意用不同顏色與圖示區隔。</div>
+</section>
+
+<section>
+  <h2 id="s10"><span class="num">10</span>相關檔案</h2>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>檔案</th><th>位置</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td class="nowrap"><code>F_MEM_BlackList_Query_Report.html</code></td><td class="nowrap">MongoDB 專案 → NewReport</td><td>報表本體（產出物）</td></tr>
+      <tr><td class="nowrap"><code>generate_f_mem_blacklist_query.js</code></td><td class="nowrap">D:\2025\AI\MongoDB</td><td>產生腳本</td></tr>
+      <tr><td class="nowrap"><code>REPORT_SPEC_F_MEM_BLACKLIST.md</code></td><td class="nowrap">D:\2025\AI\MongoDB</td><td>技術規範與完整異動沿革（開發用）</td></tr>
+      <tr><td class="nowrap"><code>REPORT_SPEC_SCHEDULED_TASKS.md</code></td><td class="nowrap">D:\2025\AI\MongoDB</td><td>排程與雙 remote 發布架構</td></tr>
+      <tr><td class="nowrap"><code>daily_update.bat</code></td><td class="nowrap">D:\2025\AI\MongoDB</td><td>日排程主控（產出＋同步＋告警）</td></tr>
+      <tr><td class="nowrap"><code>git_sync.log</code> / <code>daily_log.txt</code></td><td class="nowrap">D:\2025\AI\MongoDB</td><td>推送與執行紀錄，排錯首選</td></tr>
+      <tr><td class="nowrap"><code>HTML_Report_Catalog.html</code></td><td class="nowrap">同站台</td><td>報表總目錄（本報表為第 43 筆）</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <span>會員黑名單標記查詢報表 — 系統文件</span>
+  <a href="F_MEM_BlackList_Query_Report.html">前往報表</a>
+  <a href="HTML_Report_Catalog.html">報表總目錄</a>
+  <span style="margin-left:auto">文件產出日：2026/08/18</span>
+</footer>
+
+</body>
+</html>

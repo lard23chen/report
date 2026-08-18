@@ -78,7 +78,7 @@ echo Syncing to NewReport...
 :: NewReport push（2026/07/29 起取代原本對 report/origin 的推送；report repo 之後不再由
 :: 排程自動 commit，改為即時同步進 NewReport，見
 :: docs/superpowers/specs/2026-07-29-newreport-single-source-of-truth-design.md）
-set SYNC_FILES=A_Qware_Revenue_Report_Daily.html D_GA_Funnel_202606_Report.html D_GA_Traffic_Daily_Report.html E_DMP_Funnel_Report.html F_MEM_BlackList_Query_Report.html report_index.html!EXTRA_FILES!
+set SYNC_FILES=A_Qware_Revenue_Report_Daily.html D_GA_Funnel_202606_Report.html D_GA_Traffic_Daily_Report.html E_DMP_Funnel_Report.html F_MEM_BlackList_Query_Report.html F_MEM_BlackList_System_Doc.html report_index.html!EXTRA_FILES!
 
 set SYNC_LOCK=D:\2025\AI\NewReport\.sync_lock
 set /a LOCK_TRIES=0
