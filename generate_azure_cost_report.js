@@ -138,11 +138,12 @@ async function generateReport() {
                 { date: '06/24', name: '閻奕格 逃生出口巡迴演唱會（台北站）', hasE: false },
                 { date: '06/24', name: '台灣精品中華職棒明星對抗賽', hasE: false }
             ]},
-            { month: '7月', total: 24, small: 22, medium: 0, large: 2, largeEvents: [
+            { month: '7月', total: 33, small: 31, medium: 0, large: 2, largeEvents: [
                 { date: '07/08', name: '《崩壞：星穹鐵道》歡愉信號—嗶波！', hasE: true },
                 { date: '07/16', name: 'TOY STORY｜PEACEMINUSONE 臺北站', hasE: false }
             ]},
-            { month: '8月', total: 3, small: 1, medium: 2, large: 0, largeEvents: [] }
+            { month: '8月', total: 26, small: 22, medium: 4, large: 0, largeEvents: [] },
+            { month: '9月', total: 2, small: 2, medium: 0, large: 0, largeEvents: [] }
         ];
         const monitoringTableRows = monitoringStats2026.map(m => {
             const notes = m.largeEvents.length > 0
