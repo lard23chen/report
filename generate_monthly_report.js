@@ -207,15 +207,29 @@ async function generateReport() {
         };
 
         // Extract HTML template from the Feb generator script
-        const genScript = fs.readFileSync('generate_report_feb_2026.js', 'utf8');
+        const genScript = fs.readFileSync(path.join(__dirname, 'generate_report_feb_2026.js'), 'utf8');
         const backtickMarker = 'const htmlContent = `';
         const markerIdx = genScript.indexOf(backtickMarker);
+        if (markerIdx === -1) {
+            throw new Error('UI 模板起點 marker (const htmlContent = `) not found in generate_report_feb_2026.js');
+        }
         let tplStart = markerIdx + backtickMarker.length;
         while (tplStart < genScript.length && (genScript[tplStart] === '\r' || genScript[tplStart] === '\n')) tplStart++;
-        const tplEnd = genScript.lastIndexOf('\n`;\n') !== -1
-            ? genScript.lastIndexOf('\n`;\n')
-            : genScript.lastIndexOf('\r\n`;\r\n');
-        let uiTemplate = tplEnd > tplStart ? genScript.substring(tplStart, tplEnd) : genScript.substring(tplStart, genScript.lastIndexOf('`;\r\n'));
+        // 模板終點 = tplStart 之後第一個「未被反斜線轉義」的 backtick。
+        // 不可改回綁行尾的字串比對（'\n`;\n' / '`;\r\n' 之類）：本機工作目錄是 CRLF、
+        // git blob 與 Linux checkout 是 LF，任一邊必有一種找不到而回傳 -1，而
+        // substring(tplStart, -1) 會被 JS 交換參數變成 substring(0, tplStart)，
+        // 產出的檔案會變成 generator 原始碼而不是報表 HTML。
+        // 詳見 REPORT_SPEC_REVENUE_A.md §7 問題六。
+        let tplEnd = -1;
+        for (let i = tplStart; i < genScript.length; i++) {
+            if (genScript[i] === '\\') { i++; continue; }
+            if (genScript[i] === '`') { tplEnd = i; break; }
+        }
+        if (tplEnd <= tplStart) {
+            throw new Error('UI 模板結尾 backtick not found in generate_report_feb_2026.js');
+        }
+        let uiTemplate = genScript.substring(tplStart, tplEnd);
 
         const reportTime = new Date().toLocaleString('zh-TW');
         let logoBase64 = '';
@@ -408,6 +422,7 @@ async function generateReport() {
 
     } catch (e) {
         console.error("Error:", e);
+        process.exitCode = 1;
     } finally {
         await client.close();
     }
