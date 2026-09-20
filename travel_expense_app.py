@@ -1,13 +1,15 @@
 import streamlit as st
 import base64
 import io
-from datetime import date, datetime
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from travel_db import get_col, CATEGORIES, PAY_METHODS, PAYERS, CURRENCIES, strip_emoji, COMMON_CSS
 
 st.set_page_config(page_title="✈️ 旅遊記帳", page_icon="✈️", layout="centered")
 st.markdown(COMMON_CSS, unsafe_allow_html=True)
 
 col = get_col()
+today = datetime.now(ZoneInfo("Asia/Taipei")).date()
 
 # ── Header ────────────────────────────────────────────────
 st.title("✈️ 旅遊記帳助手")
@@ -30,7 +32,7 @@ with st.form("add_form", clear_on_submit=True):
     currency   = c2.selectbox("幣別", CURRENCIES)
     pay_method = st.radio("付款方式", PAY_METHODS, horizontal=True)
     payer      = st.radio("付款人",   PAYERS,      horizontal=True)
-    exp_date   = st.date_input("日期", value=date.today())
+    exp_date   = st.date_input("日期", value=today)
     note       = st.text_input("備注", placeholder="選填")
 
     st.markdown("<p style='color:#6a8eaa;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px'>📸 收據憑證（選填）</p>", unsafe_allow_html=True)
@@ -72,6 +74,26 @@ if submitted:
         col.insert_one(doc)
         st.success(f"✅ 已新增：{item.strip()}　{amount:,.0f} {currency}" + ("　🧾" if receipt_b64 else ""))
         st.rerun()
+
+st.divider()
+
+# ── 今日消費明細 ──────────────────────────────────────────
+st.subheader(f"📅 今日消費明細 · {today:%Y/%m/%d}")
+today_items = list(col.find({"date": today.isoformat()}, {"receiptImage": 0}).sort("createdAt", -1))
+st.caption(f"共 {len(today_items)} 筆")
+
+if not today_items:
+    st.info("今天還沒有消費紀錄。")
+else:
+    for d in today_items:
+        category_label = next((c for c in CATEGORIES if strip_emoji(c) == d.get("category")), "💬 其他")
+        st.write(
+            f"{category_label}　{d.get('item', '—')}　"
+            f"{d.get('amount', 0):,.0f} {d.get('currency', '')}　"
+            f"{d.get('payer', '')} · {d.get('paymentMethod', '')}"
+        )
+        if d.get("note"):
+            st.caption(d["note"])
 
 st.divider()
 
